@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
+import makeus.cmc.malmo.domain.model.couple.CoupleMember;
 import makeus.cmc.malmo.domain.model.member.Member;
 
 @Getter
@@ -21,8 +22,8 @@ public class MemberAnswer extends BaseTimeEntity {
     private CoupleQuestion coupleQuestion;
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @JoinColumn(name = "couple_member_id")
+    private CoupleMember coupleMember;
 
     private String answer;
 
