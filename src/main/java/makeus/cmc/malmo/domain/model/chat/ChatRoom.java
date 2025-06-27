@@ -1,25 +1,17 @@
 package makeus.cmc.malmo.domain.model.chat;
 
-import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
+import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
 import makeus.cmc.malmo.domain.model.member.Member;
 
 @Getter
-@NoArgsConstructor
-@Entity
+@SuperBuilder
+@AllArgsConstructor
 public class ChatRoom extends BaseTimeEntity {
-
-    @Column(name = "chatRoomId")
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "member_id")
     private Member member;
-
-    @Enumerated(EnumType.STRING)
     private ChatRoomState chatRoomState;
 }

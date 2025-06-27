@@ -1,23 +1,15 @@
 package makeus.cmc.malmo.domain.model.member;
 
-import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import lombok.AllArgsConstructor;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
 
 @Getter
-@NoArgsConstructor
-@Entity
+@SuperBuilder
+@AllArgsConstructor
 public class MemberMemory extends BaseTimeEntity {
-
-    @Column(name = "memberMemoryId")
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "member_id")
     private Member member;
-
     private String content;
 }

@@ -1,26 +1,17 @@
 package makeus.cmc.malmo.domain.model.terms;
 
-import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import lombok.AllArgsConstructor;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
 
 @Getter
-@NoArgsConstructor
-@Entity
+@SuperBuilder
+@AllArgsConstructor
 public class Terms extends BaseTimeEntity {
-
-    @Column(name = "termsId")
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private String title;
-
-    private String content;
-
-    private String version;
-
-    private boolean isRequired;
-
+    private final Long id;
+    private final String title;
+    private final String content;
+    private final String version;
+    private final boolean isRequired;
 }
