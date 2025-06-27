@@ -14,23 +14,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class TestController {
 
-    private final SignInUseCase signInUseCase;
-
-    @PostMapping("/login")
-    public TokenInfo login(@RequestBody LoginRequestDto requestDto) {
-        SignInUseCase.SignInCommand command = SignInUseCase.SignInCommand.builder()
-                .provider(requestDto.getProvider())
-                .providerId(requestDto.getProviderId())
-                .build();
-        return signInUseCase.signIn(command);
-    }
-
-    @Data
-    public static class LoginRequestDto {
-        private String provider;
-        private String providerId;
-    }
-
     // 인증 없이 호출 가능한 테스트 API
     @GetMapping("/test")
     public String test() {

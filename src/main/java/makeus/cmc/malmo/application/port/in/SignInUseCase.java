@@ -2,15 +2,22 @@ package makeus.cmc.malmo.application.port.in;
 
 import lombok.Builder;
 import lombok.Data;
-import makeus.cmc.malmo.adaptor.out.jwt.TokenInfo;
 
 public interface SignInUseCase {
-    TokenInfo signIn(SignInCommand command);
+
+    TokenResponse signInKakao(SignInKakaoCommand command);
 
     @Data
     @Builder
-    class SignInCommand {
-        private String provider;
-        private String providerId;
+    class SignInKakaoCommand {
+        private String idToken;
+    }
+
+    @Data
+    @Builder
+    class TokenResponse {
+        private String grantType;
+        private String accessToken;
+        private String refreshToken;
     }
 }

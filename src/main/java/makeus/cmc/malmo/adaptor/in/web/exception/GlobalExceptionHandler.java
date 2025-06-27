@@ -1,6 +1,7 @@
 package makeus.cmc.malmo.adaptor.in.web.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import makeus.cmc.malmo.adaptor.out.oidc.exception.OidcIdTokenException;
 import makeus.cmc.malmo.adaptor.out.persistence.exception.MemberNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,6 +15,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleMemberNotFoundException(MemberNotFoundException e) {
         log.error("[GlobalExceptionHandler: handleMemberNotFoundException 호출]", e);
         return ErrorResponse.of(ErrorCode.NO_SUCH_MEMBER);
+    }
+
+    @ExceptionHandler({OidcIdTokenException.class})
+    public ResponseEntity<ErrorResponse> handleOidcIdTokenException(OidcIdTokenException e) {
+        log.error("[GlobalExceptionHandler: handleOidcIdTokenException 호출]", e);
+        return ErrorResponse.of(ErrorCode.INVALID_ID_TOKEN);
     }
 
 }
