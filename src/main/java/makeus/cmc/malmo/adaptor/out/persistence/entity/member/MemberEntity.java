@@ -34,6 +34,8 @@ public class MemberEntity extends BaseTimeEntity {
 
     private String firebaseToken;
 
+    private String refreshToken;
+
     @ManyToOne
     @JoinColumn(name = "love_type_id")
     private LoveTypeEntity loveType;
@@ -43,15 +45,4 @@ public class MemberEntity extends BaseTimeEntity {
     private float anxietyRate;
 
     private String nickname;
-
-    public static MemberEntity createMember(ProviderJpa providerJpa, String providerId, MemberRoleJpa memberRoleJpa, MemberStateJpa memberStateJpa, LoveTypeEntity loveType) {
-        MemberEntity member = new MemberEntity();
-        member.providerJpa = providerJpa;
-        member.providerId = providerId;
-        member.memberRoleJpa = memberRoleJpa;
-        member.memberStateJpa = memberStateJpa;
-        member.loveType = loveType;
-        member.isAlarmOn = true; // 기본값으로 알림 설정
-        return member;
-    }
 }

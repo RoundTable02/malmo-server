@@ -17,6 +17,7 @@ public class Member extends BaseTimeEntity {
     private MemberState memberState;
     private boolean isAlarmOn;
     private String firebaseToken;
+    private String refreshToken;
     private LoveType loveType;
     private float avoidanceRate;
     private float anxietyRate;
@@ -31,5 +32,9 @@ public class Member extends BaseTimeEntity {
                 .loveType(loveType)
                 .isAlarmOn(true)
                 .build();
+    }
+
+    public void refreshMemberToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 }

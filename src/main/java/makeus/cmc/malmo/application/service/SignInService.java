@@ -31,7 +31,7 @@ public class SignInService implements SignInUseCase {
         String providerId = validateOidcTokenPort.validateKakao(command.getIdToken());
 
         // 2. ID 토큰에서 provider와 providerId 추출
-        Member member = loadMemberPort.loadMember(Provider.KAKAO, providerId)
+        Member member = loadMemberPort.loadMemberByProviderId(Provider.KAKAO, providerId)
                 // 3. 없으면 새로 생성 (자동 회원가입)
                 .orElseGet(() -> {
                     Member newMember = Member.createMember(
@@ -41,11 +41,17 @@ public class SignInService implements SignInUseCase {
                             MemberState.ALIVE,
                             null
                     );
-                    return saveMemberPort.saveMember(newMember);
+                    return newMember;
                 });
+
 
         // 4. JWT 토큰 발급
         TokenInfo tokenInfo = generateTokenPort.generateToken(member.getId(), member.getMemberRole());
+
+        // 5. 멤버 정보 갱신 (리프레시 토큰 저장)
+        member.refreshMemberToken(tokenInfo.getRefreshToken());
+        saveMemberPort.saveMember(member);
+
         return TokenResponse.builder()
                 .grantType(tokenInfo.getGrantType())
                 .accessToken(tokenInfo.getAccessToken())

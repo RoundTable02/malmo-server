@@ -1,10 +1,7 @@
 package makeus.cmc.malmo.adaptor.in.web.controller;
 
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import makeus.cmc.malmo.adaptor.out.jwt.TokenInfo;
-import makeus.cmc.malmo.application.port.in.SignInUseCase;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;

@@ -1,0 +1,24 @@
+package makeus.cmc.malmo.application.port.in;
+
+import lombok.Builder;
+import lombok.Data;
+
+public interface RefreshTokenUseCase {
+
+    TokenResponse refreshToken(RefreshTokenCommand command);
+
+    @Data
+    @Builder
+    class RefreshTokenCommand {
+        private Long memberId;
+        private String refreshToken;
+    }
+
+    @Data
+    @Builder
+    class TokenResponse {
+        private String grantType;
+        private String accessToken;
+        private String refreshToken;
+    }
+}
