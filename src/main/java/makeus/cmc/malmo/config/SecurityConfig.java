@@ -33,6 +33,8 @@ public class SecurityConfig {
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/login/**", "/test").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**", 
+                                        "/v3/api-docs/**", "/v3/api-docs", "/webjars/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .exceptionHandling(exceptionHandling -> exceptionHandling
