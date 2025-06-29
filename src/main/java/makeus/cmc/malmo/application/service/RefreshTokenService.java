@@ -32,7 +32,6 @@ public class RefreshTokenService implements RefreshTokenUseCase {
         }
 
         // 2. Refresh 토큰 일치 확인
-        System.out.println(command.getMemberId());
         Member member = loadMemberPort.loadMemberById(command.getMemberId())
                 .orElseThrow(MemberNotFoundException::new);
 
