@@ -20,3 +20,4 @@ kakao:
     iss: https://kauth.kakao.com
     aud: ${KAKAO_REST_API_KEY}
     jwks-uri: https://kauth.kakao.com/.well-known/jwks.json
+    user-info-uri: https://kapi.kakao.com/v1/oidc/userinfo
