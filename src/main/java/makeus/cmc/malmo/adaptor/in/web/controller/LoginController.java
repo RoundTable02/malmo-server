@@ -29,6 +29,7 @@ public class LoginController {
     public BaseResponse<SignInUseCase.SignInResponse> login(@RequestBody LoginRequestDto requestDto) {
         SignInUseCase.SignInKakaoCommand command = SignInUseCase.SignInKakaoCommand.builder()
                 .idToken(requestDto.idToken)
+                .accessToken(requestDto.accessToken)
                 .build();
         return BaseResponse.success(signInUseCase.signInKakao(command));
     }
@@ -36,5 +37,6 @@ public class LoginController {
     @Data
     public static class LoginRequestDto {
         private String idToken;
+        private String accessToken;
     }
 }

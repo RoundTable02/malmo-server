@@ -11,6 +11,7 @@ public interface SignInUseCase {
     @Builder
     class SignInKakaoCommand {
         private String idToken;
+        private String accessToken;
     }
 
     @Data

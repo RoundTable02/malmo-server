@@ -3,10 +3,7 @@ package makeus.cmc.malmo.application.service;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.jwt.TokenInfo;
 import makeus.cmc.malmo.application.port.in.SignInUseCase;
-import makeus.cmc.malmo.application.port.out.GenerateTokenPort;
-import makeus.cmc.malmo.application.port.out.LoadMemberPort;
-import makeus.cmc.malmo.application.port.out.SaveMemberPort;
-import makeus.cmc.malmo.application.port.out.ValidateOidcTokenPort;
+import makeus.cmc.malmo.application.port.out.*;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.member.MemberRole;
 import makeus.cmc.malmo.domain.model.member.MemberState;
@@ -24,6 +21,8 @@ public class SignInService implements SignInUseCase {
     private final GenerateTokenPort generateTokenPort;
     private final ValidateOidcTokenPort validateOidcTokenPort;
 
+    private final FetchFromOAuthProviderPort fetchFromOAuthProviderPort;
+
     @Override
     @Transactional
     public SignInResponse signInKakao(SignInKakaoCommand command) {
@@ -34,11 +33,15 @@ public class SignInService implements SignInUseCase {
         Member member = loadMemberPort.loadMemberByProviderId(Provider.KAKAO, providerId)
                 // 3. 없으면 새로 생성 (자동 회원가입)
                 .orElseGet(() -> {
+                    // 이메일 정보 가져오기
+                    String email = fetchFromOAuthProviderPort.fetchMemberEmailFromKakao(command.getAccessToken());
+
                     Member newMember = Member.createMember(
                             Provider.KAKAO,
                             providerId,
                             MemberRole.MEMBER,
                             MemberState.BEFORE_ONBOARDING,
+                            email,
                             null
                     );
                     return newMember;
