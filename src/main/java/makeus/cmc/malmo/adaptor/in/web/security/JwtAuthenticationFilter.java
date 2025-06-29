@@ -73,12 +73,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
         boolean shouldSkip = path.startsWith("/swagger-ui") ||
-               path.startsWith("/v3/api-docs") ||
-               path.startsWith("/swagger-resources") ||
-               path.startsWith("/webjars") ||
-               path.equals("/swagger-ui.html") ||
-               path.startsWith("/login") ||
-               path.equals("/test");
+                path.startsWith("/v3/api-docs") ||
+                path.startsWith("/swagger-resources") ||
+                path.startsWith("/webjars") ||
+                path.equals("/swagger-ui.html") ||
+                path.startsWith("/login") ||
+                path.equals("/refresh") ||
+                path.equals("/test");
         
 //        log.info("JWT Filter - Path: {}, Should Skip: {}", path, shouldSkip);
         return shouldSkip;

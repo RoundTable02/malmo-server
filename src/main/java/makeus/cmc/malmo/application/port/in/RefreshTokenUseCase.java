@@ -10,7 +10,6 @@ public interface RefreshTokenUseCase {
     @Data
     @Builder
     class RefreshTokenCommand {
-        private Long memberId;
         private String refreshToken;
     }
 

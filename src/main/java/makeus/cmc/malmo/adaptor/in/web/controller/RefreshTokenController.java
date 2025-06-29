@@ -25,18 +25,15 @@ public class RefreshTokenController {
 
     @Operation(
             summary = "JWT 토큰 갱신",
-            description = "Refresh Token을 사용하여 새로운 Access Token과 Refresh Token을 발급받습니다.",
-            security = @SecurityRequirement(name = "Bearer Authentication")
+            description = "Refresh Token을 사용하여 새로운 Access Token과 Refresh Token을 발급받습니다."
     )
     @ApiCommonResponses.RefreshToken
     @ApiCommonResponses.TokenRelated
     @PostMapping("/refresh")
     public BaseResponse<RefreshTokenUseCase.TokenResponse> refreshToken(
-            @RequestBody RefreshRequestDto requestDto,
-            @AuthenticationPrincipal User user
+            @RequestBody RefreshRequestDto requestDto
     ) {
         RefreshTokenUseCase.RefreshTokenCommand command = RefreshTokenUseCase.RefreshTokenCommand.builder()
-                .memberId(Long.parseLong(user.getUsername()))
                 .refreshToken(requestDto.refreshToken)
                 .build();
         return BaseResponse.success(refreshTokenUseCase.refreshToken(command));
