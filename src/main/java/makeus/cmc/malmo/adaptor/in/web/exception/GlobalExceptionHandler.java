@@ -2,6 +2,7 @@ package makeus.cmc.malmo.adaptor.in.web.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.out.oidc.exception.OidcIdTokenException;
+import makeus.cmc.malmo.adaptor.out.oidc.exception.RestApiException;
 import makeus.cmc.malmo.adaptor.out.persistence.exception.MemberNotFoundException;
 import makeus.cmc.malmo.application.exception.InvalidRefreshTokenException;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleOidcIdTokenException(OidcIdTokenException e) {
         log.error("[GlobalExceptionHandler: handleOidcIdTokenException 호출]", e);
         return ErrorResponse.of(ErrorCode.INVALID_ID_TOKEN);
+    }
+
+    @ExceptionHandler({RestApiException.class})
+    public ResponseEntity<ErrorResponse> handleRestApiException(RestApiException e) {
+        log.error("[GlobalExceptionHandler: handleRestApiException 호출]", e);
+        return ErrorResponse.of(ErrorCode.EXTERNAL_API_ERROR);
     }
 
     @ExceptionHandler({InvalidRefreshTokenException.class})
