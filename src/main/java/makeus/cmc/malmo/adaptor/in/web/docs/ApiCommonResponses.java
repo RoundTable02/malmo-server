@@ -90,6 +90,11 @@ public class ApiCommonResponses {
                     responseCode = "500",
                     description = "서버 내부 오류",
                     content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "502",
+                    description = "사용자 정보 조회 중 오류 발생",
+                    content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class))
             )
     })
     public @interface Login {

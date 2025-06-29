@@ -45,4 +45,6 @@ public class MemberEntity extends BaseTimeEntity {
     private float anxietyRate;
 
     private String nickname;
+
+    private String email;
 }
