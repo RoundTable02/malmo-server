@@ -21,7 +21,7 @@ public class SignInService implements SignInUseCase {
     private final GenerateTokenPort generateTokenPort;
     private final ValidateOidcTokenPort validateOidcTokenPort;
 
-    private final FetchEmailFromOAuthProviderPort fetchEmailFromOAuthProviderPort;
+    private final FetchFromOAuthProviderPort fetchFromOAuthProviderPort;
 
     @Override
     @Transactional
@@ -34,7 +34,7 @@ public class SignInService implements SignInUseCase {
                 // 3. 없으면 새로 생성 (자동 회원가입)
                 .orElseGet(() -> {
                     // 이메일 정보 가져오기
-                    String email = fetchEmailFromOAuthProviderPort.fetchEmailFromKakaoIdToken(command.getAccessToken());
+                    String email = fetchFromOAuthProviderPort.fetchMemberEmailFromKakao(command.getAccessToken());
 
                     Member newMember = Member.createMember(
                             Provider.KAKAO,

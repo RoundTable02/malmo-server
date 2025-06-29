@@ -4,21 +4,23 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.oidc.exception.RestApiException;
-import makeus.cmc.malmo.application.port.out.FetchEmailFromOAuthProviderPort;
+import makeus.cmc.malmo.application.port.out.FetchFromOAuthProviderPort;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 @RequiredArgsConstructor
 @Component
-public class KakaoRestApiAdaptor implements FetchEmailFromOAuthProviderPort {
+public class KakaoRestApiAdaptor implements FetchFromOAuthProviderPort {
 
     private final ObjectMapper objectMapper;
 
-    @Override
-    public String fetchEmailFromKakaoIdToken(String accessToken) {
-        String url = "https://kapi.kakao.com/v1/oidc/userinfo";
+    @Value("${kakao.oidc.user-info-uri}")
+    private String url;
 
+    @Override
+    public String fetchMemberEmailFromKakao(String accessToken) {
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
