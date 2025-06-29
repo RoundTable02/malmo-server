@@ -26,7 +26,7 @@ public class SignInService implements SignInUseCase {
 
     @Override
     @Transactional
-    public TokenResponse signInKakao(SignInKakaoCommand command) {
+    public SignInResponse signInKakao(SignInKakaoCommand command) {
         // 1. OIDC ID 토큰 검증
         String providerId = validateOidcTokenPort.validateKakao(command.getIdToken());
 
@@ -38,7 +38,7 @@ public class SignInService implements SignInUseCase {
                             Provider.KAKAO,
                             providerId,
                             MemberRole.MEMBER,
-                            MemberState.ALIVE,
+                            MemberState.BEFORE_ONBOARDING,
                             null
                     );
                     return newMember;
@@ -52,7 +52,8 @@ public class SignInService implements SignInUseCase {
         member.refreshMemberToken(tokenInfo.getRefreshToken());
         saveMemberPort.saveMember(member);
 
-        return TokenResponse.builder()
+        return SignInResponse.builder()
+                .memberState(member.getMemberState().name())
                 .grantType(tokenInfo.getGrantType())
                 .accessToken(tokenInfo.getAccessToken())
                 .refreshToken(tokenInfo.getRefreshToken())

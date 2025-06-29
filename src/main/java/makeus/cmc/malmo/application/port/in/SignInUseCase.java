@@ -5,7 +5,7 @@ import lombok.Data;
 
 public interface SignInUseCase {
 
-    TokenResponse signInKakao(SignInKakaoCommand command);
+    SignInResponse signInKakao(SignInKakaoCommand command);
 
     @Data
     @Builder
@@ -15,7 +15,8 @@ public interface SignInUseCase {
 
     @Data
     @Builder
-    class TokenResponse {
+    class SignInResponse {
+        private String memberState;
         private String grantType;
         private String accessToken;
         private String refreshToken;

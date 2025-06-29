@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
-import makeus.cmc.malmo.application.port.in.RefreshTokenUseCase;
 import makeus.cmc.malmo.application.port.in.SignInUseCase;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,7 +21,7 @@ public class LoginController {
     private final SignInUseCase signInUseCase;
 
     @PostMapping("/login/kakao")
-    public BaseResponse<SignInUseCase.TokenResponse> login(@RequestBody LoginRequestDto requestDto) {
+    public BaseResponse<SignInUseCase.SignInResponse> login(@RequestBody LoginRequestDto requestDto) {
         SignInUseCase.SignInKakaoCommand command = SignInUseCase.SignInKakaoCommand.builder()
                 .idToken(requestDto.idToken)
                 .build();
