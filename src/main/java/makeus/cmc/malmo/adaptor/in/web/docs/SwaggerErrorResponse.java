@@ -10,6 +10,9 @@ public class SwaggerErrorResponse {
     @Schema(description = "요청 ID", example = "e762d840-9565-4612-b308-42d1a50dc0c2")
     private String requestId;
 
+    @Schema(description = "에러 코드", example = "40100")
+    private String code;
+
     @Schema(description = "성공 여부", example = "false")
     private boolean success;
 

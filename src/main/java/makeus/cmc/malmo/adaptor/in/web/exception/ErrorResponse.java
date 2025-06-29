@@ -13,11 +13,17 @@ import org.springframework.http.ResponseEntity;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ErrorResponse {
     private String requestId;
+    private int code;
     private boolean success;
     private String message;
 
     public static ResponseEntity<ErrorResponse> of(ErrorCode errorCode) {
         return ResponseEntity.status(errorCode.getHttpStatus())
-                .body(new ErrorResponse(MDC.get("request_id"), false, errorCode.getMessage()));
+                .body(new ErrorResponse(MDC.get("request_id"),
+                                errorCode.getCode(),
+                                false,
+                                errorCode.getMessage()
+                        )
+                );
     }
 }
