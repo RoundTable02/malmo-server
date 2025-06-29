@@ -6,6 +6,7 @@ import makeus.cmc.malmo.application.port.in.SignInUseCase;
 import makeus.cmc.malmo.application.port.out.GenerateTokenPort;
 import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.SaveMemberPort;
+import makeus.cmc.malmo.application.port.out.ValidateOidcTokenPort;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.member.MemberRole;
 import makeus.cmc.malmo.domain.model.member.MemberState;
@@ -14,33 +15,48 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class SignInService implements SignInUseCase {
 
     private final LoadMemberPort loadMemberPort;
     private final SaveMemberPort saveMemberPort;
     private final GenerateTokenPort generateTokenPort;
+    private final ValidateOidcTokenPort validateOidcTokenPort;
 
     @Override
     @Transactional
-    public TokenInfo signIn(SignInCommand command) {
-        Provider provider = Provider.valueOf(command.getProvider().toUpperCase());
+    public SignInResponse signInKakao(SignInKakaoCommand command) {
+        // 1. OIDC ID 토큰 검증
+        String providerId = validateOidcTokenPort.validateKakao(command.getIdToken());
 
-        // 1. Provider와 ProviderId로 회원 조회
-        Member member = loadMemberPort.loadMember(provider, command.getProviderId())
-                // 2. 없으면 새로 생성 (자동 회원가입)
+        // 2. ID 토큰에서 provider와 providerId 추출
+        Member member = loadMemberPort.loadMemberByProviderId(Provider.KAKAO, providerId)
+                // 3. 없으면 새로 생성 (자동 회원가입)
                 .orElseGet(() -> {
                     Member newMember = Member.createMember(
-                            provider,
-                            command.getProviderId(),
+                            Provider.KAKAO,
+                            providerId,
                             MemberRole.MEMBER,
-                            MemberState.ALIVE,
+                            MemberState.BEFORE_ONBOARDING,
                             null
                     );
-                    return saveMemberPort.saveMember(newMember);
+                    return newMember;
                 });
 
-        // 3. JWT 토큰 발급
-        return generateTokenPort.generateToken(member.getId(), member.getMemberRole());
+
+        // 4. JWT 토큰 발급
+        TokenInfo tokenInfo = generateTokenPort.generateToken(member.getId(), member.getMemberRole());
+
+        // 5. 멤버 정보 갱신 (리프레시 토큰 저장)
+        member.refreshMemberToken(tokenInfo.getRefreshToken());
+        saveMemberPort.saveMember(member);
+
+        return SignInResponse.builder()
+                .memberState(member.getMemberState().name())
+                .grantType(tokenInfo.getGrantType())
+                .accessToken(tokenInfo.getAccessToken())
+                .refreshToken(tokenInfo.getRefreshToken())
+                .build();
     }
 }

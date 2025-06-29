@@ -3,20 +3,20 @@ package makeus.cmc.malmo.application.port.in;
 import lombok.Builder;
 import lombok.Data;
 
-public interface SignInUseCase {
+public interface RefreshTokenUseCase {
 
-    SignInResponse signInKakao(SignInKakaoCommand command);
+    TokenResponse refreshToken(RefreshTokenCommand command);
 
     @Data
     @Builder
-    class SignInKakaoCommand {
-        private String idToken;
+    class RefreshTokenCommand {
+        private Long memberId;
+        private String refreshToken;
     }
 
     @Data
     @Builder
-    class SignInResponse {
-        private String memberState;
+    class TokenResponse {
         private String grantType;
         private String accessToken;
         private String refreshToken;

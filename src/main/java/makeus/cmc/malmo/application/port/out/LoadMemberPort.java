@@ -6,5 +6,6 @@ import makeus.cmc.malmo.domain.model.member.Provider;
 import java.util.Optional;
 
 public interface LoadMemberPort {
-    Optional<Member> loadMember(Provider providerJpa, String providerId);
+    Optional<Member> loadMemberByProviderId(Provider providerJpa, String providerId);
+    Optional<Member> loadMemberById(Long memberId);
 }

@@ -1,10 +1,7 @@
 package makeus.cmc.malmo.adaptor.in.web.controller;
 
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import makeus.cmc.malmo.adaptor.out.jwt.TokenInfo;
-import makeus.cmc.malmo.application.port.in.SignInUseCase;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
@@ -13,23 +10,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 public class TestController {
-
-    private final SignInUseCase signInUseCase;
-
-    @PostMapping("/login")
-    public TokenInfo login(@RequestBody LoginRequestDto requestDto) {
-        SignInUseCase.SignInCommand command = SignInUseCase.SignInCommand.builder()
-                .provider(requestDto.getProvider())
-                .providerId(requestDto.getProviderId())
-                .build();
-        return signInUseCase.signIn(command);
-    }
-
-    @Data
-    public static class LoginRequestDto {
-        private String provider;
-        private String providerId;
-    }
 
     // 인증 없이 호출 가능한 테스트 API
     @GetMapping("/test")

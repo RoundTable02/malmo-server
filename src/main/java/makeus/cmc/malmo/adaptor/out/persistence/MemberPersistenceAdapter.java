@@ -20,10 +20,16 @@ public class MemberPersistenceAdapter implements LoadMemberPort, SaveMemberPort 
     private final MemberMapper memberMapper;
 
     @Override
-    public Optional<Member> loadMember(Provider provider, String providerId) {
+    public Optional<Member> loadMemberByProviderId(Provider provider, String providerId) {
         ProviderJpa providerJpa = ProviderJpa.valueOf(provider.name());
 
         return memberRepository.findByProviderJpaAndProviderId(providerJpa, providerId)
+                .map(memberMapper::toDomain);
+    }
+
+    @Override
+    public Optional<Member> loadMemberById(Long memberId) {
+        return memberRepository.findById(memberId)
                 .map(memberMapper::toDomain);
     }
 

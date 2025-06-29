@@ -1,6 +1,8 @@
 package makeus.cmc.malmo.config;
 
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.adaptor.in.web.security.CustomAccessDeniedHandler;
+import makeus.cmc.malmo.adaptor.in.web.security.CustomAuthenticationEntryPoint;
 import makeus.cmc.malmo.adaptor.in.web.security.JwtAuthenticationFilter;
 import makeus.cmc.malmo.adaptor.out.jwt.JwtAdaptor;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +20,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAdaptor jwtAdaptor;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -28,9 +32,12 @@ public class SecurityConfig {
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/login", "/test").permitAll()
+                        .requestMatchers("/login/**", "/test").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint(authenticationEntryPoint) // 401 처리
+                        .accessDeniedHandler(accessDeniedHandler)) // 403 처리
                 .addFilterBefore(
                         new JwtAuthenticationFilter(jwtAdaptor),
                         UsernamePasswordAuthenticationFilter.class
