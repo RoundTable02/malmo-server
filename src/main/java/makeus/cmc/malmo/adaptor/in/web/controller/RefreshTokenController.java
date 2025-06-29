@@ -1,8 +1,12 @@
 package makeus.cmc.malmo.adaptor.in.web.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
 import makeus.cmc.malmo.application.port.in.RefreshTokenUseCase;
 import org.springframework.security.core.userdetails.User;
@@ -11,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "토큰 관리 API", description = "JWT 토큰 갱신 관련 API")
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -18,6 +23,13 @@ public class RefreshTokenController {
 
     private final RefreshTokenUseCase refreshTokenUseCase;
 
+    @Operation(
+            summary = "JWT 토큰 갱신",
+            description = "Refresh Token을 사용하여 새로운 Access Token과 Refresh Token을 발급받습니다.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiCommonResponses.RefreshToken
+    @ApiCommonResponses.TokenRelated
     @PostMapping("/refresh")
     public BaseResponse<RefreshTokenUseCase.TokenResponse> refreshToken(
             @RequestBody RefreshRequestDto requestDto,
