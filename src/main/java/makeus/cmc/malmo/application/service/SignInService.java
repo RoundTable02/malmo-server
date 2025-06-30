@@ -63,6 +63,7 @@ public class SignInService implements SignInUseCase {
     }
 
     @Override
+    @Transactional
     public SignInResponse signInApple(SignInAppleCommand command) {
         // 1. OIDC ID 토큰 검증
         String providerId = appleIdTokenPort.validateToken(command.getIdToken());
