@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
 @SuperBuilder
@@ -13,6 +13,6 @@ import java.time.LocalDateTime;
 public class CoupleCode extends BaseTimeEntity {
     private Long id;
     private String inviteCode;
-    private LocalDateTime startLoveDate;
+    private LocalDate startLoveDate;
     private Long memberId;
 }

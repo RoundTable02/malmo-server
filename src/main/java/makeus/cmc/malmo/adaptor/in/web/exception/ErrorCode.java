@@ -28,6 +28,7 @@ public enum ErrorCode {
 
     // 500 Internal Server Error
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 50000, "서버 내부 오류입니다."),
+    COUPLE_CODE_GENERATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 50001, "커플 코드 생성에 실패했습니다."),
 
     // 502 Bad Gateway
     EXTERNAL_API_ERROR(HttpStatus.BAD_GATEWAY, 50200, "외부 API 호출 중 오류가 발생했습니다.");

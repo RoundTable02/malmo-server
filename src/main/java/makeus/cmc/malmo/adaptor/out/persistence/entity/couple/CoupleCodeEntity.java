@@ -8,7 +8,7 @@ import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntityJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
 @SuperBuilder
@@ -20,9 +20,10 @@ public class CoupleCodeEntity extends BaseTimeEntityJpa {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String inviteCode;
 
-    private LocalDateTime startLoveDate;
+    private LocalDate startLoveDate;
 
     @OneToOne
     @JoinColumn(name = "member_id")

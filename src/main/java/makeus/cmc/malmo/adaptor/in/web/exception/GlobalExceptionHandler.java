@@ -3,6 +3,7 @@ package makeus.cmc.malmo.adaptor.in.web.exception;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.out.oidc.exception.OidcIdTokenException;
 import makeus.cmc.malmo.adaptor.out.oidc.exception.RestApiException;
+import makeus.cmc.malmo.adaptor.out.persistence.exception.InviteCodeGenerateFailedException;
 import makeus.cmc.malmo.adaptor.out.persistence.exception.MemberNotFoundException;
 import makeus.cmc.malmo.application.exception.InvalidRefreshTokenException;
 import org.hibernate.TypeMismatchException;
@@ -40,6 +41,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleInvalidRefreshTokenException(InvalidRefreshTokenException e) {
         log.error("[GlobalExceptionHandler: handleInvalidRefreshTokenException 호출]", e);
         return ErrorResponse.of(ErrorCode.INVALID_REFRESH_TOKEN);
+    }
+
+    @ExceptionHandler({InviteCodeGenerateFailedException.class})
+    public ResponseEntity<ErrorResponse> handleInviteCodeGenerateFailedException(InviteCodeGenerateFailedException e) {
+        log.error("[GlobalExceptionHandler: handleInviteCodeGenerateFailedException 호출]", e);
+        return ErrorResponse.of(ErrorCode.COUPLE_CODE_GENERATE_FAILED);
     }
 
     /**

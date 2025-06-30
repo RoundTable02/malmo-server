@@ -1,16 +1,16 @@
 package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.adaptor.out.persistence.exception.InviteCodeGenerateFailedException;
 import makeus.cmc.malmo.adaptor.out.persistence.exception.MemberNotFoundException;
 import makeus.cmc.malmo.adaptor.out.persistence.exception.TermsNotFoundException;
 import makeus.cmc.malmo.application.port.in.SignUpUseCase;
-import makeus.cmc.malmo.application.port.out.LoadMemberPort;
-import makeus.cmc.malmo.application.port.out.LoadTermsPort;
-import makeus.cmc.malmo.application.port.out.SaveMemberPort;
-import makeus.cmc.malmo.application.port.out.SaveMemberTermsAgreement;
+import makeus.cmc.malmo.application.port.out.*;
+import makeus.cmc.malmo.domain.model.member.CoupleCode;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.terms.MemberTermsAgreement;
 import makeus.cmc.malmo.domain.model.terms.Terms;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +24,11 @@ public class SignUpService implements SignUpUseCase {
 
     private final LoadTermsPort loadTermsPort;
     private final SaveMemberTermsAgreement saveMemberTermsAgreement;
+
+    private final GenerateInviteCodePort generateInviteCodePort;
+    private final SaveCoupleCodePort saveCoupleCodePort;
+
+    private static final int MAX_RETRY = 10;
 
     @Override
     @Transactional
@@ -49,7 +54,21 @@ public class SignUpService implements SignUpUseCase {
         });
 
         // 커플 코드 생성
+        int retryCount = 0;
+        while (retryCount < MAX_RETRY) {
+            String inviteCode = generateInviteCodePort.generateInviteCode();
+            try {
+                CoupleCode coupleCode = savedMember.generateCoupleCode(inviteCode, command.getLoveStartDate());
+                saveCoupleCodePort.saveCoupleCode(coupleCode);
+                return SignUpResponse.builder()
+                        .coupleCode(inviteCode)
+                        .build();
+            } catch (DataIntegrityViolationException e) {
+                // UNIQUE 제약 조건 위반 시 재시도
+                retryCount++;
+            }
+        }
 
-        return null;
+        throw new InviteCodeGenerateFailedException("커플 코드 생성에 실패했습니다. 재시도 횟수를 초과했습니다.");
     }
 }

@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
 import makeus.cmc.malmo.domain.model.LoveType;
 
+import java.time.LocalDate;
+
 @Getter
 @SuperBuilder
 @AllArgsConstructor
@@ -41,5 +43,13 @@ public class Member extends BaseTimeEntity {
 
     public void refreshMemberToken(String refreshToken) {
         this.refreshToken = refreshToken;
+    }
+
+    public CoupleCode generateCoupleCode(String inviteCode, LocalDate startLoveDate) {
+        return CoupleCode.builder()
+                .inviteCode(inviteCode)
+                .startLoveDate(startLoveDate)
+                .memberId(this.id)
+                .build();
     }
 }
