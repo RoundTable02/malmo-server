@@ -14,7 +14,6 @@ public class CoupleMapper {
     public Couple toDomain(CoupleEntity entity) {
         return Couple.builder()
                 .id(entity.getId())
-                .inviteCode(entity.getInviteCode())
                 .startLoveDate(entity.getStartLoveDate())
                 .coupleState(toCoupleState(entity.getCoupleStateJpa()))
                 .deletedDate(entity.getDeletedDate())
@@ -27,7 +26,6 @@ public class CoupleMapper {
     public CoupleEntity toEntity(Couple domain) {
         return CoupleEntity.builder()
                 .id(domain.getId())
-                .inviteCode(domain.getInviteCode())
                 .startLoveDate(domain.getStartLoveDate())
                 .coupleStateJpa(toCoupleStateJpa(domain.getCoupleState()))
                 .deletedDate(domain.getDeletedDate())

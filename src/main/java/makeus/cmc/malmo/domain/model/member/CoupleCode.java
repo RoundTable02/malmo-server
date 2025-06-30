@@ -1,9 +1,8 @@
-package makeus.cmc.malmo.domain.model.couple;
+package makeus.cmc.malmo.domain.model.member;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
 
 import java.time.LocalDateTime;
@@ -11,9 +10,9 @@ import java.time.LocalDateTime;
 @Getter
 @SuperBuilder
 @AllArgsConstructor
-public class Couple extends BaseTimeEntity {
+public class CoupleCode extends BaseTimeEntity {
     private Long id;
+    private String inviteCode;
     private LocalDateTime startLoveDate;
-    private CoupleState coupleState;
-    private LocalDateTime deletedDate;
+    private Long memberId;
 }
