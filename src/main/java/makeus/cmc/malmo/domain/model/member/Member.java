@@ -34,6 +34,11 @@ public class Member extends BaseTimeEntity {
                 .build();
     }
 
+    public void signUp(String nickname) {
+        this.nickname = nickname;
+        this.memberState = MemberState.ALIVE;
+    }
+
     public void refreshMemberToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
