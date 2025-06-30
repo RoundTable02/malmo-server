@@ -19,7 +19,8 @@ public class SignInService implements SignInUseCase {
     private final LoadMemberPort loadMemberPort;
     private final SaveMemberPort saveMemberPort;
     private final GenerateTokenPort generateTokenPort;
-    private final ValidateOidcTokenPort validateOidcTokenPort;
+    private final kakaoIdTokenPort kakaoIdTokenPort;
+    private final AppleIdTokenPort appleIdTokenPort;
 
     private final FetchFromOAuthProviderPort fetchFromOAuthProviderPort;
 
@@ -27,7 +28,7 @@ public class SignInService implements SignInUseCase {
     @Transactional
     public SignInResponse signInKakao(SignInKakaoCommand command) {
         // 1. OIDC ID 토큰 검증
-        String providerId = validateOidcTokenPort.validateKakao(command.getIdToken());
+        String providerId = kakaoIdTokenPort.validateToken(command.getIdToken());
 
         // 2. ID 토큰에서 provider와 providerId 추출
         Member member = loadMemberPort.loadMemberByProviderId(Provider.KAKAO, providerId)
@@ -36,15 +37,50 @@ public class SignInService implements SignInUseCase {
                     // 이메일 정보 가져오기
                     String email = fetchFromOAuthProviderPort.fetchMemberEmailFromKakao(command.getAccessToken());
 
-                    Member newMember = Member.createMember(
+                    return Member.createMember(
                             Provider.KAKAO,
                             providerId,
                             MemberRole.MEMBER,
                             MemberState.BEFORE_ONBOARDING,
-                            email,
-                            null
+                            email
                     );
-                    return newMember;
+                });
+
+
+        // 4. JWT 토큰 발급
+        TokenInfo tokenInfo = generateTokenPort.generateToken(member.getId(), member.getMemberRole());
+
+        // 5. 멤버 정보 갱신 (리프레시 토큰 저장)
+        member.refreshMemberToken(tokenInfo.getRefreshToken());
+        saveMemberPort.saveMember(member);
+
+        return SignInResponse.builder()
+                .memberState(member.getMemberState().name())
+                .grantType(tokenInfo.getGrantType())
+                .accessToken(tokenInfo.getAccessToken())
+                .refreshToken(tokenInfo.getRefreshToken())
+                .build();
+    }
+
+    @Override
+    public SignInResponse signInApple(SignInAppleCommand command) {
+        // 1. OIDC ID 토큰 검증
+        String providerId = appleIdTokenPort.validateToken(command.getIdToken());
+
+        // 2. ID 토큰에서 provider와 providerId 추출
+        Member member = loadMemberPort.loadMemberByProviderId(Provider.APPLE, providerId)
+                // 3. 없으면 새로 생성 (자동 회원가입)
+                .orElseGet(() -> {
+                    // 이메일 정보 가져오기
+                    String email = appleIdTokenPort.extractEmailFromIdToken(command.getIdToken());
+
+                    return Member.createMember(
+                            Provider.APPLE,
+                            providerId,
+                            MemberRole.MEMBER,
+                            MemberState.BEFORE_ONBOARDING,
+                            email
+                    );
                 });
 
 

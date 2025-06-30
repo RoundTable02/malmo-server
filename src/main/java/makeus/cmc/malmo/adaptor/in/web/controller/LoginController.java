@@ -26,7 +26,7 @@ public class LoginController {
     )
     @ApiCommonResponses.Login
     @PostMapping("/login/kakao")
-    public BaseResponse<SignInUseCase.SignInResponse> login(@RequestBody LoginRequestDto requestDto) {
+    public BaseResponse<SignInUseCase.SignInResponse> loginWithKakao(@RequestBody KakaoLoginRequestDto requestDto) {
         SignInUseCase.SignInKakaoCommand command = SignInUseCase.SignInKakaoCommand.builder()
                 .idToken(requestDto.idToken)
                 .accessToken(requestDto.accessToken)
@@ -34,9 +34,28 @@ public class LoginController {
         return BaseResponse.success(signInUseCase.signInKakao(command));
     }
 
+    @Operation(
+            summary = "애플 소셜 로그인",
+            description = "애플 OIDC ID 토큰을 통해 로그인합니다. 신규 사용자의 경우 자동으로 회원가입이 진행됩니다."
+    )
+    @ApiCommonResponses.Login
+    @PostMapping("/login/apple")
+    public BaseResponse<SignInUseCase.SignInResponse> loginWithApple(@RequestBody AppleLoginRequestDto requestDto) {
+        SignInUseCase.SignInAppleCommand command = SignInUseCase.SignInAppleCommand.builder()
+                .idToken(requestDto.idToken)
+                .build();
+        return BaseResponse.success(signInUseCase.signInApple(command));
+    }
+
+
     @Data
-    public static class LoginRequestDto {
+    public static class KakaoLoginRequestDto {
         private String idToken;
         private String accessToken;
+    }
+
+    @Data
+    public static class AppleLoginRequestDto {
+        private String idToken;
     }
 }

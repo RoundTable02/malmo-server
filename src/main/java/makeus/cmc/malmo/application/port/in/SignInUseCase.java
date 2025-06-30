@@ -6,12 +6,19 @@ import lombok.Data;
 public interface SignInUseCase {
 
     SignInResponse signInKakao(SignInKakaoCommand command);
+    SignInResponse signInApple(SignInAppleCommand command);
 
     @Data
     @Builder
     class SignInKakaoCommand {
         private String idToken;
         private String accessToken;
+    }
+
+    @Data
+    @Builder
+    class SignInAppleCommand {
+        private String idToken;
     }
 
     @Data
