@@ -35,6 +35,9 @@ public class TermsMapper {
                 .version(domain.getVersion())
                 .isRequired(domain.isRequired())
                 .termsType(toProviderJpa(domain.getTermsType()))
+                .createdAt(domain.getCreatedAt())
+                .modifiedAt(domain.getModifiedAt())
+                .deletedAt(domain.getDeletedAt())
                 .build();
     }
 

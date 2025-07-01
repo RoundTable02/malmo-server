@@ -57,6 +57,9 @@ public class MemberMapper {
                 .avoidanceRate(domain.getAvoidanceRate())
                 .anxietyRate(domain.getAnxietyRate())
                 .nickname(domain.getNickname())
+                .createdAt(domain.getCreatedAt())
+                .modifiedAt(domain.getModifiedAt())
+                .deletedAt(domain.getDeletedAt())
                 .build();
     }
 

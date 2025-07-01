@@ -37,6 +37,9 @@ public class MemberTermsAgreementMapper {
                 .member(memberEntity)
                 .terms(termsEntity)
                 .agreed(domain.isAgreed())
+                .createdAt(domain.getCreatedAt())
+                .modifiedAt(domain.getModifiedAt())
+                .deletedAt(domain.getDeletedAt())
                 .build();
     }
 }
