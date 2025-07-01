@@ -1,0 +1,18 @@
+package makeus.cmc.malmo.adaptor.out.persistence.entity.value;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import lombok.*;
+
+@Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Embeddable
+public class CoupleEntityId {
+    @Column(name = "couple_id")
+    Long value;
+
+    public static CoupleEntityId of(Long value) {
+        return new CoupleEntityId(value);
+    }
+}

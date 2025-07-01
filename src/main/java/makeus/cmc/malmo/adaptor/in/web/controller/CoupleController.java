@@ -24,7 +24,7 @@ public class CoupleController {
     ) {
         CoupleLinkUseCase.CoupleLinkCommand command = CoupleLinkUseCase.CoupleLinkCommand.builder()
                 .coupleCode(requestDto.getCoupleCode())
-                .userId(user.getUsername())
+                .userId(Long.valueOf(user.getUsername()))
                 .build();
         return BaseResponse.success(coupleLinkUseCase.coupleLink(command));
     }

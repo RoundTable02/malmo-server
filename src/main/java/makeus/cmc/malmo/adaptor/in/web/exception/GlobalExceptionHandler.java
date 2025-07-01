@@ -3,6 +3,7 @@ package makeus.cmc.malmo.adaptor.in.web.exception;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.out.oidc.exception.OidcIdTokenException;
 import makeus.cmc.malmo.adaptor.out.oidc.exception.RestApiException;
+import makeus.cmc.malmo.adaptor.out.persistence.exception.CoupleCodeNotFoundException;
 import makeus.cmc.malmo.adaptor.out.persistence.exception.InviteCodeGenerateFailedException;
 import makeus.cmc.malmo.adaptor.out.persistence.exception.MemberNotFoundException;
 import makeus.cmc.malmo.application.exception.InvalidRefreshTokenException;
@@ -23,6 +24,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleMemberNotFoundException(MemberNotFoundException e) {
         log.error("[GlobalExceptionHandler: handleMemberNotFoundException 호출]", e);
         return ErrorResponse.of(ErrorCode.NO_SUCH_MEMBER);
+    }
+
+    @ExceptionHandler({CoupleCodeNotFoundException.class})
+    public ResponseEntity<ErrorResponse> handleCoupleCodeNotFoundException(CoupleCodeNotFoundException e) {
+        log.error("[GlobalExceptionHandler: handleCoupleCodeNotFoundException 호출]", e);
+        return ErrorResponse.of(ErrorCode.NO_SUCH_COUPLE_CODE);
     }
 
     @ExceptionHandler({OidcIdTokenException.class})
@@ -48,6 +55,10 @@ public class GlobalExceptionHandler {
         log.error("[GlobalExceptionHandler: handleInviteCodeGenerateFailedException 호출]", e);
         return ErrorResponse.of(ErrorCode.COUPLE_CODE_GENERATE_FAILED);
     }
+
+
+
+
 
     /**
      *  ---------- 공통 예외 처리 핸들러 ----------

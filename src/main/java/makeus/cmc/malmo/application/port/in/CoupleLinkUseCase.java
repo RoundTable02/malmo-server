@@ -10,7 +10,7 @@ public interface CoupleLinkUseCase {
     @Data
     @Builder
     class CoupleLinkCommand {
-        private String userId;
+        private Long userId;
         private String coupleCode;
     }
 
