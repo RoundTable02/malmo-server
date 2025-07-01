@@ -22,8 +22,11 @@ public class TermsEntity extends BaseTimeEntityJpa {
 
     private String content;
 
-    private String version;
+    private float version;
 
     private boolean isRequired;
+
+    @Enumerated(EnumType.STRING)
+    private TermsTypeJpa termsType;
 
 }

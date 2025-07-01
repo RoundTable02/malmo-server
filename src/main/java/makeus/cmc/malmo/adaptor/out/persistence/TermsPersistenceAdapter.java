@@ -7,6 +7,7 @@ import makeus.cmc.malmo.application.port.out.LoadTermsPort;
 import makeus.cmc.malmo.domain.model.terms.Terms;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -20,5 +21,12 @@ public class TermsPersistenceAdapter implements LoadTermsPort {
     public Optional<Terms> loadTermsById(Long termsId) {
         return termsRepository.findById(termsId)
                 .map(termsMapper::toDomain);
+    }
+
+    @Override
+    public List<Terms> loadLatestTerms() {
+        return termsRepository.findLatestTermsForAllTypes().stream()
+                .map(termsMapper::toDomain)
+                .toList();
     }
 }

@@ -12,6 +12,7 @@ public class Terms extends BaseTimeEntity {
     private final Long id;
     private final String title;
     private final String content;
-    private final String version;
+    private final float version;
     private final boolean isRequired;
+    private final TermsType termsType;
 }

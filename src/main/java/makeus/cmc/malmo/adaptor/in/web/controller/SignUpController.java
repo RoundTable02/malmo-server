@@ -1,14 +1,11 @@
 package makeus.cmc.malmo.adaptor.in.web.controller;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
-import makeus.cmc.malmo.application.port.in.SignInUseCase;
 import makeus.cmc.malmo.application.port.in.SignUpUseCase;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,7 +21,7 @@ public class SignUpController {
     private final SignUpUseCase signUpUseCase;
 
     @PostMapping("/sign-up")
-    public BaseResponse<SignUpUseCase.SignUpResponse> getTerms(
+    public BaseResponse<SignUpUseCase.SignUpResponse> signUp(
             @AuthenticationPrincipal User user,
             @RequestBody SignUpRequestDto requestDto
     ) {
