@@ -3,7 +3,11 @@ package makeus.cmc.malmo.adaptor.out.persistence.mapper;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.terms.MemberTermsAgreementEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.terms.TermsEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.TermsEntityId;
 import makeus.cmc.malmo.domain.model.terms.MemberTermsAgreement;
+import makeus.cmc.malmo.domain.model.value.MemberId;
+import makeus.cmc.malmo.domain.model.value.TermsId;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -12,8 +16,8 @@ public class MemberTermsAgreementMapper {
     public MemberTermsAgreement toDomain(MemberTermsAgreementEntity entity) {
         return MemberTermsAgreement.builder()
                 .id(entity.getId())
-                .memberId(entity.getMember().getId())
-                .termsId(entity.getTerms().getId())
+                .memberId(MemberId.of(entity.getMemberEntityId().getValue()))
+                .termsId(TermsId.of(entity.getTermsEntityId().getValue()))
                 .agreed(entity.isAgreed())
                 .createdAt(entity.getCreatedAt())
                 .modifiedAt(entity.getModifiedAt())
@@ -21,13 +25,11 @@ public class MemberTermsAgreementMapper {
                 .build();
     }
 
-    public MemberTermsAgreementEntity toEntity(MemberTermsAgreement domain,
-                                               MemberEntity memberEntity,
-                                               TermsEntity termsEntity) {
+    public MemberTermsAgreementEntity toEntity(MemberTermsAgreement domain) {
         return MemberTermsAgreementEntity.builder()
                 .id(domain.getId())
-                .member(memberEntity)
-                .terms(termsEntity)
+                .memberEntityId(MemberEntityId.of(domain.getMemberId().getValue()))
+                .termsEntityId(TermsEntityId.of(domain.getTermsId().getValue()))
                 .agreed(domain.isAgreed())
                 .createdAt(domain.getCreatedAt())
                 .modifiedAt(domain.getModifiedAt())

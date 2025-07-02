@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntityJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.TermsEntityId;
 
 @Getter
 @SuperBuilder
@@ -20,13 +22,13 @@ public class MemberTermsAgreementEntity extends BaseTimeEntityJpa {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "member_id")
-    private MemberEntity member;
+    @AttributeOverride(name = "id", column = @Column(name = "member_id", nullable = false))
+    @Embedded
+    private MemberEntityId memberEntityId;
 
-    @ManyToOne
-    @JoinColumn(name = "terms_id")
-    private TermsEntity terms;
+    @AttributeOverride(name = "id", column = @Column(name = "member_id", nullable = false))
+    @Embedded
+    private TermsEntityId termsEntityId;
 
     private boolean agreed;
 }

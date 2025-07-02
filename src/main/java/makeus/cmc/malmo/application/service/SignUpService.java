@@ -10,6 +10,8 @@ import makeus.cmc.malmo.domain.model.member.CoupleCode;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.terms.MemberTermsAgreement;
 import makeus.cmc.malmo.domain.model.terms.Terms;
+import makeus.cmc.malmo.domain.model.value.MemberId;
+import makeus.cmc.malmo.domain.model.value.TermsId;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,10 +49,10 @@ public class SignUpService implements SignUpUseCase {
                     .orElseThrow(TermsNotFoundException::new);
 
             MemberTermsAgreement memberTermsAgreement = MemberTermsAgreement.signTerms(
-                    savedMember.getId(),
-                    terms.getId(),
+                    MemberId.of(savedMember.getId()),
+                    TermsId.of(terms.getId()),
                     term.getIsAgreed());
-            saveMemberTermsAgreement.saveMemberTermsAgreement(memberTermsAgreement, member, terms);
+            saveMemberTermsAgreement.saveMemberTermsAgreement(memberTermsAgreement);
         });
 
         // 커플 코드 생성

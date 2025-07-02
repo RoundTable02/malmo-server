@@ -111,8 +111,7 @@ class SignUpServiceTest {
             then(saveMemberPort).should().saveMember(member);
             then(loadTermsPort).should().loadTermsById(1L);
             then(loadTermsPort).should().loadTermsById(2L);
-            then(saveMemberTermsAgreement).should().saveMemberTermsAgreement(any(MemberTermsAgreement.class), eq(member), eq(terms1));
-            then(saveMemberTermsAgreement).should().saveMemberTermsAgreement(any(MemberTermsAgreement.class), eq(member), eq(terms2));
+            then(saveMemberTermsAgreement).should(times(2)).saveMemberTermsAgreement(any(MemberTermsAgreement.class));
             then(generateInviteCodePort).should().generateInviteCode();
             then(savedMember).should().generateCoupleCode(expectedInviteCode, loveStartDate);
             then(saveCoupleCodePort).should().saveCoupleCode(coupleCode);
@@ -180,7 +179,7 @@ class SignUpServiceTest {
             then(member).should().signUp(nickname);
             then(saveMemberPort).should().saveMember(member);
             then(loadTermsPort).should().loadTermsById(999L);
-            then(saveMemberTermsAgreement).should(never()).saveMemberTermsAgreement(any(), any(), any());
+            then(saveMemberTermsAgreement).should(never()).saveMemberTermsAgreement(any());
             then(generateInviteCodePort).should(never()).generateInviteCode();
             then(saveCoupleCodePort).should(never()).saveCoupleCode(any());
         }
@@ -238,7 +237,7 @@ class SignUpServiceTest {
             then(member).should().signUp(nickname);
             then(saveMemberPort).should().saveMember(member);
             then(loadTermsPort).should().loadTermsById(1L);
-            then(saveMemberTermsAgreement).should().saveMemberTermsAgreement(any(MemberTermsAgreement.class), eq(member), eq(terms));
+            then(saveMemberTermsAgreement).should().saveMemberTermsAgreement(any(MemberTermsAgreement.class));
             then(generateInviteCodePort).should(times(2)).generateInviteCode();
             then(savedMember).should().generateCoupleCode(duplicateInviteCode, loveStartDate);
             then(savedMember).should().generateCoupleCode(uniqueInviteCode, loveStartDate);
@@ -292,7 +291,7 @@ class SignUpServiceTest {
             then(member).should().signUp(nickname);
             then(saveMemberPort).should().saveMember(member);
             then(loadTermsPort).should().loadTermsById(1L);
-            then(saveMemberTermsAgreement).should().saveMemberTermsAgreement(any(MemberTermsAgreement.class), eq(member), eq(terms));
+            then(saveMemberTermsAgreement).should().saveMemberTermsAgreement(any(MemberTermsAgreement.class));
             then(generateInviteCodePort).should(times(10)).generateInviteCode();
             then(savedMember).should(times(10)).generateCoupleCode(duplicateInviteCode, loveStartDate);
             then(saveCoupleCodePort).should(times(10)).saveCoupleCode(duplicateCoupleCode);

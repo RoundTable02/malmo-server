@@ -20,18 +20,10 @@ public class MemberTermsAgreementPersistenceAdapter implements SaveMemberTermsAg
 
     private final MemberTermsAgreementRepository memberTermsAgreementRepository;
     private final MemberTermsAgreementMapper memberTermsAgreementMapper;
-    private final TermsMapper termsMapper;
-    private final MemberMapper memberMapper;
 
     @Override
-    public void saveMemberTermsAgreement(MemberTermsAgreement memberTermsAgreement, Member member, Terms terms) {
-        TermsEntity termsEntity = termsMapper.toEntity(terms);
-        MemberEntity memberEntity = memberMapper.toEntity(member);
-
-        MemberTermsAgreementEntity entity = memberTermsAgreementMapper.toEntity(
-                memberTermsAgreement,
-                memberEntity,
-                termsEntity);
+    public void saveMemberTermsAgreement(MemberTermsAgreement memberTermsAgreement) {
+        MemberTermsAgreementEntity entity = memberTermsAgreementMapper.toEntity(memberTermsAgreement);
 
         memberTermsAgreementRepository.save(entity);
     }

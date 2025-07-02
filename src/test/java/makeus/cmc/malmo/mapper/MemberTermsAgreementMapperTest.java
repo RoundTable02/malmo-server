@@ -3,8 +3,12 @@ package makeus.cmc.malmo.mapper;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.terms.MemberTermsAgreementEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.terms.TermsEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.TermsEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.MemberTermsAgreementMapper;
 import makeus.cmc.malmo.domain.model.terms.MemberTermsAgreement;
+import makeus.cmc.malmo.domain.model.value.MemberId;
+import makeus.cmc.malmo.domain.model.value.TermsId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -39,8 +43,8 @@ class MemberTermsAgreementMapperTest {
             // then
             assertThat(result).isNotNull();
             assertThat(result.getId()).isEqualTo(1L);
-            assertThat(result.getMemberId()).isEqualTo(100L);
-            assertThat(result.getTermsId()).isEqualTo(200L);
+            assertThat(result.getMemberId().getValue()).isEqualTo(100L);
+            assertThat(result.getTermsId().getValue()).isEqualTo(200L);
             assertThat(result.isAgreed()).isTrue();
             assertThat(result.getCreatedAt()).isNotNull();
             assertThat(result.getModifiedAt()).isNotNull();
@@ -86,17 +90,15 @@ class MemberTermsAgreementMapperTest {
         void givenCompleteMemberTermsAgreement_whenToEntity_thenReturnsCompleteEntity() {
             // given
             MemberTermsAgreement domain = createCompleteMemberTermsAgreement();
-            MemberEntity memberEntity = createMemberEntity();
-            TermsEntity termsEntity = createTermsEntity();
 
             // when
-            MemberTermsAgreementEntity result = memberTermsAgreementMapper.toEntity(domain, memberEntity, termsEntity);
+            MemberTermsAgreementEntity result = memberTermsAgreementMapper.toEntity(domain);
 
             // then
             assertThat(result).isNotNull();
             assertThat(result.getId()).isEqualTo(1L);
-            assertThat(result.getMember()).isEqualTo(memberEntity);
-            assertThat(result.getTerms()).isEqualTo(termsEntity);
+            assertThat(result.getMemberEntityId().getValue()).isEqualTo(100L);
+            assertThat(result.getTermsEntityId().getValue()).isEqualTo(200L);
             assertThat(result.isAgreed()).isTrue();
             assertThat(result.getCreatedAt()).isNotNull();
             assertThat(result.getModifiedAt()).isNotNull();
@@ -108,11 +110,9 @@ class MemberTermsAgreementMapperTest {
         void givenDisagreedMemberTermsAgreement_whenToEntity_thenReturnsDisagreedEntity() {
             // given
             MemberTermsAgreement domain = createDisagreedMemberTermsAgreement();
-            MemberEntity memberEntity = createMemberEntity();
-            TermsEntity termsEntity = createTermsEntity();
 
             // when
-            MemberTermsAgreementEntity result = memberTermsAgreementMapper.toEntity(domain, memberEntity, termsEntity);
+            MemberTermsAgreementEntity result = memberTermsAgreementMapper.toEntity(domain);
 
             // then
             assertThat(result).isNotNull();
@@ -125,11 +125,9 @@ class MemberTermsAgreementMapperTest {
             // given
             LocalDateTime deletedAt = LocalDateTime.now();
             MemberTermsAgreement domain = createDeletedMemberTermsAgreement(deletedAt);
-            MemberEntity memberEntity = createMemberEntity();
-            TermsEntity termsEntity = createTermsEntity();
 
             // when
-            MemberTermsAgreementEntity result = memberTermsAgreementMapper.toEntity(domain, memberEntity, termsEntity);
+            MemberTermsAgreementEntity result = memberTermsAgreementMapper.toEntity(domain);
 
             // then
             assertThat(result).isNotNull();
@@ -141,17 +139,15 @@ class MemberTermsAgreementMapperTest {
         void givenMemberTermsAgreementWithNullId_whenToEntity_thenReturnsEntityWithNullId() {
             // given
             MemberTermsAgreement domain = createMemberTermsAgreementWithNullId();
-            MemberEntity memberEntity = createMemberEntity();
-            TermsEntity termsEntity = createTermsEntity();
 
             // when
-            MemberTermsAgreementEntity result = memberTermsAgreementMapper.toEntity(domain, memberEntity, termsEntity);
+            MemberTermsAgreementEntity result = memberTermsAgreementMapper.toEntity(domain);
 
             // then
             assertThat(result).isNotNull();
             assertThat(result.getId()).isNull();
-            assertThat(result.getMember()).isEqualTo(memberEntity);
-            assertThat(result.getTerms()).isEqualTo(termsEntity);
+            assertThat(result.getMemberEntityId().getValue()).isEqualTo(100L);
+            assertThat(result.getTermsEntityId().getValue()).isEqualTo(200L);
         }
     }
 
@@ -162,8 +158,8 @@ class MemberTermsAgreementMapperTest {
         
         return MemberTermsAgreementEntity.builder()
                 .id(1L)
-                .member(member)
-                .terms(terms)
+                .memberEntityId(MemberEntityId.of(member.getId()))
+                .termsEntityId(TermsEntityId.of(terms.getId()))
                 .agreed(true)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
@@ -177,8 +173,8 @@ class MemberTermsAgreementMapperTest {
         
         return MemberTermsAgreementEntity.builder()
                 .id(1L)
-                .member(member)
-                .terms(terms)
+                .memberEntityId(MemberEntityId.of(member.getId()))
+                .termsEntityId(TermsEntityId.of(terms.getId()))
                 .agreed(false)
                 .build();
     }
@@ -189,8 +185,8 @@ class MemberTermsAgreementMapperTest {
         
         return MemberTermsAgreementEntity.builder()
                 .id(1L)
-                .member(member)
-                .terms(terms)
+                .memberEntityId(MemberEntityId.of(member.getId()))
+                .termsEntityId(TermsEntityId.of(terms.getId()))
                 .agreed(true)
                 .deletedAt(deletedAt)
                 .build();
@@ -211,8 +207,8 @@ class MemberTermsAgreementMapperTest {
     private MemberTermsAgreement createCompleteMemberTermsAgreement() {
         return MemberTermsAgreement.builder()
                 .id(1L)
-                .memberId(100L)
-                .termsId(200L)
+                .memberId(MemberId.of(100L))
+                .termsId(TermsId.of(200L))
                 .agreed(true)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
@@ -223,8 +219,8 @@ class MemberTermsAgreementMapperTest {
     private MemberTermsAgreement createDisagreedMemberTermsAgreement() {
         return MemberTermsAgreement.builder()
                 .id(1L)
-                .memberId(100L)
-                .termsId(200L)
+                .memberId(MemberId.of(100L))
+                .termsId(TermsId.of(200L))
                 .agreed(false)
                 .build();
     }
@@ -232,8 +228,8 @@ class MemberTermsAgreementMapperTest {
     private MemberTermsAgreement createDeletedMemberTermsAgreement(LocalDateTime deletedAt) {
         return MemberTermsAgreement.builder()
                 .id(1L)
-                .memberId(100L)
-                .termsId(200L)
+                .memberId(MemberId.of(100L))
+                .termsId(TermsId.of(200L))
                 .agreed(true)
                 .deletedAt(deletedAt)
                 .build();
@@ -242,8 +238,8 @@ class MemberTermsAgreementMapperTest {
     private MemberTermsAgreement createMemberTermsAgreementWithNullId() {
         return MemberTermsAgreement.builder()
                 .id(null)
-                .memberId(100L)
-                .termsId(200L)
+                .memberId(MemberId.of(100L))
+                .termsId(TermsId.of(200L))
                 .agreed(true)
                 .build();
     }
