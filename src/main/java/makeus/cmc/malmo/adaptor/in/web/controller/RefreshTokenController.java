@@ -3,6 +3,8 @@ package makeus.cmc.malmo.adaptor.in.web.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +33,7 @@ public class RefreshTokenController {
     @ApiCommonResponses.TokenRelated
     @PostMapping("/refresh")
     public BaseResponse<RefreshTokenUseCase.TokenResponse> refreshToken(
-            @RequestBody RefreshRequestDto requestDto
+            @Valid @RequestBody RefreshRequestDto requestDto
     ) {
         RefreshTokenUseCase.RefreshTokenCommand command = RefreshTokenUseCase.RefreshTokenCommand.builder()
                 .refreshToken(requestDto.refreshToken)
@@ -41,6 +43,7 @@ public class RefreshTokenController {
 
     @Data
     public static class RefreshRequestDto {
+        @NotNull(message = "Refresh Token은 필수 입력값입니다.")
         private String refreshToken;
     }
 }

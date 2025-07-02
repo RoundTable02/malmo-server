@@ -10,6 +10,7 @@ import makeus.cmc.malmo.application.exception.InvalidRefreshTokenException;
 import org.hibernate.TypeMismatchException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
@@ -87,4 +88,9 @@ public class GlobalExceptionHandler {
         return ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        log.error("[CommonExceptionHandler: handleMethodArgumentNotValidException 호출]", e);
+        return ErrorResponse.of(ErrorCode.BAD_REQUEST);
+    }
 }
