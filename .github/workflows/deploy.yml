@@ -35,7 +35,7 @@ jobs:
     - name: Run tests
       run: ./gradlew test --no-daemon
       env:
-        SPRING_PROFILES_ACTIVE: 'deploy-test'
+        SPRING_PROFILES_ACTIVE: 'test'
 
   build-and-deploy:
     needs: test
