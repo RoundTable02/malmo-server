@@ -1,14 +1,10 @@
 package makeus.cmc.malmo.adaptor.out.persistence.mapper;
 
-import makeus.cmc.malmo.adaptor.out.persistence.entity.member.ProviderJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.terms.TermsEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.terms.TermsTypeJpa;
-import makeus.cmc.malmo.domain.model.member.Provider;
 import makeus.cmc.malmo.domain.model.terms.Terms;
 import makeus.cmc.malmo.domain.model.terms.TermsType;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 @Component
 public class TermsMapper {
@@ -42,14 +38,10 @@ public class TermsMapper {
     }
 
     private TermsType toTermsType(TermsTypeJpa termsTypeJpa) {
-        return Optional.ofNullable(termsTypeJpa)
-                .map(t -> TermsType.valueOf(t.name()))
-                .orElse(null);
+        return termsTypeJpa != null ? TermsType.valueOf(termsTypeJpa.name()) : null;
     }
 
     private TermsTypeJpa toProviderJpa(TermsType termsType) {
-        return Optional.ofNullable(termsType)
-                .map(t -> TermsTypeJpa.valueOf(t.name()))
-                .orElse(null);
+        return termsType != null ? TermsTypeJpa.valueOf(termsType.name()) : null;
     }
 }

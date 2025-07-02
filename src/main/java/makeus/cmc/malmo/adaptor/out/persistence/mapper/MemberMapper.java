@@ -1,5 +1,6 @@
 package makeus.cmc.malmo.adaptor.out.persistence.mapper;
 
+import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.ProviderJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberRoleJpa;
@@ -10,16 +11,11 @@ import makeus.cmc.malmo.domain.model.member.MemberRole;
 import makeus.cmc.malmo.domain.model.member.MemberState;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
-
+@RequiredArgsConstructor
 @Component
 public class MemberMapper {
 
     private final LoveTypeMapper loveTypeMapper;
-
-    public MemberMapper(LoveTypeMapper loveTypeMapper) {
-        this.loveTypeMapper = loveTypeMapper;
-    }
 
     public Member toDomain(MemberEntity entity) {
         return Member.builder()
@@ -64,38 +60,26 @@ public class MemberMapper {
     }
 
     private Provider toProvider(ProviderJpa providerJpa) {
-        return Optional.ofNullable(providerJpa)
-                .map(p -> Provider.valueOf(p.name()))
-                .orElse(null);
+        return providerJpa != null ? Provider.valueOf(providerJpa.name()) : null;
     }
 
     private ProviderJpa toProviderJpa(Provider provider) {
-        return Optional.ofNullable(provider)
-                .map(p -> ProviderJpa.valueOf(p.name()))
-                .orElse(null);
+        return provider != null ? ProviderJpa.valueOf(provider.name()) : null;
     }
 
     private MemberRole toMemberRole(MemberRoleJpa memberRoleJpa) {
-        return Optional.ofNullable(memberRoleJpa)
-                .map(mr -> MemberRole.valueOf(mr.name()))
-                .orElse(null);
+        return memberRoleJpa != null ? MemberRole.valueOf(memberRoleJpa.name()) : null;
     }
 
     private MemberRoleJpa toMemberRoleJpa(MemberRole memberRole) {
-        return Optional.ofNullable(memberRole)
-                .map(mr -> MemberRoleJpa.valueOf(mr.name()))
-                .orElse(null);
+        return memberRole != null ? MemberRoleJpa.valueOf(memberRole.name()) : null;
     }
 
     private MemberState toMemberState(MemberStateJpa memberStateJpa) {
-        return Optional.ofNullable(memberStateJpa)
-                .map(ms -> MemberState.valueOf(ms.name()))
-                .orElse(null);
+        return memberStateJpa != null ? MemberState.valueOf(memberStateJpa.name()) : null;
     }
 
     private MemberStateJpa toMemberStateJpa(MemberState memberState) {
-        return Optional.ofNullable(memberState)
-                .map(ms -> MemberStateJpa.valueOf(ms.name()))
-                .orElse(null);
+        return memberState != null ? MemberStateJpa.valueOf(memberState.name()) : null;
     }
 }

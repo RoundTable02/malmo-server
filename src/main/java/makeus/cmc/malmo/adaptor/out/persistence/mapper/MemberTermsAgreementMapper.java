@@ -9,14 +9,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class MemberTermsAgreementMapper {
 
-    private final MemberMapper memberMapper;
-    private final TermsMapper termsMapper;
-
-    public MemberTermsAgreementMapper(MemberMapper memberMapper, TermsMapper termsMapper) {
-        this.memberMapper = memberMapper;
-        this.termsMapper = termsMapper;
-    }
-
     public MemberTermsAgreement toDomain(MemberTermsAgreementEntity entity) {
         return MemberTermsAgreement.builder()
                 .id(entity.getId())
