@@ -2,7 +2,7 @@ spring:
   application:
     name: malmo
   profiles:
-    default: deploy-test
+    default: test
 
 # Swagger/OpenAPI 설정
 springdoc:

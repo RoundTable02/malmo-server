@@ -1,5 +1,5 @@
 # 멀티스테이지 빌드를 위한 빌드 스테이지
-FROM openjdk:17-jdk-slim AS build
+FROM eclipse-temurin:17-jdk-alpine AS build
 
 # 작업 디렉토리 설정
 WORKDIR /app
@@ -21,10 +21,10 @@ COPY src src
 RUN ./gradlew bootJar --no-daemon
 
 # 런타임 스테이지
-FROM openjdk:17-jre-slim AS runtime
+FROM eclipse-temurin:17-jre-alpine AS runtime
 
 # 비루트 사용자 생성 (보안을 위해)
-RUN groupadd -r malmo && useradd -r -g malmo malmo
+RUN addgroup -g 1000 malmo && adduser -u 1000 -G malmo -s /bin/sh -D malmo
 
 # 작업 디렉토리 설정
 WORKDIR /app
