@@ -33,7 +33,7 @@ jobs:
       run: chmod +x gradlew
       
     - name: Run tests
-      run: ./gradlew test --no-daemon
+      run: ./gradlew test --no-daemon --info
       env:
         SPRING_PROFILES_ACTIVE: 'test'
 
@@ -112,6 +112,7 @@ jobs:
             -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
             -e KAKAO_REST_API_KEY="${{ secrets.KAKAO_REST_API_KEY }}" \
             -e APPLE_REST_API_KEY="${{ secrets.APPLE_REST_API_KEY }}" \
+            -e SWAGGER_SERVER_PRODUCTION_URL="${{ secrets.SWAGGER_SERVER_PRODUCTION_URL }}" \
             ${{ secrets.DOCKERHUB_USERNAME }}/malmo-app:latest
           
           # 불필요한 이미지 정리
