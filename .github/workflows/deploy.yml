@@ -34,7 +34,9 @@ jobs:
       
     - name: Run tests
       run: ./gradlew test --no-daemon
-      
+      env:
+        SPRING_PROFILES_ACTIVE: 'deploy-test'
+
   build-and-deploy:
     needs: test
     runs-on: ubuntu-latest
