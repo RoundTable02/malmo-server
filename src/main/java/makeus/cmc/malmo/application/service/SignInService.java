@@ -37,13 +37,14 @@ public class SignInService implements SignInUseCase {
                     // 이메일 정보 가져오기
                     String email = fetchFromOAuthProviderPort.fetchMemberEmailFromKakao(command.getAccessToken());
 
-                    return Member.createMember(
+                    Member newMember = Member.createMember(
                             Provider.KAKAO,
                             providerId,
                             MemberRole.MEMBER,
                             MemberState.BEFORE_ONBOARDING,
                             email
                     );
+                    return saveMemberPort.saveMember(newMember);
                 });
 
 
@@ -75,13 +76,14 @@ public class SignInService implements SignInUseCase {
                     // 이메일 정보 가져오기
                     String email = appleIdTokenPort.extractEmailFromIdToken(command.getIdToken());
 
-                    return Member.createMember(
+                    Member newMember = Member.createMember(
                             Provider.APPLE,
                             providerId,
                             MemberRole.MEMBER,
                             MemberState.BEFORE_ONBOARDING,
                             email
                     );
+                    return saveMemberPort.saveMember(newMember);
                 });
 
 
