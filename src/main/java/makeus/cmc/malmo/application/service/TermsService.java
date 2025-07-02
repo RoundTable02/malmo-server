@@ -1,0 +1,30 @@
+package makeus.cmc.malmo.application.service;
+
+import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.application.port.in.TermsUseCase;
+import makeus.cmc.malmo.application.port.out.LoadTermsPort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
+public class TermsService implements TermsUseCase {
+
+    private final LoadTermsPort loadTermsPort;
+
+    @Override
+    public List<TermsResponse> getTerms() {
+        return loadTermsPort.loadLatestTerms().stream()
+                .map(term -> TermsResponse.builder()
+                        .termsId(term.getId())
+                        .title(term.getTitle())
+                        .content(term.getContent())
+                        .version(term.getVersion())
+                        .isRequired(term.isRequired())
+                        .build())
+                .toList();
+    }
+}

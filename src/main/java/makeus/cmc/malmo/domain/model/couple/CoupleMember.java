@@ -1,29 +1,18 @@
 package makeus.cmc.malmo.domain.model.couple;
 
-import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
-import makeus.cmc.malmo.domain.model.member.Member;
+import makeus.cmc.malmo.domain.model.value.CoupleId;
+import makeus.cmc.malmo.domain.model.value.MemberId;
 
 @Getter
-@NoArgsConstructor
-@Entity
+@SuperBuilder
+@AllArgsConstructor
 public class CoupleMember extends BaseTimeEntity {
-
-    @Column(name = "coupleMemberId")
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @OneToOne
-    @JoinColumn(name = "member_id")
-    private Member member;
-
-    @ManyToOne
-    @JoinColumn(name = "couple_id")
-    private Couple couple;
-
-    @Enumerated(EnumType.STRING)
+    private MemberId memberId;
+    private CoupleId coupleId;
     private CoupleMemberState coupleMemberState;
 }

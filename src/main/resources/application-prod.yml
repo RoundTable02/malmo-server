@@ -9,3 +9,21 @@ spring:
       ddl-auto: validate
     show-sql: false
     database-platform: org.hibernate.dialect.MySQL8Dialect
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-expiration-seconds: 3600
+  refresh-token-expiration-seconds: 86400
+
+kakao:
+  oidc:
+    iss: https://kauth.kakao.com
+    aud: ${KAKAO_REST_API_KEY}
+    jwks-uri: https://kauth.kakao.com/.well-known/jwks.json
+    user-info-uri: https://kapi.kakao.com/v1/oidc/userinfo
+
+apple:
+  oidc:
+    iss: https://appleid.apple.com
+    aud: ${APPLE_REST_API_KEY}
+    jwks-uri: https://appleid.apple.com/auth/keys

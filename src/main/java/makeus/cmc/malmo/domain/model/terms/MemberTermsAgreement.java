@@ -1,29 +1,26 @@
 package makeus.cmc.malmo.domain.model.terms;
 
-
-import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
-import makeus.cmc.malmo.domain.model.member.Member;
+import makeus.cmc.malmo.domain.model.value.MemberId;
+import makeus.cmc.malmo.domain.model.value.TermsId;
 
 @Getter
-@NoArgsConstructor
-@Entity
+@SuperBuilder
+@AllArgsConstructor
 public class MemberTermsAgreement extends BaseTimeEntity {
-
-    @Column(name = "memberTermsAgreementId")
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "member_id")
-    private Member member;
-
-    @ManyToOne
-    @JoinColumn(name = "terms_id")
-    private Terms terms;
-
+    private MemberId memberId;
+    private TermsId termsId;
     private boolean agreed;
+
+    public static MemberTermsAgreement signTerms(MemberId memberId, TermsId termsId, boolean agreed) {
+        return MemberTermsAgreement.builder()
+                .memberId(memberId)
+                .termsId(termsId)
+                .agreed(agreed)
+                .build();
+    }
 }

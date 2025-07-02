@@ -1,28 +1,41 @@
 package makeus.cmc.malmo.domain.model.couple;
 
-import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
+import makeus.cmc.malmo.domain.model.value.MemberId;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.List;
 
 @Getter
-@NoArgsConstructor
-@Entity
+@SuperBuilder
+@AllArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class Couple extends BaseTimeEntity {
-
-    @Column(name = "coupleId")
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String inviteCode;
-
-    private LocalDateTime startLoveDate;
-
-    @Enumerated(EnumType.STRING)
+    private LocalDate startLoveDate;
     private CoupleState coupleState;
+    private List<CoupleMember> coupleMembers;
 
-    private LocalDateTime deletedDate;
+    public static Couple createCouple(Long memberId, Long partnerId, LocalDate startLoveDate, CoupleState coupleState) {
+        Couple couple = Couple.builder()
+                .startLoveDate(startLoveDate)
+                .coupleState(coupleState)
+                .build();
+
+        CoupleMember coupleMember = CoupleMember.builder()
+                .memberId(MemberId.of(memberId))
+                .coupleMemberState(CoupleMemberState.ALIVE)
+                .build();
+
+        CoupleMember couplePartner = CoupleMember.builder()
+                .memberId(MemberId.of(partnerId))
+                .coupleMemberState(CoupleMemberState.ALIVE)
+                .build();
+
+        couple.coupleMembers = List.of(coupleMember, couplePartner);
+
+        return couple;
+    }
 }

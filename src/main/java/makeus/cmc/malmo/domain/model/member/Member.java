@@ -1,45 +1,56 @@
 package makeus.cmc.malmo.domain.model.member;
 
-import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
 import makeus.cmc.malmo.domain.model.LoveType;
+import makeus.cmc.malmo.domain.model.value.MemberId;
+
+import java.time.LocalDate;
 
 @Getter
-@NoArgsConstructor
-@Entity
+@SuperBuilder
+@AllArgsConstructor
 public class Member extends BaseTimeEntity {
-
-    @Column(name = "memberId")
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Enumerated(value = EnumType.STRING)
     private Provider provider;
-
     private String providerId;
-
-    @Enumerated(value = EnumType.STRING)
     private MemberRole memberRole;
-
-    @Enumerated(value = EnumType.STRING)
     private MemberState memberState;
-
     private boolean isAlarmOn;
-
     private String firebaseToken;
-
-    @ManyToOne
-    @JoinColumn(name = "love_type_id")
+    private String refreshToken;
     private LoveType loveType;
-
     private float avoidanceRate;
-
     private float anxietyRate;
-
     private String nickname;
+    private String email;
+    
+    public static Member createMember(Provider provider, String providerId, MemberRole memberRole, MemberState memberState, String email) {
+        return Member.builder()
+                .provider(provider)
+                .providerId(providerId)
+                .memberRole(memberRole)
+                .memberState(memberState)
+                .email(email)
+                .build();
+    }
 
+    public void signUp(String nickname) {
+        this.nickname = nickname;
+        this.memberState = MemberState.ALIVE;
+    }
 
+    public void refreshMemberToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
+    public CoupleCode generateCoupleCode(String inviteCode, LocalDate startLoveDate) {
+        return CoupleCode.builder()
+                .inviteCode(inviteCode)
+                .startLoveDate(startLoveDate)
+                .memberId(MemberId.of(this.id))
+                .build();
+    }
 }
