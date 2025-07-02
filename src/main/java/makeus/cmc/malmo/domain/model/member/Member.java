@@ -5,6 +5,7 @@ import lombok.experimental.SuperBuilder;
 import lombok.AllArgsConstructor;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
 import makeus.cmc.malmo.domain.model.LoveType;
+import makeus.cmc.malmo.domain.model.value.MemberId;
 
 import java.time.LocalDate;
 
@@ -49,7 +50,7 @@ public class Member extends BaseTimeEntity {
         return CoupleCode.builder()
                 .inviteCode(inviteCode)
                 .startLoveDate(startLoveDate)
-                .memberId(this.id)
+                .memberId(MemberId.of(this.id))
                 .build();
     }
 }

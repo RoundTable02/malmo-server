@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntityJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
 
 import java.time.LocalDate;
 
@@ -25,7 +26,7 @@ public class CoupleCodeEntity extends BaseTimeEntityJpa {
 
     private LocalDate startLoveDate;
 
-    @OneToOne
-    @JoinColumn(name = "member_id")
-    private MemberEntity member;
+    @AttributeOverride(name = "id", column = @Column(name = "member_id", nullable = false))
+    @Embedded
+    private MemberEntityId memberEntityId;
 }

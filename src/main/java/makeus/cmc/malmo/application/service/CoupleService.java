@@ -34,7 +34,7 @@ public class CoupleService implements CoupleLinkUseCase {
 
         Couple couple = Couple.createCouple(
                 member.getId(),
-                coupleCode.getMemberId(),
+                coupleCode.getMemberId().getValue(),
                 coupleCode.getStartLoveDate(),
                 CoupleState.ALIVE
         );
