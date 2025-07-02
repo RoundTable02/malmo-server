@@ -29,6 +29,7 @@ public class CoupleEntity extends BaseTimeEntityJpa {
     @Enumerated(EnumType.STRING)
     private CoupleStateJpa coupleStateJpa;
 
-    @OneToMany(mappedBy = "couple", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "couple_id")
     private List<CoupleMemberEntity> coupleMembers;
 }
