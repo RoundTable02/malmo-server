@@ -1,9 +1,13 @@
 package makeus.cmc.malmo.adaptor.in.web.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
 import makeus.cmc.malmo.application.port.in.SignUpUseCase;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,12 +19,20 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 import java.util.List;
 
+@Tag(name = "회원가입 API", description = "사용자 회원가입 관련 API")
 @RestController
 @RequiredArgsConstructor
 public class SignUpController {
 
     private final SignUpUseCase signUpUseCase;
 
+    @Operation(
+            summary = "회원가입",
+            description = "인증된 사용자의 추가 정보를 입력받아 회원가입을 완료합니다. JWT 토큰이 필요합니다.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiCommonResponses.RequireAuth
+    @ApiCommonResponses.SignUp
     @PostMapping("/sign-up")
     public BaseResponse<SignUpUseCase.SignUpResponse> signUp(
             @AuthenticationPrincipal User user,
