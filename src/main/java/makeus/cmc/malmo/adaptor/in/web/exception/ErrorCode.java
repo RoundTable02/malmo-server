@@ -10,7 +10,9 @@ public enum ErrorCode {
 
     // 400 Bad Request
     BAD_REQUEST(HttpStatus.BAD_REQUEST, 40000, "잘못된 요청입니다."),
-    NO_SUCH_MEMBER(HttpStatus.BAD_REQUEST, 40001, "레이싱이 존재하지 않습니다."),
+    NO_SUCH_MEMBER(HttpStatus.BAD_REQUEST, 40001, "멤버가 존재하지 않습니다."),
+    NO_SUCH_COUPLE_CODE(HttpStatus.BAD_REQUEST, 40002, "초대 코드가 존재하지 않습니다."),
+    NO_SUCH_TERMS(HttpStatus.BAD_REQUEST, 40003, "약관이 존재하지 않습니다."),
 
     // 401 Unauthorized
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, 40100, "인증되지 않은 사용자입니다."),
@@ -28,6 +30,7 @@ public enum ErrorCode {
 
     // 500 Internal Server Error
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 50000, "서버 내부 오류입니다."),
+    COUPLE_CODE_GENERATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 50001, "커플 코드 생성에 실패했습니다."),
 
     // 502 Bad Gateway
     EXTERNAL_API_ERROR(HttpStatus.BAD_GATEWAY, 50200, "외부 API 호출 중 오류가 발생했습니다.");

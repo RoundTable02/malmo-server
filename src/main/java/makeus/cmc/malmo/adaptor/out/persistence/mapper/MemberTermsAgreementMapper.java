@@ -1,25 +1,23 @@
 package makeus.cmc.malmo.adaptor.out.persistence.mapper;
 
+import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.terms.MemberTermsAgreementEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.terms.TermsEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.TermsEntityId;
 import makeus.cmc.malmo.domain.model.terms.MemberTermsAgreement;
+import makeus.cmc.malmo.domain.model.value.MemberId;
+import makeus.cmc.malmo.domain.model.value.TermsId;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MemberTermsAgreementMapper {
 
-    private final MemberMapper memberMapper;
-    private final TermsMapper termsMapper;
-
-    public MemberTermsAgreementMapper(MemberMapper memberMapper, TermsMapper termsMapper) {
-        this.memberMapper = memberMapper;
-        this.termsMapper = termsMapper;
-    }
-
     public MemberTermsAgreement toDomain(MemberTermsAgreementEntity entity) {
         return MemberTermsAgreement.builder()
                 .id(entity.getId())
-                .member(memberMapper.toDomain(entity.getMember()))
-                .terms(termsMapper.toDomain(entity.getTerms()))
+                .memberId(MemberId.of(entity.getMemberEntityId().getValue()))
+                .termsId(TermsId.of(entity.getTermsEntityId().getValue()))
                 .agreed(entity.isAgreed())
                 .createdAt(entity.getCreatedAt())
                 .modifiedAt(entity.getModifiedAt())
@@ -30,9 +28,12 @@ public class MemberTermsAgreementMapper {
     public MemberTermsAgreementEntity toEntity(MemberTermsAgreement domain) {
         return MemberTermsAgreementEntity.builder()
                 .id(domain.getId())
-                .member(memberMapper.toEntity(domain.getMember()))
-                .terms(termsMapper.toEntity(domain.getTerms()))
+                .memberEntityId(MemberEntityId.of(domain.getMemberId().getValue()))
+                .termsEntityId(TermsEntityId.of(domain.getTermsId().getValue()))
                 .agreed(domain.isAgreed())
+                .createdAt(domain.getCreatedAt())
+                .modifiedAt(domain.getModifiedAt())
+                .deletedAt(domain.getDeletedAt())
                 .build();
     }
 }

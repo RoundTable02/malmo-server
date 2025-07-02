@@ -1,8 +1,8 @@
 package makeus.cmc.malmo.domain.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
-import lombok.AllArgsConstructor;
 
 @Getter
 @SuperBuilder

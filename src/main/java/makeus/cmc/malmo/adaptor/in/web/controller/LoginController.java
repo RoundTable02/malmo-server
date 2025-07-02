@@ -2,6 +2,8 @@ package makeus.cmc.malmo.adaptor.in.web.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +28,9 @@ public class LoginController {
     )
     @ApiCommonResponses.Login
     @PostMapping("/login/kakao")
-    public BaseResponse<SignInUseCase.SignInResponse> loginWithKakao(@RequestBody KakaoLoginRequestDto requestDto) {
+    public BaseResponse<SignInUseCase.SignInResponse> loginWithKakao(
+            @Valid @RequestBody KakaoLoginRequestDto requestDto
+    ) {
         SignInUseCase.SignInKakaoCommand command = SignInUseCase.SignInKakaoCommand.builder()
                 .idToken(requestDto.idToken)
                 .accessToken(requestDto.accessToken)
@@ -40,7 +44,9 @@ public class LoginController {
     )
     @ApiCommonResponses.Login
     @PostMapping("/login/apple")
-    public BaseResponse<SignInUseCase.SignInResponse> loginWithApple(@RequestBody AppleLoginRequestDto requestDto) {
+    public BaseResponse<SignInUseCase.SignInResponse> loginWithApple(
+            @Valid @RequestBody AppleLoginRequestDto requestDto
+    ) {
         SignInUseCase.SignInAppleCommand command = SignInUseCase.SignInAppleCommand.builder()
                 .idToken(requestDto.idToken)
                 .build();
@@ -50,12 +56,15 @@ public class LoginController {
 
     @Data
     public static class KakaoLoginRequestDto {
+        @NotEmpty(message = "idToken은 필수 입력값입니다.")
         private String idToken;
+        @NotEmpty(message = "accessToken은 필수 입력값입니다.")
         private String accessToken;
     }
 
     @Data
     public static class AppleLoginRequestDto {
+        @NotEmpty(message = "idToken은 필수 입력값입니다.")
         private String idToken;
     }
 }

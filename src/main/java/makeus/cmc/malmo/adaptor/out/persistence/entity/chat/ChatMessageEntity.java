@@ -1,7 +1,9 @@
 package makeus.cmc.malmo.adaptor.out.persistence.entity.chat;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntityJpa;
 

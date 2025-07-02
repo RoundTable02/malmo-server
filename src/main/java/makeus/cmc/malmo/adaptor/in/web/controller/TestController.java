@@ -12,7 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "테스트 API", description = "개발 및 테스트용 API, 공통 응답을 지원하지 않습니다.")
 @Slf4j

@@ -6,7 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntityJpa;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleEntityId;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
 
 @Getter
 @SuperBuilder
@@ -19,13 +20,13 @@ public class CoupleMemberEntity extends BaseTimeEntityJpa {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "member_id")
-    private MemberEntity member;
+    @AttributeOverride(name = "id", column = @Column(name = "member_id", nullable = false))
+    @Embedded
+    private MemberEntityId memberEntityId;
 
-    @ManyToOne
-    @JoinColumn(name = "couple_id")
-    private CoupleEntity couple;
+    @AttributeOverride(name = "id", column = @Column(name = "couple_id", nullable = false))
+    @Embedded
+    private CoupleEntityId coupleEntityId;
 
     @Enumerated(EnumType.STRING)
     private CoupleMemberStateJpa coupleMemberStateJpa;

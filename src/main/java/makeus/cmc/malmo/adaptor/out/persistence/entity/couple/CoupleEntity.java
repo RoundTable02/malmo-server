@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntityJpa;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @SuperBuilder
@@ -20,12 +21,12 @@ public class CoupleEntity extends BaseTimeEntityJpa {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String inviteCode;
-
-    private LocalDateTime startLoveDate;
+    private LocalDate startLoveDate;
 
     @Enumerated(EnumType.STRING)
     private CoupleStateJpa coupleStateJpa;
 
-    private LocalDateTime deletedDate;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "couple_id")
+    private List<CoupleMemberEntity> coupleMembers;
 }

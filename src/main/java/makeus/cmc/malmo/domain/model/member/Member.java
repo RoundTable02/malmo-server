@@ -1,10 +1,13 @@
 package makeus.cmc.malmo.domain.model.member;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
-import lombok.AllArgsConstructor;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
 import makeus.cmc.malmo.domain.model.LoveType;
+import makeus.cmc.malmo.domain.model.value.MemberId;
+
+import java.time.LocalDate;
 
 @Getter
 @SuperBuilder
@@ -34,7 +37,20 @@ public class Member extends BaseTimeEntity {
                 .build();
     }
 
+    public void signUp(String nickname) {
+        this.nickname = nickname;
+        this.memberState = MemberState.ALIVE;
+    }
+
     public void refreshMemberToken(String refreshToken) {
         this.refreshToken = refreshToken;
+    }
+
+    public CoupleCode generateCoupleCode(String inviteCode, LocalDate startLoveDate) {
+        return CoupleCode.builder()
+                .inviteCode(inviteCode)
+                .startLoveDate(startLoveDate)
+                .memberId(MemberId.of(this.id))
+                .build();
     }
 }

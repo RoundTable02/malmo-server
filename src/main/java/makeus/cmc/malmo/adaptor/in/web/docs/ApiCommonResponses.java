@@ -114,4 +114,24 @@ public class ApiCommonResponses {
     })
     public @interface RefreshToken {
     }
+
+    /**
+     * 회원가입 API 전용 응답
+     */
+    @Target({ElementType.METHOD})
+    @Retention(RetentionPolicy.RUNTIME)
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "존재하지 않는 약관",
+                    content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "커플 코드 생성에 실패했습니다",
+                    content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class))
+            )
+    })
+    public @interface SignUp {
+    }
 }
