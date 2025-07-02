@@ -35,3 +35,8 @@ apple:
     iss: https://appleid.apple.com
     aud: test-apple-client-id
     jwks-uri: https://appleid.apple.com/auth/keys
+
+swagger:
+  server:
+    production:
+      url: sample.url.com

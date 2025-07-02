@@ -27,3 +27,8 @@ apple:
     iss: https://appleid.apple.com
     aud: ${APPLE_REST_API_KEY}
     jwks-uri: https://appleid.apple.com/auth/keys
+
+swagger:
+  server:
+    production:
+      url: ${SWAGGER_SERVER_PRODUCTION_URL}
