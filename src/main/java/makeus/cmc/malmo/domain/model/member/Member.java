@@ -1,8 +1,8 @@
 package makeus.cmc.malmo.domain.model.member;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
-import lombok.AllArgsConstructor;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
 import makeus.cmc.malmo.domain.model.LoveType;
 import makeus.cmc.malmo.domain.model.value.MemberId;

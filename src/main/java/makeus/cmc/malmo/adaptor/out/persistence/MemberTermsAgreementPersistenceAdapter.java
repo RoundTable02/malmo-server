@@ -8,15 +8,11 @@ import makeus.cmc.malmo.adaptor.out.persistence.mapper.MemberMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.MemberTermsAgreementMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.TermsMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.MemberTermsAgreementRepository;
-import makeus.cmc.malmo.adaptor.out.persistence.repository.TermsRepository;
-import makeus.cmc.malmo.application.port.out.LoadTermsPort;
 import makeus.cmc.malmo.application.port.out.SaveMemberTermsAgreement;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.terms.MemberTermsAgreement;
 import makeus.cmc.malmo.domain.model.terms.Terms;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor

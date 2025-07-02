@@ -2,13 +2,13 @@ package makeus.cmc.malmo.adaptor.out.persistence.mapper;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.member.ProviderJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberRoleJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberStateJpa;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.member.ProviderJpa;
 import makeus.cmc.malmo.domain.model.member.Member;
-import makeus.cmc.malmo.domain.model.member.Provider;
 import makeus.cmc.malmo.domain.model.member.MemberRole;
 import makeus.cmc.malmo.domain.model.member.MemberState;
+import makeus.cmc.malmo.domain.model.member.Provider;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor

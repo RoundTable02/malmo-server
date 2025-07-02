@@ -1,6 +1,6 @@
 package makeus.cmc.malmo.domain.model.value;
 
-import lombok.*;
+import lombok.Value;
 
 @Value
 public class CoupleId {

@@ -1,15 +1,12 @@
 package makeus.cmc.malmo.domain.model.couple;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
-import makeus.cmc.malmo.domain.model.value.CoupleId;
 import makeus.cmc.malmo.domain.model.value.MemberId;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter

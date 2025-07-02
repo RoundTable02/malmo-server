@@ -5,9 +5,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import makeus.cmc.malmo.adaptor.in.web.exception.ErrorCode;
-import makeus.cmc.malmo.adaptor.in.web.exception.ErrorResponse;
 import org.slf4j.MDC;
-import org.springframework.http.ResponseEntity;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
