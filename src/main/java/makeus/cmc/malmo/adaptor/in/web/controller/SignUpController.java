@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
@@ -79,7 +80,7 @@ public class SignUpController {
     }
 
     @Data
-    class TermsDto {
+    public static class TermsDto {
         @NotNull(message = "약관 ID는 필수 입력값입니다.")
         private Long termsId;
         @NotNull(message = "약관 동의 여부는 필수 입력값입니다.")

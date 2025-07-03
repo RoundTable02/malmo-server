@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 public class CoupleCodeEntity extends BaseTimeEntityJpa {
-    @Column(name = "coupleId")
+    @Column(name = "coupleCodeId")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
