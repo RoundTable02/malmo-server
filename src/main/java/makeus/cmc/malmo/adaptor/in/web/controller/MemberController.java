@@ -16,6 +16,7 @@ import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseListResponse;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
+import makeus.cmc.malmo.application.port.in.GetMemberUseCase;
 import makeus.cmc.malmo.domain.model.member.MemberState;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
@@ -31,8 +32,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MemberController {
 
+    private final GetMemberUseCase getMemberUseCase;
+
     @Operation(
-            summary = "🚧 [개발 전] 멤버 정보 조회",
+            summary = "멤버 정보 조회",
             description = "현재 로그인된 멤버 정보를 조회합니다. JWT 토큰이 필요합니다.",
             security = @SecurityRequirement(name = "Bearer Authentication")
     )
@@ -43,10 +46,13 @@ public class MemberController {
     )
     @ApiCommonResponses.RequireAuth
     @GetMapping
-    public BaseResponse<MemberResponseDto> getMemberInfo(
+    public BaseResponse<GetMemberUseCase.MemberResponseDto> getMemberInfo(
             @AuthenticationPrincipal User user
     ) {
-        return BaseResponse.success(MemberResponseDto.builder().build());
+        GetMemberUseCase.MemberInfoCommand command = GetMemberUseCase.MemberInfoCommand.builder()
+                .userId(Long.valueOf(user.getUsername()))
+                .build();
+        return BaseResponse.success(getMemberUseCase.getMemberInfo(command));
     }
 
     @Operation(
@@ -142,17 +148,6 @@ public class MemberController {
         return BaseResponse.success(InviteCodeResponseDto.builder().build());
     }
 
-
-    @Data
-    @Builder
-    public static class MemberResponseDto {
-        private MemberState memberState;
-        private String loveTypeTitle;
-        private float avoidanceRate;
-        private float anxietyRate;
-        private String nickname;
-        private String email;
-    }
 
     @Data
     @Builder
