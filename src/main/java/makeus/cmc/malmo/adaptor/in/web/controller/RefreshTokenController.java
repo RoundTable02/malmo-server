@@ -1,6 +1,9 @@
 package makeus.cmc.malmo.adaptor.in.web.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -8,6 +11,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
+import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
 import makeus.cmc.malmo.application.port.in.RefreshTokenUseCase;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,7 +30,11 @@ public class RefreshTokenController {
             summary = "JWT 토큰 갱신",
             description = "Refresh Token을 사용하여 새로운 Access Token과 Refresh Token을 발급받습니다."
     )
-    @ApiCommonResponses.RefreshToken
+    @ApiResponse(
+            responseCode = "200",
+            description = "토큰 갱신 성공",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.RefreshTokenSuccessResponse.class))
+    )
     @ApiCommonResponses.TokenRelated
     @PostMapping("/refresh")
     public BaseResponse<RefreshTokenUseCase.TokenResponse> refreshToken(

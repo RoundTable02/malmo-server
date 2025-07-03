@@ -1,6 +1,9 @@
 package makeus.cmc.malmo.adaptor.in.web.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -8,6 +11,7 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
+import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
 import makeus.cmc.malmo.application.port.in.SignUpUseCase;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,6 +34,11 @@ public class SignUpController {
             summary = "회원가입",
             description = "인증된 사용자의 추가 정보를 입력받아 회원가입을 완료합니다. JWT 토큰이 필요합니다.",
             security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "회원가입 성공",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.SignUpSuccessResponse.class))
     )
     @ApiCommonResponses.RequireAuth
     @ApiCommonResponses.SignUp
