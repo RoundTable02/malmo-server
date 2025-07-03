@@ -52,7 +52,7 @@ public class CoupleController {
     }
 
     @Operation(
-            summary = "커플 연결 끊기",
+            summary = "🚧 [개발 전] 커플 연결 끊기",
             description = "연결된 커플을 끊습니다. JWT 토큰이 필요합니다.",
             security = @SecurityRequirement(name = "Bearer Authentication")
     )
