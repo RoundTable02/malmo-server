@@ -1,6 +1,8 @@
 package makeus.cmc.malmo.adaptor.in.web.docs;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import makeus.cmc.malmo.domain.model.LoveType;
 import makeus.cmc.malmo.domain.model.member.MemberState;
@@ -81,6 +83,11 @@ public class SwaggerResponses {
     @Getter
     @Schema(description = "멤버 약관 동의 수정 성공 응답")
     public static class UpdateMemberTermsSuccessResponse extends BaseSwaggerResponse<BaseListSwaggerResponse<TermsData>> {
+    }
+
+    @Getter
+    @Schema(description = "멤버 초대 코드 성공 응답")
+    public static class GetInviteCodeSuccessResponse extends BaseSwaggerResponse<InviteCodeResponseData> {
     }
 
     // 커플 관련 응답
@@ -386,5 +393,11 @@ public class SwaggerResponses {
 
         @Schema(description = "생성일시", example = "2023-07-03T10:00:00")
         private LocalDateTime createdAt;
+    }
+
+    @Getter
+    @Schema(description = "초대 코드 응답 데이터")
+    public static class InviteCodeResponseData {
+        private String coupleCode;
     }
 }

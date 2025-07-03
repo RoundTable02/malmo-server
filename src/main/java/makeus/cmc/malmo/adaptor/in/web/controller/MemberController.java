@@ -125,6 +125,24 @@ public class MemberController {
         return BaseListResponse.success(List.of(TermsDto.builder().build()));
     }
 
+    @Operation(
+            summary = "🚧 [개발 전] 사용자 초대 코드 조회",
+            description = "현재 로그인된 사용자의 초대 코드를 조회합니다. JWT 토큰이 필요합니다.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "사용자 초대 코드 조회 성공",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.GetInviteCodeSuccessResponse.class))
+    )
+    @ApiCommonResponses.RequireAuth
+    @GetMapping("/invite-code")
+    public BaseResponse<InviteCodeResponseDto> getMemberInviteCode(
+            @AuthenticationPrincipal User user
+    ) {
+        return BaseResponse.success(InviteCodeResponseDto.builder().build());
+    }
+
 
     @Data
     @Builder
@@ -170,6 +188,12 @@ public class MemberController {
     @Data
     public static class UpdateMemberTermsRequestDto {
         private List<TermsDto> terms;
+    }
+
+    @Data
+    @Builder
+    public static class InviteCodeResponseDto {
+        private String coupleCode;
     }
 
     @Data
