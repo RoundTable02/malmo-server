@@ -1,8 +1,6 @@
 package makeus.cmc.malmo.adaptor.out.persistence.mapper;
 
-import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.terms.MemberTermsAgreementEntity;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.terms.TermsEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.TermsEntityId;
 import makeus.cmc.malmo.domain.model.terms.MemberTermsAgreement;

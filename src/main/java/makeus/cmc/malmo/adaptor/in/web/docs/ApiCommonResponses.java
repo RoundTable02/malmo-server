@@ -22,6 +22,11 @@ public class ApiCommonResponses {
     @Retention(RetentionPolicy.RUNTIME)
     @ApiResponses(value = {
             @ApiResponse(
+                    responseCode = "500",
+                    description = "서버 내부 오류",
+                    content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class))
+            ),
+            @ApiResponse(
                     responseCode = "401",
                     description = "인증되지 않은 사용자",
                     content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class))
@@ -77,11 +82,6 @@ public class ApiCommonResponses {
     @Retention(RetentionPolicy.RUNTIME)
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "200",
-                    description = "로그인 성공",
-                    content = @Content(schema = @Schema(implementation = SwaggerResponses.LoginSuccessResponse.class))
-            ),
-            @ApiResponse(
                     responseCode = "401",
                     description = "ID Token 검증 실패",
                     content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class))
@@ -98,21 +98,6 @@ public class ApiCommonResponses {
             )
     })
     public @interface Login {
-    }
-
-    /**
-     * 토큰 갱신 API 전용 응답
-     */
-    @Target({ElementType.METHOD})
-    @Retention(RetentionPolicy.RUNTIME)
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "토큰 갱신 성공",
-                    content = @Content(schema = @Schema(implementation = SwaggerResponses.RefreshTokenSuccessResponse.class))
-            )
-    })
-    public @interface RefreshToken {
     }
 
     /**
@@ -133,5 +118,20 @@ public class ApiCommonResponses {
             )
     })
     public @interface SignUp {
+    }
+
+    /**
+     * 커플 전용 API 응답
+     */
+    @Target({ElementType.METHOD})
+    @Retention(RetentionPolicy.RUNTIME)
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "커플로 등록되지 않은 사용자입니다.",
+                    content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class))
+            )
+    })
+    public @interface OnlyCouple {
     }
 }

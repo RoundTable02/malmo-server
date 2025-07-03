@@ -1,9 +1,13 @@
 package makeus.cmc.malmo.adaptor.in.web.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
+import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseListResponse;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
 import makeus.cmc.malmo.application.port.in.TermsUseCase;
@@ -23,11 +27,12 @@ public class TermsController {
     )
     @ApiResponse(
             responseCode = "200",
-            description = "약관 목록 조회 성공"
+            description = "약관 목록 조회 성공",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.TermsListSuccessResponse.class))
     )
+    @ApiCommonResponses.RequireAuth
     @GetMapping("/terms")
     public BaseResponse<BaseListResponse<TermsUseCase.TermsResponse>> getTerms() {
-
         return BaseListResponse.success(termsUseCase.getTerms());
     }
 }
