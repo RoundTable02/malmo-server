@@ -12,7 +12,6 @@ import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.member.MemberRole;
 import makeus.cmc.malmo.domain.model.member.MemberState;
 import makeus.cmc.malmo.domain.model.member.Provider;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

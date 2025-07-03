@@ -1,6 +1,9 @@
 package makeus.cmc.malmo.adaptor.in.web.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -8,6 +11,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
+import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
 import makeus.cmc.malmo.application.port.in.SignInUseCase;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +30,11 @@ public class LoginController {
             summary = "카카오 소셜 로그인",
             description = "카카오 OIDC ID 토큰을 통해 로그인합니다. 신규 사용자의 경우 자동으로 회원가입이 진행됩니다."
     )
+    @ApiResponse(
+            responseCode = "200",
+            description = "로그인 성공",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.LoginSuccessResponse.class))
+    )
     @ApiCommonResponses.Login
     @PostMapping("/login/kakao")
     public BaseResponse<SignInUseCase.SignInResponse> loginWithKakao(
@@ -41,6 +50,11 @@ public class LoginController {
     @Operation(
             summary = "애플 소셜 로그인",
             description = "애플 OIDC ID 토큰을 통해 로그인합니다. 신규 사용자의 경우 자동으로 회원가입이 진행됩니다."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "로그인 성공",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.LoginSuccessResponse.class))
     )
     @ApiCommonResponses.Login
     @PostMapping("/login/apple")
