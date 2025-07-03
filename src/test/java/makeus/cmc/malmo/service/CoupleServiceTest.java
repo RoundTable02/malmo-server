@@ -8,7 +8,6 @@ import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.SaveCouplePort;
 import makeus.cmc.malmo.application.service.CoupleService;
 import makeus.cmc.malmo.domain.model.couple.Couple;
-import makeus.cmc.malmo.domain.model.couple.CoupleState;
 import makeus.cmc.malmo.domain.model.member.CoupleCode;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.value.MemberId;
@@ -23,7 +22,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
 

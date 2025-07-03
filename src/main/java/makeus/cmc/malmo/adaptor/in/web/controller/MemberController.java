@@ -16,7 +16,6 @@ import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseListResponse;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
-import makeus.cmc.malmo.domain.model.LoveType;
 import makeus.cmc.malmo.domain.model.member.MemberState;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
