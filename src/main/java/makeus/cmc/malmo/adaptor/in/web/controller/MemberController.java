@@ -19,12 +19,11 @@ import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
 import makeus.cmc.malmo.application.port.in.GetInviteCodeUseCase;
 import makeus.cmc.malmo.application.port.in.GetMemberUseCase;
 import makeus.cmc.malmo.application.port.in.GetPartnerUseCase;
-import makeus.cmc.malmo.domain.model.member.MemberState;
+import makeus.cmc.malmo.application.port.in.UpdateMemberUseCase;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Tag(name = "멤버 관리 API", description = "Member 조회, 갱신 관련 API")
@@ -37,6 +36,7 @@ public class MemberController {
     private final GetMemberUseCase getMemberUseCase;
     private final GetPartnerUseCase getPartnerUseCase;
     private final GetInviteCodeUseCase getInviteCodeUseCase;
+    private final UpdateMemberUseCase updateMemberUseCase;
 
     @Operation(
             summary = "멤버 정보 조회",
@@ -100,7 +100,7 @@ public class MemberController {
     }
 
     @Operation(
-            summary = "🚧 [개발 전] 사용자 정보 수정",
+            summary = "사용자 정보 수정",
             description = "현재 로그인된 사용자의 정보를 수정합니다. JWT 토큰이 필요합니다.",
             security = @SecurityRequirement(name = "Bearer Authentication")
     )
@@ -111,11 +111,16 @@ public class MemberController {
     )
     @ApiCommonResponses.RequireAuth
     @PatchMapping
-    public BaseResponse<UpdateMemberResponseDto> updateMember(
+    public BaseResponse<UpdateMemberUseCase.UpdateMemberResponseDto> updateMember(
             @AuthenticationPrincipal User user,
             @RequestBody UpdateMemberRequestDto requestDto
     ) {
-        return BaseResponse.success(UpdateMemberResponseDto.builder().build());
+        UpdateMemberUseCase.UpdateMemberCommand command = UpdateMemberUseCase.UpdateMemberCommand.builder()
+                .memberId(Long.valueOf(user.getUsername()))
+                .nickname(requestDto.getNickname())
+                .email(requestDto.getEmail())
+                .build();
+        return BaseResponse.success(updateMemberUseCase.updateMember(command));
     }
 
     @Operation(
