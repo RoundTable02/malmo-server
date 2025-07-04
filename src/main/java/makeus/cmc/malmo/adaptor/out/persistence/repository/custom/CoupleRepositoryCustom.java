@@ -1,6 +1,5 @@
 package makeus.cmc.malmo.adaptor.out.persistence.repository.custom;
 
-import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.application.port.out.LoadPartnerPort;
 
 import java.util.Optional;

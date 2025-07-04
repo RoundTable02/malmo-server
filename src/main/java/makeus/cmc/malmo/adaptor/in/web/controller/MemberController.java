@@ -16,14 +16,11 @@ import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseListResponse;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
-import makeus.cmc.malmo.application.port.in.GetMemberUseCase;
-import makeus.cmc.malmo.application.port.in.GetPartnerUseCase;
-import makeus.cmc.malmo.domain.model.member.MemberState;
+import makeus.cmc.malmo.application.port.in.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Tag(name = "멤버 관리 API", description = "Member 조회, 갱신 관련 API")
@@ -35,6 +32,9 @@ public class MemberController {
 
     private final GetMemberUseCase getMemberUseCase;
     private final GetPartnerUseCase getPartnerUseCase;
+    private final GetInviteCodeUseCase getInviteCodeUseCase;
+    private final UpdateMemberUseCase updateMemberUseCase;
+    private final UpdateTermsAgreementUseCase updateTermsAgreementUseCase;
 
     @Operation(
             summary = "멤버 정보 조회",
@@ -80,6 +80,82 @@ public class MemberController {
     }
 
     @Operation(
+            summary = "사용자 정보 수정",
+            description = "현재 로그인된 사용자의 정보를 수정합니다. JWT 토큰이 필요합니다.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "사용자 정보 수정 성공",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.UpdateMemberSuccessResponse.class))
+    )
+    @ApiCommonResponses.RequireAuth
+    @PatchMapping
+    public BaseResponse<UpdateMemberUseCase.UpdateMemberResponseDto> updateMember(
+            @AuthenticationPrincipal User user,
+            @RequestBody UpdateMemberRequestDto requestDto
+    ) {
+        UpdateMemberUseCase.UpdateMemberCommand command = UpdateMemberUseCase.UpdateMemberCommand.builder()
+                .memberId(Long.valueOf(user.getUsername()))
+                .nickname(requestDto.getNickname())
+                .email(requestDto.getEmail())
+                .build();
+        return BaseResponse.success(updateMemberUseCase.updateMember(command));
+    }
+
+    @Operation(
+            summary = "사용자 약관 동의 수정",
+            description = "현재 로그인된 사용자의 약관 동의 정보를 수정합니다. JWT 토큰이 필요합니다.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "사용자 약관 동의 수정 성공",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.UpdateMemberTermsSuccessResponse.class))
+    )
+    @ApiCommonResponses.RequireAuth
+    @PatchMapping("/terms")
+    public BaseResponse<BaseListResponse<UpdateTermsAgreementUseCase.TermsDto>> updateMemberTerms(
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody UpdateMemberTermsRequestDto requestDto
+    ) {
+        List<UpdateTermsAgreementUseCase.TermsDto> termsCommands = requestDto.getTerms().stream()
+                .map(term -> UpdateTermsAgreementUseCase.TermsDto.builder()
+                        .termsId(term.getTermsId())
+                        .isAgreed(term.getIsAgreed())
+                        .build())
+                .toList();
+
+        UpdateTermsAgreementUseCase.TermsAgreementCommand command = UpdateTermsAgreementUseCase.TermsAgreementCommand
+                .builder()
+                .memberId(Long.valueOf(user.getUsername()))
+                .terms(termsCommands)
+                .build();
+        return BaseListResponse.success(updateTermsAgreementUseCase.updateTermsAgreement(command).getTerms());
+    }
+
+    @Operation(
+            summary = "사용자 초대 코드 조회",
+            description = "현재 로그인된 사용자의 초대 코드를 조회합니다. JWT 토큰이 필요합니다.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "사용자 초대 코드 조회 성공",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.GetInviteCodeSuccessResponse.class))
+    )
+    @ApiCommonResponses.RequireAuth
+    @GetMapping("/invite-code")
+    public BaseResponse<GetInviteCodeUseCase.InviteCodeResponseDto> getMemberInviteCode(
+            @AuthenticationPrincipal User user
+    ) {
+        GetInviteCodeUseCase.InviteCodeCommand command = GetInviteCodeUseCase.InviteCodeCommand.builder()
+                .userId(Long.valueOf(user.getUsername()))
+                .build();
+        return BaseResponse.success(getInviteCodeUseCase.getInviteCode(command));
+    }
+
+    @Operation(
             summary = "🚧 [개발 전] 사용자 탈퇴",
             description = "현재 로그인된 사용자의 탈퇴를 처리합니다. JWT 토큰이 필요합니다.",
             security = @SecurityRequirement(name = "Bearer Authentication")
@@ -97,62 +173,6 @@ public class MemberController {
         return BaseResponse.success(DeleteMemberResponseDto.builder().build());
     }
 
-    @Operation(
-            summary = "🚧 [개발 전] 사용자 정보 수정",
-            description = "현재 로그인된 사용자의 정보를 수정합니다. JWT 토큰이 필요합니다.",
-            security = @SecurityRequirement(name = "Bearer Authentication")
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "사용자 정보 수정 성공",
-            content = @Content(schema = @Schema(implementation = SwaggerResponses.UpdateMemberSuccessResponse.class))
-    )
-    @ApiCommonResponses.RequireAuth
-    @PatchMapping
-    public BaseResponse<UpdateMemberResponseDto> updateMember(
-            @AuthenticationPrincipal User user,
-            @RequestBody UpdateMemberRequestDto requestDto
-    ) {
-        return BaseResponse.success(UpdateMemberResponseDto.builder().build());
-    }
-
-    @Operation(
-            summary = "🚧 [개발 전] 사용자 약관 동의 수정",
-            description = "현재 로그인된 사용자의 약관 동의 정보를 수정합니다. JWT 토큰이 필요합니다.",
-            security = @SecurityRequirement(name = "Bearer Authentication")
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "사용자 약관 동의 수정 성공",
-            content = @Content(schema = @Schema(implementation = SwaggerResponses.UpdateMemberTermsSuccessResponse.class))
-    )
-    @ApiCommonResponses.RequireAuth
-    @PatchMapping("/terms")
-    public BaseResponse<BaseListResponse<TermsDto>> updateMemberTerms(
-            @AuthenticationPrincipal User user,
-            @Valid @RequestBody UpdateMemberTermsRequestDto requestDto
-    ) {
-        return BaseListResponse.success(List.of(TermsDto.builder().build()));
-    }
-
-    @Operation(
-            summary = "🚧 [개발 전] 사용자 초대 코드 조회",
-            description = "현재 로그인된 사용자의 초대 코드를 조회합니다. JWT 토큰이 필요합니다.",
-            security = @SecurityRequirement(name = "Bearer Authentication")
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "사용자 초대 코드 조회 성공",
-            content = @Content(schema = @Schema(implementation = SwaggerResponses.GetInviteCodeSuccessResponse.class))
-    )
-    @ApiCommonResponses.RequireAuth
-    @GetMapping("/invite-code")
-    public BaseResponse<InviteCodeResponseDto> getMemberInviteCode(
-            @AuthenticationPrincipal User user
-    ) {
-        return BaseResponse.success(InviteCodeResponseDto.builder().build());
-    }
-
     @Data
     @Builder
     public static class DeleteMemberResponseDto {
@@ -166,25 +186,11 @@ public class MemberController {
     }
 
     @Data
-    @Builder
-    public static class UpdateMemberResponseDto {
-        private String nickname;
-        private String email;
-    }
-
-    @Data
     public static class UpdateMemberTermsRequestDto {
         private List<TermsDto> terms;
     }
 
     @Data
-    @Builder
-    public static class InviteCodeResponseDto {
-        private String coupleCode;
-    }
-
-    @Data
-    @Builder
     public static class TermsDto {
         @NotNull(message = "약관 ID는 필수 입력값입니다.")
         private Long termsId;
