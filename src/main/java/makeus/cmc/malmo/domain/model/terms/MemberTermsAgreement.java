@@ -23,4 +23,8 @@ public class MemberTermsAgreement extends BaseTimeEntity {
                 .agreed(agreed)
                 .build();
     }
+
+    public void updateAgreement(boolean agreed) {
+        this.agreed = agreed;
+    }
 }

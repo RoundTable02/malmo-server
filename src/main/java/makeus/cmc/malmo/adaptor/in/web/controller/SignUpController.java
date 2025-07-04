@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
