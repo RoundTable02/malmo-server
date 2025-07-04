@@ -16,6 +16,7 @@ import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseListResponse;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
+import makeus.cmc.malmo.application.port.in.GetInviteCodeUseCase;
 import makeus.cmc.malmo.application.port.in.GetMemberUseCase;
 import makeus.cmc.malmo.application.port.in.GetPartnerUseCase;
 import makeus.cmc.malmo.domain.model.member.MemberState;
@@ -35,6 +36,7 @@ public class MemberController {
 
     private final GetMemberUseCase getMemberUseCase;
     private final GetPartnerUseCase getPartnerUseCase;
+    private final GetInviteCodeUseCase getInviteCodeUseCase;
 
     @Operation(
             summary = "멤버 정보 조회",
@@ -136,7 +138,7 @@ public class MemberController {
     }
 
     @Operation(
-            summary = "🚧 [개발 전] 사용자 초대 코드 조회",
+            summary = "사용자 초대 코드 조회",
             description = "현재 로그인된 사용자의 초대 코드를 조회합니다. JWT 토큰이 필요합니다.",
             security = @SecurityRequirement(name = "Bearer Authentication")
     )
@@ -147,10 +149,13 @@ public class MemberController {
     )
     @ApiCommonResponses.RequireAuth
     @GetMapping("/invite-code")
-    public BaseResponse<InviteCodeResponseDto> getMemberInviteCode(
+    public BaseResponse<GetInviteCodeUseCase.InviteCodeResponseDto> getMemberInviteCode(
             @AuthenticationPrincipal User user
     ) {
-        return BaseResponse.success(InviteCodeResponseDto.builder().build());
+        GetInviteCodeUseCase.InviteCodeCommand command = GetInviteCodeUseCase.InviteCodeCommand.builder()
+                .userId(Long.valueOf(user.getUsername()))
+                .build();
+        return BaseResponse.success(getInviteCodeUseCase.getInviteCode(command));
     }
 
     @Data
@@ -175,12 +180,6 @@ public class MemberController {
     @Data
     public static class UpdateMemberTermsRequestDto {
         private List<TermsDto> terms;
-    }
-
-    @Data
-    @Builder
-    public static class InviteCodeResponseDto {
-        private String coupleCode;
     }
 
     @Data

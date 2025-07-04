@@ -2,6 +2,7 @@ package makeus.cmc.malmo.adaptor.out.persistence;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleCodeEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.CoupleCodeMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.CoupleCodeRepository;
 import makeus.cmc.malmo.application.port.out.LoadCoupleCodePort;
@@ -28,6 +29,12 @@ public class CoupleCodePersistenceAdapter implements SaveCoupleCodePort, LoadCou
     @Override
     public Optional<CoupleCode> loadCoupleCodeByInviteCode(String inviteCode) {
         return coupleCodeRepository.findByInviteCode(inviteCode)
+                .map(coupleCodeMapper::toDomain);
+    }
+
+    @Override
+    public Optional<CoupleCode> loadCoupleCodeByMemberId(Long memberId) {
+        return coupleCodeRepository.findByMemberEntityId(MemberEntityId.of(memberId))
                 .map(coupleCodeMapper::toDomain);
     }
 }

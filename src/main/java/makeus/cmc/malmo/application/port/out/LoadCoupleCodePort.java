@@ -6,4 +6,5 @@ import java.util.Optional;
 
 public interface LoadCoupleCodePort {
     Optional<CoupleCode> loadCoupleCodeByInviteCode(String inviteCode);
+    Optional<CoupleCode> loadCoupleCodeByMemberId(Long memberId);
 }
