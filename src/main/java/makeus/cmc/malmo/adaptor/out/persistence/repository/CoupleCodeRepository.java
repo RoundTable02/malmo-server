@@ -3,7 +3,6 @@ package makeus.cmc.malmo.adaptor.out.persistence.repository;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleCodeEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 
