@@ -1,10 +1,11 @@
-package makeus.cmc.malmo.adaptor.out.persistence.entity;
+package makeus.cmc.malmo.adaptor.out.persistence.entity.love_type;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntityJpa;
 
 @Getter
 @SuperBuilder

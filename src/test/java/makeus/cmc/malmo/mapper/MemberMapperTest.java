@@ -1,13 +1,13 @@
 package makeus.cmc.malmo.mapper;
 
-import makeus.cmc.malmo.adaptor.out.persistence.entity.LoveTypeEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.love_type.LoveTypeEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberRoleJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberStateJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.ProviderJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.LoveTypeMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.MemberMapper;
-import makeus.cmc.malmo.domain.model.LoveType;
+import makeus.cmc.malmo.domain.model.love_type.LoveType;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.member.MemberRole;
 import makeus.cmc.malmo.domain.model.member.MemberState;

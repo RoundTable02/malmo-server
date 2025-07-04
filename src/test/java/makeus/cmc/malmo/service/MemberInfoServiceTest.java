@@ -6,7 +6,7 @@ import makeus.cmc.malmo.application.port.in.GetPartnerUseCase;
 import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.LoadPartnerPort;
 import makeus.cmc.malmo.application.service.MemberInfoService;
-import makeus.cmc.malmo.domain.model.LoveType;
+import makeus.cmc.malmo.domain.model.love_type.LoveType;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.member.MemberState;
 import org.junit.jupiter.api.DisplayName;

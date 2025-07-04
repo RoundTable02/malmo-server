@@ -2,7 +2,7 @@ package makeus.cmc.malmo.adaptor.in.web.docs;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
-import makeus.cmc.malmo.domain.model.LoveType;
+import makeus.cmc.malmo.domain.model.love_type.LoveType;
 import makeus.cmc.malmo.domain.model.member.MemberState;
 
 import java.time.LocalDate;

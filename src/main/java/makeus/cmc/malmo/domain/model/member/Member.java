@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
-import makeus.cmc.malmo.domain.model.LoveType;
+import makeus.cmc.malmo.domain.model.love_type.LoveType;
 import makeus.cmc.malmo.domain.model.value.MemberId;
 
 import java.time.LocalDate;
