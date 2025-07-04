@@ -8,6 +8,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.repository.CoupleCodeRepository;
 import makeus.cmc.malmo.application.port.out.LoadCoupleCodePort;
 import makeus.cmc.malmo.application.port.out.SaveCoupleCodePort;
 import makeus.cmc.malmo.domain.model.member.CoupleCode;
+import makeus.cmc.malmo.domain.model.value.MemberId;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -33,8 +34,8 @@ public class CoupleCodePersistenceAdapter implements SaveCoupleCodePort, LoadCou
     }
 
     @Override
-    public Optional<CoupleCode> loadCoupleCodeByMemberId(Long memberId) {
-        return coupleCodeRepository.findByMemberEntityId(MemberEntityId.of(memberId))
+    public Optional<CoupleCode> loadCoupleCodeByMemberId(MemberId memberId) {
+        return coupleCodeRepository.findByMemberEntityId(MemberEntityId.of(memberId.getValue()))
                 .map(coupleCodeMapper::toDomain);
     }
 }

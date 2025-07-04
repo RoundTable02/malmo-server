@@ -16,10 +16,7 @@ import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseListResponse;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
-import makeus.cmc.malmo.application.port.in.GetInviteCodeUseCase;
-import makeus.cmc.malmo.application.port.in.GetMemberUseCase;
-import makeus.cmc.malmo.application.port.in.GetPartnerUseCase;
-import makeus.cmc.malmo.application.port.in.UpdateMemberUseCase;
+import makeus.cmc.malmo.application.port.in.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +34,7 @@ public class MemberController {
     private final GetPartnerUseCase getPartnerUseCase;
     private final GetInviteCodeUseCase getInviteCodeUseCase;
     private final UpdateMemberUseCase updateMemberUseCase;
+    private final UpdateTermsAgreementUseCase updateTermsAgreementUseCase;
 
     @Operation(
             summary = "멤버 정보 조회",
@@ -82,24 +80,6 @@ public class MemberController {
     }
 
     @Operation(
-            summary = "🚧 [개발 전] 사용자 탈퇴",
-            description = "현재 로그인된 사용자의 탈퇴를 처리합니다. JWT 토큰이 필요합니다.",
-            security = @SecurityRequirement(name = "Bearer Authentication")
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "사용자 탈퇴 성공",
-            content = @Content(schema = @Schema(implementation = SwaggerResponses.DeleteMemberSuccessResponse.class))
-    )
-    @ApiCommonResponses.RequireAuth
-    @DeleteMapping
-    public BaseResponse<DeleteMemberResponseDto> deleteMember(
-            @AuthenticationPrincipal User user
-    ) {
-        return BaseResponse.success(DeleteMemberResponseDto.builder().build());
-    }
-
-    @Operation(
             summary = "사용자 정보 수정",
             description = "현재 로그인된 사용자의 정보를 수정합니다. JWT 토큰이 필요합니다.",
             security = @SecurityRequirement(name = "Bearer Authentication")
@@ -124,7 +104,7 @@ public class MemberController {
     }
 
     @Operation(
-            summary = "🚧 [개발 전] 사용자 약관 동의 수정",
+            summary = "사용자 약관 동의 수정",
             description = "현재 로그인된 사용자의 약관 동의 정보를 수정합니다. JWT 토큰이 필요합니다.",
             security = @SecurityRequirement(name = "Bearer Authentication")
     )
@@ -135,11 +115,23 @@ public class MemberController {
     )
     @ApiCommonResponses.RequireAuth
     @PatchMapping("/terms")
-    public BaseResponse<BaseListResponse<TermsDto>> updateMemberTerms(
+    public BaseResponse<BaseListResponse<UpdateTermsAgreementUseCase.TermsDto>> updateMemberTerms(
             @AuthenticationPrincipal User user,
             @Valid @RequestBody UpdateMemberTermsRequestDto requestDto
     ) {
-        return BaseListResponse.success(List.of(TermsDto.builder().build()));
+        List<UpdateTermsAgreementUseCase.TermsDto> termsCommands = requestDto.getTerms().stream()
+                .map(term -> UpdateTermsAgreementUseCase.TermsDto.builder()
+                        .termsId(term.getTermsId())
+                        .isAgreed(term.getIsAgreed())
+                        .build())
+                .toList();
+
+        UpdateTermsAgreementUseCase.TermsAgreementCommand command = UpdateTermsAgreementUseCase.TermsAgreementCommand
+                .builder()
+                .memberId(Long.valueOf(user.getUsername()))
+                .terms(termsCommands)
+                .build();
+        return BaseListResponse.success(updateTermsAgreementUseCase.updateTermsAgreement(command).getTerms());
     }
 
     @Operation(
@@ -163,6 +155,24 @@ public class MemberController {
         return BaseResponse.success(getInviteCodeUseCase.getInviteCode(command));
     }
 
+    @Operation(
+            summary = "🚧 [개발 전] 사용자 탈퇴",
+            description = "현재 로그인된 사용자의 탈퇴를 처리합니다. JWT 토큰이 필요합니다.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "사용자 탈퇴 성공",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.DeleteMemberSuccessResponse.class))
+    )
+    @ApiCommonResponses.RequireAuth
+    @DeleteMapping
+    public BaseResponse<DeleteMemberResponseDto> deleteMember(
+            @AuthenticationPrincipal User user
+    ) {
+        return BaseResponse.success(DeleteMemberResponseDto.builder().build());
+    }
+
     @Data
     @Builder
     public static class DeleteMemberResponseDto {
@@ -176,19 +186,11 @@ public class MemberController {
     }
 
     @Data
-    @Builder
-    public static class UpdateMemberResponseDto {
-        private String nickname;
-        private String email;
-    }
-
-    @Data
     public static class UpdateMemberTermsRequestDto {
         private List<TermsDto> terms;
     }
 
     @Data
-    @Builder
     public static class TermsDto {
         @NotNull(message = "약관 ID는 필수 입력값입니다.")
         private Long termsId;

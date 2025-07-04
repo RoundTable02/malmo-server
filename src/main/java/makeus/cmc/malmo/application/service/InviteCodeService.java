@@ -5,6 +5,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.exception.CoupleCodeNotFoundExce
 import makeus.cmc.malmo.application.port.in.GetInviteCodeUseCase;
 import makeus.cmc.malmo.application.port.out.LoadCoupleCodePort;
 import makeus.cmc.malmo.domain.model.member.CoupleCode;
+import makeus.cmc.malmo.domain.model.value.MemberId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +18,7 @@ public class InviteCodeService implements GetInviteCodeUseCase {
 
     @Override
     public InviteCodeResponseDto getInviteCode(InviteCodeCommand command) {
-        CoupleCode coupleCode = loadCoupleCodePort.loadCoupleCodeByMemberId(command.getUserId())
+        CoupleCode coupleCode = loadCoupleCodePort.loadCoupleCodeByMemberId(MemberId.of(command.getUserId()))
                 .orElseThrow(CoupleCodeNotFoundException::new);
         return InviteCodeResponseDto.builder()
                 .coupleCode(coupleCode.getInviteCode())
