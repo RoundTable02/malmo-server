@@ -192,6 +192,12 @@ public class SwaggerResponses {
         @Schema(description = "멤버 상태", example = "ALIVE")
         private MemberState memberState;
 
+        @Schema(description = "연애 시작일", example = "2023-01-15")
+        private LocalDate loveStartDate;
+
+        @Schema(description = "애착 유형 ID", example = "1")
+        private Long loveTypeId;
+
         @Schema(description = "애착 유형 제목", example = "안정형")
         private String loveTypeTitle;
 
@@ -211,11 +217,11 @@ public class SwaggerResponses {
     @Getter
     @Schema(description = "파트너 멤버 정보 응답 데이터")
     public static class PartnerMemberData {
-        @Schema(description = "연애 시작일", example = "2023-01-15")
-        private LocalDate loveStartDate;
-
         @Schema(description = "멤버 상태", example = "ALIVE")
         private MemberState memberState;
+
+        @Schema(description = "애착 유형 ID", example = "1")
+        private Long loveTypeId;
 
         @Schema(description = "애착 유형 제목", example = "안정형")
         private String loveTypeTitle;
