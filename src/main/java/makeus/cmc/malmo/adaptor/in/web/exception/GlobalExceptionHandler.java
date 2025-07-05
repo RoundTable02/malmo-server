@@ -67,6 +67,12 @@ public class GlobalExceptionHandler {
         return ErrorResponse.of(ErrorCode.NO_SUCH_LOVE_TYPE);
     }
 
+    @ExceptionHandler({LoveTypeQuestionNotFoundException.class})
+    public ResponseEntity<ErrorResponse> handleLoveTypeNotFoundException(LoveTypeQuestionNotFoundException e) {
+        log.error("[GlobalExceptionHandler: handleLoveTypeQuestionNotFoundException 호출]", e);
+        return ErrorResponse.of(ErrorCode.NO_SUCH_LOVE_TYPE_QUESTION);
+    }
+
 
 
 

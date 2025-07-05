@@ -22,6 +22,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Tag(name = "애착유형 검사 API", description = "애착유형 검사 결과 등록 API")
 @Slf4j
 @RestController
@@ -52,25 +54,6 @@ public class LoveTypeController {
     }
 
     @Operation(
-            summary = "🚧 [개발 전] 애착 유형 검사 결과 등록",
-            description = "애착 유형 검사의 결과를 등록합니다. JWT 토큰이 필요합니다.",
-            security = @SecurityRequirement(name = "Bearer Authentication")
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "애착 유형 등록 성공",
-            content = @Content(schema = @Schema(implementation = SwaggerResponses.RegisterLoveTypeSuccessResponse.class))
-    )
-    @ApiCommonResponses.RequireAuth
-    @PostMapping
-    public BaseResponse<RegisterLoveTypeResponseDto> registerLoveType(
-            @AuthenticationPrincipal User user,
-            @Valid @RequestBody RegisterLoveTypeRequestDto requestDto
-    ) {
-        return BaseResponse.success(RegisterLoveTypeResponseDto.builder().build());
-    }
-
-    @Operation(
             summary = "애착 유형 조회",
             description = "애착 유형의 내용을 조회합니다. JWT 토큰이 필요합니다.",
             security = @SecurityRequirement(name = "Bearer Authentication")
@@ -87,21 +70,5 @@ public class LoveTypeController {
                 .loveTypeId(loveTypeId.longValue())
                 .build();
         return BaseResponse.success(getLoveTypeUseCase.getLoveType(command));
-    }
-
-    @Data
-    public static class RegisterLoveTypeRequestDto {
-        @NotNull(message = "애착 유형은 필수 입력값입니다.")
-        private String loveTypeTitle;
-        @NotNull(message = "회피 비율은 필수 입력값입니다.")
-        private float avoidanceRate;
-        @NotNull(message = "불안 비율은 필수 입력값입니다.")
-        private float anxietyRate;
-    }
-
-    @Data
-    @Builder
-    public static class RegisterLoveTypeResponseDto {
-        private String loveTypeTitle;
     }
 }

@@ -22,7 +22,7 @@ public class CoupleRepositoryCustomImpl implements CoupleRepositoryCustom {
                 .select(Projections.constructor(LoadPartnerPort.PartnerMemberRepositoryDto.class,
                         coupleEntity.startLoveDate,
                         memberEntity.memberStateJpa.stringValue(),
-                        memberEntity.loveType.title.coalesce(""),
+//                        memberEntity.loveType.title.coalesce(""),
                         memberEntity.avoidanceRate,
                         memberEntity.anxietyRate,
                         memberEntity.nickname
@@ -30,7 +30,6 @@ public class CoupleRepositoryCustomImpl implements CoupleRepositoryCustom {
                 .from(coupleEntity)
                 .join(coupleEntity.coupleMembers, coupleMemberEntity)
                 .join(memberEntity).on(memberEntity.id.eq(coupleMemberEntity.memberEntityId.value))
-                .leftJoin(memberEntity.loveType)
                 .where(
                         coupleEntity.coupleMembers.any().memberEntityId.value.eq(memberId)
                                 .and(coupleMemberEntity.memberEntityId.value.ne(memberId))
