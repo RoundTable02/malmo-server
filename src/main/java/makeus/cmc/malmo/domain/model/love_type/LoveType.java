@@ -11,9 +11,9 @@ import makeus.cmc.malmo.domain.model.BaseTimeEntity;
 public class LoveType extends BaseTimeEntity {
     private Long id;
     private String title;
+    private String summary;
     private String content;
     private String imageUrl;
-    private float weight;
     private LoveTypeCategory loveTypeCategory;
 
     public static LoveTypeCategory findLoveTypeCategory(float avoidanceRate, float anxietyRate) {

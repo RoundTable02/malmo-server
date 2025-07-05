@@ -20,11 +20,11 @@ public class LoveTypeEntity extends BaseTimeEntityJpa {
 
     private String title;
 
+    private String summary;
+
     private String content;
 
     private String imageUrl;
-
-    private float weight;
 
     @Enumerated(EnumType.STRING)
     private LoveTypeCategoryJpa loveTypeCategory;
