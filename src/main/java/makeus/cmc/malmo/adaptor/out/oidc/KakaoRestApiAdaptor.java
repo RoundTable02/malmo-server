@@ -45,11 +45,12 @@ public class KakaoRestApiAdaptor implements FetchFromOAuthProviderPort {
             JsonNode emailNode = root.path("email");
             boolean isEmailVerified = root.path("email_verified").asBoolean(false);
 
-            if (emailNode.isMissingNode() || !isEmailVerified) {
-                throw new RestApiException("이메일이 없거나 인증되지 않았습니다.");
+            String email = null;
+            if (!emailNode.isMissingNode() && isEmailVerified) {
+                email = emailNode.asText();
             }
 
-            return emailNode.asText();
+            return email;
 
         } catch (Exception e) {
             throw new RestApiException("카카오 OIDC 사용자 정보 파싱 실패", e);
