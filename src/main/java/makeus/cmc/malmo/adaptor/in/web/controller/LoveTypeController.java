@@ -16,11 +16,10 @@ import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseListResponse;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
+import makeus.cmc.malmo.application.port.in.GetLoveTypeQuestionsUseCase;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(name = "애착유형 검사 API", description = "애착유형 검사 결과 등록 API")
 @Slf4j
@@ -29,8 +28,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LoveTypeController {
 
+    private final GetLoveTypeQuestionsUseCase getLoveTypeQuestionsUseCase;
+
     @Operation(
-            summary = "🚧 [개발 전] 애착 유형 검사 질문 조회",
+            summary = "애착 유형 검사 질문 조회",
             description = "애착 유형 검사의 질문을 조회합니다. JWT 토큰이 필요합니다.",
             security = @SecurityRequirement(name = "Bearer Authentication")
     )
@@ -41,10 +42,11 @@ public class LoveTypeController {
     )
     @ApiCommonResponses.RequireAuth
     @GetMapping("/questions")
-    public BaseResponse<BaseListResponse<LoveTypeQuestionDto>> getLoveTypeQuestions() {
-        List<LoveTypeQuestionDto> build = List.of(LoveTypeQuestionDto.builder().build());
+    public BaseResponse<BaseListResponse<GetLoveTypeQuestionsUseCase.LoveTypeQuestionDto>> getLoveTypeQuestions() {
+        GetLoveTypeQuestionsUseCase.LoveTypeQuestionsResponseDto loveTypeQuestions
+                = getLoveTypeQuestionsUseCase.getLoveTypeQuestions();
 
-        return BaseListResponse.success(LoveTypeQuestionsResponseDto.builder().list(build).build().getList());
+        return BaseListResponse.success(loveTypeQuestions.getList());
     }
 
     @Operation(
@@ -96,19 +98,6 @@ public class LoveTypeController {
     @Builder
     public static class RegisterLoveTypeResponseDto {
         private String loveTypeTitle;
-    }
-
-    @Data
-    @Builder
-    public static class LoveTypeQuestionsResponseDto {
-        private List<LoveTypeQuestionDto> list;
-    }
-
-    @Data
-    @Builder
-    public static class LoveTypeQuestionDto {
-        private int questionNumber;
-        private String content;
     }
 
     @Data
