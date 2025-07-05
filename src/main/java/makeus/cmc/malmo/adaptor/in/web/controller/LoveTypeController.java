@@ -14,10 +14,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
+import makeus.cmc.malmo.adaptor.in.web.dto.BaseListResponse;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "애착유형 검사 API", description = "애착유형 검사 결과 등록 API")
 @Slf4j
@@ -25,6 +28,24 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/love-types")
 @RequiredArgsConstructor
 public class LoveTypeController {
+
+    @Operation(
+            summary = "🚧 [개발 전] 애착 유형 검사 질문 조회",
+            description = "애착 유형 검사의 질문을 조회합니다. JWT 토큰이 필요합니다.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "애착 유형 조회 성공",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.LoveTypeQuestionSuccessResponse.class))
+    )
+    @ApiCommonResponses.RequireAuth
+    @GetMapping("/questions")
+    public BaseResponse<BaseListResponse<LoveTypeQuestionDto>> getLoveTypeQuestions() {
+        List<LoveTypeQuestionDto> build = List.of(LoveTypeQuestionDto.builder().build());
+
+        return BaseListResponse.success(LoveTypeQuestionsResponseDto.builder().list(build).build().getList());
+    }
 
     @Operation(
             summary = "🚧 [개발 전] 애착 유형 검사 결과 등록",
@@ -56,8 +77,8 @@ public class LoveTypeController {
             content = @Content(schema = @Schema(implementation = SwaggerResponses.GetLoveTypeSuccessResponse.class))
     )
     @ApiCommonResponses.RequireAuth
-    @GetMapping("/{loveType}")
-    public BaseResponse<GetLoveTypeResponseDto> getLoveType(@PathVariable String loveType) {
+    @GetMapping("/{loveTypeId}")
+    public BaseResponse<GetLoveTypeResponseDto> getLoveType(@PathVariable Integer loveTypeId) {
         return BaseResponse.success(GetLoveTypeResponseDto.builder().build());
     }
 
@@ -75,6 +96,19 @@ public class LoveTypeController {
     @Builder
     public static class RegisterLoveTypeResponseDto {
         private String loveTypeTitle;
+    }
+
+    @Data
+    @Builder
+    public static class LoveTypeQuestionsResponseDto {
+        private List<LoveTypeQuestionDto> list;
+    }
+
+    @Data
+    @Builder
+    public static class LoveTypeQuestionDto {
+        private int questionNumber;
+        private String content;
     }
 
     @Data

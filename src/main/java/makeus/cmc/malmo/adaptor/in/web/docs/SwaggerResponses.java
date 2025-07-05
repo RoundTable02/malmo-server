@@ -1,6 +1,8 @@
 package makeus.cmc.malmo.adaptor.in.web.docs;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import makeus.cmc.malmo.domain.model.love_type.LoveType;
 import makeus.cmc.malmo.domain.model.member.MemberState;
@@ -100,6 +102,11 @@ public class SwaggerResponses {
     }
 
     // 애착유형 관련 응답
+    @Getter
+    @Schema(description = "애착유형 질문 조회 성공 응답")
+    public static class LoveTypeQuestionSuccessResponse extends BaseSwaggerResponse<BaseListSwaggerResponse<LoveTypeQuestionData>> {
+    }
+
     @Getter
     @Schema(description = "애착유형 등록 성공 응답")
     public static class RegisterLoveTypeSuccessResponse extends BaseSwaggerResponse<RegisterLoveTypeData> {
@@ -262,6 +269,15 @@ public class SwaggerResponses {
     public static class CoupleUnlinkData {
         @Schema(description = "해제된 커플 ID", example = "1")
         private Long coupleId;
+    }
+
+    @Getter
+    @Schema(description = "애착유형 질문 조회 응답 데이터")
+    public static class LoveTypeQuestionData {
+        @Schema(description = "질문 번호", example = "1")
+        private int questionNumber;
+        @Schema(description = "내용", example = "나는 연인에게 모든 것을 다 이야기한다")
+        private String content;
     }
 
     @Getter
