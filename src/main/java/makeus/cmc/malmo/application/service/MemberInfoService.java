@@ -26,7 +26,7 @@ public class MemberInfoService implements GetMemberUseCase, GetPartnerUseCase {
 
         return MemberResponseDto.builder()
                 .memberState(member.getMemberState())
-                .loveTypeTitle(member.getLoveType() == null ? null : member.getLoveType().getTitle())
+//                .loveTypeTitle(member.getLoveType() == null ? null : member.getLoveType().getTitle())
                 .avoidanceRate(member.getAvoidanceRate())
                 .anxietyRate(member.getAnxietyRate())
                 .nickname(member.getNickname())

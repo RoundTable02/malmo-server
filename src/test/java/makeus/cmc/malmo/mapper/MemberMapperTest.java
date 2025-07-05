@@ -1,17 +1,21 @@
 package makeus.cmc.malmo.mapper;
 
+import makeus.cmc.malmo.adaptor.out.persistence.entity.love_type.LoveTypeCategoryJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.love_type.LoveTypeEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberRoleJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberStateJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.ProviderJpa;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.LoveTypeEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.LoveTypeMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.MemberMapper;
 import makeus.cmc.malmo.domain.model.love_type.LoveType;
+import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.member.MemberRole;
 import makeus.cmc.malmo.domain.model.member.MemberState;
 import makeus.cmc.malmo.domain.model.member.Provider;
+import makeus.cmc.malmo.domain.model.value.LoveTypeId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -30,9 +34,6 @@ import static org.mockito.Mockito.verify;
 @DisplayName("MemberMapper 테스트")
 class MemberMapperTest {
 
-    @Mock
-    private LoveTypeMapper loveTypeMapper;
-
     @InjectMocks
     private MemberMapper memberMapper;
 
@@ -45,10 +46,7 @@ class MemberMapperTest {
         void givenCompleteEntity_whenToDomain_thenReturnsCompleteMember() {
             // given
             LoveTypeEntity loveTypeEntity = createLoveTypeEntity();
-            LoveType loveTypeDomain = createLoveTypeDomain();
             MemberEntity entity = createCompleteEntity(loveTypeEntity);
-            
-            given(loveTypeMapper.toDomain(loveTypeEntity)).willReturn(loveTypeDomain);
 
             // when
             Member result = memberMapper.toDomain(entity);
@@ -63,13 +61,11 @@ class MemberMapperTest {
             assertThat(result.isAlarmOn()).isTrue();
             assertThat(result.getFirebaseToken()).isEqualTo("firebase_token");
             assertThat(result.getRefreshToken()).isEqualTo("refresh_token");
-            assertThat(result.getLoveType()).isEqualTo(loveTypeDomain);
+            assertThat(result.getLoveTypeId().getValue()).isEqualTo(100L);
             assertThat(result.getAvoidanceRate()).isEqualTo(0.5f);
             assertThat(result.getAnxietyRate()).isEqualTo(0.3f);
             assertThat(result.getNickname()).isEqualTo("testuser");
             assertThat(result.getEmail()).isEqualTo("test@example.com");
-            
-            verify(loveTypeMapper).toDomain(loveTypeEntity);
         }
 
         @Test
@@ -77,7 +73,6 @@ class MemberMapperTest {
         void givenEntityWithNulls_whenToDomain_thenReturnsValidMember() {
             // given
             MemberEntity entity = createEntityWithNulls();
-            given(loveTypeMapper.toDomain(null)).willReturn(null);
 
             // when
             Member result = memberMapper.toDomain(entity);
@@ -88,9 +83,7 @@ class MemberMapperTest {
             assertThat(result.getProvider()).isNull();
             assertThat(result.getMemberRole()).isNull();
             assertThat(result.getMemberState()).isNull();
-            assertThat(result.getLoveType()).isNull();
-            
-            verify(loveTypeMapper).toDomain(null);
+            assertThat(result.getLoveTypeId().getValue()).isNull();
         }
 
         @Test
@@ -98,7 +91,6 @@ class MemberMapperTest {
         void givenAppleProvider_whenToDomain_thenReturnsAppleProvider() {
             // given
             MemberEntity entity = createEntityWithProvider(ProviderJpa.APPLE);
-            given(loveTypeMapper.toDomain(null)).willReturn(null);
 
             // when
             Member result = memberMapper.toDomain(entity);
@@ -112,7 +104,6 @@ class MemberMapperTest {
         void givenAdminRole_whenToDomain_thenReturnsAdminRole() {
             // given
             MemberEntity entity = createEntityWithRole(MemberRoleJpa.ADMIN);
-            given(loveTypeMapper.toDomain(null)).willReturn(null);
 
             // when
             Member result = memberMapper.toDomain(entity);
@@ -125,8 +116,6 @@ class MemberMapperTest {
         @DisplayName("다양한 MemberState를 가진 Entity를 변환한다")
         void givenDifferentStates_whenToDomain_thenReturnsCorrectStates() {
             // given
-            given(loveTypeMapper.toDomain(null)).willReturn(null);
-
             // when & then
             MemberEntity beforeOnboardingEntity = createEntityWithState(MemberStateJpa.BEFORE_ONBOARDING);
             Member beforeOnboardingResult = memberMapper.toDomain(beforeOnboardingEntity);
@@ -147,10 +136,7 @@ class MemberMapperTest {
         void givenCompleteMember_whenToEntity_thenReturnsCompleteEntity() {
             // given
             LoveType loveTypeDomain = createLoveTypeDomain();
-            LoveTypeEntity loveTypeEntity = createLoveTypeEntity();
             Member domain = createCompleteMember(loveTypeDomain);
-            
-            given(loveTypeMapper.toEntity(loveTypeDomain)).willReturn(loveTypeEntity);
 
             // when
             MemberEntity result = memberMapper.toEntity(domain);
@@ -165,13 +151,11 @@ class MemberMapperTest {
             assertThat(result.isAlarmOn()).isTrue();
             assertThat(result.getFirebaseToken()).isEqualTo("firebase_token");
             assertThat(result.getRefreshToken()).isEqualTo("refresh_token");
-            assertThat(result.getLoveType()).isEqualTo(loveTypeEntity);
+            assertThat(result.getLoveTypeEntityId().getValue()).isEqualTo(1L);
             assertThat(result.getAvoidanceRate()).isEqualTo(0.5f);
             assertThat(result.getAnxietyRate()).isEqualTo(0.3f);
             assertThat(result.getNickname()).isEqualTo("testuser");
             assertThat(result.getEmail()).isEqualTo("test@example.com");
-            
-            verify(loveTypeMapper).toEntity(loveTypeDomain);
         }
 
         @Test
@@ -179,7 +163,6 @@ class MemberMapperTest {
         void givenMemberWithNulls_whenToEntity_thenReturnsValidEntity() {
             // given
             Member domain = createMemberWithNulls();
-            given(loveTypeMapper.toEntity(null)).willReturn(null);
 
             // when
             MemberEntity result = memberMapper.toEntity(domain);
@@ -190,9 +173,7 @@ class MemberMapperTest {
             assertThat(result.getProviderJpa()).isNull();
             assertThat(result.getMemberRoleJpa()).isNull();
             assertThat(result.getMemberStateJpa()).isNull();
-            assertThat(result.getLoveType()).isNull();
-            
-            verify(loveTypeMapper).toEntity(null);
+            assertThat(result.getLoveTypeEntityId()).isNull();
         }
 
         @Test
@@ -200,7 +181,6 @@ class MemberMapperTest {
         void givenAppleProvider_whenToEntity_thenReturnsAppleProvider() {
             // given
             Member domain = createMemberWithProvider(Provider.APPLE);
-            given(loveTypeMapper.toEntity(null)).willReturn(null);
 
             // when
             MemberEntity result = memberMapper.toEntity(domain);
@@ -214,7 +194,6 @@ class MemberMapperTest {
         void givenAdminRole_whenToEntity_thenReturnsAdminRole() {
             // given
             Member domain = createMemberWithRole(MemberRole.ADMIN);
-            given(loveTypeMapper.toEntity(null)).willReturn(null);
 
             // when
             MemberEntity result = memberMapper.toEntity(domain);
@@ -227,8 +206,6 @@ class MemberMapperTest {
         @DisplayName("다양한 MemberState를 가진 Member를 변환한다")
         void givenDifferentStates_whenToEntity_thenReturnsCorrectStates() {
             // given
-            given(loveTypeMapper.toEntity(null)).willReturn(null);
-
             // when & then
             Member beforeOnboardingMember = createMemberWithState(MemberState.BEFORE_ONBOARDING);
             MemberEntity beforeOnboardingResult = memberMapper.toEntity(beforeOnboardingMember);
@@ -251,7 +228,7 @@ class MemberMapperTest {
                 .isAlarmOn(true)
                 .firebaseToken("firebase_token")
                 .refreshToken("refresh_token")
-                .loveType(loveTypeEntity)
+                .loveTypeEntityId(LoveTypeEntityId.of(100L))
                 .avoidanceRate(0.5f)
                 .anxietyRate(0.3f)
                 .nickname("testuser")
@@ -267,7 +244,7 @@ class MemberMapperTest {
                 .providerJpa(null)
                 .memberRoleJpa(null)
                 .memberStateJpa(null)
-                .loveType(null)
+                .loveTypeEntityId(null)
                 .build();
     }
 
@@ -302,7 +279,7 @@ class MemberMapperTest {
                 .isAlarmOn(true)
                 .firebaseToken("firebase_token")
                 .refreshToken("refresh_token")
-                .loveType(loveType)
+                .loveTypeId(LoveTypeId.of(loveType.getId()))
                 .avoidanceRate(0.5f)
                 .anxietyRate(0.3f)
                 .nickname("testuser")
@@ -318,7 +295,7 @@ class MemberMapperTest {
                 .provider(null)
                 .memberRole(null)
                 .memberState(null)
-                .loveType(null)
+                .loveTypeId(null)
                 .build();
     }
 
@@ -349,7 +326,7 @@ class MemberMapperTest {
                 .title("Test Love Type")
                 .content("Test Content")
                 .imageUrl("http://example.com/image.jpg")
-                .weight(0.8f)
+                .loveTypeCategoryJpa(LoveTypeCategoryJpa.STABLE_TYPE)
                 .build();
     }
 
@@ -359,7 +336,7 @@ class MemberMapperTest {
                 .title("Test Love Type")
                 .content("Test Content")
                 .imageUrl("http://example.com/image.jpg")
-                .weight(0.8f)
+                .loveTypeCategory(LoveTypeCategory.STABLE_TYPE)
                 .build();
     }
 }

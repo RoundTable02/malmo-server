@@ -17,8 +17,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class MemberMapper {
 
-    private final LoveTypeMapper loveTypeMapper;
-
     public Member toDomain(MemberEntity entity) {
         return Member.builder()
                 .id(entity.getId())

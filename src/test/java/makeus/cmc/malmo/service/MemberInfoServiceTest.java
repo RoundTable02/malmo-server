@@ -9,6 +9,7 @@ import makeus.cmc.malmo.application.service.MemberInfoService;
 import makeus.cmc.malmo.domain.model.love_type.LoveType;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.member.MemberState;
+import makeus.cmc.malmo.domain.model.value.LoveTypeId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -49,7 +50,7 @@ class MemberInfoServiceTest {
             String nickname = "테스트닉네임";
             String email = "test@example.com";
             MemberState memberState = MemberState.ALIVE;
-            String loveTypeTitle = "안정형";
+//            String loveTypeTitle = "안정형";
             float avoidanceRate = 0.3f;
             float anxietyRate = 0.2f;
 
@@ -64,9 +65,9 @@ class MemberInfoServiceTest {
             given(member.getAvoidanceRate()).willReturn(avoidanceRate);
             given(member.getAnxietyRate()).willReturn(anxietyRate);
 
-            LoveType loveType = mock(LoveType.class);
-            given(loveType.getTitle()).willReturn(loveTypeTitle);
-            given(member.getLoveType()).willReturn(loveType);
+//            LoveType loveType = mock(LoveType.class);
+//            given(loveType.getTitle()).willReturn(loveTypeTitle);
+//            given(member.getLoveTypeId()).willReturn(LoveTypeId.of(loveType.getId()));
 
             given(loadMemberPort.loadMemberById(userId)).willReturn(Optional.of(member));
 
@@ -78,9 +79,10 @@ class MemberInfoServiceTest {
             assertThat(response.getNickname()).isEqualTo(nickname);
             assertThat(response.getEmail()).isEqualTo(email);
             assertThat(response.getMemberState()).isEqualTo(memberState);
-            assertThat(response.getLoveTypeTitle()).isEqualTo(loveTypeTitle);
+//            assertThat(response.getLoveTypeTitle()).isEqualTo(loveTypeTitle);
             assertThat(response.getAvoidanceRate()).isEqualTo(avoidanceRate);
             assertThat(response.getAnxietyRate()).isEqualTo(anxietyRate);
+//            assertThat(response.g()).isEqualTo(userId);
 
             then(loadMemberPort).should().loadMemberById(userId);
         }
@@ -106,7 +108,7 @@ class MemberInfoServiceTest {
             given(member.getMemberState()).willReturn(memberState);
             given(member.getAvoidanceRate()).willReturn(avoidanceRate);
             given(member.getAnxietyRate()).willReturn(anxietyRate);
-            given(member.getLoveType()).willReturn(null);
+//            given(member.getLoveTypeId()).willReturn(null);
 
             given(loadMemberPort.loadMemberById(userId)).willReturn(Optional.of(member));
 

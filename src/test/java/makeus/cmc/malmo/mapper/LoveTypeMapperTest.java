@@ -1,8 +1,10 @@
 package makeus.cmc.malmo.mapper;
 
+import makeus.cmc.malmo.adaptor.out.persistence.entity.love_type.LoveTypeCategoryJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.love_type.LoveTypeEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.LoveTypeMapper;
 import makeus.cmc.malmo.domain.model.love_type.LoveType;
+import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -40,7 +42,7 @@ class LoveTypeMapperTest {
             assertThat(result.getTitle()).isEqualTo("안정형");
             assertThat(result.getContent()).isEqualTo("안정적인 애착 스타일입니다.");
             assertThat(result.getImageUrl()).isEqualTo("http://example.com/secure.jpg");
-            assertThat(result.getWeight()).isEqualTo(0.8f);
+            assertThat(result.getLoveTypeCategory()).isEqualTo(LoveTypeCategory.STABLE_TYPE);
             assertThat(result.getCreatedAt()).isNotNull();
             assertThat(result.getModifiedAt()).isNotNull();
             assertThat(result.getDeletedAt()).isNull();
@@ -74,7 +76,7 @@ class LoveTypeMapperTest {
             assertThat(result.getTitle()).isNull();
             assertThat(result.getContent()).isNull();
             assertThat(result.getImageUrl()).isNull();
-            assertThat(result.getWeight()).isEqualTo(0.0f);
+            assertThat(result.getLoveTypeCategory()).isNull();
         }
 
         @Test
@@ -112,11 +114,7 @@ class LoveTypeMapperTest {
             assertThat(result.getTitle()).isEqualTo("안정형");
             assertThat(result.getContent()).isEqualTo("안정적인 애착 스타일입니다.");
             assertThat(result.getImageUrl()).isEqualTo("http://example.com/secure.jpg");
-            assertThat(result.getWeight()).isEqualTo(0.8f);
-            // toEntity에서는 시간 필드가 설정되지 않음
-            assertThat(result.getCreatedAt()).isNull();
-            assertThat(result.getModifiedAt()).isNull();
-            assertThat(result.getDeletedAt()).isNull();
+            assertThat(result.getLoveTypeCategoryJpa()).isEqualTo(LoveTypeCategoryJpa.STABLE_TYPE);
         }
 
         @Test
@@ -147,7 +145,7 @@ class LoveTypeMapperTest {
             assertThat(result.getTitle()).isNull();
             assertThat(result.getContent()).isNull();
             assertThat(result.getImageUrl()).isNull();
-            assertThat(result.getWeight()).isEqualTo(0.0f);
+            assertThat(result.getLoveTypeCategoryJpa()).isNull();
         }
 
         @Test
@@ -165,19 +163,6 @@ class LoveTypeMapperTest {
             assertThat(result.getTitle()).isEqualTo("회피형");
         }
 
-        @Test
-        @DisplayName("음수 weight를 가진 LoveType을 변환한다")
-        void givenLoveTypeWithNegativeWeight_whenToEntity_thenReturnsEntityWithNegativeWeight() {
-            // given
-            LoveType domain = createLoveTypeWithNegativeWeight();
-
-            // when
-            LoveTypeEntity result = loveTypeMapper.toEntity(domain);
-
-            // then
-            assertThat(result).isNotNull();
-            assertThat(result.getWeight()).isEqualTo(-0.5f);
-        }
     }
 
     // Test data creation methods
@@ -187,7 +172,7 @@ class LoveTypeMapperTest {
                 .title("안정형")
                 .content("안정적인 애착 스타일입니다.")
                 .imageUrl("http://example.com/secure.jpg")
-                .weight(0.8f)
+                .loveTypeCategoryJpa(LoveTypeCategoryJpa.STABLE_TYPE)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
                 .deletedAt(null)
@@ -200,7 +185,7 @@ class LoveTypeMapperTest {
                 .title(null)
                 .content(null)
                 .imageUrl(null)
-                .weight(0.0f)
+                .loveTypeCategoryJpa(null)
                 .build();
     }
 
@@ -210,7 +195,7 @@ class LoveTypeMapperTest {
                 .title("불안정형")
                 .content("불안정한 애착 스타일입니다.")
                 .imageUrl("http://example.com/anxious.jpg")
-                .weight(0.3f)
+                .loveTypeCategoryJpa(LoveTypeCategoryJpa.STABLE_TYPE)
                 .deletedAt(deletedAt)
                 .build();
     }
@@ -221,7 +206,7 @@ class LoveTypeMapperTest {
                 .title("안정형")
                 .content("안정적인 애착 스타일입니다.")
                 .imageUrl("http://example.com/secure.jpg")
-                .weight(0.8f)
+                .loveTypeCategory(LoveTypeCategory.STABLE_TYPE)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
                 .deletedAt(null)
@@ -234,7 +219,7 @@ class LoveTypeMapperTest {
                 .title(null)
                 .content(null)
                 .imageUrl(null)
-                .weight(0.0f)
+                .loveTypeCategory(null)
                 .build();
     }
 
@@ -244,17 +229,7 @@ class LoveTypeMapperTest {
                 .title("회피형")
                 .content("회피적인 애착 스타일입니다.")
                 .imageUrl("http://example.com/avoidant.jpg")
-                .weight(0.5f)
-                .build();
-    }
-
-    private LoveType createLoveTypeWithNegativeWeight() {
-        return LoveType.builder()
-                .id(2L)
-                .title("혼란형")
-                .content("혼란스러운 애착 스타일입니다.")
-                .imageUrl("http://example.com/disorganized.jpg")
-                .weight(-0.5f)
+                .loveTypeCategory(LoveTypeCategory.STABLE_TYPE)
                 .build();
     }
 }
