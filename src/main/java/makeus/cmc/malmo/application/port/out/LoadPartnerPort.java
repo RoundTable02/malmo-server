@@ -3,7 +3,6 @@ package makeus.cmc.malmo.application.port.out;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 public interface LoadPartnerPort {
@@ -12,8 +11,8 @@ public interface LoadPartnerPort {
     @Data
     @AllArgsConstructor
     class PartnerMemberRepositoryDto {
-        private LocalDate loveStartDate;
         private String memberState;
+        private Long loveTypeId;
         private String loveTypeTitle;
         private float avoidanceRate;
         private float anxietyRate;

@@ -4,6 +4,8 @@ import lombok.Builder;
 import lombok.Data;
 import makeus.cmc.malmo.domain.model.member.MemberState;
 
+import java.time.LocalDate;
+
 public interface GetMemberUseCase {
 
     MemberResponseDto getMemberInfo(MemberInfoCommand command);
@@ -18,6 +20,8 @@ public interface GetMemberUseCase {
     @Builder
     class MemberResponseDto {
         private MemberState memberState;
+        private LocalDate startLoveDate;
+        private Long loveTypeId;
         private String loveTypeTitle;
         private float avoidanceRate;
         private float anxietyRate;
