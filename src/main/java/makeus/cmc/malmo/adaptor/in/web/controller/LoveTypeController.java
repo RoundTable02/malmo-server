@@ -6,18 +6,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
+import makeus.cmc.malmo.adaptor.in.web.dto.BaseListResponse;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.web.bind.annotation.*;
+import makeus.cmc.malmo.application.port.in.GetLoveTypeQuestionsUseCase;
+import makeus.cmc.malmo.application.port.in.GetLoveTypeUseCase;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "애착유형 검사 API", description = "애착유형 검사 결과 등록 API")
 @Slf4j
@@ -26,27 +26,30 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class LoveTypeController {
 
+    private final GetLoveTypeQuestionsUseCase getLoveTypeQuestionsUseCase;
+    private final GetLoveTypeUseCase getLoveTypeUseCase;
+
     @Operation(
-            summary = "🚧 [개발 전] 애착 유형 검사 결과 등록",
-            description = "애착 유형 검사의 결과를 등록합니다. JWT 토큰이 필요합니다.",
+            summary = "애착 유형 검사 질문 조회",
+            description = "애착 유형 검사의 질문을 조회합니다. JWT 토큰이 필요합니다.",
             security = @SecurityRequirement(name = "Bearer Authentication")
     )
     @ApiResponse(
             responseCode = "200",
-            description = "애착 유형 등록 성공",
-            content = @Content(schema = @Schema(implementation = SwaggerResponses.RegisterLoveTypeSuccessResponse.class))
+            description = "애착 유형 조회 성공",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.LoveTypeQuestionSuccessResponse.class))
     )
     @ApiCommonResponses.RequireAuth
-    @PostMapping
-    public BaseResponse<RegisterLoveTypeResponseDto> registerLoveType(
-            @AuthenticationPrincipal User user,
-            @Valid @RequestBody RegisterLoveTypeRequestDto requestDto
-    ) {
-        return BaseResponse.success(RegisterLoveTypeResponseDto.builder().build());
+    @GetMapping("/questions")
+    public BaseResponse<BaseListResponse<GetLoveTypeQuestionsUseCase.LoveTypeQuestionDto>> getLoveTypeQuestions() {
+        GetLoveTypeQuestionsUseCase.LoveTypeQuestionsResponseDto loveTypeQuestions
+                = getLoveTypeQuestionsUseCase.getLoveTypeQuestions();
+
+        return BaseListResponse.success(loveTypeQuestions.getList());
     }
 
     @Operation(
-            summary = "🚧 [개발 전] 애착 유형 조회",
+            summary = "애착 유형 조회",
             description = "애착 유형의 내용을 조회합니다. JWT 토큰이 필요합니다.",
             security = @SecurityRequirement(name = "Bearer Authentication")
     )
@@ -56,33 +59,11 @@ public class LoveTypeController {
             content = @Content(schema = @Schema(implementation = SwaggerResponses.GetLoveTypeSuccessResponse.class))
     )
     @ApiCommonResponses.RequireAuth
-    @GetMapping("/{loveType}")
-    public BaseResponse<GetLoveTypeResponseDto> getLoveType(@PathVariable String loveType) {
-        return BaseResponse.success(GetLoveTypeResponseDto.builder().build());
-    }
-
-    @Data
-    public static class RegisterLoveTypeRequestDto {
-        @NotNull(message = "애착 유형은 필수 입력값입니다.")
-        private String loveTypeTitle;
-        @NotNull(message = "회피 비율은 필수 입력값입니다.")
-        private float avoidanceRate;
-        @NotNull(message = "불안 비율은 필수 입력값입니다.")
-        private float anxietyRate;
-    }
-
-    @Data
-    @Builder
-    public static class RegisterLoveTypeResponseDto {
-        private String loveTypeTitle;
-    }
-
-    @Data
-    @Builder
-    public static class GetLoveTypeResponseDto {
-        private String loveTypeTitle;
-        private String summary;
-        private String description;
-        private String imageUrl;
+    @GetMapping("/{loveTypeId}")
+    public BaseResponse<GetLoveTypeUseCase.GetLoveTypeResponseDto> getLoveType(@PathVariable Integer loveTypeId) {
+        GetLoveTypeUseCase.GetLoveTypeCommand command = GetLoveTypeUseCase.GetLoveTypeCommand.builder()
+                .loveTypeId(loveTypeId.longValue())
+                .build();
+        return BaseResponse.success(getLoveTypeUseCase.getLoveType(command));
     }
 }

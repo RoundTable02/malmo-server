@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
@@ -35,6 +37,7 @@ public class MemberController {
     private final GetInviteCodeUseCase getInviteCodeUseCase;
     private final UpdateMemberUseCase updateMemberUseCase;
     private final UpdateTermsAgreementUseCase updateTermsAgreementUseCase;
+    private final UpdateMemberLoveTypeUseCase updateMemberLoveTypeUseCase;
 
     @Operation(
             summary = "멤버 정보 조회",
@@ -173,6 +176,37 @@ public class MemberController {
         return BaseResponse.success(DeleteMemberResponseDto.builder().build());
     }
 
+    @Operation(
+            summary = " 애착 유형 검사 결과 등록",
+            description = "애착 유형 검사의 결과를 등록합니다. JWT 토큰이 필요합니다.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "애착 유형 등록 성공",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.RegisterLoveTypeSuccessResponse.class))
+    )
+    @ApiCommonResponses.RequireAuth
+    @PostMapping("/love-type")
+    public BaseResponse<UpdateMemberLoveTypeUseCase.RegisterLoveTypeResponseDto> registerLoveType(
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody RegisterLoveTypeRequestDto requestDto
+    ) {
+        List<UpdateMemberLoveTypeUseCase.LoveTypeTestResult> results = requestDto.getResults().stream()
+                .map(result -> UpdateMemberLoveTypeUseCase.LoveTypeTestResult.builder()
+                        .questionId(result.getQuestionId())
+                        .score(result.getScore())
+                        .build())
+                .toList();
+
+        UpdateMemberLoveTypeUseCase.UpdateMemberLoveTypeCommand command =
+                UpdateMemberLoveTypeUseCase.UpdateMemberLoveTypeCommand.builder()
+                .memberId(Long.valueOf(user.getUsername()))
+                .results(results)
+                .build();
+        return BaseResponse.success(updateMemberLoveTypeUseCase.updateMemberLoveType(command));
+    }
+
     @Data
     @Builder
     public static class DeleteMemberResponseDto {
@@ -196,6 +230,20 @@ public class MemberController {
         private Long termsId;
         @NotNull(message = "약관 동의 여부는 필수 입력값입니다.")
         private Boolean isAgreed;
+    }
+
+    @Data
+    public static class RegisterLoveTypeRequestDto {
+        private List<LoveTypeTestResult> results;
+    }
+
+    @Data
+    public static class LoveTypeTestResult {
+        @NotNull(message = "질문 ID는 필수 입력값입니다.")
+        private Long questionId;
+        @NotNull(message = "점수는 필수 입력값입니다.")
+        @Max(5) @Min(1)
+        private Integer score;
     }
 
 }

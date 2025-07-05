@@ -6,6 +6,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.member.ProviderJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.MemberMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.MemberRepository;
 import makeus.cmc.malmo.application.port.out.LoadMemberPort;
+import makeus.cmc.malmo.application.port.out.LoadPartnerPort;
 import makeus.cmc.malmo.application.port.out.SaveMemberPort;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.member.Provider;
@@ -15,7 +16,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class MemberPersistenceAdapter implements LoadMemberPort, SaveMemberPort {
+public class MemberPersistenceAdapter implements LoadMemberPort, SaveMemberPort, LoadPartnerPort {
 
     private final MemberRepository memberRepository;
     private final MemberMapper memberMapper;
@@ -35,10 +36,19 @@ public class MemberPersistenceAdapter implements LoadMemberPort, SaveMemberPort 
     }
 
     @Override
+    public Optional<MemberResponseRepositoryDto> loadMemberDetailsById(Long memberId) {
+        return memberRepository.findMemberDetailsById(memberId);
+    }
+
+    @Override
     public Member saveMember(Member member) {
         MemberEntity memberEntity = memberMapper.toEntity(member);
         MemberEntity savedEntity = memberRepository.save(memberEntity);
         return memberMapper.toDomain(savedEntity);
     }
 
+    @Override
+    public Optional<PartnerMemberRepositoryDto> loadPartnerByMemberId(Long memberId) {
+        return memberRepository.findPartnerMember(memberId);
+    }
 }
