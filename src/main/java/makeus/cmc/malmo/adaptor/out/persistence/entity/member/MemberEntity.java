@@ -6,7 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.love_type.LoveTypeEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.LoveTypeEntityId;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
+import makeus.cmc.malmo.domain.model.value.LoveTypeId;
 
 @Getter
 @SuperBuilder
@@ -36,9 +39,9 @@ public class MemberEntity extends BaseTimeEntity {
 
     private String refreshToken;
 
-    @ManyToOne
-    @JoinColumn(name = "love_type_id")
-    private LoveTypeEntity loveType;
+    @AttributeOverride(name = "id", column = @Column(name = "love_type_id", nullable = true))
+    @Embedded
+    private LoveTypeEntityId loveTypeEntityId;
 
     private float avoidanceRate;
 

@@ -17,11 +17,14 @@ public class LoveType extends BaseTimeEntity {
     private LoveTypeCategory loveTypeCategory;
 
     public static LoveTypeCategory findLoveTypeCategory(float avoidanceRate, float anxietyRate) {
-        if (avoidanceRate < 2.33 && anxietyRate < 2.61) {
+        float avoidanceRateResult = avoidanceRate / 18.0f;
+        float anxietyRateResult = avoidanceRate / 18.0f;
+
+        if (avoidanceRateResult < 2.33 && anxietyRateResult < 2.61) {
             return LoveTypeCategory.STABLE_TYPE;
-        } else if (avoidanceRate >= 2.33 && anxietyRate < 2.61) {
+        } else if (avoidanceRateResult >= 2.33 && anxietyRateResult < 2.61) {
             return LoveTypeCategory.AVOIDANCE_TYPE;
-        } else if (avoidanceRate < 2.33 && anxietyRate >= 2.61) {
+        } else if (avoidanceRateResult < 2.33 && anxietyRateResult >= 2.61) {
             return LoveTypeCategory.ANXIETY_TYPE;
         } else {
             return LoveTypeCategory.CONFUSION_TYPE;

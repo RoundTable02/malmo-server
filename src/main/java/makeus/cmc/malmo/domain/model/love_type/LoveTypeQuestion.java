@@ -16,4 +16,15 @@ public class LoveTypeQuestion extends BaseTimeEntity {
     private String content;
     private LoveTypeQuestionType loveTypeQuestionType;
     private int weight;
+
+    public boolean isAnxietyType() {
+        return loveTypeQuestionType == LoveTypeQuestionType.ANXIETY;
+    }
+
+    public int getScore(int score) {
+        if (isReversed) {
+            return 6 - score;
+        }
+        return score;
+    }
 }

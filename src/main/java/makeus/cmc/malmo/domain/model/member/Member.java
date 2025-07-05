@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
 import makeus.cmc.malmo.domain.model.love_type.LoveType;
+import makeus.cmc.malmo.domain.model.value.LoveTypeId;
 import makeus.cmc.malmo.domain.model.value.MemberId;
 
 import java.time.LocalDate;
@@ -21,7 +22,7 @@ public class Member extends BaseTimeEntity {
     private boolean isAlarmOn;
     private String firebaseToken;
     private String refreshToken;
-    private LoveType loveType;
+    private LoveTypeId loveTypeId;
     private float avoidanceRate;
     private float anxietyRate;
     private String nickname;
@@ -45,6 +46,10 @@ public class Member extends BaseTimeEntity {
     public void updateMemberProfile(String nickname, String email) {
         this.nickname = nickname;
         this.email = email;
+    }
+
+    public void updateLoveTypeId(LoveTypeId loveTypeId) {
+        this.loveTypeId = loveTypeId;
     }
 
     public void refreshMemberToken(String refreshToken) {

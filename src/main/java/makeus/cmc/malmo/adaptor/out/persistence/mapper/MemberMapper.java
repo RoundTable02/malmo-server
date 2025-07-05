@@ -5,10 +5,12 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberRoleJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberStateJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.ProviderJpa;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.LoveTypeEntityId;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.member.MemberRole;
 import makeus.cmc.malmo.domain.model.member.MemberState;
 import makeus.cmc.malmo.domain.model.member.Provider;
+import makeus.cmc.malmo.domain.model.value.LoveTypeId;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
@@ -27,7 +29,9 @@ public class MemberMapper {
                 .isAlarmOn(entity.isAlarmOn())
                 .firebaseToken(entity.getFirebaseToken())
                 .refreshToken(entity.getRefreshToken())
-                .loveType(loveTypeMapper.toDomain(entity.getLoveType()))
+                .loveTypeId(LoveTypeId.of(
+                        entity.getLoveTypeEntityId() != null ? entity.getLoveTypeEntityId().getValue() : null
+                ))
                 .avoidanceRate(entity.getAvoidanceRate())
                 .anxietyRate(entity.getAnxietyRate())
                 .nickname(entity.getNickname())
@@ -48,7 +52,9 @@ public class MemberMapper {
                 .isAlarmOn(domain.isAlarmOn())
                 .firebaseToken(domain.getFirebaseToken())
                 .refreshToken(domain.getRefreshToken())
-                .loveType(loveTypeMapper.toEntity(domain.getLoveType()))
+                .loveTypeEntityId(
+                        domain.getLoveTypeId() != null ? LoveTypeEntityId.of(domain.getLoveTypeId().getValue()) : null
+                )
                 .email(domain.getEmail())
                 .avoidanceRate(domain.getAvoidanceRate())
                 .anxietyRate(domain.getAnxietyRate())
