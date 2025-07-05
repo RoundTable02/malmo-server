@@ -290,14 +290,18 @@ public class SwaggerResponses {
     @Getter
     @Schema(description = "애착유형 조회 응답 데이터")
     public static class GetLoveTypeData {
-        @Schema(description = "애착 유형", example = "SECURE")
-        private LoveType loveType;
 
-        @Schema(description = "애착유형 요약", example = "안정형")
+        @Schema(description = "애착 유형 ID", example = "1")
+        private Long loveTypeId;
+
+        @Schema(description = "애착 유형", example = "안정형")
+        private String title;
+
+        @Schema(description = "애착유형 요약", example = "안정적인 유형")
         private String summary;
 
         @Schema(description = "애착유형 설명", example = "안정된 애착 관계를 형성하는 유형입니다.")
-        private String description;
+        private String content;
 
         @Schema(description = "이미지 URL", example = "https://example.com/image.jpg")
         private String imageUrl;

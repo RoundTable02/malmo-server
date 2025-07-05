@@ -69,7 +69,7 @@ public class LoveTypeController {
     }
 
     @Operation(
-            summary = "🚧 [개발 전] 애착 유형 조회",
+            summary = "애착 유형 조회",
             description = "애착 유형의 내용을 조회합니다. JWT 토큰이 필요합니다.",
             security = @SecurityRequirement(name = "Bearer Authentication")
     )
