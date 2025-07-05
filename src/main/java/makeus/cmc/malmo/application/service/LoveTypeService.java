@@ -74,7 +74,7 @@ public class LoveTypeService implements GetLoveTypeUseCase, UpdateMemberLoveType
         LoveType loveType = loadLoveTypePort.findLoveTypeByLoveTypeCategory(loveTypeCategory)
                 .orElseThrow(LoveTypeNotFoundException::new);
 
-        member.updateLoveTypeId(LoveTypeId.of(loveType.getId()));
+        member.updateLoveTypeId(LoveTypeId.of(loveType.getId()), avoidanceScore, anxietyScore);
         saveMemberPort.saveMember(member);
 
         return RegisterLoveTypeResponseDto.builder()

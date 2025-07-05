@@ -47,8 +47,10 @@ public class Member extends BaseTimeEntity {
         this.email = email;
     }
 
-    public void updateLoveTypeId(LoveTypeId loveTypeId) {
+    public void updateLoveTypeId(LoveTypeId loveTypeId, float avoidanceRate, float anxietyRate) {
         this.loveTypeId = loveTypeId;
+        this.avoidanceRate = avoidanceRate / 18.0f;
+        this.anxietyRate = anxietyRate / 18.0f;
     }
 
     public void refreshMemberToken(String refreshToken) {

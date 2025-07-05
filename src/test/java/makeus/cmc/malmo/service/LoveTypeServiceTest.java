@@ -141,7 +141,7 @@ class LoveTypeServiceTest {
             then(loadMemberPort).should().loadMemberById(memberId);
             then(loadLoveTypeQuestionsPort).should().loadLoveTypeQuestions();
             then(loadLoveTypePort).should().findLoveTypeByLoveTypeCategory(LoveTypeCategory.STABLE_TYPE);
-            then(member).should().updateLoveTypeId(any(LoveTypeId.class));
+            then(member).should().updateLoveTypeId(any(LoveTypeId.class), anyFloat(), anyFloat());
             then(saveMemberPort).should().saveMember(member);
         }
 
