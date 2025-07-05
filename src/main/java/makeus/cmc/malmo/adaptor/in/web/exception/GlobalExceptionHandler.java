@@ -3,10 +3,7 @@ package makeus.cmc.malmo.adaptor.in.web.exception;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.out.oidc.exception.OidcIdTokenException;
 import makeus.cmc.malmo.adaptor.out.oidc.exception.RestApiException;
-import makeus.cmc.malmo.adaptor.out.persistence.exception.CoupleCodeNotFoundException;
-import makeus.cmc.malmo.adaptor.out.persistence.exception.InviteCodeGenerateFailedException;
-import makeus.cmc.malmo.adaptor.out.persistence.exception.MemberNotFoundException;
-import makeus.cmc.malmo.adaptor.out.persistence.exception.TermsNotFoundException;
+import makeus.cmc.malmo.adaptor.out.persistence.exception.*;
 import makeus.cmc.malmo.application.exception.InvalidRefreshTokenException;
 import org.hibernate.TypeMismatchException;
 import org.springframework.http.ResponseEntity;
@@ -62,6 +59,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleTermsNotFoundException(TermsNotFoundException e) {
         log.error("[GlobalExceptionHandler: handleTermsNotFoundException 호출]", e);
         return ErrorResponse.of(ErrorCode.NO_SUCH_TERMS);
+    }
+
+    @ExceptionHandler({LoveTypeNotFoundException.class})
+    public ResponseEntity<ErrorResponse> handleLoveTypeNotFoundException(LoveTypeNotFoundException e) {
+        log.error("[GlobalExceptionHandler: handleLoveTypeNotFoundException 호출]", e);
+        return ErrorResponse.of(ErrorCode.NO_SUCH_LOVE_TYPE);
     }
 
 

@@ -13,6 +13,7 @@ public enum ErrorCode {
     NO_SUCH_MEMBER(HttpStatus.BAD_REQUEST, 40001, "멤버가 존재하지 않습니다."),
     NO_SUCH_COUPLE_CODE(HttpStatus.BAD_REQUEST, 40002, "초대 코드가 존재하지 않습니다."),
     NO_SUCH_TERMS(HttpStatus.BAD_REQUEST, 40003, "약관이 존재하지 않습니다."),
+    NO_SUCH_LOVE_TYPE(HttpStatus.BAD_REQUEST, 40004, "애착 유형이 존재하지 않습니다."),
 
     // 401 Unauthorized
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, 40100, "인증되지 않은 사용자입니다."),

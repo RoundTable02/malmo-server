@@ -27,6 +27,6 @@ public class LoveTypeEntity extends BaseTimeEntityJpa {
     private String imageUrl;
 
     @Enumerated(EnumType.STRING)
-    private LoveTypeCategoryJpa loveTypeCategory;
+    private LoveTypeCategoryJpa loveTypeCategoryJpa;
 
 }

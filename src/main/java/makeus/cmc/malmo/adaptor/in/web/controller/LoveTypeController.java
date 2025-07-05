@@ -17,6 +17,7 @@ import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseListResponse;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
 import makeus.cmc.malmo.application.port.in.GetLoveTypeQuestionsUseCase;
+import makeus.cmc.malmo.application.port.in.GetLoveTypeUseCase;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 public class LoveTypeController {
 
     private final GetLoveTypeQuestionsUseCase getLoveTypeQuestionsUseCase;
+    private final GetLoveTypeUseCase getLoveTypeUseCase;
 
     @Operation(
             summary = "애착 유형 검사 질문 조회",
@@ -80,8 +82,11 @@ public class LoveTypeController {
     )
     @ApiCommonResponses.RequireAuth
     @GetMapping("/{loveTypeId}")
-    public BaseResponse<GetLoveTypeResponseDto> getLoveType(@PathVariable Integer loveTypeId) {
-        return BaseResponse.success(GetLoveTypeResponseDto.builder().build());
+    public BaseResponse<GetLoveTypeUseCase.GetLoveTypeResponseDto> getLoveType(@PathVariable Integer loveTypeId) {
+        GetLoveTypeUseCase.GetLoveTypeCommand command = GetLoveTypeUseCase.GetLoveTypeCommand.builder()
+                .loveTypeId(loveTypeId.longValue())
+                .build();
+        return BaseResponse.success(getLoveTypeUseCase.getLoveType(command));
     }
 
     @Data
@@ -98,14 +103,5 @@ public class LoveTypeController {
     @Builder
     public static class RegisterLoveTypeResponseDto {
         private String loveTypeTitle;
-    }
-
-    @Data
-    @Builder
-    public static class GetLoveTypeResponseDto {
-        private String loveTypeTitle;
-        private String summary;
-        private String description;
-        private String imageUrl;
     }
 }
