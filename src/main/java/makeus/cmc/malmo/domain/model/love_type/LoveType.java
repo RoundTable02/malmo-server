@@ -18,7 +18,7 @@ public class LoveType extends BaseTimeEntity {
 
     public static LoveTypeCategory findLoveTypeCategory(float avoidanceRate, float anxietyRate) {
         float avoidanceRateResult = avoidanceRate / 18.0f;
-        float anxietyRateResult = avoidanceRate / 18.0f;
+        float anxietyRateResult = anxietyRate / 18.0f;
 
         if (avoidanceRateResult < 2.33 && anxietyRateResult < 2.61) {
             return LoveTypeCategory.STABLE_TYPE;
