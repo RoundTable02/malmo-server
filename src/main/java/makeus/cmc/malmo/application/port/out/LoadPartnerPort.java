@@ -12,8 +12,8 @@ public interface LoadPartnerPort {
     @Data
     @AllArgsConstructor
     class PartnerMemberRepositoryDto {
-        private LocalDate loveStartDate;
         private String memberState;
+        private Long loveTypeId;
         private String loveTypeTitle;
         private float avoidanceRate;
         private float anxietyRate;

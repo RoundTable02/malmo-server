@@ -14,21 +14,15 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class CouplePersistenceAdapter implements SaveCouplePort, LoadPartnerPort {
+public class CouplePersistenceAdapter implements SaveCouplePort {
 
     private final CoupleRepository coupleRepository;
     private final CoupleAggregateMapper coupleAggregateMapper;
-    private final MemberMapper memberMapper;
 
     @Override
     public Couple saveCouple(Couple couple) {
         CoupleEntity entity = coupleAggregateMapper.toEntity(couple);
         CoupleEntity savedCoupleEntity = coupleRepository.save(entity);
         return coupleAggregateMapper.toDomain(savedCoupleEntity);
-    }
-
-    @Override
-    public Optional<PartnerMemberRepositoryDto> loadPartnerByMemberId(Long memberId) {
-        return coupleRepository.findPartnerMember(memberId);
     }
 }

@@ -19,8 +19,8 @@ public interface GetPartnerUseCase {
     @Data
     @Builder
     class PartnerMemberResponseDto {
-        private LocalDate loveStartDate;
         private MemberState memberState;
+        private Long loveTypeId;
         private String loveTypeTitle;
         private float avoidanceRate;
         private float anxietyRate;
