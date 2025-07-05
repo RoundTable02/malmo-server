@@ -19,7 +19,7 @@ public class LoveTypeQuestionAdapter implements LoadLoveTypeQuestionsPort {
 
     @Override
     public List<LoveTypeQuestion> loadLoveTypeQuestions() {
-        List<LoveTypeQuestionEntity> entityList = loveTypeQuestionRepository.findAll();
+        List<LoveTypeQuestionEntity> entityList = loveTypeQuestionRepository.findAllByOrderByQuestionNumberAsc();
 
         return entityList.stream()
                 .map(loveTypeQuestionMapper::toDomain)
