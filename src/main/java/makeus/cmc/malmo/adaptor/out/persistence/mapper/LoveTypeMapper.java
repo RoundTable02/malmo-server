@@ -1,7 +1,9 @@
 package makeus.cmc.malmo.adaptor.out.persistence.mapper;
 
+import makeus.cmc.malmo.adaptor.out.persistence.entity.love_type.LoveTypeCategoryJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.love_type.LoveTypeEntity;
 import makeus.cmc.malmo.domain.model.love_type.LoveType;
+import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -18,6 +20,7 @@ public class LoveTypeMapper {
                 .content(entity.getContent())
                 .imageUrl(entity.getImageUrl())
                 .weight(entity.getWeight())
+                .loveTypeCategory(toLoveTypeCategory(entity.getLoveTypeCategory()))
                 .createdAt(entity.getCreatedAt())
                 .modifiedAt(entity.getModifiedAt())
                 .deletedAt(entity.getDeletedAt())
@@ -35,6 +38,18 @@ public class LoveTypeMapper {
                 .content(domain.getContent())
                 .imageUrl(domain.getImageUrl())
                 .weight(domain.getWeight())
+                .loveTypeCategory(toLoveTypeCategoryJpa(domain.getLoveTypeCategory()))
+                .createdAt(domain.getCreatedAt())
+                .modifiedAt(domain.getModifiedAt())
+                .deletedAt(domain.getDeletedAt())
                 .build();
+    }
+
+    private LoveTypeCategory toLoveTypeCategory(LoveTypeCategoryJpa loveTypeCategoryJpa) {
+        return loveTypeCategoryJpa == null ? null : LoveTypeCategory.valueOf(loveTypeCategoryJpa.name());
+    }
+
+    private LoveTypeCategoryJpa toLoveTypeCategoryJpa(LoveTypeCategory loveTypeCategory) {
+        return loveTypeCategory == null ? null : LoveTypeCategoryJpa.valueOf(loveTypeCategory.name());
     }
 }

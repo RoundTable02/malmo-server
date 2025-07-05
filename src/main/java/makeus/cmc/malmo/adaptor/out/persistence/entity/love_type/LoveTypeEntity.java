@@ -26,4 +26,7 @@ public class LoveTypeEntity extends BaseTimeEntityJpa {
 
     private float weight;
 
+    @Enumerated(EnumType.STRING)
+    private LoveTypeCategoryJpa loveTypeCategory;
+
 }

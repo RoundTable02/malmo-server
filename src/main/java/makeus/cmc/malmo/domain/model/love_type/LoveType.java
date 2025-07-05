@@ -14,4 +14,17 @@ public class LoveType extends BaseTimeEntity {
     private String content;
     private String imageUrl;
     private float weight;
+    private LoveTypeCategory loveTypeCategory;
+
+    public static LoveTypeCategory findLoveTypeCategory(float avoidanceRate, float anxietyRate) {
+        if (avoidanceRate < 2.33 && anxietyRate < 2.61) {
+            return LoveTypeCategory.STABLE_TYPE;
+        } else if (avoidanceRate >= 2.33 && anxietyRate < 2.61) {
+            return LoveTypeCategory.AVOIDANCE_TYPE;
+        } else if (avoidanceRate < 2.33 && anxietyRate >= 2.61) {
+            return LoveTypeCategory.ANXIETY_TYPE;
+        } else {
+            return LoveTypeCategory.CONFUSION_TYPE;
+        }
+    }
 }
