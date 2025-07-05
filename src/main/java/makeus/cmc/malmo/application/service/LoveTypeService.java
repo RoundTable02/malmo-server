@@ -54,8 +54,8 @@ public class LoveTypeService implements GetLoveTypeUseCase, UpdateMemberLoveType
         List<LoveTypeQuestion> loveTypeQuestions = loadLoveTypeQuestionsPort.loadLoveTypeQuestions();
         Map<Long, LoveTypeQuestion> questionMap = loveTypeQuestions.stream()
                 .collect(Collectors.toMap(LoveTypeQuestion::getId, q -> q));
-        Float anxietyScore = 0.0f;
-        Float avoidanceScore = 0.0f;
+        float anxietyScore = 0.0f;
+        float avoidanceScore = 0.0f;
         List<LoveTypeTestResult> results = command.getResults();
 
         for (LoveTypeTestResult result : results) {

@@ -3,7 +3,6 @@ package makeus.cmc.malmo.application.port.out;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 public interface LoadPartnerPort {

@@ -5,11 +5,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.love_type.LoveTypeEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.LoveTypeEntityId;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
-import makeus.cmc.malmo.domain.model.value.LoveTypeId;
 
 @Getter
 @SuperBuilder

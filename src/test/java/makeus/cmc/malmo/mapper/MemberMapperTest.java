@@ -7,7 +7,6 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberRoleJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberStateJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.ProviderJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.LoveTypeEntityId;
-import makeus.cmc.malmo.adaptor.out.persistence.mapper.LoveTypeMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.MemberMapper;
 import makeus.cmc.malmo.domain.model.love_type.LoveType;
 import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
@@ -21,14 +20,11 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("MemberMapper 테스트")

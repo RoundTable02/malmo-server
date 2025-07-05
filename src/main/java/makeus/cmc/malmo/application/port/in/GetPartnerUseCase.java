@@ -4,8 +4,6 @@ import lombok.Builder;
 import lombok.Data;
 import makeus.cmc.malmo.domain.model.member.MemberState;
 
-import java.time.LocalDate;
-
 public interface GetPartnerUseCase {
 
     PartnerMemberResponseDto getMemberInfo(PartnerInfoCommand command);

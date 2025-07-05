@@ -6,10 +6,7 @@ import makeus.cmc.malmo.application.port.in.GetPartnerUseCase;
 import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.LoadPartnerPort;
 import makeus.cmc.malmo.application.service.MemberInfoService;
-import makeus.cmc.malmo.domain.model.love_type.LoveType;
-import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.member.MemberState;
-import makeus.cmc.malmo.domain.model.value.LoveTypeId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,7 +15,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;

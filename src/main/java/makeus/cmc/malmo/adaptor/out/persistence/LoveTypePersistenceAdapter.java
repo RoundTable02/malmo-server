@@ -2,7 +2,6 @@ package makeus.cmc.malmo.adaptor.out.persistence;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.love_type.LoveTypeCategoryJpa;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.love_type.LoveTypeEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.LoveTypeMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.LoveTypeRepository;
 import makeus.cmc.malmo.application.port.out.LoadLoveTypePort;
