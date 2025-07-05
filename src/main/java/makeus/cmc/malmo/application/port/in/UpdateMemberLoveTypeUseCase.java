@@ -26,6 +26,8 @@ public interface UpdateMemberLoveTypeUseCase {
     @Data
     @Builder
     class RegisterLoveTypeResponseDto {
+        private float avoidanceRate;
+        private float anxietyRate;
         private Long loveTypeId;
         private String title;
         private String summary;

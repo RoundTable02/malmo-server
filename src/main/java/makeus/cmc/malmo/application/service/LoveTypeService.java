@@ -47,6 +47,7 @@ public class LoveTypeService implements GetLoveTypeUseCase, UpdateMemberLoveType
     }
 
     @Override
+    @Transactional
     public RegisterLoveTypeResponseDto updateMemberLoveType(UpdateMemberLoveTypeCommand command) {
         Member member = loadMemberPort.loadMemberById(command.getMemberId())
                 .orElseThrow(MemberNotFoundException::new);
@@ -78,6 +79,8 @@ public class LoveTypeService implements GetLoveTypeUseCase, UpdateMemberLoveType
         saveMemberPort.saveMember(member);
 
         return RegisterLoveTypeResponseDto.builder()
+                .avoidanceRate(member.getAvoidanceRate())
+                .anxietyRate(member.getAnxietyRate())
                 .loveTypeId(loveType.getId())
                 .title(loveType.getTitle())
                 .summary(loveType.getSummary())
