@@ -79,6 +79,12 @@ public class GlobalExceptionHandler {
         return ErrorResponse.of(ErrorCode.NOT_COUPLE_MEMBER);
     }
 
+    @ExceptionHandler({UsedCoupleCodeException.class})
+    public ResponseEntity<ErrorResponse> handleUsedCoupleCodeException(UsedCoupleCodeException e) {
+        log.error("[GlobalExceptionHandler: handleUsedCoupleCodeException 호출]", e);
+        return ErrorResponse.of(ErrorCode.USED_COUPLE_CODE);
+    }
+
 
 
 
