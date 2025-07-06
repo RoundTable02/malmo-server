@@ -32,9 +32,6 @@ class TermsAgreementServiceTest {
     private TermsAgreementDomainService termsAgreementDomainService;
 
     @Mock
-    private LoadTermsAgreementPort termsAgreementPort;
-
-    @Mock
     private SaveMemberTermsAgreement saveMemberTermsAgreement;
 
     @InjectMocks

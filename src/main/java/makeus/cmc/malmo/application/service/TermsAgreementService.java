@@ -20,7 +20,6 @@ import java.util.List;
 public class TermsAgreementService implements UpdateTermsAgreementUseCase {
 
     private final TermsAgreementDomainService termsAgreementDomainService;
-    private final LoadTermsAgreementPort termsAgreementPort;
     private final SaveMemberTermsAgreement saveMemberTermsAgreement;
 
     @Override
