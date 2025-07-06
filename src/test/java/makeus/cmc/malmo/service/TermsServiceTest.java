@@ -63,7 +63,7 @@ class TermsServiceTest {
             given(loadTermsPort.loadLatestTerms()).willReturn(termsList);
 
             // When
-            List<TermsUseCase.TermsDto> response = termsService.getTerms();
+            List<TermsUseCase.TermsDto> response = termsService.getTerms().getTermsList();
 
             // Then
             assertThat(response).isNotNull();
@@ -100,7 +100,7 @@ class TermsServiceTest {
             given(loadTermsPort.loadLatestTerms()).willReturn(Collections.emptyList());
 
             // When
-            List<TermsUseCase.TermsDto> response = termsService.getTerms();
+            List<TermsUseCase.TermsDto> response = termsService.getTerms().getTermsList();
 
             // Then
             assertThat(response).isNotNull();
@@ -125,7 +125,7 @@ class TermsServiceTest {
             given(loadTermsPort.loadLatestTerms()).willReturn(termsList);
 
             // When
-            List<TermsUseCase.TermsDto> response = termsService.getTerms();
+            List<TermsUseCase.TermsDto> response = termsService.getTerms().getTermsList();
 
             // Then
             assertThat(response).isNotNull();
@@ -164,7 +164,7 @@ class TermsServiceTest {
             given(loadTermsPort.loadLatestTerms()).willReturn(termsList);
 
             // When
-            List<TermsUseCase.TermsDto> response = termsService.getTerms();
+            List<TermsUseCase.TermsDto> response = termsService.getTerms().getTermsList();
 
             // Then
             assertThat(response).isNotNull();

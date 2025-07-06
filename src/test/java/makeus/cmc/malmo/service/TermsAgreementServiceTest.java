@@ -8,6 +8,7 @@ import makeus.cmc.malmo.application.service.TermsAgreementService;
 import makeus.cmc.malmo.domain.model.terms.MemberTermsAgreement;
 import makeus.cmc.malmo.domain.model.value.MemberId;
 import makeus.cmc.malmo.domain.model.value.TermsId;
+import makeus.cmc.malmo.domain.service.TermsAgreementDomainService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,7 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -27,6 +27,9 @@ import static org.mockito.BDDMockito.*;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("TermsAgreementService 단위 테스트")
 class TermsAgreementServiceTest {
+
+    @Mock
+    private TermsAgreementDomainService termsAgreementDomainService;
 
     @Mock
     private LoadTermsAgreementPort termsAgreementPort;
@@ -74,10 +77,10 @@ class TermsAgreementServiceTest {
             MemberTermsAgreement memberTermsAgreement2 = mock(MemberTermsAgreement.class);
             given(memberTermsAgreement2.isAgreed()).willReturn(isAgreed2);
 
-            given(termsAgreementPort.loadTermsAgreementByMemberIdAndTermsId(MemberId.of(memberId), TermsId.of(termsId1)))
-                    .willReturn(Optional.of(memberTermsAgreement1));
-            given(termsAgreementPort.loadTermsAgreementByMemberIdAndTermsId(MemberId.of(memberId), TermsId.of(termsId2)))
-                    .willReturn(Optional.of(memberTermsAgreement2));
+            given(termsAgreementDomainService.getTermsAgreement(MemberId.of(memberId), TermsId.of(termsId1)))
+                    .willReturn(memberTermsAgreement1);
+            given(termsAgreementDomainService.getTermsAgreement(MemberId.of(memberId), TermsId.of(termsId2)))
+                    .willReturn(memberTermsAgreement2);
 
             // When
             UpdateTermsAgreementUseCase.TermsAgreementResponse response = termsAgreementService.updateTermsAgreement(command);
@@ -94,8 +97,8 @@ class TermsAgreementServiceTest {
             assertThat(responseTerms2.getTermsId()).isEqualTo(termsId2);
             assertThat(responseTerms2.getIsAgreed()).isEqualTo(isAgreed2);
 
-            then(termsAgreementPort).should().loadTermsAgreementByMemberIdAndTermsId(MemberId.of(memberId), TermsId.of(termsId1));
-            then(termsAgreementPort).should().loadTermsAgreementByMemberIdAndTermsId(MemberId.of(memberId), TermsId.of(termsId2));
+            then(termsAgreementDomainService).should().getTermsAgreement(MemberId.of(memberId), TermsId.of(termsId1));
+            then(termsAgreementDomainService).should().getTermsAgreement(MemberId.of(memberId), TermsId.of(termsId2));
             then(memberTermsAgreement1).should().updateAgreement(isAgreed1);
             then(memberTermsAgreement2).should().updateAgreement(isAgreed2);
             then(saveMemberTermsAgreement).should().saveMemberTermsAgreement(memberTermsAgreement1);
@@ -125,8 +128,8 @@ class TermsAgreementServiceTest {
             MemberTermsAgreement memberTermsAgreement = mock(MemberTermsAgreement.class);
             given(memberTermsAgreement.isAgreed()).willReturn(isAgreed);
 
-            given(termsAgreementPort.loadTermsAgreementByMemberIdAndTermsId(MemberId.of(memberId), TermsId.of(termsId)))
-                    .willReturn(Optional.of(memberTermsAgreement));
+            given(termsAgreementDomainService.getTermsAgreement(MemberId.of(memberId), TermsId.of(termsId)))
+                    .willReturn(memberTermsAgreement);
 
             // When
             UpdateTermsAgreementUseCase.TermsAgreementResponse response = termsAgreementService.updateTermsAgreement(command);
@@ -139,7 +142,7 @@ class TermsAgreementServiceTest {
             assertThat(responseTerms.getTermsId()).isEqualTo(termsId);
             assertThat(responseTerms.getIsAgreed()).isEqualTo(isAgreed);
 
-            then(termsAgreementPort).should().loadTermsAgreementByMemberIdAndTermsId(MemberId.of(memberId), TermsId.of(termsId));
+            then(termsAgreementDomainService).should().getTermsAgreement(MemberId.of(memberId), TermsId.of(termsId));
             then(memberTermsAgreement).should().updateAgreement(isAgreed);
             then(saveMemberTermsAgreement).should().saveMemberTermsAgreement(memberTermsAgreement);
         }
@@ -164,14 +167,14 @@ class TermsAgreementServiceTest {
                     .terms(termsList)
                     .build();
 
-            given(termsAgreementPort.loadTermsAgreementByMemberIdAndTermsId(MemberId.of(memberId), TermsId.of(termsId)))
-                    .willReturn(Optional.empty());
+            given(termsAgreementDomainService.getTermsAgreement(MemberId.of(memberId), TermsId.of(termsId)))
+                    .willThrow(new TermsNotFoundException());
 
             // When & Then
             assertThatThrownBy(() -> termsAgreementService.updateTermsAgreement(command))
                     .isInstanceOf(TermsNotFoundException.class);
 
-            then(termsAgreementPort).should().loadTermsAgreementByMemberIdAndTermsId(MemberId.of(memberId), TermsId.of(termsId));
+            then(termsAgreementDomainService).should().getTermsAgreement(MemberId.of(memberId), TermsId.of(termsId));
             then(saveMemberTermsAgreement).should(never()).saveMemberTermsAgreement(any());
         }
 
@@ -204,17 +207,17 @@ class TermsAgreementServiceTest {
 
             MemberTermsAgreement memberTermsAgreement1 = mock(MemberTermsAgreement.class);
 
-            given(termsAgreementPort.loadTermsAgreementByMemberIdAndTermsId(MemberId.of(memberId), TermsId.of(termsId1)))
-                    .willReturn(Optional.of(memberTermsAgreement1));
-            given(termsAgreementPort.loadTermsAgreementByMemberIdAndTermsId(MemberId.of(memberId), TermsId.of(termsId2)))
-                    .willReturn(Optional.empty());
+            given(termsAgreementDomainService.getTermsAgreement(MemberId.of(memberId), TermsId.of(termsId1)))
+                    .willReturn(memberTermsAgreement1);
+            given(termsAgreementDomainService.getTermsAgreement(MemberId.of(memberId), TermsId.of(termsId2)))
+                    .willThrow(new TermsNotFoundException());
 
             // When & Then
             assertThatThrownBy(() -> termsAgreementService.updateTermsAgreement(command))
                     .isInstanceOf(TermsNotFoundException.class);
 
-            then(termsAgreementPort).should().loadTermsAgreementByMemberIdAndTermsId(MemberId.of(memberId), TermsId.of(termsId1));
-            then(termsAgreementPort).should().loadTermsAgreementByMemberIdAndTermsId(MemberId.of(memberId), TermsId.of(termsId2));
+            then(termsAgreementDomainService).should().getTermsAgreement(MemberId.of(memberId), TermsId.of(termsId1));
+            then(termsAgreementDomainService).should().getTermsAgreement(MemberId.of(memberId), TermsId.of(termsId2));
             then(memberTermsAgreement1).should().updateAgreement(isAgreed1);
             then(saveMemberTermsAgreement).should().saveMemberTermsAgreement(memberTermsAgreement1);
         }
