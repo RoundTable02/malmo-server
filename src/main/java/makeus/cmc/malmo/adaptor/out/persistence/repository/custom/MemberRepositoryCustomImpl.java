@@ -3,6 +3,7 @@ package makeus.cmc.malmo.adaptor.out.persistence.repository.custom;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleMemberStateJpa;
 import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.LoadPartnerPort;
 
@@ -62,5 +63,15 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
                 )
                 .fetchOne();
         return Optional.ofNullable(dto);
+    }
+
+    @Override
+    public boolean isCoupleMember(Long memberId) {
+        return queryFactory
+                .selectOne()
+                .from(coupleMemberEntity)
+                .where(coupleMemberEntity.memberEntityId.value.eq(memberId)
+                        .and(coupleMemberEntity.coupleMemberStateJpa.eq(CoupleMemberStateJpa.ALIVE)))
+                .fetchFirst() != null;
     }
 }

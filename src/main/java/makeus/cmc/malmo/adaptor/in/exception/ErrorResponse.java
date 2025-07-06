@@ -1,4 +1,4 @@
-package makeus.cmc.malmo.adaptor.in.web.exception;
+package makeus.cmc.malmo.adaptor.in.exception;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;

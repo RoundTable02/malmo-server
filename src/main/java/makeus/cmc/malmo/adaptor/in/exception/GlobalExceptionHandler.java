@@ -1,4 +1,4 @@
-package makeus.cmc.malmo.adaptor.in.web.exception;
+package makeus.cmc.malmo.adaptor.in.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.out.oidc.exception.OidcIdTokenException;
@@ -71,6 +71,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleLoveTypeQuestionNotFoundException(LoveTypeQuestionNotFoundException e) {
         log.error("[GlobalExceptionHandler: handleLoveTypeQuestionNotFoundException 호출]", e);
         return ErrorResponse.of(ErrorCode.NO_SUCH_LOVE_TYPE_QUESTION);
+    }
+
+    @ExceptionHandler({NotCoupleMemberException.class})
+    public ResponseEntity<ErrorResponse> handleNotCoupleMemberException(NotCoupleMemberException e) {
+        log.error("[GlobalExceptionHandler: handleNotCoupleMemberException 호출]", e);
+        return ErrorResponse.of(ErrorCode.NOT_COUPLE_MEMBER);
     }
 
 
