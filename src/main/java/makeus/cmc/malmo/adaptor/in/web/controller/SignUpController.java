@@ -42,7 +42,7 @@ public class SignUpController {
     )
     @ApiCommonResponses.RequireAuth
     @ApiCommonResponses.SignUp
-    @PostMapping("/sign-up")
+    @PostMapping("/members/onboarding")
     public BaseResponse<SignUpUseCase.SignUpResponse> signUp(
             @AuthenticationPrincipal User user,
             @Valid @RequestBody SignUpRequestDto requestDto
