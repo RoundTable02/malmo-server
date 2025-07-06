@@ -7,11 +7,17 @@ import java.util.List;
 
 public interface TermsUseCase {
 
-    List<TermsResponse> getTerms();
+    TermsListResponse getTerms();
 
     @Data
     @Builder
-    class TermsResponse {
+    class TermsListResponse {
+        private List<TermsDto> termsList;
+    }
+
+    @Data
+    @Builder
+    class TermsDto {
         private Long termsId;
         private String title;
         private String content;

@@ -16,9 +16,9 @@ public class TermsService implements TermsUseCase {
     private final LoadTermsPort loadTermsPort;
 
     @Override
-    public List<TermsResponse> getTerms() {
-        return loadTermsPort.loadLatestTerms().stream()
-                .map(term -> TermsResponse.builder()
+    public TermsListResponse getTerms() {
+        List<TermsDto> termsDtos = loadTermsPort.loadLatestTerms().stream()
+                .map(term -> TermsDto.builder()
                         .termsId(term.getId())
                         .title(term.getTitle())
                         .content(term.getContent())
@@ -26,5 +26,9 @@ public class TermsService implements TermsUseCase {
                         .isRequired(term.isRequired())
                         .build())
                 .toList();
+
+        return TermsListResponse.builder()
+                .termsList(termsDtos)
+                .build();
     }
 }

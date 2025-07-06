@@ -1,4 +1,4 @@
-package makeus.cmc.malmo.adaptor.out.persistence.exception;
+package makeus.cmc.malmo.domain.exception;
 
 public class LoveTypeNotFoundException extends RuntimeException {
 }

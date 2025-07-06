@@ -1,16 +1,17 @@
 package makeus.cmc.malmo.service;
 
 import makeus.cmc.malmo.adaptor.out.jwt.TokenInfo;
-import makeus.cmc.malmo.adaptor.out.persistence.exception.MemberNotFoundException;
+import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
 import makeus.cmc.malmo.application.exception.InvalidRefreshTokenException;
 import makeus.cmc.malmo.application.port.in.RefreshTokenUseCase;
 import makeus.cmc.malmo.application.port.out.GenerateTokenPort;
-import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.SaveMemberPort;
 import makeus.cmc.malmo.application.port.out.ValidateTokenPort;
 import makeus.cmc.malmo.application.service.RefreshTokenService;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.member.MemberRole;
+import makeus.cmc.malmo.domain.model.value.MemberId;
+import makeus.cmc.malmo.domain.service.MemberDomainService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,8 +19,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -30,7 +29,7 @@ import static org.mockito.BDDMockito.*;
 class RefreshTokenServiceTest {
 
     @Mock
-    private LoadMemberPort loadMemberPort;
+    private MemberDomainService memberDomainService;
 
     @Mock
     private SaveMemberPort saveMemberPort;
@@ -75,7 +74,7 @@ class RefreshTokenServiceTest {
 
             given(validateTokenPort.validateToken(refreshToken)).willReturn(true);
             given(validateTokenPort.getMemberIdFromToken(refreshToken)).willReturn(memberId);
-            given(loadMemberPort.loadMemberById(memberIdLong)).willReturn(Optional.of(member));
+            given(memberDomainService.getMemberById(MemberId.of(memberIdLong))).willReturn(member);
             given(generateTokenPort.generateToken(memberIdLong, MemberRole.MEMBER)).willReturn(tokenInfo);
             given(saveMemberPort.saveMember(member)).willReturn(member);
 
@@ -90,7 +89,7 @@ class RefreshTokenServiceTest {
 
             then(validateTokenPort).should().validateToken(refreshToken);
             then(validateTokenPort).should().getMemberIdFromToken(refreshToken);
-            then(loadMemberPort).should().loadMemberById(memberIdLong);
+            then(memberDomainService).should().getMemberById(MemberId.of(memberIdLong));
             then(generateTokenPort).should().generateToken(memberIdLong, MemberRole.MEMBER);
             then(member).should().refreshMemberToken(newRefreshToken);
             then(saveMemberPort).should().saveMember(member);
@@ -114,7 +113,7 @@ class RefreshTokenServiceTest {
 
             then(validateTokenPort).should().validateToken(invalidRefreshToken);
             then(validateTokenPort).should(never()).getMemberIdFromToken(any());
-            then(loadMemberPort).should(never()).loadMemberById(any());
+            then(memberDomainService).should(never()).getMemberById(any());
             then(generateTokenPort).should(never()).generateToken(any(), any());
             then(saveMemberPort).should(never()).saveMember(any());
         }
@@ -133,7 +132,8 @@ class RefreshTokenServiceTest {
 
             given(validateTokenPort.validateToken(refreshToken)).willReturn(true);
             given(validateTokenPort.getMemberIdFromToken(refreshToken)).willReturn(memberId);
-            given(loadMemberPort.loadMemberById(memberIdLong)).willReturn(Optional.empty());
+            given(memberDomainService.getMemberById(MemberId.of(memberIdLong)))
+                    .willThrow(new MemberNotFoundException());
 
             // When & Then
             assertThatThrownBy(() -> refreshTokenService.refreshToken(command))
@@ -141,7 +141,7 @@ class RefreshTokenServiceTest {
 
             then(validateTokenPort).should().validateToken(refreshToken);
             then(validateTokenPort).should().getMemberIdFromToken(refreshToken);
-            then(loadMemberPort).should().loadMemberById(memberIdLong);
+            then(memberDomainService).should().getMemberById(MemberId.of(memberIdLong));
             then(generateTokenPort).should(never()).generateToken(any(), any());
             then(saveMemberPort).should(never()).saveMember(any());
         }
@@ -164,7 +164,7 @@ class RefreshTokenServiceTest {
 
             given(validateTokenPort.validateToken(refreshToken)).willReturn(true);
             given(validateTokenPort.getMemberIdFromToken(refreshToken)).willReturn(memberId);
-            given(loadMemberPort.loadMemberById(memberIdLong)).willReturn(Optional.of(member));
+            given(memberDomainService.getMemberById(MemberId.of(memberIdLong))).willReturn(member);
 
             // When & Then
             assertThatThrownBy(() -> refreshTokenService.refreshToken(command))
@@ -172,7 +172,7 @@ class RefreshTokenServiceTest {
 
             then(validateTokenPort).should().validateToken(refreshToken);
             then(validateTokenPort).should().getMemberIdFromToken(refreshToken);
-            then(loadMemberPort).should().loadMemberById(memberIdLong);
+            then(memberDomainService).should().getMemberById(MemberId.of(memberIdLong));
             then(generateTokenPort).should(never()).generateToken(any(), any());
             then(saveMemberPort).should(never()).saveMember(any());
         }

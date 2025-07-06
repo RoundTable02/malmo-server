@@ -63,27 +63,27 @@ class TermsServiceTest {
             given(loadTermsPort.loadLatestTerms()).willReturn(termsList);
 
             // When
-            List<TermsUseCase.TermsResponse> response = termsService.getTerms();
+            List<TermsUseCase.TermsDto> response = termsService.getTerms().getTermsList();
 
             // Then
             assertThat(response).isNotNull();
             assertThat(response).hasSize(3);
 
-            TermsUseCase.TermsResponse response1 = response.get(0);
+            TermsUseCase.TermsDto response1 = response.get(0);
             assertThat(response1.getTermsId()).isEqualTo(1L);
             assertThat(response1.getTitle()).isEqualTo("서비스 이용약관");
             assertThat(response1.getContent()).isEqualTo("서비스 이용약관 내용입니다.");
             assertThat(response1.getVersion()).isEqualTo(1.0f);
             assertThat(response1.isRequired()).isTrue();
 
-            TermsUseCase.TermsResponse response2 = response.get(1);
+            TermsUseCase.TermsDto response2 = response.get(1);
             assertThat(response2.getTermsId()).isEqualTo(2L);
             assertThat(response2.getTitle()).isEqualTo("개인정보 처리방침");
             assertThat(response2.getContent()).isEqualTo("개인정보 처리방침 내용입니다.");
             assertThat(response2.getVersion()).isEqualTo(1.1f);
             assertThat(response2.isRequired()).isTrue();
 
-            TermsUseCase.TermsResponse response3 = response.get(2);
+            TermsUseCase.TermsDto response3 = response.get(2);
             assertThat(response3.getTermsId()).isEqualTo(3L);
             assertThat(response3.getTitle()).isEqualTo("마케팅 정보 수신동의");
             assertThat(response3.getContent()).isEqualTo("마케팅 정보 수신동의 내용입니다.");
@@ -100,7 +100,7 @@ class TermsServiceTest {
             given(loadTermsPort.loadLatestTerms()).willReturn(Collections.emptyList());
 
             // When
-            List<TermsUseCase.TermsResponse> response = termsService.getTerms();
+            List<TermsUseCase.TermsDto> response = termsService.getTerms().getTermsList();
 
             // Then
             assertThat(response).isNotNull();
@@ -125,18 +125,18 @@ class TermsServiceTest {
             given(loadTermsPort.loadLatestTerms()).willReturn(termsList);
 
             // When
-            List<TermsUseCase.TermsResponse> response = termsService.getTerms();
+            List<TermsUseCase.TermsDto> response = termsService.getTerms().getTermsList();
 
             // Then
             assertThat(response).isNotNull();
             assertThat(response).hasSize(1);
 
-            TermsUseCase.TermsResponse termsResponse = response.get(0);
-            assertThat(termsResponse.getTermsId()).isEqualTo(1L);
-            assertThat(termsResponse.getTitle()).isEqualTo("서비스 이용약관");
-            assertThat(termsResponse.getContent()).isEqualTo("서비스 이용약관 내용입니다.");
-            assertThat(termsResponse.getVersion()).isEqualTo(1.0f);
-            assertThat(termsResponse.isRequired()).isTrue();
+            TermsUseCase.TermsDto termsDto = response.get(0);
+            assertThat(termsDto.getTermsId()).isEqualTo(1L);
+            assertThat(termsDto.getTitle()).isEqualTo("서비스 이용약관");
+            assertThat(termsDto.getContent()).isEqualTo("서비스 이용약관 내용입니다.");
+            assertThat(termsDto.getVersion()).isEqualTo(1.0f);
+            assertThat(termsDto.isRequired()).isTrue();
 
             then(loadTermsPort).should().loadLatestTerms();
         }
@@ -164,15 +164,15 @@ class TermsServiceTest {
             given(loadTermsPort.loadLatestTerms()).willReturn(termsList);
 
             // When
-            List<TermsUseCase.TermsResponse> response = termsService.getTerms();
+            List<TermsUseCase.TermsDto> response = termsService.getTerms().getTermsList();
 
             // Then
             assertThat(response).isNotNull();
             assertThat(response).hasSize(2);
 
             // 필수 약관 검증
-            TermsUseCase.TermsResponse requiredResponse = response.stream()
-                    .filter(TermsUseCase.TermsResponse::isRequired)
+            TermsUseCase.TermsDto requiredResponse = response.stream()
+                    .filter(TermsUseCase.TermsDto::isRequired)
                     .findFirst()
                     .orElseThrow();
             assertThat(requiredResponse.getTermsId()).isEqualTo(1L);
@@ -180,8 +180,8 @@ class TermsServiceTest {
             assertThat(requiredResponse.isRequired()).isTrue();
 
             // 선택 약관 검증
-            TermsUseCase.TermsResponse optionalResponse = response.stream()
-                    .filter(termsResponse -> !termsResponse.isRequired())
+            TermsUseCase.TermsDto optionalResponse = response.stream()
+                    .filter(termsDto -> !termsDto.isRequired())
                     .findFirst()
                     .orElseThrow();
             assertThat(optionalResponse.getTermsId()).isEqualTo(2L);

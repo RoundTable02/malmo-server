@@ -1,16 +1,17 @@
 package makeus.cmc.malmo.service;
 
-import makeus.cmc.malmo.adaptor.out.persistence.exception.CoupleCodeNotFoundException;
-import makeus.cmc.malmo.adaptor.out.persistence.exception.MemberNotFoundException;
+import makeus.cmc.malmo.domain.exception.CoupleCodeNotFoundException;
+import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
 import makeus.cmc.malmo.application.port.in.CoupleLinkUseCase;
-import makeus.cmc.malmo.application.port.out.LoadCoupleCodePort;
-import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.SaveCouplePort;
 import makeus.cmc.malmo.application.service.CoupleService;
 import makeus.cmc.malmo.domain.model.couple.Couple;
 import makeus.cmc.malmo.domain.model.member.CoupleCode;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.value.MemberId;
+import makeus.cmc.malmo.domain.service.CoupleCodeDomainService;
+import makeus.cmc.malmo.domain.service.CoupleDomainService;
+import makeus.cmc.malmo.domain.service.MemberDomainService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,9 +19,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.LocalDate;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -32,10 +30,13 @@ import static org.mockito.BDDMockito.*;
 class CoupleServiceTest {
 
     @Mock
-    private LoadMemberPort loadMemberPort;
+    private MemberDomainService memberDomainService;
 
     @Mock
-    private LoadCoupleCodePort loadCoupleCodePort;
+    private CoupleCodeDomainService coupleCodeDomainService;
+
+    @Mock
+    private CoupleDomainService coupleDomainService;
 
     @Mock
     private SaveCouplePort saveCouplePort;
@@ -54,7 +55,6 @@ class CoupleServiceTest {
             Long userId = 1L;
             String inviteCode = "INVITE123";
             Long coupleId = 10L;
-            LocalDate startLoveDate = LocalDate.of(2024, 1, 1);
 
             CoupleLinkUseCase.CoupleLinkCommand command = CoupleLinkUseCase.CoupleLinkCommand.builder()
                     .userId(userId)
@@ -62,21 +62,15 @@ class CoupleServiceTest {
                     .build();
 
             Member member = mock(Member.class);
-            given(member.getId()).willReturn(userId);
-
-            MemberId memberId = mock(MemberId.class);
-            given(memberId.getValue()).willReturn(2L);
-
             CoupleCode coupleCode = mock(CoupleCode.class);
-            given(coupleCode.getMemberId()).willReturn(memberId);
-            given(coupleCode.getStartLoveDate()).willReturn(startLoveDate);
-
+            Couple createdCouple = mock(Couple.class);
             Couple savedCouple = mock(Couple.class);
             given(savedCouple.getId()).willReturn(coupleId);
 
-            given(loadMemberPort.loadMemberById(userId)).willReturn(Optional.of(member));
-            given(loadCoupleCodePort.loadCoupleCodeByInviteCode(inviteCode)).willReturn(Optional.of(coupleCode));
-            given(saveCouplePort.saveCouple(any(Couple.class))).willReturn(savedCouple);
+            given(memberDomainService.getMemberById(MemberId.of(userId))).willReturn(member);
+            given(coupleCodeDomainService.getCoupleCodeByInviteCode(inviteCode)).willReturn(coupleCode);
+            given(coupleDomainService.createCouple(member, coupleCode)).willReturn(createdCouple);
+            given(saveCouplePort.saveCouple(createdCouple)).willReturn(savedCouple);
 
             // When
             CoupleLinkUseCase.CoupleLinkResponse response = coupleService.coupleLink(command);
@@ -85,9 +79,10 @@ class CoupleServiceTest {
             assertThat(response).isNotNull();
             assertThat(response.getCoupleId()).isEqualTo(coupleId);
 
-            then(loadMemberPort).should().loadMemberById(userId);
-            then(loadCoupleCodePort).should().loadCoupleCodeByInviteCode(inviteCode);
-            then(saveCouplePort).should().saveCouple(any(Couple.class));
+            then(memberDomainService).should().getMemberById(MemberId.of(userId));
+            then(coupleCodeDomainService).should().getCoupleCodeByInviteCode(inviteCode);
+            then(coupleDomainService).should().createCouple(member, coupleCode);
+            then(saveCouplePort).should().saveCouple(createdCouple);
         }
 
         @Test
@@ -102,14 +97,16 @@ class CoupleServiceTest {
                     .coupleCode(inviteCode)
                     .build();
 
-            given(loadMemberPort.loadMemberById(userId)).willReturn(Optional.empty());
+            given(memberDomainService.getMemberById(MemberId.of(userId)))
+                    .willThrow(new MemberNotFoundException());
 
             // When & Then
             assertThatThrownBy(() -> coupleService.coupleLink(command))
                     .isInstanceOf(MemberNotFoundException.class);
 
-            then(loadMemberPort).should().loadMemberById(userId);
-            then(loadCoupleCodePort).should(never()).loadCoupleCodeByInviteCode(any());
+            then(memberDomainService).should().getMemberById(MemberId.of(userId));
+            then(coupleCodeDomainService).should(never()).getCoupleCodeByInviteCode(any());
+            then(coupleDomainService).should(never()).createCouple(any(), any());
             then(saveCouplePort).should(never()).saveCouple(any());
         }
 
@@ -127,15 +124,17 @@ class CoupleServiceTest {
 
             Member member = mock(Member.class);
 
-            given(loadMemberPort.loadMemberById(userId)).willReturn(Optional.of(member));
-            given(loadCoupleCodePort.loadCoupleCodeByInviteCode(invalidInviteCode)).willReturn(Optional.empty());
+            given(memberDomainService.getMemberById(MemberId.of(userId))).willReturn(member);
+            given(coupleCodeDomainService.getCoupleCodeByInviteCode(invalidInviteCode))
+                    .willThrow(new CoupleCodeNotFoundException());
 
             // When & Then
             assertThatThrownBy(() -> coupleService.coupleLink(command))
                     .isInstanceOf(CoupleCodeNotFoundException.class);
 
-            then(loadMemberPort).should().loadMemberById(userId);
-            then(loadCoupleCodePort).should().loadCoupleCodeByInviteCode(invalidInviteCode);
+            then(memberDomainService).should().getMemberById(MemberId.of(userId));
+            then(coupleCodeDomainService).should().getCoupleCodeByInviteCode(invalidInviteCode);
+            then(coupleDomainService).should(never()).createCouple(any(), any());
             then(saveCouplePort).should(never()).saveCouple(any());
         }
     }

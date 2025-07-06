@@ -14,6 +14,8 @@ import makeus.cmc.malmo.application.port.in.TermsUseCase;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @Tag(name = "약관 관리 API", description = "서비스 이용약관 조회 관련 API")
 @RestController
 @RequiredArgsConstructor
@@ -32,7 +34,8 @@ public class TermsController {
     )
     @ApiCommonResponses.RequireAuth
     @GetMapping("/terms")
-    public BaseResponse<BaseListResponse<TermsUseCase.TermsResponse>> getTerms() {
-        return BaseListResponse.success(termsUseCase.getTerms());
+    public BaseResponse<BaseListResponse<TermsUseCase.TermsDto>> getTerms() {
+        List<TermsUseCase.TermsDto> termsList = termsUseCase.getTerms().getTermsList();
+        return BaseListResponse.success(termsList);
     }
 }

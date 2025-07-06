@@ -1,7 +1,7 @@
 package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.adaptor.out.persistence.exception.MemberNotFoundException;
+import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
 import makeus.cmc.malmo.application.port.in.GetMemberUseCase;
 import makeus.cmc.malmo.application.port.in.GetPartnerUseCase;
 import makeus.cmc.malmo.application.port.out.LoadMemberPort;
