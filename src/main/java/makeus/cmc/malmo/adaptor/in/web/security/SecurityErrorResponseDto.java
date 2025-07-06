@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import makeus.cmc.malmo.adaptor.in.web.exception.ErrorCode;
+import makeus.cmc.malmo.adaptor.in.exception.ErrorCode;
 import org.slf4j.MDC;
 
 @Getter

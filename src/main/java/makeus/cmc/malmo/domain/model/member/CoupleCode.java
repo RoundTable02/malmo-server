@@ -16,4 +16,13 @@ public class CoupleCode extends BaseTimeEntity {
     private String inviteCode;
     private LocalDate startLoveDate;
     private MemberId memberId;
+    private CoupleCodeState coupleCodeState;
+
+    public boolean isUsed() {
+        return coupleCodeState == CoupleCodeState.USED;
+    }
+
+    public void expire() {
+        this.coupleCodeState = CoupleCodeState.USED;
+    }
 }

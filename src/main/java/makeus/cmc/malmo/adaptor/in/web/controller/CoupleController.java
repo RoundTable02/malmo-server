@@ -39,6 +39,7 @@ public class CoupleController {
             content = @Content(schema = @Schema(implementation = SwaggerResponses.CoupleLinkSuccessResponse.class))
     )
     @ApiCommonResponses.RequireAuth
+    @ApiCommonResponses.CoupleCode
     @PostMapping
     public BaseResponse<CoupleLinkUseCase.CoupleLinkResponse> linkCouple(
             @AuthenticationPrincipal User user,

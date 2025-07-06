@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface MemberRepositoryCustom {
     Optional<LoadMemberPort.MemberResponseRepositoryDto> findMemberDetailsById(Long memberId);
     Optional<LoadPartnerPort.PartnerMemberRepositoryDto> findPartnerMember(Long memberId);
+
+    boolean isCoupleMember(Long memberId);
 }

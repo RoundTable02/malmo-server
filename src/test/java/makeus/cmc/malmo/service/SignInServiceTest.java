@@ -8,6 +8,7 @@ import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.member.MemberRole;
 import makeus.cmc.malmo.domain.model.member.MemberState;
 import makeus.cmc.malmo.domain.model.member.Provider;
+import makeus.cmc.malmo.domain.service.MemberDomainService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,9 @@ import static org.mockito.BDDMockito.*;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("SignInService 단위 테스트")
 class SignInServiceTest {
+
+    @Mock
+    private MemberDomainService memberDomainService;
 
     @Mock
     private LoadMemberPort loadMemberPort;
@@ -133,7 +137,8 @@ class SignInServiceTest {
             given(loadMemberPort.loadMemberByProviderId(Provider.KAKAO, providerId))
                     .willReturn(Optional.empty());
             given(fetchFromOAuthProviderPort.fetchMemberEmailFromKakao(accessToken)).willReturn(email);
-            given(saveMemberPort.saveMember(any(Member.class))).willReturn(newMember);
+            given(memberDomainService.createMember(Provider.KAKAO, providerId, email)).willReturn(newMember);
+            given(saveMemberPort.saveMember(newMember)).willReturn(newMember);
             given(generateTokenPort.generateToken(newMemberId, MemberRole.MEMBER)).willReturn(tokenInfo);
 
             // When
@@ -149,7 +154,8 @@ class SignInServiceTest {
             then(kakaoIdTokenPort).should().validateToken(idToken);
             then(loadMemberPort).should().loadMemberByProviderId(Provider.KAKAO, providerId);
             then(fetchFromOAuthProviderPort).should().fetchMemberEmailFromKakao(accessToken);
-            then(saveMemberPort).should(times(2)).saveMember(any(Member.class));
+            then(memberDomainService).should().createMember(Provider.KAKAO, providerId, email);
+            then(saveMemberPort).should(times(2)).saveMember(newMember);
             then(generateTokenPort).should().generateToken(newMemberId, MemberRole.MEMBER);
             then(newMember).should().refreshMemberToken(newRefreshToken);
         }
@@ -238,7 +244,8 @@ class SignInServiceTest {
             given(loadMemberPort.loadMemberByProviderId(Provider.APPLE, providerId))
                     .willReturn(Optional.empty());
             given(appleIdTokenPort.extractEmailFromIdToken(idToken)).willReturn(email);
-            given(saveMemberPort.saveMember(any(Member.class))).willReturn(newMember);
+            given(memberDomainService.createMember(Provider.APPLE, providerId, email)).willReturn(newMember);
+            given(saveMemberPort.saveMember(newMember)).willReturn(newMember);
             given(generateTokenPort.generateToken(newMemberId, MemberRole.MEMBER)).willReturn(tokenInfo);
 
             // When
@@ -254,7 +261,8 @@ class SignInServiceTest {
             then(appleIdTokenPort).should().validateToken(idToken);
             then(loadMemberPort).should().loadMemberByProviderId(Provider.APPLE, providerId);
             then(appleIdTokenPort).should().extractEmailFromIdToken(idToken);
-            then(saveMemberPort).should(times(2)).saveMember(any(Member.class));
+            then(memberDomainService).should().createMember(Provider.APPLE, providerId, email);
+            then(saveMemberPort).should(times(2)).saveMember(newMember);
             then(generateTokenPort).should().generateToken(newMemberId, MemberRole.MEMBER);
             then(newMember).should().refreshMemberToken(newRefreshToken);
         }

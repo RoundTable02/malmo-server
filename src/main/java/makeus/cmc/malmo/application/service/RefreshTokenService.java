@@ -2,14 +2,14 @@ package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.jwt.TokenInfo;
-import makeus.cmc.malmo.adaptor.out.persistence.exception.MemberNotFoundException;
 import makeus.cmc.malmo.application.exception.InvalidRefreshTokenException;
 import makeus.cmc.malmo.application.port.in.RefreshTokenUseCase;
 import makeus.cmc.malmo.application.port.out.GenerateTokenPort;
-import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.SaveMemberPort;
 import makeus.cmc.malmo.application.port.out.ValidateTokenPort;
 import makeus.cmc.malmo.domain.model.member.Member;
+import makeus.cmc.malmo.domain.model.value.MemberId;
+import makeus.cmc.malmo.domain.service.MemberDomainService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +20,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class RefreshTokenService implements RefreshTokenUseCase {
 
-    private final LoadMemberPort loadMemberPort;
+    private final MemberDomainService memberDomainService;
     private final SaveMemberPort saveMemberPort;
     private final GenerateTokenPort generateTokenPort;
     private final ValidateTokenPort validateTokenPort;
@@ -36,8 +36,7 @@ public class RefreshTokenService implements RefreshTokenUseCase {
 
         // 2. Refresh 토큰 일치 확인
         String memberId = validateTokenPort.getMemberIdFromToken(refreshToken);
-        Member member = loadMemberPort.loadMemberById(Long.parseLong(memberId))
-                .orElseThrow(MemberNotFoundException::new);
+        Member member = memberDomainService.getMemberById(MemberId.of(Long.valueOf(memberId)));
 
         if (!Objects.equals(member.getRefreshToken(), refreshToken)) {
             throw new InvalidRefreshTokenException();

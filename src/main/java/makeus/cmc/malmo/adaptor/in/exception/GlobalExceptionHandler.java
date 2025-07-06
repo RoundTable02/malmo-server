@@ -1,10 +1,10 @@
-package makeus.cmc.malmo.adaptor.in.web.exception;
+package makeus.cmc.malmo.adaptor.in.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.out.oidc.exception.OidcIdTokenException;
 import makeus.cmc.malmo.adaptor.out.oidc.exception.RestApiException;
-import makeus.cmc.malmo.adaptor.out.persistence.exception.*;
 import makeus.cmc.malmo.application.exception.InvalidRefreshTokenException;
+import makeus.cmc.malmo.domain.exception.*;
 import org.hibernate.TypeMismatchException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -71,6 +71,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleLoveTypeQuestionNotFoundException(LoveTypeQuestionNotFoundException e) {
         log.error("[GlobalExceptionHandler: handleLoveTypeQuestionNotFoundException 호출]", e);
         return ErrorResponse.of(ErrorCode.NO_SUCH_LOVE_TYPE_QUESTION);
+    }
+
+    @ExceptionHandler({NotCoupleMemberException.class})
+    public ResponseEntity<ErrorResponse> handleNotCoupleMemberException(NotCoupleMemberException e) {
+        log.error("[GlobalExceptionHandler: handleNotCoupleMemberException 호출]", e);
+        return ErrorResponse.of(ErrorCode.NOT_COUPLE_MEMBER);
+    }
+
+    @ExceptionHandler({UsedCoupleCodeException.class})
+    public ResponseEntity<ErrorResponse> handleUsedCoupleCodeException(UsedCoupleCodeException e) {
+        log.error("[GlobalExceptionHandler: handleUsedCoupleCodeException 호출]", e);
+        return ErrorResponse.of(ErrorCode.USED_COUPLE_CODE);
     }
 
 

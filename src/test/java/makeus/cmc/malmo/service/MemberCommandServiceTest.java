@@ -1,11 +1,12 @@
 package makeus.cmc.malmo.service;
 
-import makeus.cmc.malmo.adaptor.out.persistence.exception.MemberNotFoundException;
+import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
 import makeus.cmc.malmo.application.port.in.UpdateMemberUseCase;
-import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.SaveMemberPort;
 import makeus.cmc.malmo.application.service.MemberCommandService;
 import makeus.cmc.malmo.domain.model.member.Member;
+import makeus.cmc.malmo.domain.model.value.MemberId;
+import makeus.cmc.malmo.domain.service.MemberDomainService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -14,10 +15,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,7 +25,7 @@ import static org.mockito.BDDMockito.*;
 class MemberCommandServiceTest {
 
     @Mock
-    private LoadMemberPort loadMemberPort;
+    private MemberDomainService memberDomainService;
 
     @Mock
     private SaveMemberPort saveMemberPort;
@@ -56,7 +56,7 @@ class MemberCommandServiceTest {
             given(savedMember.getNickname()).willReturn(nickname);
             given(savedMember.getEmail()).willReturn(email);
 
-            given(loadMemberPort.loadMemberById(memberId)).willReturn(Optional.of(member));
+            given(memberDomainService.getMemberById(MemberId.of(memberId))).willReturn(member);
             given(saveMemberPort.saveMember(member)).willReturn(savedMember);
 
             // When
@@ -67,7 +67,7 @@ class MemberCommandServiceTest {
             assertThat(response.getNickname()).isEqualTo(nickname);
             assertThat(response.getEmail()).isEqualTo(email);
 
-            then(loadMemberPort).should().loadMemberById(memberId);
+            then(memberDomainService).should().getMemberById(MemberId.of(memberId));
             then(member).should().updateMemberProfile(nickname, email);
             then(saveMemberPort).should().saveMember(member);
         }
@@ -86,13 +86,14 @@ class MemberCommandServiceTest {
                     .email(email)
                     .build();
 
-            given(loadMemberPort.loadMemberById(memberId)).willReturn(Optional.empty());
+            given(memberDomainService.getMemberById(MemberId.of(memberId)))
+                    .willThrow(new MemberNotFoundException());
 
             // When & Then
             assertThatThrownBy(() -> memberCommandService.updateMember(command))
                     .isInstanceOf(MemberNotFoundException.class);
 
-            then(loadMemberPort).should().loadMemberById(memberId);
+            then(memberDomainService).should().getMemberById(MemberId.of(memberId));
             then(saveMemberPort).should(never()).saveMember(any());
         }
     }
