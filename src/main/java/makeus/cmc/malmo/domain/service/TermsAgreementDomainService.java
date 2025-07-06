@@ -2,6 +2,7 @@ package makeus.cmc.malmo.domain.service;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.exception.TermsNotFoundException;
+import makeus.cmc.malmo.application.port.out.LoadTermsAgreementPort;
 import makeus.cmc.malmo.application.port.out.LoadTermsPort;
 import makeus.cmc.malmo.application.port.out.SaveMemberTermsAgreement;
 import makeus.cmc.malmo.domain.model.terms.MemberTermsAgreement;
@@ -19,6 +20,7 @@ import java.util.List;
 public class TermsAgreementDomainService {
 
     private final LoadTermsPort loadTermsPort;
+    private final LoadTermsAgreementPort loadTermsAgreementPort;
     private final SaveMemberTermsAgreement saveMemberTermsAgreement;
 
     public record TermAgreementInput(Long termsId, boolean isAgreed) {}
@@ -35,5 +37,10 @@ public class TermsAgreementDomainService {
                     input.isAgreed());
             saveMemberTermsAgreement.saveMemberTermsAgreement(memberTermsAgreement);
         });
+    }
+
+    public MemberTermsAgreement getTermsAgreement(MemberId memberId, TermsId termsId) {
+        return loadTermsAgreementPort.loadTermsAgreementByMemberIdAndTermsId(memberId, termsId)
+                .orElseThrow(TermsNotFoundException::new);
     }
 }
