@@ -1,7 +1,7 @@
 package makeus.cmc.malmo.service;
 
-import makeus.cmc.malmo.adaptor.out.persistence.exception.CoupleCodeNotFoundException;
-import makeus.cmc.malmo.adaptor.out.persistence.exception.MemberNotFoundException;
+import makeus.cmc.malmo.domain.exception.CoupleCodeNotFoundException;
+import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
 import makeus.cmc.malmo.application.port.in.CoupleLinkUseCase;
 import makeus.cmc.malmo.application.port.out.SaveCouplePort;
 import makeus.cmc.malmo.application.service.CoupleService;

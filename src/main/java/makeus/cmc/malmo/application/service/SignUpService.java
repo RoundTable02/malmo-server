@@ -1,21 +1,14 @@
 package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.adaptor.out.persistence.exception.InviteCodeGenerateFailedException;
-import makeus.cmc.malmo.adaptor.out.persistence.exception.MemberNotFoundException;
-import makeus.cmc.malmo.adaptor.out.persistence.exception.TermsNotFoundException;
 import makeus.cmc.malmo.application.port.in.SignUpUseCase;
 import makeus.cmc.malmo.application.port.out.*;
 import makeus.cmc.malmo.domain.model.member.CoupleCode;
 import makeus.cmc.malmo.domain.model.member.Member;
-import makeus.cmc.malmo.domain.model.terms.MemberTermsAgreement;
-import makeus.cmc.malmo.domain.model.terms.Terms;
 import makeus.cmc.malmo.domain.model.value.MemberId;
-import makeus.cmc.malmo.domain.model.value.TermsId;
 import makeus.cmc.malmo.domain.service.CoupleCodeDomainService;
 import makeus.cmc.malmo.domain.service.MemberDomainService;
 import makeus.cmc.malmo.domain.service.TermsAgreementDomainService;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

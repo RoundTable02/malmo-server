@@ -1,7 +1,7 @@
 package makeus.cmc.malmo.domain.service;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.adaptor.out.persistence.exception.TermsNotFoundException;
+import makeus.cmc.malmo.domain.exception.TermsNotFoundException;
 import makeus.cmc.malmo.application.port.out.LoadTermsAgreementPort;
 import makeus.cmc.malmo.application.port.out.LoadTermsPort;
 import makeus.cmc.malmo.application.port.out.SaveMemberTermsAgreement;

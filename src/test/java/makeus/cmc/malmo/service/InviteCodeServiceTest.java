@@ -1,6 +1,6 @@
 package makeus.cmc.malmo.service;
 
-import makeus.cmc.malmo.adaptor.out.persistence.exception.CoupleCodeNotFoundException;
+import makeus.cmc.malmo.domain.exception.CoupleCodeNotFoundException;
 import makeus.cmc.malmo.application.port.in.GetInviteCodeUseCase;
 import makeus.cmc.malmo.application.service.InviteCodeService;
 import makeus.cmc.malmo.domain.model.member.CoupleCode;

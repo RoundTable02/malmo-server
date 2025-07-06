@@ -1,8 +1,8 @@
 package makeus.cmc.malmo.service;
 
-import makeus.cmc.malmo.adaptor.out.persistence.exception.LoveTypeNotFoundException;
-import makeus.cmc.malmo.adaptor.out.persistence.exception.LoveTypeQuestionNotFoundException;
-import makeus.cmc.malmo.adaptor.out.persistence.exception.MemberNotFoundException;
+import makeus.cmc.malmo.domain.exception.LoveTypeNotFoundException;
+import makeus.cmc.malmo.domain.exception.LoveTypeQuestionNotFoundException;
+import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
 import makeus.cmc.malmo.application.port.in.GetLoveTypeUseCase;
 import makeus.cmc.malmo.application.port.in.UpdateMemberLoveTypeUseCase;
 import makeus.cmc.malmo.application.port.out.SaveMemberPort;

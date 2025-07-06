@@ -1,8 +1,8 @@
 package makeus.cmc.malmo.service;
 
-import makeus.cmc.malmo.adaptor.out.persistence.exception.InviteCodeGenerateFailedException;
-import makeus.cmc.malmo.adaptor.out.persistence.exception.MemberNotFoundException;
-import makeus.cmc.malmo.adaptor.out.persistence.exception.TermsNotFoundException;
+import makeus.cmc.malmo.domain.exception.InviteCodeGenerateFailedException;
+import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
+import makeus.cmc.malmo.domain.exception.TermsNotFoundException;
 import makeus.cmc.malmo.application.port.in.SignUpUseCase;
 import makeus.cmc.malmo.application.port.out.SaveMemberPort;
 import makeus.cmc.malmo.application.service.SignUpService;
