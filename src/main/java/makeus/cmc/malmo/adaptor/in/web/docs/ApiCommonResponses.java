@@ -134,4 +134,16 @@ public class ApiCommonResponses {
     })
     public @interface OnlyCouple {
     }
+
+    @Target({ElementType.METHOD})
+    @Retention(RetentionPolicy.RUNTIME)
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "이미 사용된 초대 코드입니다.",
+                    content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class))
+            )
+    })
+    public @interface CoupleCode {
+    }
 }
