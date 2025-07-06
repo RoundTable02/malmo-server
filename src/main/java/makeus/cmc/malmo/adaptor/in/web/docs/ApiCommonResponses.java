@@ -127,11 +127,23 @@ public class ApiCommonResponses {
     @Retention(RetentionPolicy.RUNTIME)
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "400",
-                    description = "커플로 등록되지 않은 사용자입니다.",
+                    responseCode = "403",
+                    description = "커플 등록 전인 사용자입니다. 커플 등록 후 이용해주세요.",
                     content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class))
             )
     })
     public @interface OnlyCouple {
+    }
+
+    @Target({ElementType.METHOD})
+    @Retention(RetentionPolicy.RUNTIME)
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "이미 사용된 초대 코드입니다.",
+                    content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class))
+            )
+    })
+    public @interface CoupleCode {
     }
 }

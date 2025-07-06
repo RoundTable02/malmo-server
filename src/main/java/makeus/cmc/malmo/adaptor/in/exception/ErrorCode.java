@@ -1,4 +1,4 @@
-package makeus.cmc.malmo.adaptor.in.web.exception;
+package makeus.cmc.malmo.adaptor.in.exception;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +15,7 @@ public enum ErrorCode {
     NO_SUCH_TERMS(HttpStatus.BAD_REQUEST, 40003, "약관이 존재하지 않습니다."),
     NO_SUCH_LOVE_TYPE(HttpStatus.BAD_REQUEST, 40004, "애착 유형이 존재하지 않습니다."),
     NO_SUCH_LOVE_TYPE_QUESTION(HttpStatus.BAD_REQUEST, 40005, "애착 유형 질문이 존재하지 않습니다."),
+    USED_COUPLE_CODE(HttpStatus.BAD_REQUEST, 40006, "이미 사용된 초대 코드입니다."),
 
     // 401 Unauthorized
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, 40100, "인증되지 않은 사용자입니다."),
@@ -23,6 +24,7 @@ public enum ErrorCode {
 
     // 403 Forbidden
     FORBIDDEN(HttpStatus.FORBIDDEN, 40300, "접근 권한이 없습니다."),
+    NOT_COUPLE_MEMBER(HttpStatus.FORBIDDEN, 40301, "커플 등록 전인 사용자입니다. 커플 등록 후 이용해주세요."),
 
     // 404 Not Found
     NOT_FOUND(HttpStatus.NOT_FOUND, 40400, "요청한 리소스를 찾을 수 없습니다."),

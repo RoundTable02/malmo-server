@@ -62,6 +62,7 @@ public class Member extends BaseTimeEntity {
                 .inviteCode(inviteCode)
                 .startLoveDate(startLoveDate)
                 .memberId(MemberId.of(this.id))
+                .coupleCodeState(CoupleCodeState.ALIVE)
                 .build();
     }
 }

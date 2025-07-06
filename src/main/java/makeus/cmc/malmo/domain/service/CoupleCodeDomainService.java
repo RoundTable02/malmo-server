@@ -6,6 +6,7 @@ import makeus.cmc.malmo.domain.exception.InviteCodeGenerateFailedException;
 import makeus.cmc.malmo.application.port.out.GenerateInviteCodePort;
 import makeus.cmc.malmo.application.port.out.LoadCoupleCodePort;
 import makeus.cmc.malmo.application.port.out.SaveCoupleCodePort;
+import makeus.cmc.malmo.domain.exception.UsedCoupleCodeException;
 import makeus.cmc.malmo.domain.model.member.CoupleCode;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.value.MemberId;
@@ -27,8 +28,14 @@ public class CoupleCodeDomainService {
     private static final int MAX_RETRY = 10;
 
     public CoupleCode getCoupleCodeByInviteCode(String inviteCode) {
-        return loadCoupleCodePort.loadCoupleCodeByInviteCode(inviteCode)
+        CoupleCode coupleCode = loadCoupleCodePort.loadCoupleCodeByInviteCode(inviteCode)
                 .orElseThrow(CoupleCodeNotFoundException::new);
+
+        if (coupleCode.isUsed()) {
+            throw new UsedCoupleCodeException("이미 사용된 커플 코드입니다.");
+        }
+
+        return coupleCode;
     }
 
     public CoupleCode getCoupleCodeByMemberId(MemberId memberId) {

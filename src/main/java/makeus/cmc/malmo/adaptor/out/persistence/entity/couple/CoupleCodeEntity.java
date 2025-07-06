@@ -25,6 +25,9 @@ public class CoupleCodeEntity extends BaseTimeEntityJpa {
 
     private LocalDate startLoveDate;
 
+    @Enumerated(EnumType.STRING)
+    private CoupleCodeStateJpa coupleCodeStateJpa;
+
     @AttributeOverride(name = "id", column = @Column(name = "member_id", nullable = false))
     @Embedded
     private MemberEntityId memberEntityId;
