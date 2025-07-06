@@ -8,6 +8,7 @@ import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.member.MemberRole;
 import makeus.cmc.malmo.domain.model.member.MemberState;
 import makeus.cmc.malmo.domain.model.member.Provider;
+import makeus.cmc.malmo.domain.service.MemberDomainService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class SignInService implements SignInUseCase {
 
+    private final MemberDomainService memberDomainService;
     private final LoadMemberPort loadMemberPort;
     private final SaveMemberPort saveMemberPort;
     private final GenerateTokenPort generateTokenPort;
@@ -36,14 +38,7 @@ public class SignInService implements SignInUseCase {
                 .orElseGet(() -> {
                     // 이메일 정보 가져오기
                     String email = fetchFromOAuthProviderPort.fetchMemberEmailFromKakao(command.getAccessToken());
-
-                    Member newMember = Member.createMember(
-                            Provider.KAKAO,
-                            providerId,
-                            MemberRole.MEMBER,
-                            MemberState.BEFORE_ONBOARDING,
-                            email
-                    );
+                    Member newMember = memberDomainService.createMember(Provider.KAKAO, providerId, email);
                     return saveMemberPort.saveMember(newMember);
                 });
 
@@ -75,14 +70,7 @@ public class SignInService implements SignInUseCase {
                 .orElseGet(() -> {
                     // 이메일 정보 가져오기
                     String email = appleIdTokenPort.extractEmailFromIdToken(command.getIdToken());
-
-                    Member newMember = Member.createMember(
-                            Provider.APPLE,
-                            providerId,
-                            MemberRole.MEMBER,
-                            MemberState.BEFORE_ONBOARDING,
-                            email
-                    );
+                    Member newMember = memberDomainService.createMember(Provider.APPLE, providerId, email);
                     return saveMemberPort.saveMember(newMember);
                 });
 
