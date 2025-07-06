@@ -30,7 +30,7 @@ public class CoupleService implements CoupleLinkUseCase {
         Member member = memberDomainService.getMemberById(MemberId.of(command.getUserId()));
         CoupleCode coupleCode = coupleCodeDomainService.getCoupleCodeByInviteCode(command.getCoupleCode());
 
-        Couple couple = coupleDomainService.createCouple(member, coupleCode);
+        Couple couple = coupleDomainService.createCoupleByCoupleCode(member, coupleCode);
 
         Couple savedCouple = saveCouplePort.saveCouple(couple);
 

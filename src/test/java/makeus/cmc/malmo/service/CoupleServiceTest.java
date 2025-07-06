@@ -69,7 +69,7 @@ class CoupleServiceTest {
 
             given(memberDomainService.getMemberById(MemberId.of(userId))).willReturn(member);
             given(coupleCodeDomainService.getCoupleCodeByInviteCode(inviteCode)).willReturn(coupleCode);
-            given(coupleDomainService.createCouple(member, coupleCode)).willReturn(createdCouple);
+            given(coupleDomainService.createCoupleByCoupleCode(member, coupleCode)).willReturn(createdCouple);
             given(saveCouplePort.saveCouple(createdCouple)).willReturn(savedCouple);
 
             // When
@@ -81,7 +81,7 @@ class CoupleServiceTest {
 
             then(memberDomainService).should().getMemberById(MemberId.of(userId));
             then(coupleCodeDomainService).should().getCoupleCodeByInviteCode(inviteCode);
-            then(coupleDomainService).should().createCouple(member, coupleCode);
+            then(coupleDomainService).should().createCoupleByCoupleCode(member, coupleCode);
             then(saveCouplePort).should().saveCouple(createdCouple);
         }
 
@@ -106,7 +106,7 @@ class CoupleServiceTest {
 
             then(memberDomainService).should().getMemberById(MemberId.of(userId));
             then(coupleCodeDomainService).should(never()).getCoupleCodeByInviteCode(any());
-            then(coupleDomainService).should(never()).createCouple(any(), any());
+            then(coupleDomainService).should(never()).createCoupleByCoupleCode(any(), any());
             then(saveCouplePort).should(never()).saveCouple(any());
         }
 
@@ -134,7 +134,7 @@ class CoupleServiceTest {
 
             then(memberDomainService).should().getMemberById(MemberId.of(userId));
             then(coupleCodeDomainService).should().getCoupleCodeByInviteCode(invalidInviteCode);
-            then(coupleDomainService).should(never()).createCouple(any(), any());
+            then(coupleDomainService).should(never()).createCoupleByCoupleCode(any(), any());
             then(saveCouplePort).should(never()).saveCouple(any());
         }
     }

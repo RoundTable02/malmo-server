@@ -1,7 +1,6 @@
 package makeus.cmc.malmo.domain_service;
 
 import makeus.cmc.malmo.domain.model.couple.Couple;
-import makeus.cmc.malmo.domain.model.couple.CoupleState;
 import makeus.cmc.malmo.domain.model.member.CoupleCode;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.value.MemberId;
@@ -43,7 +42,7 @@ class CoupleDomainServiceTest {
             given(coupleCode.getStartLoveDate()).willReturn(startLoveDate);
 
             // When
-            Couple result = coupleDomainService.createCouple(member, coupleCode);
+            Couple result = coupleDomainService.createCoupleByCoupleCode(member, coupleCode);
 
             // Then
             assertThat(result).isNotNull();
@@ -66,7 +65,7 @@ class CoupleDomainServiceTest {
             given(coupleCode.getStartLoveDate()).willReturn(startLoveDate);
 
             // When
-            Couple result = coupleDomainService.createCouple(member, coupleCode);
+            Couple result = coupleDomainService.createCoupleByCoupleCode(member, coupleCode);
 
             // Then
             assertThat(result).isNotNull();
@@ -89,7 +88,7 @@ class CoupleDomainServiceTest {
             given(coupleCode.getStartLoveDate()).willReturn(todayDate);
 
             // When
-            Couple result = coupleDomainService.createCouple(member, coupleCode);
+            Couple result = coupleDomainService.createCoupleByCoupleCode(member, coupleCode);
 
             // Then
             assertThat(result).isNotNull();
@@ -112,7 +111,7 @@ class CoupleDomainServiceTest {
             given(coupleCode.getStartLoveDate()).willReturn(pastDate);
 
             // When
-            Couple result = coupleDomainService.createCouple(member, coupleCode);
+            Couple result = coupleDomainService.createCoupleByCoupleCode(member, coupleCode);
 
             // Then
             assertThat(result).isNotNull();
@@ -135,7 +134,7 @@ class CoupleDomainServiceTest {
             given(coupleCode.getStartLoveDate()).willReturn(startLoveDate);
 
             // When
-            Couple result = coupleDomainService.createCouple(member, coupleCode);
+            Couple result = coupleDomainService.createCoupleByCoupleCode(member, coupleCode);
 
             // Then
             assertThat(result).isNotNull();
@@ -158,7 +157,7 @@ class CoupleDomainServiceTest {
             given(coupleCode.getStartLoveDate()).willReturn(startLoveDate);
 
             // When
-            Couple result = coupleDomainService.createCouple(member, coupleCode);
+            Couple result = coupleDomainService.createCoupleByCoupleCode(member, coupleCode);
 
             // Then
             assertThat(result).isNotNull();

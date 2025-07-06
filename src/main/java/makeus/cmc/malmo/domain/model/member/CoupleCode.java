@@ -21,4 +21,8 @@ public class CoupleCode extends BaseTimeEntity {
     public boolean isUsed() {
         return coupleCodeState == CoupleCodeState.USED;
     }
+
+    public void expire() {
+        this.coupleCodeState = CoupleCodeState.USED;
+    }
 }
