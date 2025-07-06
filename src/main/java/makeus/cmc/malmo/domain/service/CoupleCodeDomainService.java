@@ -7,6 +7,7 @@ import makeus.cmc.malmo.application.port.out.LoadCoupleCodePort;
 import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.domain.model.member.CoupleCode;
 import makeus.cmc.malmo.domain.model.member.Member;
+import makeus.cmc.malmo.domain.model.value.MemberId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,11 @@ public class CoupleCodeDomainService {
 
     public CoupleCode getCoupleCodeByInviteCode(String inviteCode) {
         return loadCoupleCodePort.loadCoupleCodeByInviteCode(inviteCode)
+                .orElseThrow(CoupleCodeNotFoundException::new);
+    }
+
+    public CoupleCode getCoupleCodeByMemberId(MemberId memberId) {
+        return loadCoupleCodePort.loadCoupleCodeByMemberId(memberId)
                 .orElseThrow(CoupleCodeNotFoundException::new);
     }
 
