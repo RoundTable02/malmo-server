@@ -15,6 +15,9 @@ import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.model.love_type.LoveTypeQuestion;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.value.LoveTypeId;
+import makeus.cmc.malmo.domain.model.value.MemberId;
+import makeus.cmc.malmo.domain.service.LoveTypeDomainService;
+import makeus.cmc.malmo.domain.service.MemberDomainService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,15 +30,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class LoveTypeService implements GetLoveTypeUseCase, UpdateMemberLoveTypeUseCase {
 
-    private final LoadLoveTypePort loadLoveTypePort;
-    private final LoadLoveTypeQuestionsPort loadLoveTypeQuestionsPort;
-    private final LoadMemberPort loadMemberPort;
+    private final LoveTypeDomainService loveTypeDomainService;
+    private final MemberDomainService memberDomainService;
     private final SaveMemberPort saveMemberPort;
 
     @Override
     public GetLoveTypeResponseDto getLoveType(GetLoveTypeCommand command) {
-        LoveType loveType = loadLoveTypePort.findLoveTypeById(command.getLoveTypeId())
-                .orElseThrow(LoveTypeNotFoundException::new);
+        LoveType loveType = loveTypeDomainService.getLoveTypeById(LoveTypeId.of(command.getLoveTypeId()));
 
         return GetLoveTypeResponseDto.builder()
                 .loveTypeId(loveType.getId())
@@ -49,31 +50,17 @@ public class LoveTypeService implements GetLoveTypeUseCase, UpdateMemberLoveType
     @Override
     @Transactional
     public RegisterLoveTypeResponseDto updateMemberLoveType(UpdateMemberLoveTypeCommand command) {
-        Member member = loadMemberPort.loadMemberById(command.getMemberId())
-                .orElseThrow(MemberNotFoundException::new);
+        Member member = memberDomainService.getMemberById(MemberId.of(command.getMemberId()));
 
-        List<LoveTypeQuestion> loveTypeQuestions = loadLoveTypeQuestionsPort.loadLoveTypeQuestions();
-        Map<Long, LoveTypeQuestion> questionMap = loveTypeQuestions.stream()
-                .collect(Collectors.toMap(LoveTypeQuestion::getId, q -> q));
-        float anxietyScore = 0.0f;
-        float avoidanceScore = 0.0f;
-        List<LoveTypeTestResult> results = command.getResults();
+        List<LoveTypeDomainService.TestResultInput> testResultInputs = command.getResults().stream()
+                .map(result -> new LoveTypeDomainService.TestResultInput(result.getQuestionId(), result.getScore()))
+                .collect(Collectors.toList());
 
-        for (LoveTypeTestResult result : results) {
-            LoveTypeQuestion question = questionMap.get(result.getQuestionId());
-            if (question == null) {
-                throw new LoveTypeQuestionNotFoundException();
-            }
-            if (question.isAnxietyType()) {
-                anxietyScore += question.getScore(result.getScore());
-            } else {
-                avoidanceScore += question.getScore(result.getScore());
-            }
-        }
+        LoveTypeDomainService.LoveTypeCalculationResult calculationResult = loveTypeDomainService.calculateLoveType(testResultInputs);
 
-        LoveTypeCategory loveTypeCategory = LoveType.findLoveTypeCategory(avoidanceScore, anxietyScore);
-        LoveType loveType = loadLoveTypePort.findLoveTypeByLoveTypeCategory(loveTypeCategory)
-                .orElseThrow(LoveTypeNotFoundException::new);
+        LoveType loveType = calculationResult.loveType();
+        float avoidanceScore = calculationResult.avoidanceScore();
+        float anxietyScore = calculationResult.anxietyScore();
 
         member.updateLoveTypeId(LoveTypeId.of(loveType.getId()), avoidanceScore, anxietyScore);
         saveMemberPort.saveMember(member);
