@@ -4,6 +4,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleMemberStateJpa;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.LoadPartnerPort;
 
@@ -24,7 +25,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
         LoadMemberPort.MemberResponseRepositoryDto dto = queryFactory
                 .select(Projections.constructor(LoadMemberPort.MemberResponseRepositoryDto.class,
                         memberEntity.memberStateJpa.stringValue(),
-                        coupleEntity.startLoveDate,
+                        memberEntity.startLoveDate,
                         loveTypeEntity.id,
                         loveTypeEntity.title,
                         memberEntity.avoidanceRate,
@@ -73,5 +74,35 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
                 .where(coupleMemberEntity.memberEntityId.value.eq(memberId)
                         .and(coupleMemberEntity.coupleMemberStateJpa.eq(CoupleMemberStateJpa.ALIVE)))
                 .fetchFirst() != null;
+    }
+
+    @Override
+    public boolean existsByInviteCode(String inviteCode) {
+        return queryFactory
+                .selectFrom(memberEntity)
+                .where(memberEntity.inviteCodeEntityValue.value.eq(inviteCode))
+                .fetchFirst() != null;
+    }
+
+    @Override
+    public boolean isAlreadyCoupleMemberByInviteCode(String inviteCode) {
+        return queryFactory
+                .selectOne()
+                .from(coupleMemberEntity)
+                .join(memberEntity).on(memberEntity.id.eq(coupleMemberEntity.memberEntityId.value))
+                .where(memberEntity.inviteCodeEntityValue.value.eq(inviteCode)
+                        .and(coupleMemberEntity.coupleMemberStateJpa.eq(CoupleMemberStateJpa.ALIVE)))
+                .fetchFirst() != null;
+    }
+
+    @Override
+    public Optional<InviteCodeEntityValue> findInviteCodeByMemberId(Long memberId) {
+        InviteCodeEntityValue inviteCodeEntityValue = queryFactory
+                .select(memberEntity.inviteCodeEntityValue)
+                .from(memberEntity)
+                .where(memberEntity.id.eq(memberId))
+                .fetchOne();
+
+        return Optional.ofNullable(inviteCodeEntityValue);
     }
 }
