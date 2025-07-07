@@ -25,8 +25,8 @@ public class GlobalExceptionHandler {
         return ErrorResponse.of(ErrorCode.NO_SUCH_MEMBER);
     }
 
-    @ExceptionHandler({CoupleCodeNotFoundException.class})
-    public ResponseEntity<ErrorResponse> handleCoupleCodeNotFoundException(CoupleCodeNotFoundException e) {
+    @ExceptionHandler({InviteCodeNotFoundException.class})
+    public ResponseEntity<ErrorResponse> handleCoupleCodeNotFoundException(InviteCodeNotFoundException e) {
         log.error("[GlobalExceptionHandler: handleCoupleCodeNotFoundException 호출]", e);
         return ErrorResponse.of(ErrorCode.NO_SUCH_COUPLE_CODE);
     }
@@ -79,8 +79,8 @@ public class GlobalExceptionHandler {
         return ErrorResponse.of(ErrorCode.NOT_COUPLE_MEMBER);
     }
 
-    @ExceptionHandler({UsedCoupleCodeException.class})
-    public ResponseEntity<ErrorResponse> handleUsedCoupleCodeException(UsedCoupleCodeException e) {
+    @ExceptionHandler({UsedInviteCodeException.class})
+    public ResponseEntity<ErrorResponse> handleUsedCoupleCodeException(UsedInviteCodeException e) {
         log.error("[GlobalExceptionHandler: handleUsedCoupleCodeException 호출]", e);
         return ErrorResponse.of(ErrorCode.USED_COUPLE_CODE);
     }

@@ -4,12 +4,11 @@ import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.application.port.in.CoupleLinkUseCase;
 import makeus.cmc.malmo.application.port.out.SaveCouplePort;
 import makeus.cmc.malmo.domain.model.couple.Couple;
-import makeus.cmc.malmo.domain.model.member.CoupleCode;
 import makeus.cmc.malmo.domain.model.member.Member;
+import makeus.cmc.malmo.domain.model.value.InviteCodeValue;
 import makeus.cmc.malmo.domain.model.value.MemberId;
-import makeus.cmc.malmo.domain.service.CoupleCodeDomainService;
+import makeus.cmc.malmo.domain.service.InviteCodeDomainService;
 import makeus.cmc.malmo.domain.service.CoupleDomainService;
-import makeus.cmc.malmo.domain.service.MemberDomainService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,8 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CoupleService implements CoupleLinkUseCase {
 
-    private final MemberDomainService memberDomainService;
-    private final CoupleCodeDomainService coupleCodeDomainService;
+    private final InviteCodeDomainService inviteCodeDomainService;
     private final CoupleDomainService coupleDomainService;
 
     private final SaveCouplePort saveCouplePort;
@@ -27,10 +25,17 @@ public class CoupleService implements CoupleLinkUseCase {
     @Override
     @Transactional
     public CoupleLinkResponse coupleLink(CoupleLinkCommand command) {
-        Member member = memberDomainService.getMemberById(MemberId.of(command.getUserId()));
-        CoupleCode coupleCode = coupleCodeDomainService.getCoupleCodeByInviteCode(command.getCoupleCode());
+        InviteCodeValue inviteCode = InviteCodeValue.of(command.getCoupleCode());
+        inviteCodeDomainService.validateUsedInviteCode(inviteCode);
 
-        Couple couple = coupleDomainService.createCoupleByCoupleCode(member, coupleCode);
+        Member partner = inviteCodeDomainService.getMemberByInviteCode(inviteCode);
+
+
+        Couple couple = coupleDomainService.createCoupleByInviteCode(
+                MemberId.of(command.getUserId()),
+                MemberId.of(partner.getId()),
+                partner.getStartLoveDate()
+        );
 
         Couple savedCouple = saveCouplePort.saveCouple(couple);
 

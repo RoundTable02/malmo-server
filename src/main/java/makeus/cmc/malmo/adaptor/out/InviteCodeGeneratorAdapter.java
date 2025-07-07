@@ -9,7 +9,7 @@ import java.util.Random;
 
 @Component
 @RequiredArgsConstructor
-public class CoupleCodeGeneratorAdapter implements GenerateInviteCodePort {
+public class InviteCodeGeneratorAdapter implements GenerateInviteCodePort {
 
     private static final String CHAR_POOL = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final int CODE_LENGTH = 7;

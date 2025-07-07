@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CoupleMemberValidationAspect {
 
-    private final MemberDomainValidationService mmemberValidationService;
+    private final MemberDomainValidationService memberValidationService;
 
     @Before("@annotation(CheckCoupleMember)")
     public void checkCoupleMember() {
@@ -27,7 +27,7 @@ public class CoupleMemberValidationAspect {
         }
 
         Long memberId = Long.valueOf(user.getUsername());
-        mmemberValidationService.isMemberCouple(MemberId.of(memberId));
+        memberValidationService.isMemberCouple(MemberId.of(memberId));
     }
 }
 
