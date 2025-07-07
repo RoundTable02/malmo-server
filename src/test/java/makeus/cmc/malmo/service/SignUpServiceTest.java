@@ -6,8 +6,8 @@ import makeus.cmc.malmo.domain.exception.TermsNotFoundException;
 import makeus.cmc.malmo.application.port.in.SignUpUseCase;
 import makeus.cmc.malmo.application.port.out.SaveMemberPort;
 import makeus.cmc.malmo.application.service.SignUpService;
-import makeus.cmc.malmo.domain.model.member.CoupleCode;
 import makeus.cmc.malmo.domain.model.member.Member;
+import makeus.cmc.malmo.domain.model.value.InviteCodeValue;
 import makeus.cmc.malmo.domain.model.value.MemberId;
 import makeus.cmc.malmo.domain.service.InviteCodeDomainService;
 import makeus.cmc.malmo.domain.service.MemberDomainService;
@@ -79,13 +79,12 @@ class SignUpServiceTest {
                     .build();
 
             Member member = mock(Member.class);
-            CoupleCode coupleCode = mock(CoupleCode.class);
+            InviteCodeValue inviteCodeValue = InviteCodeValue.of(expectedInviteCode);
 
             given(member.getId()).willReturn(memberId);
             given(memberDomainService.getMemberById(MemberId.of(memberId))).willReturn(member);
             given(saveMemberPort.saveMember(member)).willReturn(member);
-            given(inviteCodeDomainService.generateAndSaveUniqueCoupleCode(member, loveStartDate)).willReturn(coupleCode);
-            given(coupleCode.getInviteCode()).willReturn(expectedInviteCode);
+            given(inviteCodeDomainService.generateUniqueInviteCode()).willReturn(inviteCodeValue);
 
             // When
             SignUpUseCase.SignUpResponse response = signUpService.signUp(command);
@@ -95,10 +94,11 @@ class SignUpServiceTest {
             assertThat(response.getCoupleCode()).isEqualTo(expectedInviteCode);
 
             then(memberDomainService).should().getMemberById(MemberId.of(memberId));
-            then(member).should().signUp(nickname);
+            then(member).should().signUp(nickname, loveStartDate);
+            then(member).should().updateInviteCode(inviteCodeValue);
             then(saveMemberPort).should().saveMember(member);
             then(termsAgreementDomainService).should().processAgreements(eq(MemberId.of(memberId)), anyList());
-            then(inviteCodeDomainService).should().generateAndSaveUniqueCoupleCode(member, loveStartDate);
+            then(inviteCodeDomainService).should().generateUniqueInviteCode();
         }
 
         @Test
@@ -126,7 +126,7 @@ class SignUpServiceTest {
             then(memberDomainService).should().getMemberById(MemberId.of(memberId));
             then(saveMemberPort).should(never()).saveMember(any());
             then(termsAgreementDomainService).should(never()).processAgreements(any(), anyList());
-            then(inviteCodeDomainService).should(never()).generateAndSaveUniqueCoupleCode(any(), any());
+            then(inviteCodeDomainService).should(never()).generateUniqueInviteCode();
         }
 
         @Test
@@ -150,9 +150,11 @@ class SignUpServiceTest {
                     .build();
 
             Member member = mock(Member.class);
+            InviteCodeValue inviteCodeValue = InviteCodeValue.of("INVITE123");
 
             given(member.getId()).willReturn(memberId);
             given(memberDomainService.getMemberById(MemberId.of(memberId))).willReturn(member);
+            given(inviteCodeDomainService.generateUniqueInviteCode()).willReturn(inviteCodeValue);
             given(saveMemberPort.saveMember(member)).willReturn(member);
             willThrow(new TermsNotFoundException())
                     .given(termsAgreementDomainService).processAgreements(eq(MemberId.of(memberId)), anyList());
@@ -162,10 +164,11 @@ class SignUpServiceTest {
                     .isInstanceOf(TermsNotFoundException.class);
 
             then(memberDomainService).should().getMemberById(MemberId.of(memberId));
-            then(member).should().signUp(nickname);
+            then(member).should().signUp(nickname, loveStartDate);
+            then(inviteCodeDomainService).should().generateUniqueInviteCode();
+            then(member).should().updateInviteCode(inviteCodeValue);
             then(saveMemberPort).should().saveMember(member);
             then(termsAgreementDomainService).should().processAgreements(eq(MemberId.of(memberId)), anyList());
-            then(inviteCodeDomainService).should(never()).generateAndSaveUniqueCoupleCode(any(), any());
         }
 
         @Test
@@ -190,11 +193,9 @@ class SignUpServiceTest {
 
             Member member = mock(Member.class);
 
-            given(member.getId()).willReturn(memberId);
             given(memberDomainService.getMemberById(MemberId.of(memberId))).willReturn(member);
-            given(saveMemberPort.saveMember(member)).willReturn(member);
             willThrow(new InviteCodeGenerateFailedException("커플 코드 생성에 실패했습니다. 재시도 횟수를 초과했습니다."))
-                    .given(inviteCodeDomainService).generateAndSaveUniqueCoupleCode(member, loveStartDate);
+                    .given(inviteCodeDomainService).generateUniqueInviteCode();
 
             // When & Then
             assertThatThrownBy(() -> signUpService.signUp(command))
@@ -202,10 +203,11 @@ class SignUpServiceTest {
                     .hasMessage("커플 코드 생성에 실패했습니다. 재시도 횟수를 초과했습니다.");
 
             then(memberDomainService).should().getMemberById(MemberId.of(memberId));
-            then(member).should().signUp(nickname);
-            then(saveMemberPort).should().saveMember(member);
-            then(termsAgreementDomainService).should().processAgreements(eq(MemberId.of(memberId)), anyList());
-            then(inviteCodeDomainService).should().generateAndSaveUniqueCoupleCode(member, loveStartDate);
+            then(member).should().signUp(nickname, loveStartDate);
+            then(inviteCodeDomainService).should().generateUniqueInviteCode();
+            then(member).should(never()).updateInviteCode(any());
+            then(saveMemberPort).should(never()).saveMember(any());
+            then(termsAgreementDomainService).should(never()).processAgreements(any(), anyList());
         }
     }
 }

@@ -6,12 +6,11 @@ import makeus.cmc.malmo.application.port.in.CoupleLinkUseCase;
 import makeus.cmc.malmo.application.port.out.SaveCouplePort;
 import makeus.cmc.malmo.application.service.CoupleService;
 import makeus.cmc.malmo.domain.model.couple.Couple;
-import makeus.cmc.malmo.domain.model.member.CoupleCode;
 import makeus.cmc.malmo.domain.model.member.Member;
+import makeus.cmc.malmo.domain.model.value.InviteCodeValue;
 import makeus.cmc.malmo.domain.model.value.MemberId;
 import makeus.cmc.malmo.domain.service.InviteCodeDomainService;
 import makeus.cmc.malmo.domain.service.CoupleDomainService;
-import makeus.cmc.malmo.domain.service.MemberDomainService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -19,6 +18,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -28,9 +29,6 @@ import static org.mockito.BDDMockito.*;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("CoupleService 단위 테스트")
 class CoupleServiceTest {
-
-    @Mock
-    private MemberDomainService memberDomainService;
 
     @Mock
     private InviteCodeDomainService inviteCodeDomainService;
@@ -55,21 +53,26 @@ class CoupleServiceTest {
             Long userId = 1L;
             String inviteCode = "INVITE123";
             Long coupleId = 10L;
+            Long partnerId = 2L;
+            LocalDate startLoveDate = LocalDate.of(2024, 1, 1);
 
             CoupleLinkUseCase.CoupleLinkCommand command = CoupleLinkUseCase.CoupleLinkCommand.builder()
                     .userId(userId)
                     .coupleCode(inviteCode)
                     .build();
 
-            Member member = mock(Member.class);
-            CoupleCode coupleCode = mock(CoupleCode.class);
+            InviteCodeValue inviteCodeValue = InviteCodeValue.of(inviteCode);
+            Member partner = mock(Member.class);
             Couple createdCouple = mock(Couple.class);
             Couple savedCouple = mock(Couple.class);
+            
+            given(partner.getId()).willReturn(partnerId);
+            given(partner.getStartLoveDate()).willReturn(startLoveDate);
             given(savedCouple.getId()).willReturn(coupleId);
 
-            given(memberDomainService.getMemberById(MemberId.of(userId))).willReturn(member);
-            given(inviteCodeDomainService.getCoupleCodeByInviteCode(inviteCode)).willReturn(coupleCode);
-            given(coupleDomainService.createCoupleByInviteCode(member, coupleCode)).willReturn(createdCouple);
+            given(inviteCodeDomainService.getMemberByInviteCode(inviteCodeValue)).willReturn(partner);
+            given(coupleDomainService.createCoupleByInviteCode(MemberId.of(userId), MemberId.of(partnerId), startLoveDate))
+                    .willReturn(createdCouple);
             given(saveCouplePort.saveCouple(createdCouple)).willReturn(savedCouple);
 
             // When
@@ -79,40 +82,15 @@ class CoupleServiceTest {
             assertThat(response).isNotNull();
             assertThat(response.getCoupleId()).isEqualTo(coupleId);
 
-            then(memberDomainService).should().getMemberById(MemberId.of(userId));
-            then(inviteCodeDomainService).should().getCoupleCodeByInviteCode(inviteCode);
-            then(coupleDomainService).should().createCoupleByInviteCode(member, coupleCode);
+            then(inviteCodeDomainService).should().validateUsedInviteCode(inviteCodeValue);
+            then(inviteCodeDomainService).should().getMemberByInviteCode(inviteCodeValue);
+            then(coupleDomainService).should().createCoupleByInviteCode(MemberId.of(userId), MemberId.of(partnerId), startLoveDate);
             then(saveCouplePort).should().saveCouple(createdCouple);
         }
 
         @Test
-        @DisplayName("실패: 존재하지 않는 사용자로 커플 연결 시 MemberNotFoundException이 발생한다")
-        void givenNonExistentUser_whenCoupleLink_thenThrowMemberNotFoundException() {
-            // Given
-            Long userId = 999L;
-            String inviteCode = "INVITE123";
-
-            CoupleLinkUseCase.CoupleLinkCommand command = CoupleLinkUseCase.CoupleLinkCommand.builder()
-                    .userId(userId)
-                    .coupleCode(inviteCode)
-                    .build();
-
-            given(memberDomainService.getMemberById(MemberId.of(userId)))
-                    .willThrow(new MemberNotFoundException());
-
-            // When & Then
-            assertThatThrownBy(() -> coupleService.coupleLink(command))
-                    .isInstanceOf(MemberNotFoundException.class);
-
-            then(memberDomainService).should().getMemberById(MemberId.of(userId));
-            then(inviteCodeDomainService).should(never()).getCoupleCodeByInviteCode(any());
-            then(coupleDomainService).should(never()).createCoupleByInviteCode(any(), any());
-            then(saveCouplePort).should(never()).saveCouple(any());
-        }
-
-        @Test
-        @DisplayName("실패: 존재하지 않는 커플 코드로 커플 연결 시 CoupleCodeNotFoundException이 발생한다")
-        void givenNonExistentCoupleCode_whenCoupleLink_thenThrowCoupleCodeNotFoundException() {
+        @DisplayName("실패: 존재하지 않는 커플 코드로 커플 연결 시 InviteCodeNotFoundException이 발생한다")
+        void givenNonExistentCoupleCode_whenCoupleLink_thenThrowInviteCodeNotFoundException() {
             // Given
             Long userId = 1L;
             String invalidInviteCode = "INVALID123";
@@ -122,19 +100,18 @@ class CoupleServiceTest {
                     .coupleCode(invalidInviteCode)
                     .build();
 
-            Member member = mock(Member.class);
+            InviteCodeValue inviteCodeValue = InviteCodeValue.of(invalidInviteCode);
 
-            given(memberDomainService.getMemberById(MemberId.of(userId))).willReturn(member);
-            given(inviteCodeDomainService.getCoupleCodeByInviteCode(invalidInviteCode))
+            given(inviteCodeDomainService.getMemberByInviteCode(inviteCodeValue))
                     .willThrow(new InviteCodeNotFoundException());
 
             // When & Then
             assertThatThrownBy(() -> coupleService.coupleLink(command))
                     .isInstanceOf(InviteCodeNotFoundException.class);
 
-            then(memberDomainService).should().getMemberById(MemberId.of(userId));
-            then(inviteCodeDomainService).should().getCoupleCodeByInviteCode(invalidInviteCode);
-            then(coupleDomainService).should(never()).createCoupleByInviteCode(any(), any());
+            then(inviteCodeDomainService).should().validateUsedInviteCode(inviteCodeValue);
+            then(inviteCodeDomainService).should().getMemberByInviteCode(inviteCodeValue);
+            then(coupleDomainService).should(never()).createCoupleByInviteCode(any(), any(), any());
             then(saveCouplePort).should(never()).saveCouple(any());
         }
     }

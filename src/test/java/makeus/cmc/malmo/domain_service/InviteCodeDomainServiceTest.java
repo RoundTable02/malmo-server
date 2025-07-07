@@ -2,9 +2,10 @@ package makeus.cmc.malmo.domain_service;
 
 import makeus.cmc.malmo.domain.exception.InviteCodeNotFoundException;
 import makeus.cmc.malmo.domain.exception.InviteCodeGenerateFailedException;
-import makeus.cmc.malmo.application.port.out.GenerateInviteCodePort;
-import makeus.cmc.malmo.domain.model.member.CoupleCode;
+import makeus.cmc.malmo.domain.exception.UsedInviteCodeException;
+import makeus.cmc.malmo.application.port.out.*;
 import makeus.cmc.malmo.domain.model.member.Member;
+import makeus.cmc.malmo.domain.model.value.InviteCodeValue;
 import makeus.cmc.malmo.domain.model.value.MemberId;
 import makeus.cmc.malmo.domain.service.InviteCodeDomainService;
 import org.junit.jupiter.api.DisplayName;
@@ -14,269 +15,210 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataIntegrityViolationException;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("CoupleCodeDomainService 단위 테스트")
+@DisplayName("InviteCodeDomainService 단위 테스트")
 class InviteCodeDomainServiceTest {
 
     @Mock
-    private LoadCoupleCodePort loadCoupleCodePort;
+    private LoadMemberPort loadMemberPort;
+
+    @Mock
+    private LoadInviteCodePort loadInviteCodePort;
+
+    @Mock
+    private ValidateInviteCodePort validateInviteCodePort;
 
     @Mock
     private GenerateInviteCodePort generateInviteCodePort;
-
-    @Mock
-    private SaveCoupleCodePort saveCoupleCodePort;
 
     @InjectMocks
     private InviteCodeDomainService inviteCodeDomainService;
 
     @Nested
-    @DisplayName("초대 코드로 커플 코드 조회 기능")
-    class GetCoupleCodeByInviteCodeFeature {
+    @DisplayName("초대 코드로 회원 조회 기능")
+    class GetMemberByInviteCodeFeature {
 
         @Test
-        @DisplayName("성공: 유효한 초대 코드로 커플 코드를 조회한다")
-        void givenValidInviteCode_whenGetCoupleCodeByInviteCode_thenReturnCoupleCode() {
+        @DisplayName("성공: 유효한 초대 코드로 회원을 조회한다")
+        void givenValidInviteCode_whenGetMemberByInviteCode_thenReturnMember() {
             // Given
-            String inviteCode = "INVITE123";
-            CoupleCode coupleCode = mock(CoupleCode.class);
+            InviteCodeValue inviteCodeValue = InviteCodeValue.of("INVITE123");
+            Member member = mock(Member.class);
 
-            given(loadCoupleCodePort.loadCoupleCodeByInviteCode(inviteCode))
-                    .willReturn(Optional.of(coupleCode));
+            given(loadMemberPort.loadMemberByInviteCode(inviteCodeValue))
+                    .willReturn(Optional.of(member));
 
             // When
-            CoupleCode result = inviteCodeDomainService.getCoupleCodeByInviteCode(inviteCode);
+            Member result = inviteCodeDomainService.getMemberByInviteCode(inviteCodeValue);
 
             // Then
-            assertThat(result).isEqualTo(coupleCode);
-            then(loadCoupleCodePort).should().loadCoupleCodeByInviteCode(inviteCode);
+            assertThat(result).isEqualTo(member);
+            then(loadMemberPort).should().loadMemberByInviteCode(inviteCodeValue);
         }
 
         @Test
-        @DisplayName("실패: 존재하지 않는 초대 코드로 조회 시 CoupleCodeNotFoundException이 발생한다")
-        void givenNonExistentInviteCode_whenGetCoupleCodeByInviteCode_thenThrowCoupleCodeNotFoundException() {
+        @DisplayName("실패: 존재하지 않는 초대 코드로 조회 시 InviteCodeNotFoundException이 발생한다")
+        void givenNonExistentInviteCode_whenGetMemberByInviteCode_thenThrowInviteCodeNotFoundException() {
             // Given
-            String inviteCode = "INVALID123";
+            InviteCodeValue inviteCodeValue = InviteCodeValue.of("INVALID123");
 
-            given(loadCoupleCodePort.loadCoupleCodeByInviteCode(inviteCode))
+            given(loadMemberPort.loadMemberByInviteCode(inviteCodeValue))
                     .willReturn(Optional.empty());
 
             // When & Then
-            assertThatThrownBy(() -> inviteCodeDomainService.getCoupleCodeByInviteCode(inviteCode))
+            assertThatThrownBy(() -> inviteCodeDomainService.getMemberByInviteCode(inviteCodeValue))
                     .isInstanceOf(InviteCodeNotFoundException.class);
 
-            then(loadCoupleCodePort).should().loadCoupleCodeByInviteCode(inviteCode);
-        }
-
-        @Test
-        @DisplayName("경계값: null 초대 코드로 조회 시 CoupleCodeNotFoundException이 발생한다")
-        void givenNullInviteCode_whenGetCoupleCodeByInviteCode_thenThrowCoupleCodeNotFoundException() {
-            // Given
-            String inviteCode = null;
-
-            given(loadCoupleCodePort.loadCoupleCodeByInviteCode(inviteCode))
-                    .willReturn(Optional.empty());
-
-            // When & Then
-            assertThatThrownBy(() -> inviteCodeDomainService.getCoupleCodeByInviteCode(inviteCode))
-                    .isInstanceOf(InviteCodeNotFoundException.class);
-
-            then(loadCoupleCodePort).should().loadCoupleCodeByInviteCode(inviteCode);
-        }
-
-        @Test
-        @DisplayName("경계값: 빈 문자열 초대 코드로 조회 시 CoupleCodeNotFoundException이 발생한다")
-        void givenEmptyInviteCode_whenGetCoupleCodeByInviteCode_thenThrowCoupleCodeNotFoundException() {
-            // Given
-            String inviteCode = "";
-
-            given(loadCoupleCodePort.loadCoupleCodeByInviteCode(inviteCode))
-                    .willReturn(Optional.empty());
-
-            // When & Then
-            assertThatThrownBy(() -> inviteCodeDomainService.getCoupleCodeByInviteCode(inviteCode))
-                    .isInstanceOf(InviteCodeNotFoundException.class);
-
-            then(loadCoupleCodePort).should().loadCoupleCodeByInviteCode(inviteCode);
+            then(loadMemberPort).should().loadMemberByInviteCode(inviteCodeValue);
         }
     }
 
     @Nested
-    @DisplayName("멤버 ID로 커플 코드 조회 기능")
-    class GetCoupleCodeByMemberIdFeature {
+    @DisplayName("멤버 ID로 초대 코드 조회 기능")
+    class GetInviteCodeByMemberIdFeature {
 
         @Test
-        @DisplayName("성공: 유효한 멤버 ID로 커플 코드를 조회한다")
-        void givenValidMemberId_whenGetCoupleCodeByMemberId_thenReturnCoupleCode() {
+        @DisplayName("성공: 유효한 멤버 ID로 초대 코드를 조회한다")
+        void givenValidMemberId_whenGetInviteCodeByMemberId_thenReturnInviteCode() {
             // Given
             MemberId memberId = MemberId.of(1L);
-            CoupleCode coupleCode = mock(CoupleCode.class);
+            InviteCodeValue inviteCodeValue = InviteCodeValue.of("INVITE123");
 
-            given(loadCoupleCodePort.loadCoupleCodeByMemberId(memberId))
-                    .willReturn(Optional.of(coupleCode));
+            given(loadInviteCodePort.loadInviteCodeByMemberId(memberId))
+                    .willReturn(Optional.of(inviteCodeValue));
 
             // When
-            CoupleCode result = inviteCodeDomainService.getCoupleCodeByMemberId(memberId);
+            InviteCodeValue result = inviteCodeDomainService.getInviteCodeByMemberId(memberId);
 
             // Then
-            assertThat(result).isEqualTo(coupleCode);
-            then(loadCoupleCodePort).should().loadCoupleCodeByMemberId(memberId);
+            assertThat(result).isEqualTo(inviteCodeValue);
+            then(loadInviteCodePort).should().loadInviteCodeByMemberId(memberId);
         }
 
         @Test
-        @DisplayName("실패: 존재하지 않는 멤버 ID로 조회 시 CoupleCodeNotFoundException이 발생한다")
-        void givenNonExistentMemberId_whenGetCoupleCodeByMemberId_thenThrowCoupleCodeNotFoundException() {
+        @DisplayName("실패: 존재하지 않는 멤버 ID로 조회 시 InviteCodeNotFoundException이 발생한다")
+        void givenNonExistentMemberId_whenGetInviteCodeByMemberId_thenThrowInviteCodeNotFoundException() {
             // Given
             MemberId memberId = MemberId.of(999L);
 
-            given(loadCoupleCodePort.loadCoupleCodeByMemberId(memberId))
+            given(loadInviteCodePort.loadInviteCodeByMemberId(memberId))
                     .willReturn(Optional.empty());
 
             // When & Then
-            assertThatThrownBy(() -> inviteCodeDomainService.getCoupleCodeByMemberId(memberId))
+            assertThatThrownBy(() -> inviteCodeDomainService.getInviteCodeByMemberId(memberId))
                     .isInstanceOf(InviteCodeNotFoundException.class);
 
-            then(loadCoupleCodePort).should().loadCoupleCodeByMemberId(memberId);
+            then(loadInviteCodePort).should().loadInviteCodeByMemberId(memberId);
         }
     }
 
     @Nested
-    @DisplayName("고유한 커플 코드 생성 및 저장 기능")
-    class GenerateAndSaveUniqueCoupleCodeFeature {
+    @DisplayName("고유한 초대 코드 생성 기능")
+    class GenerateUniqueInviteCodeFeature {
 
         @Test
-        @DisplayName("성공: 첫 번째 시도에서 고유한 커플 코드를 생성하고 저장한다")
-        void givenValidMemberAndDate_whenGenerateAndSaveUniqueCoupleCode_thenReturnCoupleCode() {
+        @DisplayName("성공: 첫 번째 시도에서 고유한 초대 코드를 생성한다")
+        void givenFirstAttempt_whenGenerateUniqueInviteCode_thenReturnInviteCode() {
             // Given
-            Member member = mock(Member.class);
-            LocalDate loveStartDate = LocalDate.of(2024, 1, 1);
-            String generatedCode = "GENERATED123";
-            CoupleCode coupleCode = mock(CoupleCode.class);
+            String generatedCode = "UNIQUE123";
+            InviteCodeValue inviteCodeValue = InviteCodeValue.of(generatedCode);
 
             given(generateInviteCodePort.generateInviteCode()).willReturn(generatedCode);
-            given(member.generateCoupleCode(generatedCode, loveStartDate)).willReturn(coupleCode);
-            given(saveCoupleCodePort.saveCoupleCode(coupleCode)).willReturn(coupleCode);
+            given(validateInviteCodePort.validateDuplicateInviteCode(inviteCodeValue)).willReturn(false);
 
             // When
-            CoupleCode result = inviteCodeDomainService.generateAndSaveUniqueCoupleCode(member, loveStartDate);
+            InviteCodeValue result = inviteCodeDomainService.generateUniqueInviteCode();
 
             // Then
-            assertThat(result).isEqualTo(coupleCode);
+            assertThat(result).isEqualTo(inviteCodeValue);
             then(generateInviteCodePort).should().generateInviteCode();
-            then(member).should().generateCoupleCode(generatedCode, loveStartDate);
-            then(saveCoupleCodePort).should().saveCoupleCode(coupleCode);
+            then(validateInviteCodePort).should().validateDuplicateInviteCode(inviteCodeValue);
         }
 
         @Test
-        @DisplayName("성공: 중복 코드 발생 후 재시도하여 커플 코드를 생성하고 저장한다")
-        void givenDuplicateCodeThenUnique_whenGenerateAndSaveUniqueCoupleCode_thenReturnCoupleCode() {
+        @DisplayName("성공: 중복 코드 발생 후 재시도하여 고유한 초대 코드를 생성한다")
+        void givenDuplicateCodeThenUnique_whenGenerateUniqueInviteCode_thenReturnInviteCode() {
             // Given
-            Member member = mock(Member.class);
-            LocalDate loveStartDate = LocalDate.of(2024, 1, 1);
             String firstCode = "DUPLICATE123";
             String secondCode = "UNIQUE456";
-            CoupleCode firstCoupleCode = mock(CoupleCode.class);
-            CoupleCode secondCoupleCode = mock(CoupleCode.class);
+            InviteCodeValue firstInviteCode = InviteCodeValue.of(firstCode);
+            InviteCodeValue secondInviteCode = InviteCodeValue.of(secondCode);
 
             given(generateInviteCodePort.generateInviteCode())
                     .willReturn(firstCode)
                     .willReturn(secondCode);
-            given(member.generateCoupleCode(firstCode, loveStartDate)).willReturn(firstCoupleCode);
-            given(member.generateCoupleCode(secondCode, loveStartDate)).willReturn(secondCoupleCode);
-            given(saveCoupleCodePort.saveCoupleCode(firstCoupleCode))
-                    .willThrow(new DataIntegrityViolationException("Duplicate key"));
-            given(saveCoupleCodePort.saveCoupleCode(secondCoupleCode)).willReturn(secondCoupleCode);
+            given(validateInviteCodePort.validateDuplicateInviteCode(firstInviteCode)).willReturn(true);
+            given(validateInviteCodePort.validateDuplicateInviteCode(secondInviteCode)).willReturn(false);
 
             // When
-            CoupleCode result = inviteCodeDomainService.generateAndSaveUniqueCoupleCode(member, loveStartDate);
+            InviteCodeValue result = inviteCodeDomainService.generateUniqueInviteCode();
 
             // Then
-            assertThat(result).isEqualTo(secondCoupleCode);
+            assertThat(result).isEqualTo(secondInviteCode);
             then(generateInviteCodePort).should(times(2)).generateInviteCode();
-            then(member).should().generateCoupleCode(firstCode, loveStartDate);
-            then(member).should().generateCoupleCode(secondCode, loveStartDate);
-            then(saveCoupleCodePort).should().saveCoupleCode(firstCoupleCode);
-            then(saveCoupleCodePort).should().saveCoupleCode(secondCoupleCode);
+            then(validateInviteCodePort).should().validateDuplicateInviteCode(firstInviteCode);
+            then(validateInviteCodePort).should().validateDuplicateInviteCode(secondInviteCode);
         }
 
         @Test
         @DisplayName("실패: 최대 재시도 횟수 초과 시 InviteCodeGenerateFailedException이 발생한다")
-        void givenMaxRetryExceeded_whenGenerateAndSaveUniqueCoupleCode_thenThrowInviteCodeGenerateFailedException() {
+        void givenMaxRetryExceeded_whenGenerateUniqueInviteCode_thenThrowInviteCodeGenerateFailedException() {
             // Given
-            Member member = mock(Member.class);
-            LocalDate loveStartDate = LocalDate.of(2024, 1, 1);
             String generatedCode = "DUPLICATE123";
-            CoupleCode coupleCode = mock(CoupleCode.class);
+            InviteCodeValue inviteCodeValue = InviteCodeValue.of(generatedCode);
 
             given(generateInviteCodePort.generateInviteCode()).willReturn(generatedCode);
-            given(member.generateCoupleCode(generatedCode, loveStartDate)).willReturn(coupleCode);
-            given(saveCoupleCodePort.saveCoupleCode(coupleCode))
-                    .willThrow(new DataIntegrityViolationException("Duplicate key"));
+            given(validateInviteCodePort.validateDuplicateInviteCode(inviteCodeValue)).willReturn(true);
 
             // When & Then
-            assertThatThrownBy(() -> inviteCodeDomainService.generateAndSaveUniqueCoupleCode(member, loveStartDate))
+            assertThatThrownBy(() -> inviteCodeDomainService.generateUniqueInviteCode())
                     .isInstanceOf(InviteCodeGenerateFailedException.class)
-                    .hasMessage("커플 코드 생성에 실패했습니다. 재시도 횟수를 초과했습니다.");
+                    .hasMessage("초대 코드 생성에 실패했습니다. 재시도 횟수를 초과했습니다.");
 
             then(generateInviteCodePort).should(times(10)).generateInviteCode();
-            then(member).should(times(10)).generateCoupleCode(generatedCode, loveStartDate);
-            then(saveCoupleCodePort).should(times(10)).saveCoupleCode(coupleCode);
+            then(validateInviteCodePort).should(times(10)).validateDuplicateInviteCode(inviteCodeValue);
+        }
+    }
+
+    @Nested
+    @DisplayName("사용된 초대 코드 검증 기능")
+    class ValidateUsedInviteCodeFeature {
+
+        @Test
+        @DisplayName("성공: 사용되지 않은 초대 코드는 검증을 통과한다")
+        void givenUnusedInviteCode_whenValidateUsedInviteCode_thenNoException() {
+            // Given
+            InviteCodeValue inviteCodeValue = InviteCodeValue.of("UNUSED123");
+
+            given(validateInviteCodePort.isAlreadyCoupleMemberByInviteCode(inviteCodeValue)).willReturn(false);
+
+            // When & Then (예외가 발생하지 않아야 함)
+            inviteCodeDomainService.validateUsedInviteCode(inviteCodeValue);
+
+            then(validateInviteCodePort).should().isAlreadyCoupleMemberByInviteCode(inviteCodeValue);
         }
 
         @Test
-        @DisplayName("경계값: 오늘 날짜로 커플 코드를 생성한다")
-        void givenTodayDate_whenGenerateAndSaveUniqueCoupleCode_thenReturnCoupleCode() {
+        @DisplayName("실패: 이미 사용된 초대 코드는 UsedInviteCodeException이 발생한다")
+        void givenUsedInviteCode_whenValidateUsedInviteCode_thenThrowUsedInviteCodeException() {
             // Given
-            Member member = mock(Member.class);
-            LocalDate loveStartDate = LocalDate.now();
-            String generatedCode = "TODAY123";
-            CoupleCode coupleCode = mock(CoupleCode.class);
+            InviteCodeValue inviteCodeValue = InviteCodeValue.of("USED123");
 
-            given(generateInviteCodePort.generateInviteCode()).willReturn(generatedCode);
-            given(member.generateCoupleCode(generatedCode, loveStartDate)).willReturn(coupleCode);
-            given(saveCoupleCodePort.saveCoupleCode(coupleCode)).willReturn(coupleCode);
+            given(validateInviteCodePort.isAlreadyCoupleMemberByInviteCode(inviteCodeValue)).willReturn(true);
 
-            // When
-            CoupleCode result = inviteCodeDomainService.generateAndSaveUniqueCoupleCode(member, loveStartDate);
+            // When & Then
+            assertThatThrownBy(() -> inviteCodeDomainService.validateUsedInviteCode(inviteCodeValue))
+                    .isInstanceOf(UsedInviteCodeException.class)
+                    .hasMessage("이미 사용된 커플 코드입니다. 다른 코드를 입력해주세요.");
 
-            // Then
-            assertThat(result).isEqualTo(coupleCode);
-            then(generateInviteCodePort).should().generateInviteCode();
-            then(member).should().generateCoupleCode(generatedCode, loveStartDate);
-            then(saveCoupleCodePort).should().saveCoupleCode(coupleCode);
-        }
-
-        @Test
-        @DisplayName("경계값: 과거 날짜로 커플 코드를 생성한다")
-        void givenPastDate_whenGenerateAndSaveUniqueCoupleCode_thenReturnCoupleCode() {
-            // Given
-            Member member = mock(Member.class);
-            LocalDate loveStartDate = LocalDate.of(2020, 1, 1);
-            String generatedCode = "PAST123";
-            CoupleCode coupleCode = mock(CoupleCode.class);
-
-            given(generateInviteCodePort.generateInviteCode()).willReturn(generatedCode);
-            given(member.generateCoupleCode(generatedCode, loveStartDate)).willReturn(coupleCode);
-            given(saveCoupleCodePort.saveCoupleCode(coupleCode)).willReturn(coupleCode);
-
-            // When
-            CoupleCode result = inviteCodeDomainService.generateAndSaveUniqueCoupleCode(member, loveStartDate);
-
-            // Then
-            assertThat(result).isEqualTo(coupleCode);
-            then(generateInviteCodePort).should().generateInviteCode();
-            then(member).should().generateCoupleCode(generatedCode, loveStartDate);
-            then(saveCoupleCodePort).should().saveCoupleCode(coupleCode);
+            then(validateInviteCodePort).should().isAlreadyCoupleMemberByInviteCode(inviteCodeValue);
         }
     }
 }
