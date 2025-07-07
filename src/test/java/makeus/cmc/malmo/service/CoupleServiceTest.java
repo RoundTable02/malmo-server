@@ -1,6 +1,6 @@
 package makeus.cmc.malmo.service;
 
-import makeus.cmc.malmo.domain.exception.CoupleCodeNotFoundException;
+import makeus.cmc.malmo.domain.exception.InviteCodeNotFoundException;
 import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
 import makeus.cmc.malmo.application.port.in.CoupleLinkUseCase;
 import makeus.cmc.malmo.application.port.out.SaveCouplePort;
@@ -9,7 +9,7 @@ import makeus.cmc.malmo.domain.model.couple.Couple;
 import makeus.cmc.malmo.domain.model.member.CoupleCode;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.value.MemberId;
-import makeus.cmc.malmo.domain.service.CoupleCodeDomainService;
+import makeus.cmc.malmo.domain.service.InviteCodeDomainService;
 import makeus.cmc.malmo.domain.service.CoupleDomainService;
 import makeus.cmc.malmo.domain.service.MemberDomainService;
 import org.junit.jupiter.api.DisplayName;
@@ -33,7 +33,7 @@ class CoupleServiceTest {
     private MemberDomainService memberDomainService;
 
     @Mock
-    private CoupleCodeDomainService coupleCodeDomainService;
+    private InviteCodeDomainService inviteCodeDomainService;
 
     @Mock
     private CoupleDomainService coupleDomainService;
@@ -68,8 +68,8 @@ class CoupleServiceTest {
             given(savedCouple.getId()).willReturn(coupleId);
 
             given(memberDomainService.getMemberById(MemberId.of(userId))).willReturn(member);
-            given(coupleCodeDomainService.getCoupleCodeByInviteCode(inviteCode)).willReturn(coupleCode);
-            given(coupleDomainService.createCoupleByCoupleCode(member, coupleCode)).willReturn(createdCouple);
+            given(inviteCodeDomainService.getCoupleCodeByInviteCode(inviteCode)).willReturn(coupleCode);
+            given(coupleDomainService.createCoupleByInviteCode(member, coupleCode)).willReturn(createdCouple);
             given(saveCouplePort.saveCouple(createdCouple)).willReturn(savedCouple);
 
             // When
@@ -80,8 +80,8 @@ class CoupleServiceTest {
             assertThat(response.getCoupleId()).isEqualTo(coupleId);
 
             then(memberDomainService).should().getMemberById(MemberId.of(userId));
-            then(coupleCodeDomainService).should().getCoupleCodeByInviteCode(inviteCode);
-            then(coupleDomainService).should().createCoupleByCoupleCode(member, coupleCode);
+            then(inviteCodeDomainService).should().getCoupleCodeByInviteCode(inviteCode);
+            then(coupleDomainService).should().createCoupleByInviteCode(member, coupleCode);
             then(saveCouplePort).should().saveCouple(createdCouple);
         }
 
@@ -105,8 +105,8 @@ class CoupleServiceTest {
                     .isInstanceOf(MemberNotFoundException.class);
 
             then(memberDomainService).should().getMemberById(MemberId.of(userId));
-            then(coupleCodeDomainService).should(never()).getCoupleCodeByInviteCode(any());
-            then(coupleDomainService).should(never()).createCoupleByCoupleCode(any(), any());
+            then(inviteCodeDomainService).should(never()).getCoupleCodeByInviteCode(any());
+            then(coupleDomainService).should(never()).createCoupleByInviteCode(any(), any());
             then(saveCouplePort).should(never()).saveCouple(any());
         }
 
@@ -125,16 +125,16 @@ class CoupleServiceTest {
             Member member = mock(Member.class);
 
             given(memberDomainService.getMemberById(MemberId.of(userId))).willReturn(member);
-            given(coupleCodeDomainService.getCoupleCodeByInviteCode(invalidInviteCode))
-                    .willThrow(new CoupleCodeNotFoundException());
+            given(inviteCodeDomainService.getCoupleCodeByInviteCode(invalidInviteCode))
+                    .willThrow(new InviteCodeNotFoundException());
 
             // When & Then
             assertThatThrownBy(() -> coupleService.coupleLink(command))
-                    .isInstanceOf(CoupleCodeNotFoundException.class);
+                    .isInstanceOf(InviteCodeNotFoundException.class);
 
             then(memberDomainService).should().getMemberById(MemberId.of(userId));
-            then(coupleCodeDomainService).should().getCoupleCodeByInviteCode(invalidInviteCode);
-            then(coupleDomainService).should(never()).createCoupleByCoupleCode(any(), any());
+            then(inviteCodeDomainService).should().getCoupleCodeByInviteCode(invalidInviteCode);
+            then(coupleDomainService).should(never()).createCoupleByInviteCode(any(), any());
             then(saveCouplePort).should(never()).saveCouple(any());
         }
     }

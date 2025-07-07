@@ -9,7 +9,7 @@ import makeus.cmc.malmo.application.service.SignUpService;
 import makeus.cmc.malmo.domain.model.member.CoupleCode;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.value.MemberId;
-import makeus.cmc.malmo.domain.service.CoupleCodeDomainService;
+import makeus.cmc.malmo.domain.service.InviteCodeDomainService;
 import makeus.cmc.malmo.domain.service.MemberDomainService;
 import makeus.cmc.malmo.domain.service.TermsAgreementDomainService;
 import org.junit.jupiter.api.DisplayName;
@@ -43,7 +43,7 @@ class SignUpServiceTest {
     private TermsAgreementDomainService termsAgreementDomainService;
 
     @Mock
-    private CoupleCodeDomainService coupleCodeDomainService;
+    private InviteCodeDomainService inviteCodeDomainService;
 
     @InjectMocks
     private SignUpService signUpService;
@@ -84,7 +84,7 @@ class SignUpServiceTest {
             given(member.getId()).willReturn(memberId);
             given(memberDomainService.getMemberById(MemberId.of(memberId))).willReturn(member);
             given(saveMemberPort.saveMember(member)).willReturn(member);
-            given(coupleCodeDomainService.generateAndSaveUniqueCoupleCode(member, loveStartDate)).willReturn(coupleCode);
+            given(inviteCodeDomainService.generateAndSaveUniqueCoupleCode(member, loveStartDate)).willReturn(coupleCode);
             given(coupleCode.getInviteCode()).willReturn(expectedInviteCode);
 
             // When
@@ -98,7 +98,7 @@ class SignUpServiceTest {
             then(member).should().signUp(nickname);
             then(saveMemberPort).should().saveMember(member);
             then(termsAgreementDomainService).should().processAgreements(eq(MemberId.of(memberId)), anyList());
-            then(coupleCodeDomainService).should().generateAndSaveUniqueCoupleCode(member, loveStartDate);
+            then(inviteCodeDomainService).should().generateAndSaveUniqueCoupleCode(member, loveStartDate);
         }
 
         @Test
@@ -126,7 +126,7 @@ class SignUpServiceTest {
             then(memberDomainService).should().getMemberById(MemberId.of(memberId));
             then(saveMemberPort).should(never()).saveMember(any());
             then(termsAgreementDomainService).should(never()).processAgreements(any(), anyList());
-            then(coupleCodeDomainService).should(never()).generateAndSaveUniqueCoupleCode(any(), any());
+            then(inviteCodeDomainService).should(never()).generateAndSaveUniqueCoupleCode(any(), any());
         }
 
         @Test
@@ -165,7 +165,7 @@ class SignUpServiceTest {
             then(member).should().signUp(nickname);
             then(saveMemberPort).should().saveMember(member);
             then(termsAgreementDomainService).should().processAgreements(eq(MemberId.of(memberId)), anyList());
-            then(coupleCodeDomainService).should(never()).generateAndSaveUniqueCoupleCode(any(), any());
+            then(inviteCodeDomainService).should(never()).generateAndSaveUniqueCoupleCode(any(), any());
         }
 
         @Test
@@ -194,7 +194,7 @@ class SignUpServiceTest {
             given(memberDomainService.getMemberById(MemberId.of(memberId))).willReturn(member);
             given(saveMemberPort.saveMember(member)).willReturn(member);
             willThrow(new InviteCodeGenerateFailedException("커플 코드 생성에 실패했습니다. 재시도 횟수를 초과했습니다."))
-                    .given(coupleCodeDomainService).generateAndSaveUniqueCoupleCode(member, loveStartDate);
+                    .given(inviteCodeDomainService).generateAndSaveUniqueCoupleCode(member, loveStartDate);
 
             // When & Then
             assertThatThrownBy(() -> signUpService.signUp(command))
@@ -205,7 +205,7 @@ class SignUpServiceTest {
             then(member).should().signUp(nickname);
             then(saveMemberPort).should().saveMember(member);
             then(termsAgreementDomainService).should().processAgreements(eq(MemberId.of(memberId)), anyList());
-            then(coupleCodeDomainService).should().generateAndSaveUniqueCoupleCode(member, loveStartDate);
+            then(inviteCodeDomainService).should().generateAndSaveUniqueCoupleCode(member, loveStartDate);
         }
     }
 }

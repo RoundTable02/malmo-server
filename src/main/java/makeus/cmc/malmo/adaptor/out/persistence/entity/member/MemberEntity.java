@@ -5,8 +5,11 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.LoveTypeEntityId;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
+
+import java.time.LocalDate;
 
 @Getter
 @SuperBuilder
@@ -47,4 +50,9 @@ public class MemberEntity extends BaseTimeEntity {
     private String nickname;
 
     private String email;
+
+    @Embedded
+    private InviteCodeEntityValue inviteCodeEntityValue;
+
+    private LocalDate startLoveDate;
 }

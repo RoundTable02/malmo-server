@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
+import makeus.cmc.malmo.domain.model.value.InviteCodeValue;
 import makeus.cmc.malmo.domain.model.value.LoveTypeId;
-import makeus.cmc.malmo.domain.model.value.MemberId;
 
 import java.time.LocalDate;
 
@@ -26,6 +26,8 @@ public class Member extends BaseTimeEntity {
     private float anxietyRate;
     private String nickname;
     private String email;
+    private InviteCodeValue inviteCode;
+    private LocalDate startLoveDate;
     
     public static Member createMember(Provider provider, String providerId, MemberRole memberRole, MemberState memberState, String email) {
         return Member.builder()
@@ -37,9 +39,14 @@ public class Member extends BaseTimeEntity {
                 .build();
     }
 
-    public void signUp(String nickname) {
+    public void signUp(String nickname, LocalDate startLoveDate) {
         this.nickname = nickname;
+        this.startLoveDate = startLoveDate;
         this.memberState = MemberState.ALIVE;
+    }
+
+    public void updateInviteCode(InviteCodeValue inviteCode) {
+        this.inviteCode = inviteCode;
     }
 
     public void updateMemberProfile(String nickname, String email) {
@@ -55,14 +62,5 @@ public class Member extends BaseTimeEntity {
 
     public void refreshMemberToken(String refreshToken) {
         this.refreshToken = refreshToken;
-    }
-
-    public CoupleCode generateCoupleCode(String inviteCode, LocalDate startLoveDate) {
-        return CoupleCode.builder()
-                .inviteCode(inviteCode)
-                .startLoveDate(startLoveDate)
-                .memberId(MemberId.of(this.id))
-                .coupleCodeState(CoupleCodeState.ALIVE)
-                .build();
     }
 }

@@ -1,14 +1,12 @@
 package makeus.cmc.malmo.domain_service;
 
-import makeus.cmc.malmo.domain.exception.CoupleCodeNotFoundException;
+import makeus.cmc.malmo.domain.exception.InviteCodeNotFoundException;
 import makeus.cmc.malmo.domain.exception.InviteCodeGenerateFailedException;
 import makeus.cmc.malmo.application.port.out.GenerateInviteCodePort;
-import makeus.cmc.malmo.application.port.out.LoadCoupleCodePort;
-import makeus.cmc.malmo.application.port.out.SaveCoupleCodePort;
 import makeus.cmc.malmo.domain.model.member.CoupleCode;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.value.MemberId;
-import makeus.cmc.malmo.domain.service.CoupleCodeDomainService;
+import makeus.cmc.malmo.domain.service.InviteCodeDomainService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -28,7 +26,7 @@ import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("CoupleCodeDomainService 단위 테스트")
-class CoupleCodeDomainServiceTest {
+class InviteCodeDomainServiceTest {
 
     @Mock
     private LoadCoupleCodePort loadCoupleCodePort;
@@ -40,7 +38,7 @@ class CoupleCodeDomainServiceTest {
     private SaveCoupleCodePort saveCoupleCodePort;
 
     @InjectMocks
-    private CoupleCodeDomainService coupleCodeDomainService;
+    private InviteCodeDomainService inviteCodeDomainService;
 
     @Nested
     @DisplayName("초대 코드로 커플 코드 조회 기능")
@@ -57,7 +55,7 @@ class CoupleCodeDomainServiceTest {
                     .willReturn(Optional.of(coupleCode));
 
             // When
-            CoupleCode result = coupleCodeDomainService.getCoupleCodeByInviteCode(inviteCode);
+            CoupleCode result = inviteCodeDomainService.getCoupleCodeByInviteCode(inviteCode);
 
             // Then
             assertThat(result).isEqualTo(coupleCode);
@@ -74,8 +72,8 @@ class CoupleCodeDomainServiceTest {
                     .willReturn(Optional.empty());
 
             // When & Then
-            assertThatThrownBy(() -> coupleCodeDomainService.getCoupleCodeByInviteCode(inviteCode))
-                    .isInstanceOf(CoupleCodeNotFoundException.class);
+            assertThatThrownBy(() -> inviteCodeDomainService.getCoupleCodeByInviteCode(inviteCode))
+                    .isInstanceOf(InviteCodeNotFoundException.class);
 
             then(loadCoupleCodePort).should().loadCoupleCodeByInviteCode(inviteCode);
         }
@@ -90,8 +88,8 @@ class CoupleCodeDomainServiceTest {
                     .willReturn(Optional.empty());
 
             // When & Then
-            assertThatThrownBy(() -> coupleCodeDomainService.getCoupleCodeByInviteCode(inviteCode))
-                    .isInstanceOf(CoupleCodeNotFoundException.class);
+            assertThatThrownBy(() -> inviteCodeDomainService.getCoupleCodeByInviteCode(inviteCode))
+                    .isInstanceOf(InviteCodeNotFoundException.class);
 
             then(loadCoupleCodePort).should().loadCoupleCodeByInviteCode(inviteCode);
         }
@@ -106,8 +104,8 @@ class CoupleCodeDomainServiceTest {
                     .willReturn(Optional.empty());
 
             // When & Then
-            assertThatThrownBy(() -> coupleCodeDomainService.getCoupleCodeByInviteCode(inviteCode))
-                    .isInstanceOf(CoupleCodeNotFoundException.class);
+            assertThatThrownBy(() -> inviteCodeDomainService.getCoupleCodeByInviteCode(inviteCode))
+                    .isInstanceOf(InviteCodeNotFoundException.class);
 
             then(loadCoupleCodePort).should().loadCoupleCodeByInviteCode(inviteCode);
         }
@@ -128,7 +126,7 @@ class CoupleCodeDomainServiceTest {
                     .willReturn(Optional.of(coupleCode));
 
             // When
-            CoupleCode result = coupleCodeDomainService.getCoupleCodeByMemberId(memberId);
+            CoupleCode result = inviteCodeDomainService.getCoupleCodeByMemberId(memberId);
 
             // Then
             assertThat(result).isEqualTo(coupleCode);
@@ -145,8 +143,8 @@ class CoupleCodeDomainServiceTest {
                     .willReturn(Optional.empty());
 
             // When & Then
-            assertThatThrownBy(() -> coupleCodeDomainService.getCoupleCodeByMemberId(memberId))
-                    .isInstanceOf(CoupleCodeNotFoundException.class);
+            assertThatThrownBy(() -> inviteCodeDomainService.getCoupleCodeByMemberId(memberId))
+                    .isInstanceOf(InviteCodeNotFoundException.class);
 
             then(loadCoupleCodePort).should().loadCoupleCodeByMemberId(memberId);
         }
@@ -170,7 +168,7 @@ class CoupleCodeDomainServiceTest {
             given(saveCoupleCodePort.saveCoupleCode(coupleCode)).willReturn(coupleCode);
 
             // When
-            CoupleCode result = coupleCodeDomainService.generateAndSaveUniqueCoupleCode(member, loveStartDate);
+            CoupleCode result = inviteCodeDomainService.generateAndSaveUniqueCoupleCode(member, loveStartDate);
 
             // Then
             assertThat(result).isEqualTo(coupleCode);
@@ -200,7 +198,7 @@ class CoupleCodeDomainServiceTest {
             given(saveCoupleCodePort.saveCoupleCode(secondCoupleCode)).willReturn(secondCoupleCode);
 
             // When
-            CoupleCode result = coupleCodeDomainService.generateAndSaveUniqueCoupleCode(member, loveStartDate);
+            CoupleCode result = inviteCodeDomainService.generateAndSaveUniqueCoupleCode(member, loveStartDate);
 
             // Then
             assertThat(result).isEqualTo(secondCoupleCode);
@@ -226,7 +224,7 @@ class CoupleCodeDomainServiceTest {
                     .willThrow(new DataIntegrityViolationException("Duplicate key"));
 
             // When & Then
-            assertThatThrownBy(() -> coupleCodeDomainService.generateAndSaveUniqueCoupleCode(member, loveStartDate))
+            assertThatThrownBy(() -> inviteCodeDomainService.generateAndSaveUniqueCoupleCode(member, loveStartDate))
                     .isInstanceOf(InviteCodeGenerateFailedException.class)
                     .hasMessage("커플 코드 생성에 실패했습니다. 재시도 횟수를 초과했습니다.");
 
@@ -249,7 +247,7 @@ class CoupleCodeDomainServiceTest {
             given(saveCoupleCodePort.saveCoupleCode(coupleCode)).willReturn(coupleCode);
 
             // When
-            CoupleCode result = coupleCodeDomainService.generateAndSaveUniqueCoupleCode(member, loveStartDate);
+            CoupleCode result = inviteCodeDomainService.generateAndSaveUniqueCoupleCode(member, loveStartDate);
 
             // Then
             assertThat(result).isEqualTo(coupleCode);
@@ -272,7 +270,7 @@ class CoupleCodeDomainServiceTest {
             given(saveCoupleCodePort.saveCoupleCode(coupleCode)).willReturn(coupleCode);
 
             // When
-            CoupleCode result = coupleCodeDomainService.generateAndSaveUniqueCoupleCode(member, loveStartDate);
+            CoupleCode result = inviteCodeDomainService.generateAndSaveUniqueCoupleCode(member, loveStartDate);
 
             // Then
             assertThat(result).isEqualTo(coupleCode);

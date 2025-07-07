@@ -5,11 +5,13 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberRoleJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberStateJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.ProviderJpa;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.LoveTypeEntityId;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.member.MemberRole;
 import makeus.cmc.malmo.domain.model.member.MemberState;
 import makeus.cmc.malmo.domain.model.member.Provider;
+import makeus.cmc.malmo.domain.model.value.InviteCodeValue;
 import makeus.cmc.malmo.domain.model.value.LoveTypeId;
 import org.springframework.stereotype.Component;
 
@@ -34,6 +36,10 @@ public class MemberMapper {
                 .anxietyRate(entity.getAnxietyRate())
                 .nickname(entity.getNickname())
                 .email(entity.getEmail())
+                .inviteCode(
+                        entity.getInviteCodeEntityValue() != null ? InviteCodeValue.of(entity.getInviteCodeEntityValue().getValue()) : null
+                )
+                .startLoveDate(entity.getStartLoveDate())
                 .createdAt(entity.getCreatedAt())
                 .modifiedAt(entity.getModifiedAt())
                 .deletedAt(entity.getDeletedAt())
@@ -53,10 +59,14 @@ public class MemberMapper {
                 .loveTypeEntityId(
                         domain.getLoveTypeId() != null ? LoveTypeEntityId.of(domain.getLoveTypeId().getValue()) : null
                 )
-                .email(domain.getEmail())
                 .avoidanceRate(domain.getAvoidanceRate())
                 .anxietyRate(domain.getAnxietyRate())
+                .email(domain.getEmail())
                 .nickname(domain.getNickname())
+                .inviteCodeEntityValue(
+                        domain.getInviteCode() != null ? InviteCodeEntityValue.of(domain.getInviteCode().getValue()) : null
+                )
+                .startLoveDate(domain.getStartLoveDate())
                 .createdAt(domain.getCreatedAt())
                 .modifiedAt(domain.getModifiedAt())
                 .deletedAt(domain.getDeletedAt())

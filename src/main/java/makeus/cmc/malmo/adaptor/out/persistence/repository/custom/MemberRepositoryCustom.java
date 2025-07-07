@@ -1,5 +1,6 @@
 package makeus.cmc.malmo.adaptor.out.persistence.repository.custom;
 
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.LoadPartnerPort;
 
@@ -10,4 +11,11 @@ public interface MemberRepositoryCustom {
     Optional<LoadPartnerPort.PartnerMemberRepositoryDto> findPartnerMember(Long memberId);
 
     boolean isCoupleMember(Long memberId);
+
+    boolean existsByInviteCode(String inviteCode);
+
+    boolean isAlreadyCoupleMemberByInviteCode(String inviteCode);
+
+    Optional<InviteCodeEntityValue> findInviteCodeByMemberId(Long memberId);
+
 }

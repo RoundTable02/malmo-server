@@ -1,8 +1,6 @@
 package makeus.cmc.malmo.mapper;
 
-import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleCodeEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
-import makeus.cmc.malmo.adaptor.out.persistence.mapper.CoupleCodeMapper;
 import makeus.cmc.malmo.domain.model.member.CoupleCode;
 import makeus.cmc.malmo.domain.model.value.MemberId;
 import org.junit.jupiter.api.DisplayName;

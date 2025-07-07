@@ -1,11 +1,11 @@
 package makeus.cmc.malmo.service;
 
-import makeus.cmc.malmo.domain.exception.CoupleCodeNotFoundException;
+import makeus.cmc.malmo.domain.exception.InviteCodeNotFoundException;
 import makeus.cmc.malmo.application.port.in.GetInviteCodeUseCase;
 import makeus.cmc.malmo.application.service.InviteCodeService;
 import makeus.cmc.malmo.domain.model.member.CoupleCode;
 import makeus.cmc.malmo.domain.model.value.MemberId;
-import makeus.cmc.malmo.domain.service.CoupleCodeDomainService;
+import makeus.cmc.malmo.domain.service.InviteCodeDomainService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,7 @@ import static org.mockito.BDDMockito.*;
 class InviteCodeServiceTest {
 
     @Mock
-    private CoupleCodeDomainService coupleCodeDomainService;
+    private InviteCodeDomainService inviteCodeDomainService;
 
     @InjectMocks
     private InviteCodeService inviteCodeService;
@@ -46,7 +46,7 @@ class InviteCodeServiceTest {
             CoupleCode coupleCode = mock(CoupleCode.class);
             given(coupleCode.getInviteCode()).willReturn(expectedInviteCode);
 
-            given(coupleCodeDomainService.getCoupleCodeByMemberId(MemberId.of(userId)))
+            given(inviteCodeDomainService.getCoupleCodeByMemberId(MemberId.of(userId)))
                     .willReturn(coupleCode);
 
             // When
@@ -56,7 +56,7 @@ class InviteCodeServiceTest {
             assertThat(response).isNotNull();
             assertThat(response.getCoupleCode()).isEqualTo(expectedInviteCode);
 
-            then(coupleCodeDomainService).should().getCoupleCodeByMemberId(MemberId.of(userId));
+            then(inviteCodeDomainService).should().getCoupleCodeByMemberId(MemberId.of(userId));
         }
 
         @Test
@@ -69,14 +69,14 @@ class InviteCodeServiceTest {
                     .userId(userId)
                     .build();
 
-            given(coupleCodeDomainService.getCoupleCodeByMemberId(MemberId.of(userId)))
-                    .willThrow(new CoupleCodeNotFoundException());
+            given(inviteCodeDomainService.getCoupleCodeByMemberId(MemberId.of(userId)))
+                    .willThrow(new InviteCodeNotFoundException());
 
             // When & Then
             assertThatThrownBy(() -> inviteCodeService.getInviteCode(command))
-                    .isInstanceOf(CoupleCodeNotFoundException.class);
+                    .isInstanceOf(InviteCodeNotFoundException.class);
 
-            then(coupleCodeDomainService).should().getCoupleCodeByMemberId(MemberId.of(userId));
+            then(inviteCodeDomainService).should().getCoupleCodeByMemberId(MemberId.of(userId));
         }
     }
 }
