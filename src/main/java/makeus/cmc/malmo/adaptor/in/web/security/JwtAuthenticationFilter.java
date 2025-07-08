@@ -68,6 +68,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
+        log.info("[{}] [{} {}] REQUEST_ID : {}", LocalDateTime.now(), request.getMethod(), request.getRequestURI(), MDC.get("request_id"));
+
         String path = request.getRequestURI();
         boolean shouldSkip = path.startsWith("/swagger-ui") ||
                 path.startsWith("/v3/api-docs") ||
@@ -78,7 +80,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 path.equals("/refresh") ||
                 path.equals("/test");
         
-//        log.info("JWT Filter - Path: {}, Should Skip: {}", path, shouldSkip);
         return shouldSkip;
     }
 }
