@@ -20,11 +20,9 @@ public class CoupleMemberEntity extends BaseTimeEntityJpa {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @AttributeOverride(name = "id", column = @Column(name = "member_id", nullable = false))
     @Embedded
     private MemberEntityId memberEntityId;
 
-    @AttributeOverride(name = "id", column = @Column(name = "couple_id", nullable = false))
     @Embedded
     private CoupleEntityId coupleEntityId;
 
