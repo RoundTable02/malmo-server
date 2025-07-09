@@ -12,7 +12,6 @@ public interface ConnectSseUseCase {
     @Builder
     class SseConnectionCommand {
         private Long userId;
-        private String coupleCode;
     }
 
     @Data
