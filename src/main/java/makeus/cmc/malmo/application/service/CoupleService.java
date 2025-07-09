@@ -13,6 +13,8 @@ import makeus.cmc.malmo.domain.service.CoupleDomainService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static makeus.cmc.malmo.application.port.out.SendSseEventPort.SseEventType.*;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -43,7 +45,7 @@ public class CoupleService implements CoupleLinkUseCase {
         sendSseEventPort.sendToMember(
                 MemberId.of(partner.getId()),
                 new SendSseEventPort.NotificationEvent(
-                        "couple_connected", savedCouple.getId())
+                        COUPLE_CONNECTED, savedCouple.getId())
         );
 
         return CoupleLinkResponse.builder()

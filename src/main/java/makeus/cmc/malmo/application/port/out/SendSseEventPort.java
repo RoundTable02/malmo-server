@@ -10,8 +10,16 @@ public interface SendSseEventPort {
     @Getter
     @AllArgsConstructor
     class NotificationEvent {
-        private String eventName;
+        private SseEventType eventType;
         private Object data;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    enum SseEventType {
+        COUPLE_CONNECTED("couple_connected");
+
+        private final String eventName;
     }
 }
 

@@ -76,7 +76,7 @@ public class SseEmitterAdapter implements SendSseEventPort, ConnectSsePort {
         try {
             emitter.send(SseEmitter.event()
                     .id(memberIdValue + "_" + System.currentTimeMillis()) // 각 이벤트에 고유 ID 부여
-                    .name(event.getEventName())
+                    .name(event.getEventType().getEventName())
                     .data(event.getData()));
         } catch (IOException | IllegalStateException e) {
             log.error("Failed to send SSE event to member: {}. Removing emitter.", memberIdValue, e);
