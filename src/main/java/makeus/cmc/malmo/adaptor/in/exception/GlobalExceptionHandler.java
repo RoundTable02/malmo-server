@@ -1,6 +1,7 @@
 package makeus.cmc.malmo.adaptor.in.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import makeus.cmc.malmo.adaptor.out.exception.SseConnectionException;
 import makeus.cmc.malmo.adaptor.out.oidc.exception.OidcIdTokenException;
 import makeus.cmc.malmo.adaptor.out.oidc.exception.RestApiException;
 import makeus.cmc.malmo.application.exception.InvalidRefreshTokenException;
@@ -83,6 +84,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleUsedCoupleCodeException(UsedInviteCodeException e) {
         log.error("[GlobalExceptionHandler: handleUsedCoupleCodeException 호출]", e);
         return ErrorResponse.of(ErrorCode.USED_COUPLE_CODE);
+    }
+
+    @ExceptionHandler({SseConnectionException.class})
+    public ResponseEntity<ErrorResponse> handleSseConnectionException(SseConnectionException e) {
+        log.error("[GlobalExceptionHandler: handleSseConnectionException 호출]", e);
+        return ErrorResponse.of(ErrorCode.SSE_CONNECTION_ERROR);
     }
 
 
