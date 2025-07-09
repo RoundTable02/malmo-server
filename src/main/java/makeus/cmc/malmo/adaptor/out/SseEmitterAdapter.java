@@ -1,10 +1,9 @@
 package makeus.cmc.malmo.adaptor.out;
 
+import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.out.exception.SseConnectionException;
 import makeus.cmc.malmo.application.port.out.ConnectSsePort;
 import makeus.cmc.malmo.application.port.out.SendSseEventPort;
-
-import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.domain.model.value.MemberId;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;

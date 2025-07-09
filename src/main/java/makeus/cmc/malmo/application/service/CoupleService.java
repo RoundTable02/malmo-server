@@ -8,12 +8,12 @@ import makeus.cmc.malmo.domain.model.couple.Couple;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.value.InviteCodeValue;
 import makeus.cmc.malmo.domain.model.value.MemberId;
-import makeus.cmc.malmo.domain.service.InviteCodeDomainService;
 import makeus.cmc.malmo.domain.service.CoupleDomainService;
+import makeus.cmc.malmo.domain.service.InviteCodeDomainService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static makeus.cmc.malmo.application.port.out.SendSseEventPort.SseEventType.*;
+import static makeus.cmc.malmo.application.port.out.SendSseEventPort.SseEventType.COUPLE_CONNECTED;
 
 @Service
 @Transactional(readOnly = true)

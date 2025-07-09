@@ -5,8 +5,6 @@ import makeus.cmc.malmo.adaptor.out.jwt.TokenInfo;
 import makeus.cmc.malmo.application.port.in.SignInUseCase;
 import makeus.cmc.malmo.application.port.out.*;
 import makeus.cmc.malmo.domain.model.member.Member;
-import makeus.cmc.malmo.domain.model.member.MemberRole;
-import makeus.cmc.malmo.domain.model.member.MemberState;
 import makeus.cmc.malmo.domain.model.member.Provider;
 import makeus.cmc.malmo.domain.service.MemberDomainService;
 import org.springframework.stereotype.Service;
