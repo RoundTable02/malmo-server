@@ -2,7 +2,6 @@ package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.application.port.in.UpdateTermsAgreementUseCase;
-import makeus.cmc.malmo.application.port.out.LoadTermsAgreementPort;
 import makeus.cmc.malmo.application.port.out.SaveMemberTermsAgreement;
 import makeus.cmc.malmo.domain.model.terms.MemberTermsAgreement;
 import makeus.cmc.malmo.domain.model.value.MemberId;

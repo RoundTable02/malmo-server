@@ -1,10 +1,10 @@
 package makeus.cmc.malmo.domain.service;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.domain.exception.LoveTypeNotFoundException;
-import makeus.cmc.malmo.domain.exception.LoveTypeQuestionNotFoundException;
 import makeus.cmc.malmo.application.port.out.LoadLoveTypePort;
 import makeus.cmc.malmo.application.port.out.LoadLoveTypeQuestionsPort;
+import makeus.cmc.malmo.domain.exception.LoveTypeNotFoundException;
+import makeus.cmc.malmo.domain.exception.LoveTypeQuestionNotFoundException;
 import makeus.cmc.malmo.domain.model.love_type.LoveType;
 import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.model.love_type.LoveTypeQuestion;

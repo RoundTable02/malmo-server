@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Embeddable
 public class InviteCodeEntityValue {
-    @Column(name = "invite_code", nullable = false, unique = true)
+    @Column(name = "invite_code", unique = true)
     String value;
 
     public static InviteCodeEntityValue of(String value) {

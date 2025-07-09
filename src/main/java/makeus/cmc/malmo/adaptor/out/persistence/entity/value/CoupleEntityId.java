@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Embeddable
 public class CoupleEntityId {
-    @Column(name = "couple_id", nullable = false)
+    @Column(name = "couple_id")
     Long value;
 
     public static CoupleEntityId of(Long value) {
