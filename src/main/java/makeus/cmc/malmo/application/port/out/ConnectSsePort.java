@@ -6,6 +6,6 @@ import makeus.cmc.malmo.domain.model.value.MemberId;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 public interface ConnectSsePort {
-    void connect(MemberId memberId);
+    SseEmitter connect(MemberId memberId);
 }
 

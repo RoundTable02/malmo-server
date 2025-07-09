@@ -1,7 +1,7 @@
 package makeus.cmc.malmo.adaptor.out;
 
+import makeus.cmc.malmo.adaptor.out.exception.SseConnectionException;
 import makeus.cmc.malmo.application.port.out.ConnectSsePort;
-import makeus.cmc.malmo.application.port.out.GetSseEmitterPort;
 import makeus.cmc.malmo.application.port.out.SendSseEventPort;
 
 import lombok.extern.slf4j.Slf4j;
@@ -15,42 +15,53 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
-public class SseEmitterAdapter implements SendSseEventPort, ConnectSsePort, GetSseEmitterPort {
+public class SseEmitterAdapter implements SendSseEventPort, ConnectSsePort {
     private static final long TIMEOUT = 10 * 60 * 1000L; // 10분
     private static final int MAX_SIZE = 1000;
+    public static final long RECONNECT_TIME_MILLIS = 3000L;
 
     private final Map<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
 
     @Override
-    public void connect(MemberId memberId) {
+    public SseEmitter connect(MemberId memberId) {
         if (emitters.size() >= MAX_SIZE) {
-            removeRandomEmitter();
+            log.warn("Cannot connect SSE: Emitter map is full (size: {}).", emitters.size());
+            throw new SseConnectionException("Maximum number of connections exceeded.");
         }
 
         Long memberIdValue = memberId.getValue();
-        if (emitters.containsKey(memberIdValue)) {
-            emitters.get(memberIdValue).complete();
-            emitters.remove(memberIdValue);
+        SseEmitter newEmitter = new SseEmitter(TIMEOUT);
+
+        SseEmitter oldEmitter = emitters.put(memberIdValue, newEmitter);
+        if (oldEmitter != null) {
+            oldEmitter.complete();
         }
 
-        SseEmitter emitter = new SseEmitter(TIMEOUT);
-        emitter.onTimeout(() ->
-                emitters.remove(memberIdValue));
-        emitter.onCompletion(() ->
-                emitters.remove(memberIdValue));
-        emitter.onError((e) ->
-                emitters.remove(memberIdValue));
+        newEmitter.onTimeout(() -> {
+            log.info("SSE emitter timed out for member: {}", memberIdValue);
+            emitters.remove(memberIdValue, newEmitter);
+        });
+        newEmitter.onCompletion(() -> {
+            log.info("SSE emitter completed for member: {}", memberIdValue);
+            emitters.remove(memberIdValue, newEmitter);
+        });
+        newEmitter.onError(e -> {
+            log.error("SSE emitter error for member: {}", memberIdValue, e);
+            emitters.remove(memberIdValue, newEmitter);
+        });
 
         try {
-            emitter.send(SseEmitter.event()
-                            .name("connected")
-                            .data("connected")
-                    .reconnectTime(3000L)); // 3초 후 재연결 시도
+            newEmitter.send(SseEmitter.event()
+                    .id(String.valueOf(memberIdValue))
+                    .name("connected")
+                    .data("SSE connection established.")
+                    .reconnectTime(RECONNECT_TIME_MILLIS));
         } catch (IOException e) {
-            log.error("초기 연결 실패", e);
+            log.error("Failed to send initial SSE connection event for member: {}", memberIdValue, e);
+            newEmitter.complete();
         }
 
-        emitters.put(memberIdValue, emitter);
+        return newEmitter;
     }
 
     @Override
@@ -58,28 +69,18 @@ public class SseEmitterAdapter implements SendSseEventPort, ConnectSsePort, GetS
         Long memberIdValue = memberId.getValue();
         SseEmitter emitter = emitters.get(memberIdValue);
         if (emitter == null) {
+            log.debug("SSE emitter not found for member: {}", memberIdValue);
             return;
         }
 
         try {
             emitter.send(SseEmitter.event()
+                    .id(memberIdValue + "_" + System.currentTimeMillis()) // 각 이벤트에 고유 ID 부여
                     .name(event.getEventName())
                     .data(event.getData()));
-        } catch (IOException e) {
-            emitters.remove(memberIdValue);
+        } catch (IOException | IllegalStateException e) {
+            log.error("Failed to send SSE event to member: {}. Removing emitter.", memberIdValue, e);
+            emitter.complete();
         }
-    }
-
-    private void removeRandomEmitter() {
-        if (!emitters.isEmpty()) {
-            Long key = emitters.keySet().iterator().next();
-            emitters.get(key).complete();
-            emitters.remove(key);
-        }
-    }
-
-    @Override
-    public SseEmitter getEmitter(MemberId memberId) {
-        return emitters.get(memberId.getValue());
     }
 }
