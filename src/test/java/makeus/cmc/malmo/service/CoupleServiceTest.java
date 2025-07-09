@@ -1,5 +1,6 @@
 package makeus.cmc.malmo.service;
 
+import makeus.cmc.malmo.application.port.out.SendSseEventPort;
 import makeus.cmc.malmo.domain.exception.InviteCodeNotFoundException;
 import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
 import makeus.cmc.malmo.application.port.in.CoupleLinkUseCase;
@@ -38,6 +39,9 @@ class CoupleServiceTest {
 
     @Mock
     private SaveCouplePort saveCouplePort;
+
+    @Mock
+    private SendSseEventPort sendSseEventPort;
 
     @InjectMocks
     private CoupleService coupleService;
@@ -82,6 +86,7 @@ class CoupleServiceTest {
             assertThat(response).isNotNull();
             assertThat(response.getCoupleId()).isEqualTo(coupleId);
 
+            then(sendSseEventPort).should().sendToMember(eq(MemberId.of(partnerId)), any(SendSseEventPort.NotificationEvent.class));
             then(inviteCodeDomainService).should().validateUsedInviteCode(inviteCodeValue);
             then(inviteCodeDomainService).should().getMemberByInviteCode(inviteCodeValue);
             then(coupleDomainService).should().createCoupleByInviteCode(MemberId.of(userId), MemberId.of(partnerId), startLoveDate);

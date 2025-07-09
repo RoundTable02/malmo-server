@@ -39,7 +39,6 @@ public class MemberEntity extends BaseTimeEntity {
 
     private String refreshToken;
 
-    @AttributeOverride(name = "id", column = @Column(name = "love_type_id", nullable = true))
     @Embedded
     private LoveTypeEntityId loveTypeEntityId;
 

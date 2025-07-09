@@ -3,7 +3,6 @@ package makeus.cmc.malmo.adaptor.out.persistence;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.ProviderJpa;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.MemberMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.MemberRepository;
 import makeus.cmc.malmo.application.port.out.LoadInviteCodePort;
