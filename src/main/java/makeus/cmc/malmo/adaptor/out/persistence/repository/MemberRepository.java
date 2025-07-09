@@ -13,6 +13,6 @@ public interface MemberRepository extends JpaRepository<MemberEntity, Long>, Mem
 
     Optional<MemberEntity> findByProviderJpaAndProviderId(ProviderJpa providerJpa, String providerId);
 
-    @Query("select m from MemberEntity m where m.inviteCodeEntityValue.value = ?1 and m.memberStateJpa = 'ACTIVE'")
+    @Query("select m from MemberEntity m where m.inviteCodeEntityValue.value = ?1 and m.memberStateJpa = 'ALIVE'")
     Optional<MemberEntity> findMemberEntityByInviteCode(String inviteCode);
 }
