@@ -1,6 +1,7 @@
 package makeus.cmc.malmo.adaptor.out;
 
 import makeus.cmc.malmo.application.port.out.ConnectSsePort;
+import makeus.cmc.malmo.application.port.out.GetSseEmitterPort;
 import makeus.cmc.malmo.application.port.out.SendSseEventPort;
 
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
-public class SseEmitterAdapter implements SendSseEventPort, ConnectSsePort {
+public class SseEmitterAdapter implements SendSseEventPort, ConnectSsePort, GetSseEmitterPort {
     private static final long TIMEOUT = 10 * 60 * 1000L; // 10분
     private static final int MAX_SIZE = 1000;
 
@@ -33,17 +34,8 @@ public class SseEmitterAdapter implements SendSseEventPort, ConnectSsePort {
         }
 
         SseEmitter emitter = new SseEmitter(TIMEOUT);
-        emitter.onTimeout(() -> {
-            try {
-                emitter.send(SseEmitter.event()
-                        .name("timeout")
-                        .data("connection_timeout"));
-            } catch (IOException e) {
-                log.warn("타임아웃 이벤트 전송 실패", e);
-            } finally {
-                emitters.remove(memberIdValue);
-            }
-        });
+        emitter.onTimeout(() ->
+                emitters.remove(memberIdValue));
         emitter.onCompletion(() ->
                 emitters.remove(memberIdValue));
         emitter.onError((e) ->
@@ -52,7 +44,8 @@ public class SseEmitterAdapter implements SendSseEventPort, ConnectSsePort {
         try {
             emitter.send(SseEmitter.event()
                             .name("connected")
-                            .data("connected"));
+                            .data("connected")
+                    .reconnectTime(3000L)); // 3초 후 재연결 시도
         } catch (IOException e) {
             log.error("초기 연결 실패", e);
         }
@@ -83,5 +76,10 @@ public class SseEmitterAdapter implements SendSseEventPort, ConnectSsePort {
             emitters.get(key).complete();
             emitters.remove(key);
         }
+    }
+
+    @Override
+    public SseEmitter getEmitter(MemberId memberId) {
+        return emitters.get(memberId.getValue());
     }
 }
