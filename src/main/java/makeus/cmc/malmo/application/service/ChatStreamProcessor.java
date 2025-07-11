@@ -21,23 +21,18 @@ public class ChatStreamProcessor {
     private final ChatMessagesDomainService chatMessagesDomainService;
     private final SendSseEventPort sendSseEventPort;
 
-    @Qualifier("chatStreamExecutor")
-    private final TaskExecutor executor;
-
     public void requestApiStreamAsync(MemberId memberId,
                                       List<Map<String, String>> messages,
                                       ChatRoomId chatRoomId) {
-        executor.execute(() -> {
-            // OpenAI API 스트리밍 호출
-            requestStreamChatPort.streamChat(messages,
-                    //  데이터 stream 수신 시 SSE 이벤트 전송
-                    chunk -> sendSseMessage(memberId, chunk),
-                    // 응답 완료 시 전체 응답 저장
-                    fullAnswer -> saveAiMessage(chatRoomId, fullAnswer),
-                    // 에러 발생 시 에러 메시지 전송
-                    errorMessage -> sendSseErrorMessage(memberId, errorMessage)
-            );
-        });
+        // OpenAI API 스트리밍 호출
+        requestStreamChatPort.streamChat(messages,
+                //  데이터 stream 수신 시 SSE 이벤트 전송
+                chunk -> sendSseMessage(memberId, chunk),
+                // 응답 완료 시 전체 응답 저장
+                fullAnswer -> saveAiMessage(chatRoomId, fullAnswer),
+                // 에러 발생 시 에러 메시지 전송
+                errorMessage -> sendSseErrorMessage(memberId, errorMessage)
+        );
 
     }
 

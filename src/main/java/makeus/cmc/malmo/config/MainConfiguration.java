@@ -20,16 +20,4 @@ public class MainConfiguration {
         return objectMapper;
     }
 
-    @Bean("chatStreamExecutor")
-    public ThreadPoolTaskExecutor chatStreamExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(5);
-        executor.setMaxPoolSize(20);
-        executor.setQueueCapacity(100);
-        executor.setThreadNamePrefix("chat-stream-");
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-        executor.initialize();
-        return executor;
-    }
-
 }
