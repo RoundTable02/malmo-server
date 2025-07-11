@@ -6,7 +6,7 @@ import makeus.cmc.malmo.application.port.out.SendSseEventPort;
 import makeus.cmc.malmo.domain.model.value.ChatRoomId;
 import makeus.cmc.malmo.domain.model.value.MemberId;
 import makeus.cmc.malmo.domain.service.ChatMessagesDomainService;
-import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +21,8 @@ public class ChatStreamProcessor {
     private final ChatMessagesDomainService chatMessagesDomainService;
     private final SendSseEventPort sendSseEventPort;
 
-    private final TaskExecutor executor = new SimpleAsyncTaskExecutor();
+    @Qualifier("chatStreamExecutor")
+    private final TaskExecutor executor;
 
     public void requestApiStreamAsync(MemberId memberId,
                                       List<Map<String, String>> messages,
