@@ -5,5 +5,9 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public interface RequestStreamChatPort {
-    void streamChat(List<Map<String, String>> messages, Consumer<String> onData, Consumer<String> onCompleteFullResponse);
+    void streamChat(
+            List<Map<String, String>> messages,
+            Consumer<String> onData,
+            Consumer<String> onCompleteFullResponse,
+            Consumer<String> onError);
 }

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import makeus.cmc.malmo.adaptor.out.exception.AiClientRequestException;
 import makeus.cmc.malmo.application.port.out.RequestStreamChatPort;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
@@ -22,6 +21,9 @@ import java.util.function.Consumer;
 @Component
 public class OpenAiStreamClient implements RequestStreamChatPort {
 
+    public static final String GPT_VERSION = "gpt-3.5-turbo";
+    public static final double GPT_TEMPERATURE = 0.7;
+
     @Value("${openai.api.key}")
     private String openAiApiKey;
 
@@ -32,16 +34,17 @@ public class OpenAiStreamClient implements RequestStreamChatPort {
     @Override
     public void streamChat(List<Map<String, String>> messages,
                            Consumer<String> onData,
-                           Consumer<String> onCompleteFullResponse) {
+                           Consumer<String> onCompleteFullResponse,
+                           Consumer<String> onError) {
 
         Map<String, Object> body = createBody(messages);
-        Request request = createRequest(body);
+        Request request = createRequest(body, onError);
 
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                // TODO : 에러 콜백 처리
-                throw new AiClientRequestException("Failed to connect to OpenAI API", e);
+                log.error("Failed to connect to OpenAI API", e);
+                onError.accept("에러가 발생했습니다: 네트워크 연결에 실패했습니다.");
             }
 
             @Override
@@ -66,8 +69,8 @@ public class OpenAiStreamClient implements RequestStreamChatPort {
                     onCompleteFullResponse.accept(fullResponse.toString());
                 }
                 catch (Exception e) {
-                    // TODO : 에러 콜백 처리
-                    throw new AiClientRequestException("Error processing OpenAI API response", e);
+                    log.error("Error processing OpenAI API response", e);
+                    onError.accept("에러가 발생했습니다: 응답 처리 중 문제가 발생했습니다.");
                 }
             }
         });
@@ -82,8 +85,8 @@ public class OpenAiStreamClient implements RequestStreamChatPort {
                 .asText();
     }
 
-    private Request createRequest(Map<String, Object> body) {
-        Request request;
+    private Request createRequest(Map<String, Object> body, Consumer<String> onError) {
+        Request request = null;
         try {
             request = new Request.Builder()
                     .url(OPENAI_CHAT_URL)
@@ -94,16 +97,17 @@ public class OpenAiStreamClient implements RequestStreamChatPort {
                     .header("Content-Type", "application/json")
                     .build();
         } catch (JsonProcessingException e) {
-            throw new AiClientRequestException("Failed to create request body for OpenAI API", e);
+            log.error("Error processing OpenAI API response", e);
+            onError.accept("에러가 발생했습니다: 요청 생성 중 문제가 발생했습니다.");
         }
         return request;
     }
 
     private Map<String, Object> createBody(List<Map<String, String>> messages) {
         return Map.of(
-                "model", "gpt-3.5-turbo",
+                "model", GPT_VERSION,
                 "messages", messages,
-                "temperature", 0.7,
+                "temperature", GPT_TEMPERATURE,
                 "stream", true
         );
     }
