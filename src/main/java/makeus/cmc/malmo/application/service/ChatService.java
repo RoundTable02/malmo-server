@@ -32,7 +32,7 @@ public class ChatService implements SendChatMessageUseCase {
 
     @Override
     @Transactional
-    public void processUserMessage(SendChatMessageUseCase.SendChatMessageCommand command) {
+    public SendChatMessageResponse processUserMessage(SendChatMessageCommand command) {
         Member member = memberDomainService.getMemberById(MemberId.of(command.getUserId()));
 
         // 과거 메시지 불러오기
@@ -47,13 +47,17 @@ public class ChatService implements SendChatMessageUseCase {
 
         // 현재 메시지 추가
         messages.add(createMessageMap(SenderType.USER, command.getMessage()));
-        chatMessagesDomainService.createUserTextMessage(ChatRoomId.of(chatRoom.getId()), command.getMessage());
+        ChatMessage savedUserTextMessage = chatMessagesDomainService.createUserTextMessage(ChatRoomId.of(chatRoom.getId()), command.getMessage());
 
         // OpenAI API 스트리밍 호출
         chatStreamProcessor.requestApiStream(
                 MemberId.of(command.getUserId()),
                 messages,
                 ChatRoomId.of(chatRoom.getId()));
+
+        return SendChatMessageResponse.builder()
+                .messageId(savedUserTextMessage.getId())
+                .build();
     }
 
     private Map<String, String> createMessageMap(SenderType senderType, String content) {
