@@ -1,6 +1,5 @@
 package makeus.cmc.malmo.adaptor.out.persistence.mapper;
 
-import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleMemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleMemberStateJpa;

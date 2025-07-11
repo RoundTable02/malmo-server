@@ -1,8 +1,6 @@
 package makeus.cmc.malmo.adaptor.out.persistence.repository;
 
 import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatMessageEntity;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatRoomEntity;
-import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

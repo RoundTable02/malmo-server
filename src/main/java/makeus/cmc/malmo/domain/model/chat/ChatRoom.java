@@ -1,12 +1,9 @@
 package makeus.cmc.malmo.domain.model.chat;
 
-import jakarta.persistence.Embedded;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
-import makeus.cmc.malmo.domain.model.member.Member;
-import makeus.cmc.malmo.domain.model.value.ChatRoomId;
 import makeus.cmc.malmo.domain.model.value.MemberId;
 
 @Getter
