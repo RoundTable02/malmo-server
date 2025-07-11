@@ -17,4 +17,26 @@ public class ChatMessage extends BaseTimeEntity {
     private String extractedText;
     private String content;
     private SenderType senderType;
+
+    public static ChatMessage createUserTextMessage(ChatRoomId chatRoomId, String content) {
+        return ChatMessage.builder()
+                .chatRoomId(chatRoomId)
+                .isImage(false)
+                .imageUrl(null)
+                .extractedText(null)
+                .content(content)
+                .senderType(SenderType.USER)
+                .build();
+    }
+
+    public static ChatMessage createAssistantTextMessage(ChatRoomId chatRoomId, String content) {
+        return ChatMessage.builder()
+                .chatRoomId(chatRoomId)
+                .isImage(false)
+                .imageUrl(null)
+                .extractedText(null)
+                .content(content)
+                .senderType(SenderType.ASSISTANT)
+                .build();
+    }
 }

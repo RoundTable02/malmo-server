@@ -23,15 +23,4 @@ public class ChatRoom extends BaseTimeEntity {
                 .chatRoomState(ChatRoomState.ALIVE)
                 .build();
     }
-
-    public ChatMessage createTextChatMessage(SenderType senderType, String content) {
-        return ChatMessage.builder()
-                .chatRoomId(ChatRoomId.of(this.id))
-                .isImage(false)
-                .imageUrl(null)
-                .extractedText(null)
-                .content(content)
-                .senderType(senderType)
-                .build();
-    }
 }

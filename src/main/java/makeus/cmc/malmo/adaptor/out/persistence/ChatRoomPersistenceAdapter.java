@@ -1,0 +1,58 @@
+package makeus.cmc.malmo.adaptor.out.persistence;
+
+import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatMessageEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatRoomEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.mapper.ChatMessageMapper;
+import makeus.cmc.malmo.adaptor.out.persistence.mapper.ChatRoomMapper;
+import makeus.cmc.malmo.adaptor.out.persistence.repository.ChatMessageRepository;
+import makeus.cmc.malmo.adaptor.out.persistence.repository.ChatRoomRepository;
+import makeus.cmc.malmo.application.port.out.LoadChatRoomPort;
+import makeus.cmc.malmo.application.port.out.LoadCurrentMessagesPort;
+import makeus.cmc.malmo.application.port.out.SaveChatRoomPort;
+import makeus.cmc.malmo.domain.model.chat.ChatMessage;
+import makeus.cmc.malmo.domain.model.chat.ChatRoom;
+import makeus.cmc.malmo.domain.model.value.ChatRoomId;
+import makeus.cmc.malmo.domain.model.value.MemberId;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Optional;
+
+@Component
+@RequiredArgsConstructor
+public class ChatRoomPersistenceAdapter implements LoadCurrentMessagesPort, SaveChatRoomPort, LoadChatRoomPort {
+
+    private final ChatRoomRepository chatRoomRepository;
+    private final ChatMessageRepository chatMessageRepository;
+    private final ChatRoomMapper chatRoomMapper;
+    private final ChatMessageMapper chatMessageMapper;
+
+    @Override
+    public List<ChatMessage> loadMessages(ChatRoomId chatRoomId) {
+        return chatMessageRepository.findByChatRoomId(chatRoomId.getValue())
+                .stream()
+                .map(chatMessageMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public Optional<ChatRoom> loadCurrentChatRoomByMemberId(MemberId memberId) {
+        return chatRoomRepository.findChatRoomEntityByMemberEntityId_Value(memberId.getValue())
+                .map(chatRoomMapper::toDomain);
+    }
+
+    @Override
+    public ChatRoom saveChatRoom(ChatRoom chatRoom) {
+        ChatRoomEntity entity = chatRoomMapper.toEntity(chatRoom);
+        ChatRoomEntity savedEntity = chatRoomRepository.save(entity);
+        return chatRoomMapper.toDomain(savedEntity);
+    }
+
+    @Override
+    public ChatMessage saveChatMessage(ChatMessage chatMessage) {
+        ChatMessageEntity entity = chatMessageMapper.toEntity(chatMessage);
+        ChatMessageEntity savedEntity = chatMessageRepository.save(entity);
+        return chatMessageMapper.toDomain(savedEntity);
+    }
+}

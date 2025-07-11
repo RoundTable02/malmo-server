@@ -17,7 +17,8 @@ public interface SendSseEventPort {
     @Getter
     @AllArgsConstructor
     enum SseEventType {
-        COUPLE_CONNECTED("couple_connected");
+        COUPLE_CONNECTED("couple_connected"),
+        CHAT_RESPONSE("chat_response");
 
         private final String eventName;
     }
