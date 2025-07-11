@@ -6,8 +6,6 @@ import makeus.cmc.malmo.application.port.out.SendSseEventPort;
 import makeus.cmc.malmo.domain.model.value.ChatRoomId;
 import makeus.cmc.malmo.domain.model.value.MemberId;
 import makeus.cmc.malmo.domain.service.ChatMessagesDomainService;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -21,9 +19,9 @@ public class ChatStreamProcessor {
     private final ChatMessagesDomainService chatMessagesDomainService;
     private final SendSseEventPort sendSseEventPort;
 
-    public void requestApiStreamAsync(MemberId memberId,
-                                      List<Map<String, String>> messages,
-                                      ChatRoomId chatRoomId) {
+    public void requestApiStream(MemberId memberId,
+                                 List<Map<String, String>> messages,
+                                 ChatRoomId chatRoomId) {
         // OpenAI API 스트리밍 호출
         requestStreamChatPort.streamChat(messages,
                 //  데이터 stream 수신 시 SSE 이벤트 전송

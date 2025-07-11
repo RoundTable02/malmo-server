@@ -50,7 +50,7 @@ public class ChatService implements SendChatMessageUseCase {
         chatMessagesDomainService.createUserTextMessage(ChatRoomId.of(chatRoom.getId()), command.getMessage());
 
         // OpenAI API 스트리밍 호출
-        chatStreamProcessor.requestApiStreamAsync(
+        chatStreamProcessor.requestApiStream(
                 MemberId.of(command.getUserId()),
                 messages,
                 ChatRoomId.of(chatRoom.getId()));
