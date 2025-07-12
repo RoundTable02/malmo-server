@@ -9,8 +9,8 @@ import makeus.cmc.malmo.adaptor.out.persistence.repository.MemberTermsAgreementR
 import makeus.cmc.malmo.application.port.out.LoadTermsAgreementPort;
 import makeus.cmc.malmo.application.port.out.SaveMemberTermsAgreement;
 import makeus.cmc.malmo.domain.model.terms.MemberTermsAgreement;
-import makeus.cmc.malmo.domain.model.value.MemberId;
-import makeus.cmc.malmo.domain.model.value.TermsId;
+import makeus.cmc.malmo.domain.value.id.MemberId;
+import makeus.cmc.malmo.domain.value.id.TermsId;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;

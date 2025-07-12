@@ -1,20 +1,16 @@
 package makeus.cmc.malmo.mapper;
 
-import makeus.cmc.malmo.adaptor.out.persistence.entity.love_type.LoveTypeCategoryJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.love_type.LoveTypeEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberRoleJpa;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberStateJpa;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.member.ProviderJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.LoveTypeEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.MemberMapper;
 import makeus.cmc.malmo.domain.model.love_type.LoveType;
-import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
+import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.model.member.Member;
-import makeus.cmc.malmo.domain.model.member.MemberRole;
-import makeus.cmc.malmo.domain.model.member.MemberState;
-import makeus.cmc.malmo.domain.model.member.Provider;
-import makeus.cmc.malmo.domain.model.value.LoveTypeId;
+import makeus.cmc.malmo.domain.value.type.MemberRole;
+import makeus.cmc.malmo.domain.value.state.MemberState;
+import makeus.cmc.malmo.domain.value.type.Provider;
+import makeus.cmc.malmo.domain.value.id.LoveTypeId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,18 +72,17 @@ class MemberMapperTest {
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getId()).isEqualTo(1L);
             assertThat(result.getProvider()).isNull();
             assertThat(result.getMemberRole()).isNull();
             assertThat(result.getMemberState()).isNull();
-            assertThat(result.getLoveTypeId().getValue()).isNull();
+            assertThat(result.getLoveTypeId()).isNull();
         }
 
         @Test
         @DisplayName("Apple Provider를 가진 Entity를 변환한다")
         void givenAppleProvider_whenToDomain_thenReturnsAppleProvider() {
             // given
-            MemberEntity entity = createEntityWithProvider(ProviderJpa.APPLE);
+            MemberEntity entity = createEntityWithProvider(Provider.APPLE);
 
             // when
             Member result = memberMapper.toDomain(entity);
@@ -99,7 +95,7 @@ class MemberMapperTest {
         @DisplayName("ADMIN Role을 가진 Entity를 변환한다")
         void givenAdminRole_whenToDomain_thenReturnsAdminRole() {
             // given
-            MemberEntity entity = createEntityWithRole(MemberRoleJpa.ADMIN);
+            MemberEntity entity = createEntityWithRole(MemberRole.ADMIN);
 
             // when
             Member result = memberMapper.toDomain(entity);
@@ -113,11 +109,11 @@ class MemberMapperTest {
         void givenDifferentStates_whenToDomain_thenReturnsCorrectStates() {
             // given
             // when & then
-            MemberEntity beforeOnboardingEntity = createEntityWithState(MemberStateJpa.BEFORE_ONBOARDING);
+            MemberEntity beforeOnboardingEntity = createEntityWithState(MemberState.BEFORE_ONBOARDING);
             Member beforeOnboardingResult = memberMapper.toDomain(beforeOnboardingEntity);
             assertThat(beforeOnboardingResult.getMemberState()).isEqualTo(MemberState.BEFORE_ONBOARDING);
 
-            MemberEntity deletedEntity = createEntityWithState(MemberStateJpa.DELETED);
+            MemberEntity deletedEntity = createEntityWithState(MemberState.DELETED);
             Member deletedResult = memberMapper.toDomain(deletedEntity);
             assertThat(deletedResult.getMemberState()).isEqualTo(MemberState.DELETED);
         }
@@ -140,10 +136,10 @@ class MemberMapperTest {
             // then
             assertThat(result).isNotNull();
             assertThat(result.getId()).isEqualTo(1L);
-            assertThat(result.getProviderJpa()).isEqualTo(ProviderJpa.KAKAO);
+            assertThat(result.getProvider()).isEqualTo(Provider.KAKAO);
             assertThat(result.getProviderId()).isEqualTo("provider123");
-            assertThat(result.getMemberRoleJpa()).isEqualTo(MemberRoleJpa.MEMBER);
-            assertThat(result.getMemberStateJpa()).isEqualTo(MemberStateJpa.ALIVE);
+            assertThat(result.getMemberRole()).isEqualTo(MemberRole.MEMBER);
+            assertThat(result.getMemberState()).isEqualTo(MemberState.ALIVE);
             assertThat(result.isAlarmOn()).isTrue();
             assertThat(result.getFirebaseToken()).isEqualTo("firebase_token");
             assertThat(result.getRefreshToken()).isEqualTo("refresh_token");
@@ -165,10 +161,9 @@ class MemberMapperTest {
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getId()).isEqualTo(1L);
-            assertThat(result.getProviderJpa()).isNull();
-            assertThat(result.getMemberRoleJpa()).isNull();
-            assertThat(result.getMemberStateJpa()).isNull();
+            assertThat(result.getProvider()).isNull();
+            assertThat(result.getMemberRole()).isNull();
+            assertThat(result.getMemberState()).isNull();
             assertThat(result.getLoveTypeEntityId()).isNull();
         }
 
@@ -182,7 +177,7 @@ class MemberMapperTest {
             MemberEntity result = memberMapper.toEntity(domain);
 
             // then
-            assertThat(result.getProviderJpa()).isEqualTo(ProviderJpa.APPLE);
+            assertThat(result.getProvider()).isEqualTo(Provider.APPLE);
         }
 
         @Test
@@ -195,7 +190,7 @@ class MemberMapperTest {
             MemberEntity result = memberMapper.toEntity(domain);
 
             // then
-            assertThat(result.getMemberRoleJpa()).isEqualTo(MemberRoleJpa.ADMIN);
+            assertThat(result.getMemberRole()).isEqualTo(MemberRole.ADMIN);
         }
 
         @Test
@@ -205,11 +200,11 @@ class MemberMapperTest {
             // when & then
             Member beforeOnboardingMember = createMemberWithState(MemberState.BEFORE_ONBOARDING);
             MemberEntity beforeOnboardingResult = memberMapper.toEntity(beforeOnboardingMember);
-            assertThat(beforeOnboardingResult.getMemberStateJpa()).isEqualTo(MemberStateJpa.BEFORE_ONBOARDING);
+            assertThat(beforeOnboardingResult.getMemberState()).isEqualTo(MemberState.BEFORE_ONBOARDING);
 
             Member deletedMember = createMemberWithState(MemberState.DELETED);
             MemberEntity deletedResult = memberMapper.toEntity(deletedMember);
-            assertThat(deletedResult.getMemberStateJpa()).isEqualTo(MemberStateJpa.DELETED);
+            assertThat(deletedResult.getMemberState()).isEqualTo(MemberState.DELETED);
         }
     }
 
@@ -217,14 +212,14 @@ class MemberMapperTest {
     private MemberEntity createCompleteEntity(LoveTypeEntity loveTypeEntity) {
         return MemberEntity.builder()
                 .id(1L)
-                .providerJpa(ProviderJpa.KAKAO)
+                .provider(Provider.KAKAO)
                 .providerId("provider123")
-                .memberRoleJpa(MemberRoleJpa.MEMBER)
-                .memberStateJpa(MemberStateJpa.ALIVE)
+                .memberRole(MemberRole.MEMBER)
+                .memberState(MemberState.ALIVE)
                 .isAlarmOn(true)
                 .firebaseToken("firebase_token")
                 .refreshToken("refresh_token")
-                .loveTypeEntityId(LoveTypeEntityId.of(100L))
+                .loveTypeEntityId(LoveTypeEntityId.of(loveTypeEntity.getId()))
                 .avoidanceRate(0.5f)
                 .anxietyRate(0.3f)
                 .nickname("testuser")
@@ -237,102 +232,102 @@ class MemberMapperTest {
     private MemberEntity createEntityWithNulls() {
         return MemberEntity.builder()
                 .id(1L)
-                .providerJpa(null)
-                .memberRoleJpa(null)
-                .memberStateJpa(null)
+                .provider(null)
+                .memberRole(null)
+                .memberState(null)
                 .loveTypeEntityId(null)
                 .build();
     }
 
-    private MemberEntity createEntityWithProvider(ProviderJpa provider) {
+    private MemberEntity createEntityWithProvider(Provider provider) {
         return MemberEntity.builder()
-                .id(1L)
-                .providerJpa(provider)
-                .build();
-    }
-
-    private MemberEntity createEntityWithRole(MemberRoleJpa role) {
-        return MemberEntity.builder()
-                .id(1L)
-                .memberRoleJpa(role)
-                .build();
-    }
-
-    private MemberEntity createEntityWithState(MemberStateJpa state) {
-        return MemberEntity.builder()
-                .id(1L)
-                .memberStateJpa(state)
-                .build();
-    }
-
-    private Member createCompleteMember(LoveType loveType) {
-        return Member.builder()
-                .id(1L)
-                .provider(Provider.KAKAO)
-                .providerId("provider123")
-                .memberRole(MemberRole.MEMBER)
-                .memberState(MemberState.ALIVE)
-                .isAlarmOn(true)
-                .firebaseToken("firebase_token")
-                .refreshToken("refresh_token")
-                .loveTypeId(LoveTypeId.of(loveType.getId()))
-                .avoidanceRate(0.5f)
-                .anxietyRate(0.3f)
-                .nickname("testuser")
-                .email("test@example.com")
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build();
-    }
-
-    private Member createMemberWithNulls() {
-        return Member.builder()
-                .id(1L)
-                .provider(null)
-                .memberRole(null)
-                .memberState(null)
-                .loveTypeId(null)
-                .build();
-    }
-
-    private Member createMemberWithProvider(Provider provider) {
-        return Member.builder()
                 .id(1L)
                 .provider(provider)
                 .build();
     }
 
-    private Member createMemberWithRole(MemberRole role) {
-        return Member.builder()
+    private MemberEntity createEntityWithRole(MemberRole role) {
+        return MemberEntity.builder()
                 .id(1L)
                 .memberRole(role)
                 .build();
     }
 
-    private Member createMemberWithState(MemberState state) {
-        return Member.builder()
+    private MemberEntity createEntityWithState(MemberState state) {
+        return MemberEntity.builder()
                 .id(1L)
                 .memberState(state)
                 .build();
     }
 
-    private LoveTypeEntity createLoveTypeEntity() {
-        return LoveTypeEntity.builder()
-                .id(1L)
-                .title("Test Love Type")
-                .content("Test Content")
-                .imageUrl("http://example.com/image.jpg")
-                .loveTypeCategoryJpa(LoveTypeCategoryJpa.STABLE_TYPE)
-                .build();
+    private Member createCompleteMember(LoveType loveType) {
+        return Member.from(
+                1L,
+                Provider.KAKAO,
+                "provider123",
+                MemberRole.MEMBER,
+                MemberState.ALIVE,
+                true,
+                "firebase_token",
+                "refresh_token",
+                LoveTypeId.of(loveType.getId()),
+                0.5f,
+                0.3f,
+                "testuser",
+                "test@example.com",
+                null, // Assuming InviteCodeValue is not used in this test
+                LocalDate.now(),
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
     }
 
-    private LoveType createLoveTypeDomain() {
-        return LoveType.builder()
-                .id(1L)
+    private Member createMemberWithNulls() {
+        return Member.createMember(
+                null, null, null, null, null
+        );
+    }
+
+    private Member createMemberWithProvider(Provider provider) {
+        return Member.createMember(
+                provider, "provider123", MemberRole.MEMBER, MemberState.ALIVE, ""
+        );
+    }
+
+    private Member createMemberWithRole(MemberRole role) {
+        return Member.createMember(
+                Provider.KAKAO, "provider123", role, MemberState.ALIVE, ""
+        );
+    }
+
+    private Member createMemberWithState(MemberState state) {
+        return Member.createMember(
+                Provider.KAKAO, "provider123", MemberRole.MEMBER, state, ""
+        );
+    }
+
+    private LoveTypeEntity createLoveTypeEntity() {
+        return LoveTypeEntity.builder()
+                .id(100L)
                 .title("Test Love Type")
                 .content("Test Content")
                 .imageUrl("http://example.com/image.jpg")
                 .loveTypeCategory(LoveTypeCategory.STABLE_TYPE)
                 .build();
+    }
+
+    private LoveType createLoveTypeDomain() {
+        return LoveType.from(
+                1L,
+                "Test Love Type",
+                "Test Summary",
+                "Test Content",
+                "http://example.com/image.jpg",
+                LoveTypeCategory.STABLE_TYPE,
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
     }
 }

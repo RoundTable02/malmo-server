@@ -2,7 +2,7 @@ package makeus.cmc.malmo.application.port.out;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import makeus.cmc.malmo.domain.model.value.MemberId;
+import makeus.cmc.malmo.domain.value.id.MemberId;
 
 public interface SendSseEventPort {
     void sendToMember(MemberId memberId, NotificationEvent event);

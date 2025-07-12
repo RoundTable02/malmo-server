@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.MemberRepository;
 import makeus.cmc.malmo.application.port.out.ValidateInviteCodePort;
 import makeus.cmc.malmo.application.port.out.ValidateMemberPort;
-import makeus.cmc.malmo.domain.model.value.InviteCodeValue;
-import makeus.cmc.malmo.domain.model.value.MemberId;
+import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
+import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Component;
 
 @Component

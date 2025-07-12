@@ -3,7 +3,7 @@ package makeus.cmc.malmo.domain.service;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.in.exception.NotCoupleMemberException;
 import makeus.cmc.malmo.application.port.out.ValidateMemberPort;
-import makeus.cmc.malmo.domain.model.value.MemberId;
+import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Component;
 
 @Component

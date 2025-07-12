@@ -1,9 +1,7 @@
 package makeus.cmc.malmo.adaptor.out.persistence.mapper;
 
-import makeus.cmc.malmo.adaptor.out.persistence.entity.love_type.LoveTypeCategoryJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.love_type.LoveTypeEntity;
 import makeus.cmc.malmo.domain.model.love_type.LoveType;
-import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -14,17 +12,17 @@ public class LoveTypeMapper {
             return null;
         }
 
-        return LoveType.builder()
-                .id(entity.getId())
-                .title(entity.getTitle())
-                .summary(entity.getSummary())
-                .content(entity.getContent())
-                .imageUrl(entity.getImageUrl())
-                .loveTypeCategory(toLoveTypeCategory(entity.getLoveTypeCategoryJpa()))
-                .createdAt(entity.getCreatedAt())
-                .modifiedAt(entity.getModifiedAt())
-                .deletedAt(entity.getDeletedAt())
-                .build();
+        return LoveType.from(
+                entity.getId(),
+                entity.getTitle(),
+                entity.getSummary(),
+                entity.getContent(),
+                entity.getImageUrl(),
+                entity.getLoveTypeCategory(),
+                entity.getCreatedAt(),
+                entity.getModifiedAt(),
+                entity.getDeletedAt()
+        );
     }
 
     public LoveTypeEntity toEntity(LoveType domain) {
@@ -38,18 +36,10 @@ public class LoveTypeMapper {
                 .summary(domain.getSummary())
                 .content(domain.getContent())
                 .imageUrl(domain.getImageUrl())
-                .loveTypeCategoryJpa(toLoveTypeCategoryJpa(domain.getLoveTypeCategory()))
+                .loveTypeCategory(domain.getLoveTypeCategory())
                 .createdAt(domain.getCreatedAt())
                 .modifiedAt(domain.getModifiedAt())
                 .deletedAt(domain.getDeletedAt())
                 .build();
-    }
-
-    private LoveTypeCategory toLoveTypeCategory(LoveTypeCategoryJpa loveTypeCategoryJpa) {
-        return loveTypeCategoryJpa == null ? null : LoveTypeCategory.valueOf(loveTypeCategoryJpa.name());
-    }
-
-    private LoveTypeCategoryJpa toLoveTypeCategoryJpa(LoveTypeCategory loveTypeCategory) {
-        return loveTypeCategory == null ? null : LoveTypeCategoryJpa.valueOf(loveTypeCategory.name());
     }
 }

@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface ChatRoomRepository extends JpaRepository<ChatRoomEntity, Long> {
 
-    @Query("select c from ChatRoomEntity c where c.memberEntityId.value = ?1 AND c.chatRoomStateJpa = 'ALIVE'")
+    @Query("select c from ChatRoomEntity c where c.memberEntityId.value = ?1 AND c.chatRoomState = 'ALIVE'")
     Optional<ChatRoomEntity> findChatRoomEntityByMemberEntityId_Value(Long memberId);
 }

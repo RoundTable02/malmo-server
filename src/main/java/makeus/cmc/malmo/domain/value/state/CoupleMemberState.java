@@ -1,4 +1,4 @@
-package makeus.cmc.malmo.domain.model.couple;
+package makeus.cmc.malmo.domain.value.state;
 
 public enum CoupleMemberState {
     ALIVE, NOT_ALLOCATED, DELETED

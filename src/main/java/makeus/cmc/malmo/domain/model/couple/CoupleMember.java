@@ -1,18 +1,37 @@
 package makeus.cmc.malmo.domain.model.couple;
 
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.experimental.SuperBuilder;
-import makeus.cmc.malmo.domain.model.BaseTimeEntity;
-import makeus.cmc.malmo.domain.model.value.CoupleId;
-import makeus.cmc.malmo.domain.model.value.MemberId;
+import makeus.cmc.malmo.domain.value.id.CoupleId;
+import makeus.cmc.malmo.domain.value.id.MemberId;
+import makeus.cmc.malmo.domain.value.state.CoupleMemberState;
+
+import java.time.LocalDateTime;
 
 @Getter
-@SuperBuilder
-@AllArgsConstructor
-public class CoupleMember extends BaseTimeEntity {
+@Builder(access = AccessLevel.PACKAGE)
+public class CoupleMember {
     private Long id;
     private MemberId memberId;
     private CoupleId coupleId;
     private CoupleMemberState coupleMemberState;
+
+    // BaseTimeEntity fields
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
+    private LocalDateTime deletedAt;
+
+    public static CoupleMember from(Long id, MemberId memberId, CoupleId coupleId, CoupleMemberState coupleMemberState,
+                                   LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
+        return CoupleMember.builder()
+                .id(id)
+                .memberId(memberId)
+                .coupleId(coupleId)
+                .coupleMemberState(coupleMemberState)
+                .createdAt(createdAt)
+                .modifiedAt(modifiedAt)
+                .deletedAt(deletedAt)
+                .build();
+    }
 }

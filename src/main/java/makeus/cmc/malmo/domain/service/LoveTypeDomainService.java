@@ -6,9 +6,9 @@ import makeus.cmc.malmo.application.port.out.LoadLoveTypeQuestionsPort;
 import makeus.cmc.malmo.domain.exception.LoveTypeNotFoundException;
 import makeus.cmc.malmo.domain.exception.LoveTypeQuestionNotFoundException;
 import makeus.cmc.malmo.domain.model.love_type.LoveType;
-import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
+import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.model.love_type.LoveTypeQuestion;
-import makeus.cmc.malmo.domain.model.value.LoveTypeId;
+import makeus.cmc.malmo.domain.value.id.LoveTypeId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

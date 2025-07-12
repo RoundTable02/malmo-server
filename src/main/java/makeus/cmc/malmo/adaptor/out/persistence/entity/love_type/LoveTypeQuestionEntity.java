@@ -5,7 +5,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import makeus.cmc.malmo.domain.model.BaseTimeEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntity;
+import makeus.cmc.malmo.domain.value.type.LoveTypeQuestionType;
 
 @Getter
 @SuperBuilder
@@ -25,7 +26,7 @@ public class LoveTypeQuestionEntity extends BaseTimeEntity {
     private String content;
 
     @Enumerated(EnumType.STRING)
-    private LoveTypeQuestionTypeJpa loveTypeQuestionTypeJpa;
+    private LoveTypeQuestionType loveTypeQuestionType;
 
     private int weight;
 }

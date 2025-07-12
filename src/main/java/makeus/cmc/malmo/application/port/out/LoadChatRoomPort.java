@@ -1,7 +1,7 @@
 package makeus.cmc.malmo.application.port.out;
 
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
-import makeus.cmc.malmo.domain.model.value.MemberId;
+import makeus.cmc.malmo.domain.value.id.MemberId;
 
 import java.util.Optional;
 

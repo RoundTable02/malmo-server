@@ -8,10 +8,10 @@ import makeus.cmc.malmo.domain.exception.LoveTypeNotFoundException;
 import makeus.cmc.malmo.domain.exception.LoveTypeQuestionNotFoundException;
 import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
 import makeus.cmc.malmo.domain.model.love_type.LoveType;
-import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
+import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.model.member.Member;
-import makeus.cmc.malmo.domain.model.value.LoveTypeId;
-import makeus.cmc.malmo.domain.model.value.MemberId;
+import makeus.cmc.malmo.domain.value.id.LoveTypeId;
+import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.service.LoveTypeDomainService;
 import makeus.cmc.malmo.domain.service.MemberDomainService;
 import org.junit.jupiter.api.DisplayName;
@@ -223,14 +223,17 @@ class LoveTypeServiceTest {
     }
 
     private LoveType createLoveType() {
-        return LoveType.builder()
-                .id(1L)
-                .title("안정형")
-                .summary("안정적인 애착 유형")
-                .content("안정적인 애착 스타일입니다.")
-                .imageUrl("http://example.com/secure.jpg")
-                .loveTypeCategory(LoveTypeCategory.STABLE_TYPE)
-                .build();
+        return LoveType.from(
+                1L,
+                "안정형",
+                "안정적인 애착 유형",
+                "안정적인 애착 스타일입니다.",
+                "http://example.com/secure.jpg",
+                LoveTypeCategory.STABLE_TYPE,
+                null,
+                null,
+                null
+        );
     }
 
     private List<UpdateMemberLoveTypeUseCase.LoveTypeTestResult> createLoveTypeTestResults() {

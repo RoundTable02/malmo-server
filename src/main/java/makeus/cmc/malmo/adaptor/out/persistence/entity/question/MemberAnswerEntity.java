@@ -5,14 +5,15 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntityJpa;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleMemberEntity;
+import makeus.cmc.malmo.domain.value.state.MemberAnswerState;
 
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class MemberAnswerEntity extends BaseTimeEntityJpa {
+public class MemberAnswerEntity extends BaseTimeEntity {
 
     @Column(name = "memberAnswerId")
     @Id
@@ -30,6 +31,6 @@ public class MemberAnswerEntity extends BaseTimeEntityJpa {
     private String answer;
 
     @Enumerated(EnumType.STRING)
-    private MemberAnswerStateJpa memberAnswerStateJpa;
+    private MemberAnswerState memberAnswerState;
 
 }

@@ -1,4 +1,4 @@
-package makeus.cmc.malmo.domain.model.chat;
+package makeus.cmc.malmo.domain.value.type;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

@@ -1,10 +1,9 @@
 package makeus.cmc.malmo.mapper;
 
-import makeus.cmc.malmo.adaptor.out.persistence.entity.love_type.LoveTypeCategoryJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.love_type.LoveTypeEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.LoveTypeMapper;
 import makeus.cmc.malmo.domain.model.love_type.LoveType;
-import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
+import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -114,7 +113,7 @@ class LoveTypeMapperTest {
             assertThat(result.getTitle()).isEqualTo("안정형");
             assertThat(result.getContent()).isEqualTo("안정적인 애착 스타일입니다.");
             assertThat(result.getImageUrl()).isEqualTo("http://example.com/secure.jpg");
-            assertThat(result.getLoveTypeCategoryJpa()).isEqualTo(LoveTypeCategoryJpa.STABLE_TYPE);
+            assertThat(result.getLoveTypeCategory()).isEqualTo(LoveTypeCategory.STABLE_TYPE);
         }
 
         @Test
@@ -145,7 +144,7 @@ class LoveTypeMapperTest {
             assertThat(result.getTitle()).isNull();
             assertThat(result.getContent()).isNull();
             assertThat(result.getImageUrl()).isNull();
-            assertThat(result.getLoveTypeCategoryJpa()).isNull();
+            assertThat(result.getLoveTypeCategory()).isNull();
         }
 
         @Test
@@ -172,7 +171,7 @@ class LoveTypeMapperTest {
                 .title("안정형")
                 .content("안정적인 애착 스타일입니다.")
                 .imageUrl("http://example.com/secure.jpg")
-                .loveTypeCategoryJpa(LoveTypeCategoryJpa.STABLE_TYPE)
+                .loveTypeCategory(LoveTypeCategory.STABLE_TYPE)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
                 .deletedAt(null)
@@ -185,7 +184,7 @@ class LoveTypeMapperTest {
                 .title(null)
                 .content(null)
                 .imageUrl(null)
-                .loveTypeCategoryJpa(null)
+                .loveTypeCategory(null)
                 .build();
     }
 
@@ -195,41 +194,50 @@ class LoveTypeMapperTest {
                 .title("불안정형")
                 .content("불안정한 애착 스타일입니다.")
                 .imageUrl("http://example.com/anxious.jpg")
-                .loveTypeCategoryJpa(LoveTypeCategoryJpa.STABLE_TYPE)
+                .loveTypeCategory(LoveTypeCategory.STABLE_TYPE)
                 .deletedAt(deletedAt)
                 .build();
     }
 
     private LoveType createCompleteLoveType() {
-        return LoveType.builder()
-                .id(1L)
-                .title("안정형")
-                .content("안정적인 애착 스타일입니다.")
-                .imageUrl("http://example.com/secure.jpg")
-                .loveTypeCategory(LoveTypeCategory.STABLE_TYPE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .deletedAt(null)
-                .build();
+        return LoveType.from(
+                1L,
+                "안정형",
+                "안정적인 애착 유형",
+                "안정적인 애착 스타일입니다.",
+                "http://example.com/secure.jpg",
+                LoveTypeCategory.STABLE_TYPE,
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                null
+        );
     }
 
     private LoveType createLoveTypeWithNullFields() {
-        return LoveType.builder()
-                .id(1L)
-                .title(null)
-                .content(null)
-                .imageUrl(null)
-                .loveTypeCategory(null)
-                .build();
+        return LoveType.from(
+                1L,
+                null,
+                null,
+                null,
+                null,
+                null,
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                null
+        );
     }
 
     private LoveType createLoveTypeWithNullId() {
-        return LoveType.builder()
-                .id(null)
-                .title("회피형")
-                .content("회피적인 애착 스타일입니다.")
-                .imageUrl("http://example.com/avoidant.jpg")
-                .loveTypeCategory(LoveTypeCategory.STABLE_TYPE)
-                .build();
+        return LoveType.from(
+                null,
+                "회피형",
+                "회피적인 애착 유형",
+                "회피적인 애착 스타일입니다.",
+                "http://example.com/avoidant.jpg",
+                LoveTypeCategory.STABLE_TYPE,
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                null
+        );
     }
 }

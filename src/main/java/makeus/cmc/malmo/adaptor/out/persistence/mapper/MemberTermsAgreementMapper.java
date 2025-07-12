@@ -4,23 +4,23 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.terms.MemberTermsAgreemen
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.TermsEntityId;
 import makeus.cmc.malmo.domain.model.terms.MemberTermsAgreement;
-import makeus.cmc.malmo.domain.model.value.MemberId;
-import makeus.cmc.malmo.domain.model.value.TermsId;
+import makeus.cmc.malmo.domain.value.id.MemberId;
+import makeus.cmc.malmo.domain.value.id.TermsId;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MemberTermsAgreementMapper {
 
     public MemberTermsAgreement toDomain(MemberTermsAgreementEntity entity) {
-        return MemberTermsAgreement.builder()
-                .id(entity.getId())
-                .memberId(MemberId.of(entity.getMemberEntityId().getValue()))
-                .termsId(TermsId.of(entity.getTermsEntityId().getValue()))
-                .agreed(entity.isAgreed())
-                .createdAt(entity.getCreatedAt())
-                .modifiedAt(entity.getModifiedAt())
-                .deletedAt(entity.getDeletedAt())
-                .build();
+        return MemberTermsAgreement.from(
+                entity.getId(),
+                MemberId.of(entity.getMemberEntityId().getValue()),
+                TermsId.of(entity.getTermsEntityId().getValue()),
+                entity.isAgreed(),
+                entity.getCreatedAt(),
+                entity.getModifiedAt(),
+                entity.getDeletedAt()
+        );
     }
 
     public MemberTermsAgreementEntity toEntity(MemberTermsAgreement domain) {

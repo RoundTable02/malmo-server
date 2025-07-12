@@ -5,13 +5,14 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntityJpa;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntity;
+import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class LoveTypeEntity extends BaseTimeEntityJpa {
+public class LoveTypeEntity extends BaseTimeEntity {
 
     @Column(name = "loveTypeId")
     @Id
@@ -27,6 +28,6 @@ public class LoveTypeEntity extends BaseTimeEntityJpa {
     private String imageUrl;
 
     @Enumerated(EnumType.STRING)
-    private LoveTypeCategoryJpa loveTypeCategoryJpa;
+    private LoveTypeCategory loveTypeCategory;
 
 }

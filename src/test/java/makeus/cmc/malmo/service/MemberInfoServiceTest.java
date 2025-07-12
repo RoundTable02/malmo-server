@@ -6,7 +6,7 @@ import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.LoadPartnerPort;
 import makeus.cmc.malmo.application.service.MemberInfoService;
 import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
-import makeus.cmc.malmo.domain.model.member.MemberState;
+import makeus.cmc.malmo.domain.value.state.MemberState;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

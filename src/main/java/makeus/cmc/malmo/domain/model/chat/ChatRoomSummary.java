@@ -1,15 +1,20 @@
 package makeus.cmc.malmo.domain.model.chat;
 
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.experimental.SuperBuilder;
-import makeus.cmc.malmo.domain.model.BaseTimeEntity;
+
+import java.time.LocalDateTime;
 
 @Getter
-@SuperBuilder
-@AllArgsConstructor
-public class ChatRoomSummary extends BaseTimeEntity {
+@Builder(access = AccessLevel.PRIVATE)
+public class ChatRoomSummary {
     private Long id;
     private ChatRoom chatRoom;
     private String content;
+
+    // BaseTimeEntity fields
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
+    private LocalDateTime deletedAt;
 }
