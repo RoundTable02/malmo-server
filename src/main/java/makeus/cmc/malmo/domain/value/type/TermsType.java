@@ -1,6 +1,6 @@
-package makeus.cmc.malmo.adaptor.out.persistence.entity.terms;
+package makeus.cmc.malmo.domain.value.type;
 
-public enum TermsTypeJpa {
+public enum TermsType {
     AGE_VERIFICATION, // 만 14세 이상 확인
     SERVICE_USAGE,    // 서비스 이용약관
     PRIVACY_POLICY,   // 개인정보 처리방침

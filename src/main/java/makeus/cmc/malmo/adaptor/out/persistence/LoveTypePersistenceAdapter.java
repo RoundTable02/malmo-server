@@ -1,12 +1,11 @@
 package makeus.cmc.malmo.adaptor.out.persistence;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.love_type.LoveTypeCategoryJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.LoveTypeMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.LoveTypeRepository;
 import makeus.cmc.malmo.application.port.out.LoadLoveTypePort;
 import makeus.cmc.malmo.domain.model.love_type.LoveType;
-import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
+import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -26,8 +25,7 @@ public class LoveTypePersistenceAdapter implements LoadLoveTypePort {
 
     @Override
     public Optional<LoveType> findLoveTypeByLoveTypeCategory(LoveTypeCategory category) {
-        LoveTypeCategoryJpa loveTypeCategoryJpa = LoveTypeCategoryJpa.valueOf(category.name());
-        return loveTypeRepository.findByLoveTypeCategoryJpa(loveTypeCategoryJpa)
+        return loveTypeRepository.findByLoveTypeCategory(category)
                 .map(loveTypeMapper::toDomain);
     }
 }

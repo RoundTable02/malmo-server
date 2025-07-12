@@ -1,7 +1,7 @@
 package makeus.cmc.malmo.domain_service;
 
 import makeus.cmc.malmo.domain.model.couple.Couple;
-import makeus.cmc.malmo.domain.model.value.MemberId;
+import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.service.CoupleDomainService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

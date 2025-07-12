@@ -3,10 +3,10 @@ package makeus.cmc.malmo.adaptor.out.persistence.repository.custom;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleMemberStateJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.LoadPartnerPort;
+import makeus.cmc.malmo.domain.value.state.CoupleMemberState;
 
 import java.util.Optional;
 
@@ -16,7 +16,7 @@ import static makeus.cmc.malmo.adaptor.out.persistence.entity.love_type.QLoveTyp
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.member.QMemberEntity.memberEntity;
 
 @RequiredArgsConstructor
-public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
+public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
@@ -24,7 +24,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
     public Optional<LoadMemberPort.MemberResponseRepositoryDto> findMemberDetailsById(Long memberId) {
         LoadMemberPort.MemberResponseRepositoryDto dto = queryFactory
                 .select(Projections.constructor(LoadMemberPort.MemberResponseRepositoryDto.class,
-                        memberEntity.memberStateJpa.stringValue(),
+                        memberEntity.memberState.stringValue(),
                         memberEntity.startLoveDate,
                         loveTypeEntity.id,
                         loveTypeEntity.title,
@@ -47,7 +47,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
     public Optional<LoadPartnerPort.PartnerMemberRepositoryDto> findPartnerMember(Long memberId) {
         LoadPartnerPort.PartnerMemberRepositoryDto dto = queryFactory
                 .select(Projections.constructor(LoadPartnerPort.PartnerMemberRepositoryDto.class,
-                        memberEntity.memberStateJpa.stringValue(),
+                        memberEntity.memberState.stringValue(),
                         loveTypeEntity.id,
                         loveTypeEntity.title,
                         memberEntity.avoidanceRate,
@@ -72,7 +72,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
                 .selectOne()
                 .from(coupleMemberEntity)
                 .where(coupleMemberEntity.memberEntityId.value.eq(memberId)
-                        .and(coupleMemberEntity.coupleMemberStateJpa.eq(CoupleMemberStateJpa.ALIVE)))
+                        .and(coupleMemberEntity.coupleMemberState.eq(CoupleMemberState.ALIVE)))
                 .fetchFirst() != null;
     }
 
@@ -91,7 +91,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
                 .from(coupleMemberEntity)
                 .join(memberEntity).on(memberEntity.id.eq(coupleMemberEntity.memberEntityId.value))
                 .where(memberEntity.inviteCodeEntityValue.value.eq(inviteCode)
-                        .and(coupleMemberEntity.coupleMemberStateJpa.eq(CoupleMemberStateJpa.ALIVE)))
+                        .and(coupleMemberEntity.coupleMemberState.eq(CoupleMemberState.ALIVE)))
                 .fetchFirst() != null;
     }
 

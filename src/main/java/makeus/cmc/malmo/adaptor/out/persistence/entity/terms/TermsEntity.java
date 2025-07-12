@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntityJpa;
+import makeus.cmc.malmo.domain.value.type.TermsType;
 
 @Getter
 @SuperBuilder
@@ -27,6 +28,6 @@ public class TermsEntity extends BaseTimeEntityJpa {
     private boolean isRequired;
 
     @Enumerated(EnumType.STRING)
-    private TermsTypeJpa termsType;
+    private TermsType termsType;
 
 }

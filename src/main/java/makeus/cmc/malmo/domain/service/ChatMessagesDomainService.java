@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.application.port.out.LoadCurrentMessagesPort;
 import makeus.cmc.malmo.application.port.out.SaveChatMessagePort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
-import makeus.cmc.malmo.domain.model.value.ChatRoomId;
+import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

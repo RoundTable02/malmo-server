@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntityJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
+import makeus.cmc.malmo.domain.value.state.ChatRoomState;
 
 @Getter
 @SuperBuilder
@@ -23,5 +24,5 @@ public class ChatRoomEntity extends BaseTimeEntityJpa {
     private MemberEntityId memberEntityId;
 
     @Enumerated(EnumType.STRING)
-    private ChatRoomStateJpa chatRoomStateJpa;
+    private ChatRoomState chatRoomState;
 }

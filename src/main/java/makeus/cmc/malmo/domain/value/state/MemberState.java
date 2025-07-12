@@ -1,4 +1,4 @@
-package makeus.cmc.malmo.domain.model.member;
+package makeus.cmc.malmo.domain.value.state;
 
 public enum MemberState {
     BEFORE_ONBOARDING, ALIVE, DELETED

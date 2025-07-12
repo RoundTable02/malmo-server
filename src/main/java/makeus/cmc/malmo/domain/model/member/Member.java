@@ -4,8 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
-import makeus.cmc.malmo.domain.model.value.InviteCodeValue;
-import makeus.cmc.malmo.domain.model.value.LoveTypeId;
+import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
+import makeus.cmc.malmo.domain.value.id.LoveTypeId;
+import makeus.cmc.malmo.domain.value.state.MemberState;
+import makeus.cmc.malmo.domain.value.type.MemberRole;
+import makeus.cmc.malmo.domain.value.type.Provider;
 
 import java.time.LocalDate;
 

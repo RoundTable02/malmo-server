@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
-import makeus.cmc.malmo.domain.model.value.MemberId;
+import makeus.cmc.malmo.domain.value.id.MemberId;
+import makeus.cmc.malmo.domain.value.state.CoupleMemberState;
+import makeus.cmc.malmo.domain.value.state.CoupleState;
 
 import java.time.LocalDate;
 import java.util.List;

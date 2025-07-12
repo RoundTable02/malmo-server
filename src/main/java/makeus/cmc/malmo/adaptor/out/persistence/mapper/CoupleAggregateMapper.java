@@ -2,16 +2,12 @@ package makeus.cmc.malmo.adaptor.out.persistence.mapper;
 
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleMemberEntity;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleMemberStateJpa;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleStateJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
 import makeus.cmc.malmo.domain.model.couple.Couple;
 import makeus.cmc.malmo.domain.model.couple.CoupleMember;
-import makeus.cmc.malmo.domain.model.couple.CoupleMemberState;
-import makeus.cmc.malmo.domain.model.couple.CoupleState;
-import makeus.cmc.malmo.domain.model.value.CoupleId;
-import makeus.cmc.malmo.domain.model.value.MemberId;
+import makeus.cmc.malmo.domain.value.id.CoupleId;
+import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -28,7 +24,7 @@ public class CoupleAggregateMapper {
         return Couple.builder()
                 .id(entity.getId())
                 .startLoveDate(entity.getStartLoveDate())
-                .coupleState(toCoupleState(entity.getCoupleStateJpa()))
+                .coupleState(entity.getCoupleState())
                 .coupleMembers(members)
                 .createdAt(entity.getCreatedAt())
                 .modifiedAt(entity.getModifiedAt())
@@ -44,7 +40,7 @@ public class CoupleAggregateMapper {
         return CoupleEntity.builder()
                 .id(domain.getId())
                 .startLoveDate(domain.getStartLoveDate())
-                .coupleStateJpa(toCoupleStateJpa(domain.getCoupleState()))
+                .coupleState(domain.getCoupleState())
                 .coupleMembers(coupleMembers)
                 .createdAt(domain.getCreatedAt())
                 .modifiedAt(domain.getModifiedAt())
@@ -58,7 +54,7 @@ public class CoupleAggregateMapper {
                 .id(entity.getId())
                 .memberId(MemberId.of(entity.getMemberEntityId().getValue()))
                 .coupleId(coupleId)
-                .coupleMemberState(toCoupleMemberState(entity.getCoupleMemberStateJpa()))
+                .coupleMemberState(entity.getCoupleMemberState())
                 .createdAt(entity.getCreatedAt())
                 .modifiedAt(entity.getModifiedAt())
                 .deletedAt(entity.getDeletedAt())
@@ -70,28 +66,11 @@ public class CoupleAggregateMapper {
                 .id(domain.getId())
                 .memberEntityId(MemberEntityId.of(domain.getMemberId().getValue()))
                 .coupleEntityId(CoupleEntityId.of(coupleId))
-                .coupleMemberStateJpa(toCoupleMemberStateJpa(domain.getCoupleMemberState()))
+                .coupleMemberState(domain.getCoupleMemberState())
                 .createdAt(domain.getCreatedAt())
                 .modifiedAt(domain.getModifiedAt())
                 .deletedAt(domain.getDeletedAt())
                 .build();
-    }
-
-    // enum
-    private CoupleState toCoupleState(CoupleStateJpa entity) {
-        return entity != null ? CoupleState.valueOf(entity.name()) : null;
-    }
-
-    private CoupleStateJpa toCoupleStateJpa(CoupleState domain) {
-        return domain != null ? CoupleStateJpa.valueOf(domain.name()) : null;
-    }
-
-    private CoupleMemberState toCoupleMemberState(CoupleMemberStateJpa entity) {
-        return entity != null ? CoupleMemberState.valueOf(entity.name()) : null;
-    }
-
-    private CoupleMemberStateJpa toCoupleMemberStateJpa(CoupleMemberState domain) {
-        return domain != null ? CoupleMemberStateJpa.valueOf(domain.name()) : null;
     }
 }
 

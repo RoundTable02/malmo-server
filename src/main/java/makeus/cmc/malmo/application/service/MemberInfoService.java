@@ -7,7 +7,7 @@ import makeus.cmc.malmo.application.port.in.GetPartnerUseCase;
 import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.LoadPartnerPort;
 import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
-import makeus.cmc.malmo.domain.model.member.MemberState;
+import makeus.cmc.malmo.domain.value.state.MemberState;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

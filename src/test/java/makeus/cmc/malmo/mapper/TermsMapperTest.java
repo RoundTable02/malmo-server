@@ -4,7 +4,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.terms.TermsEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.terms.TermsTypeJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.TermsMapper;
 import makeus.cmc.malmo.domain.model.terms.Terms;
-import makeus.cmc.malmo.domain.model.terms.TermsType;
+import makeus.cmc.malmo.domain.value.type.TermsType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

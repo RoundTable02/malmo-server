@@ -8,6 +8,7 @@ import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntityJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
+import makeus.cmc.malmo.domain.value.state.CoupleMemberState;
 
 @Getter
 @SuperBuilder
@@ -27,5 +28,5 @@ public class CoupleMemberEntity extends BaseTimeEntityJpa {
     private CoupleEntityId coupleEntityId;
 
     @Enumerated(EnumType.STRING)
-    private CoupleMemberStateJpa coupleMemberStateJpa;
+    private CoupleMemberState coupleMemberState;
 }

@@ -4,8 +4,8 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.terms.MemberTermsAgreemen
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.TermsEntityId;
 import makeus.cmc.malmo.domain.model.terms.MemberTermsAgreement;
-import makeus.cmc.malmo.domain.model.value.MemberId;
-import makeus.cmc.malmo.domain.model.value.TermsId;
+import makeus.cmc.malmo.domain.value.id.MemberId;
+import makeus.cmc.malmo.domain.value.id.TermsId;
 import org.springframework.stereotype.Component;
 
 @Component

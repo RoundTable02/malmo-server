@@ -9,8 +9,8 @@ import makeus.cmc.malmo.domain.exception.InviteCodeGenerateFailedException;
 import makeus.cmc.malmo.domain.exception.InviteCodeNotFoundException;
 import makeus.cmc.malmo.domain.exception.UsedInviteCodeException;
 import makeus.cmc.malmo.domain.model.member.Member;
-import makeus.cmc.malmo.domain.model.value.InviteCodeValue;
-import makeus.cmc.malmo.domain.model.value.MemberId;
+import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
+import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

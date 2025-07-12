@@ -2,7 +2,7 @@ package makeus.cmc.malmo.application.port.in;
 
 import lombok.Builder;
 import lombok.Data;
-import makeus.cmc.malmo.domain.model.member.MemberState;
+import makeus.cmc.malmo.domain.value.state.MemberState;
 
 public interface GetPartnerUseCase {
 

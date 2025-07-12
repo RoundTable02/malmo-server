@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
 import makeus.cmc.malmo.domain.model.member.Member;
+import makeus.cmc.malmo.domain.value.state.SavedChatMessageState;
 
 @Getter
 @SuperBuilder

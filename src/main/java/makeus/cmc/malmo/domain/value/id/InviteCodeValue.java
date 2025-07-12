@@ -1,4 +1,4 @@
-package makeus.cmc.malmo.domain.model.value;
+package makeus.cmc.malmo.domain.value.id;
 
 import lombok.Value;
 

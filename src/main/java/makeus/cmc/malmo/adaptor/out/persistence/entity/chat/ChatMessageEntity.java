@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntityJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.ChatRoomEntityId;
+import makeus.cmc.malmo.domain.value.type.SenderType;
 
 @Getter
 @SuperBuilder
@@ -31,5 +32,5 @@ public class ChatMessageEntity extends BaseTimeEntityJpa {
     private String content;
 
     @Enumerated(EnumType.STRING)
-    private SenderTypeJpa senderTypeJpa;
+    private SenderType senderType;
 }

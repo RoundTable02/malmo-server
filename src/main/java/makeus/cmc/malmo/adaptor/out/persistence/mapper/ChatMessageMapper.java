@@ -1,58 +1,48 @@
 package makeus.cmc.malmo.adaptor.out.persistence.mapper;
 
 import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatMessageEntity;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.SenderTypeJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.ChatRoomEntityId;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
-import makeus.cmc.malmo.domain.model.chat.SenderType;
-import makeus.cmc.malmo.domain.model.value.ChatRoomId;
+import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ChatMessageMapper {
 
-    public ChatMessage toDomain(ChatMessageEntity chatMessageEntity) {
-        if (chatMessageEntity == null) {
+    public ChatMessage toDomain(ChatMessageEntity entity) {
+        if (entity == null) {
             return null;
         }
 
         return ChatMessage.builder()
-                .id(chatMessageEntity.getId())
-                .chatRoomId(chatMessageEntity.getChatRoomEntityId() != null ?
-                        ChatRoomId.of(chatMessageEntity.getChatRoomEntityId().getValue()) : null)
-                .isImage(chatMessageEntity.isImage())
-                .imageUrl(chatMessageEntity.getImageUrl())
-                .extractedText(chatMessageEntity.getExtractedText())
-                .content(chatMessageEntity.getContent())
-                .senderType(toSenderType(chatMessageEntity.getSenderTypeJpa()))
-                .createdAt(chatMessageEntity.getCreatedAt())
-                .modifiedAt(chatMessageEntity.getModifiedAt())
+                .id(entity.getId())
+                .chatRoomId(entity.getChatRoomEntityId() != null ?
+                        ChatRoomId.of(entity.getChatRoomEntityId().getValue()) : null)
+                .isImage(entity.isImage())
+                .imageUrl(entity.getImageUrl())
+                .extractedText(entity.getExtractedText())
+                .content(entity.getContent())
+                .senderType(entity.getSenderType())
+                .createdAt(entity.getCreatedAt())
+                .modifiedAt(entity.getModifiedAt())
                 .build();
     }
-    public ChatMessageEntity toEntity(ChatMessage chatMessage) {
-        if (chatMessage == null) {
+    public ChatMessageEntity toEntity(ChatMessage domain) {
+        if (domain == null) {
             return null;
         }
 
         return ChatMessageEntity.builder()
-                .id(chatMessage.getId())
-                .chatRoomEntityId(chatMessage.getChatRoomId() != null ?
-                        ChatRoomEntityId.of(chatMessage.getChatRoomId().getValue()) : null)
-                .isImage(chatMessage.isImage())
-                .imageUrl(chatMessage.getImageUrl())
-                .extractedText(chatMessage.getExtractedText())
-                .content(chatMessage.getContent())
-                .senderTypeJpa(toSenderTypeJpa(chatMessage.getSenderType()))
-                .createdAt(chatMessage.getCreatedAt())
-                .modifiedAt(chatMessage.getModifiedAt())
+                .id(domain.getId())
+                .chatRoomEntityId(domain.getChatRoomId() != null ?
+                        ChatRoomEntityId.of(domain.getChatRoomId().getValue()) : null)
+                .isImage(domain.isImage())
+                .imageUrl(domain.getImageUrl())
+                .extractedText(domain.getExtractedText())
+                .content(domain.getContent())
+                .senderType(domain.getSenderType())
+                .createdAt(domain.getCreatedAt())
+                .modifiedAt(domain.getModifiedAt())
                 .build();
-    }
-
-    public SenderType toSenderType(SenderTypeJpa senderType) {
-        return senderType != null ? SenderType.valueOf(senderType.name()) : null;
-    }
-
-    public SenderTypeJpa toSenderTypeJpa(SenderType senderType) {
-        return senderType != null ? SenderTypeJpa.valueOf(senderType.name()) : null;
     }
 }

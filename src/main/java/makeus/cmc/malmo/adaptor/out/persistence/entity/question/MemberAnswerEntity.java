@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntityJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleMemberEntity;
+import makeus.cmc.malmo.domain.value.state.MemberAnswerState;
 
 @Getter
 @SuperBuilder
@@ -30,6 +31,6 @@ public class MemberAnswerEntity extends BaseTimeEntityJpa {
     private String answer;
 
     @Enumerated(EnumType.STRING)
-    private MemberAnswerStateJpa memberAnswerStateJpa;
+    private MemberAnswerState memberAnswerState;
 
 }
