@@ -21,15 +21,15 @@ public class CoupleAggregateMapper {
                 .map(member -> toDomain(member, CoupleId.of(entity.getId())))
                 .toList();
 
-        return Couple.builder()
-                .id(entity.getId())
-                .startLoveDate(entity.getStartLoveDate())
-                .coupleState(entity.getCoupleState())
-                .coupleMembers(members)
-                .createdAt(entity.getCreatedAt())
-                .modifiedAt(entity.getModifiedAt())
-                .deletedAt(entity.getDeletedAt())
-                .build();
+        return Couple.from(
+                entity.getId(),
+                entity.getStartLoveDate(),
+                entity.getCoupleState(),
+                members,
+                entity.getCreatedAt(),
+                entity.getModifiedAt(),
+                entity.getDeletedAt()
+        );
     }
 
     public CoupleEntity toEntity(Couple domain) {
@@ -50,15 +50,15 @@ public class CoupleAggregateMapper {
 
     // CoupleMember
     private CoupleMember toDomain(CoupleMemberEntity entity, CoupleId coupleId) {
-        return CoupleMember.builder()
-                .id(entity.getId())
-                .memberId(MemberId.of(entity.getMemberEntityId().getValue()))
-                .coupleId(coupleId)
-                .coupleMemberState(entity.getCoupleMemberState())
-                .createdAt(entity.getCreatedAt())
-                .modifiedAt(entity.getModifiedAt())
-                .deletedAt(entity.getDeletedAt())
-                .build();
+        return CoupleMember.from(
+                entity.getId(),
+                MemberId.of(entity.getMemberEntityId().getValue()),
+                coupleId,
+                entity.getCoupleMemberState(),
+                entity.getCreatedAt(),
+                entity.getModifiedAt(),
+                entity.getDeletedAt()
+        );
     }
 
     private CoupleMemberEntity toEntity(CoupleMember domain, Long coupleId) {

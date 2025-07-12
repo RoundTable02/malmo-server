@@ -14,30 +14,26 @@ import org.springframework.stereotype.Component;
 public class MemberMapper {
 
     public Member toDomain(MemberEntity entity) {
-        return Member.builder()
-                .id(entity.getId())
-                .provider(entity.getProvider())
-                .providerId(entity.getProviderId())
-                .memberRole(entity.getMemberRole())
-                .memberState(entity.getMemberState())
-                .isAlarmOn(entity.isAlarmOn())
-                .firebaseToken(entity.getFirebaseToken())
-                .refreshToken(entity.getRefreshToken())
-                .loveTypeId(LoveTypeId.of(
-                        entity.getLoveTypeEntityId() != null ? entity.getLoveTypeEntityId().getValue() : null
-                ))
-                .avoidanceRate(entity.getAvoidanceRate())
-                .anxietyRate(entity.getAnxietyRate())
-                .nickname(entity.getNickname())
-                .email(entity.getEmail())
-                .inviteCode(
-                        entity.getInviteCodeEntityValue() != null ? InviteCodeValue.of(entity.getInviteCodeEntityValue().getValue()) : null
-                )
-                .startLoveDate(entity.getStartLoveDate())
-                .createdAt(entity.getCreatedAt())
-                .modifiedAt(entity.getModifiedAt())
-                .deletedAt(entity.getDeletedAt())
-                .build();
+        return Member.from(
+                entity.getId(),
+                entity.getProvider(),
+                entity.getProviderId(),
+                entity.getMemberRole(),
+                entity.getMemberState(),
+                entity.isAlarmOn(),
+                entity.getFirebaseToken(),
+                entity.getRefreshToken(),
+                entity.getLoveTypeEntityId() != null ? LoveTypeId.of(entity.getLoveTypeEntityId().getValue()) : null,
+                entity.getAvoidanceRate(),
+                entity.getAnxietyRate(),
+                entity.getEmail(),
+                entity.getNickname(),
+                entity.getInviteCodeEntityValue() != null ? InviteCodeValue.of(entity.getInviteCodeEntityValue().getValue()) : null,
+                entity.getStartLoveDate(),
+                entity.getCreatedAt(),
+                entity.getModifiedAt(),
+                entity.getDeletedAt()
+        );
     }
 
     public MemberEntity toEntity(Member domain) {

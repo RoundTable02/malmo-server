@@ -8,21 +8,17 @@ import org.springframework.stereotype.Component;
 public class LoveTypeMapper {
 
     public LoveType toDomain(LoveTypeEntity entity) {
-        if (entity == null) {
-            return null;
-        }
-
-        return LoveType.builder()
-                .id(entity.getId())
-                .title(entity.getTitle())
-                .summary(entity.getSummary())
-                .content(entity.getContent())
-                .imageUrl(entity.getImageUrl())
-                .loveTypeCategory(entity.getLoveTypeCategory())
-                .createdAt(entity.getCreatedAt())
-                .modifiedAt(entity.getModifiedAt())
-                .deletedAt(entity.getDeletedAt())
-                .build();
+        return LoveType.from(
+                entity.getId(),
+                entity.getTitle(),
+                entity.getSummary(),
+                entity.getContent(),
+                entity.getImageUrl(),
+                entity.getLoveTypeCategory(),
+                entity.getCreatedAt(),
+                entity.getModifiedAt(),
+                entity.getDeletedAt()
+        );
     }
 
     public LoveTypeEntity toEntity(LoveType domain) {

@@ -1,9 +1,8 @@
 package makeus.cmc.malmo.domain.model.member;
 
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.experimental.SuperBuilder;
-import makeus.cmc.malmo.domain.model.BaseTimeEntity;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
 import makeus.cmc.malmo.domain.value.id.LoveTypeId;
 import makeus.cmc.malmo.domain.value.state.MemberState;
@@ -11,11 +10,11 @@ import makeus.cmc.malmo.domain.value.type.MemberRole;
 import makeus.cmc.malmo.domain.value.type.Provider;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
-@SuperBuilder
-@AllArgsConstructor
-public class Member extends BaseTimeEntity {
+@Builder(access = AccessLevel.PRIVATE)
+public class Member {
     private Long id;
     private Provider provider;
     private String providerId;
@@ -31,7 +30,12 @@ public class Member extends BaseTimeEntity {
     private String email;
     private InviteCodeValue inviteCode;
     private LocalDate startLoveDate;
-    
+
+    // BaseTimeEntity fields
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
+    private LocalDateTime deletedAt;
+
     public static Member createMember(Provider provider, String providerId, MemberRole memberRole, MemberState memberState, String email) {
         return Member.builder()
                 .provider(provider)
@@ -41,6 +45,49 @@ public class Member extends BaseTimeEntity {
                 .email(email)
                 .build();
     }
+
+    public static Member from(
+            Long id,
+            Provider provider,
+            String providerId,
+            MemberRole memberRole,
+            MemberState memberState,
+            boolean isAlarmOn,
+            String firebaseToken,
+            String refreshToken,
+            LoveTypeId loveTypeId,
+            float avoidanceRate,
+            float anxietyRate,
+            String nickname,
+            String email,
+            InviteCodeValue inviteCode,
+            LocalDate startLoveDate,
+            LocalDateTime createdAt,
+            LocalDateTime modifiedAt,
+            LocalDateTime deletedAt
+    ) {
+        return Member.builder()
+                .id(id)
+                .provider(provider)
+                .providerId(providerId)
+                .memberRole(memberRole)
+                .memberState(memberState)
+                .isAlarmOn(isAlarmOn)
+                .firebaseToken(firebaseToken)
+                .refreshToken(refreshToken)
+                .loveTypeId(loveTypeId)
+                .avoidanceRate(avoidanceRate)
+                .anxietyRate(anxietyRate)
+                .nickname(nickname)
+                .email(email)
+                .inviteCode(inviteCode)
+                .startLoveDate(startLoveDate)
+                .createdAt(createdAt)
+                .modifiedAt(modifiedAt)
+                .deletedAt(deletedAt)
+                .build();
+    }
+
 
     public void signUp(String nickname, LocalDate startLoveDate) {
         this.nickname = nickname;

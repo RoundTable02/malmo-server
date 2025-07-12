@@ -1,15 +1,20 @@
 package makeus.cmc.malmo.domain.model.question;
 
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.experimental.SuperBuilder;
-import makeus.cmc.malmo.domain.model.BaseTimeEntity;
+
+import java.time.LocalDateTime;
 
 @Getter
-@SuperBuilder
-@AllArgsConstructor
-public class Question extends BaseTimeEntity {
+@Builder(access = AccessLevel.PRIVATE)
+public class Question {
     private Long id;
     private String title;
     private String content;
+
+    // BaseTimeEntity fields
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
+    private LocalDateTime deletedAt;
 }

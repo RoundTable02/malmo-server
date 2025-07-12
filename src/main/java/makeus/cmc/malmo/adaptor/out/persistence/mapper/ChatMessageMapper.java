@@ -10,23 +10,21 @@ import org.springframework.stereotype.Component;
 public class ChatMessageMapper {
 
     public ChatMessage toDomain(ChatMessageEntity entity) {
-        if (entity == null) {
-            return null;
-        }
-
-        return ChatMessage.builder()
-                .id(entity.getId())
-                .chatRoomId(entity.getChatRoomEntityId() != null ?
-                        ChatRoomId.of(entity.getChatRoomEntityId().getValue()) : null)
-                .isImage(entity.isImage())
-                .imageUrl(entity.getImageUrl())
-                .extractedText(entity.getExtractedText())
-                .content(entity.getContent())
-                .senderType(entity.getSenderType())
-                .createdAt(entity.getCreatedAt())
-                .modifiedAt(entity.getModifiedAt())
-                .build();
+        return ChatMessage.from(
+                entity.getId(),
+                entity.getChatRoomEntityId() != null ?
+                        ChatRoomId.of(entity.getChatRoomEntityId().getValue()) : null,
+                entity.isImage(),
+                entity.getImageUrl(),
+                entity.getExtractedText(),
+                entity.getContent(),
+                entity.getSenderType(),
+                entity.getCreatedAt(),
+                entity.getModifiedAt(),
+                entity.getDeletedAt()
+        );
     }
+
     public ChatMessageEntity toEntity(ChatMessage domain) {
         if (domain == null) {
             return null;

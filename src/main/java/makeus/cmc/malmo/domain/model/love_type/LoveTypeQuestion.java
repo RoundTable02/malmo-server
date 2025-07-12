@@ -1,15 +1,15 @@
 package makeus.cmc.malmo.domain.model.love_type;
 
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.experimental.SuperBuilder;
-import makeus.cmc.malmo.domain.model.BaseTimeEntity;
 import makeus.cmc.malmo.domain.value.type.LoveTypeQuestionType;
 
+import java.time.LocalDateTime;
+
 @Getter
-@SuperBuilder
-@AllArgsConstructor(access = lombok.AccessLevel.PRIVATE)
-public class LoveTypeQuestion extends BaseTimeEntity {
+@Builder(access = AccessLevel.PRIVATE)
+public class LoveTypeQuestion {
 
     private Long id;
     private int questionNumber;
@@ -17,6 +17,11 @@ public class LoveTypeQuestion extends BaseTimeEntity {
     private String content;
     private LoveTypeQuestionType loveTypeQuestionType;
     private int weight;
+
+    // BaseTimeEntity fields
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
+    private LocalDateTime deletedAt;
 
     public boolean isAnxietyType() {
         return loveTypeQuestionType == LoveTypeQuestionType.ANXIETY;
@@ -27,5 +32,21 @@ public class LoveTypeQuestion extends BaseTimeEntity {
             return 6 - score;
         }
         return score;
+    }
+
+    public static LoveTypeQuestion from(Long id, int questionNumber, boolean isReversed, String content,
+                                         LoveTypeQuestionType loveTypeQuestionType, int weight,
+                                         LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
+        return LoveTypeQuestion.builder()
+                .id(id)
+                .questionNumber(questionNumber)
+                .isReversed(isReversed)
+                .content(content)
+                .loveTypeQuestionType(loveTypeQuestionType)
+                .weight(weight)
+                .createdAt(createdAt)
+                .modifiedAt(modifiedAt)
+                .deletedAt(deletedAt)
+                .build();
     }
 }

@@ -8,17 +8,17 @@ import org.springframework.stereotype.Component;
 public class TermsMapper {
 
     public Terms toDomain(TermsEntity entity) {
-        return Terms.builder()
-                .id(entity.getId())
-                .title(entity.getTitle())
-                .content(entity.getContent())
-                .version(entity.getVersion())
-                .isRequired(entity.isRequired())
-                .termsType(entity.getTermsType())
-                .createdAt(entity.getCreatedAt())
-                .modifiedAt(entity.getModifiedAt())
-                .deletedAt(entity.getDeletedAt())
-                .build();
+        return Terms.from(
+                entity.getId(),
+                entity.getTitle(),
+                entity.getContent(),
+                entity.getVersion(),
+                entity.isRequired(),
+                entity.getTermsType(),
+                entity.getCreatedAt(),
+                entity.getModifiedAt(),
+                entity.getDeletedAt()
+        );
     }
 
     public TermsEntity toEntity(Terms domain) {

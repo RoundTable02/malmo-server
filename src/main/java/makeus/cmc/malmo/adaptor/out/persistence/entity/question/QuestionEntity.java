@@ -5,13 +5,13 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntityJpa;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntity;
 
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class QuestionEntity extends BaseTimeEntityJpa {
+public class QuestionEntity extends BaseTimeEntity {
 
     @Column(name = "questionId")
     @Id

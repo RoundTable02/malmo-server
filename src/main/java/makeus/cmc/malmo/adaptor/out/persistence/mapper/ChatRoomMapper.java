@@ -12,18 +12,14 @@ import org.springframework.stereotype.Component;
 public class ChatRoomMapper {
 
     public ChatRoom toDomain(ChatRoomEntity entity) {
-        if (entity == null) {
-            return null;
-        }
-
-        return ChatRoom.builder()
-                .id(entity.getId())
-                .memberId(entity.getMemberEntityId() != null ? MemberId.of(entity.getMemberEntityId().getValue()) : null)
-                .chatRoomState(entity.getChatRoomState())
-                .createdAt(entity.getCreatedAt())
-                .modifiedAt(entity.getModifiedAt())
-                .deletedAt(entity.getDeletedAt())
-                .build();
+        return ChatRoom.from(
+                entity.getId(),
+                entity.getMemberEntityId() != null ? MemberId.of(entity.getMemberEntityId().getValue()) : null,
+                entity.getChatRoomState(),
+                entity.getCreatedAt(),
+                entity.getModifiedAt(),
+                entity.getDeletedAt()
+        );
     }
 
     public ChatRoomEntity toEntity(ChatRoom domain) {

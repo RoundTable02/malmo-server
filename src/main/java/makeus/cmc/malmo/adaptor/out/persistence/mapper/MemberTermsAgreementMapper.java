@@ -12,15 +12,15 @@ import org.springframework.stereotype.Component;
 public class MemberTermsAgreementMapper {
 
     public MemberTermsAgreement toDomain(MemberTermsAgreementEntity entity) {
-        return MemberTermsAgreement.builder()
-                .id(entity.getId())
-                .memberId(MemberId.of(entity.getMemberEntityId().getValue()))
-                .termsId(TermsId.of(entity.getTermsEntityId().getValue()))
-                .agreed(entity.isAgreed())
-                .createdAt(entity.getCreatedAt())
-                .modifiedAt(entity.getModifiedAt())
-                .deletedAt(entity.getDeletedAt())
-                .build();
+        return MemberTermsAgreement.from(
+                entity.getId(),
+                MemberId.of(entity.getMemberEntityId().getValue()),
+                TermsId.of(entity.getTermsEntityId().getValue()),
+                entity.isAgreed(),
+                entity.getCreatedAt(),
+                entity.getModifiedAt(),
+                entity.getDeletedAt()
+        );
     }
 
     public MemberTermsAgreementEntity toEntity(MemberTermsAgreement domain) {

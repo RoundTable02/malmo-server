@@ -1,16 +1,16 @@
 package makeus.cmc.malmo.domain.model.chat;
 
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.experimental.SuperBuilder;
-import makeus.cmc.malmo.domain.model.BaseTimeEntity;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.type.SenderType;
 
+import java.time.LocalDateTime;
+
 @Getter
-@SuperBuilder
-@AllArgsConstructor
-public class ChatMessage extends BaseTimeEntity {
+@Builder(access = AccessLevel.PRIVATE)
+public class ChatMessage {
     private Long id;
     private ChatRoomId chatRoomId;
     private boolean isImage;
@@ -18,6 +18,11 @@ public class ChatMessage extends BaseTimeEntity {
     private String extractedText;
     private String content;
     private SenderType senderType;
+
+    // BaseTimeEntity fields
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
+    private LocalDateTime deletedAt;
 
     public static ChatMessage createUserTextMessage(ChatRoomId chatRoomId, String content) {
         return ChatMessage.builder()
@@ -40,4 +45,20 @@ public class ChatMessage extends BaseTimeEntity {
                 .senderType(SenderType.ASSISTANT)
                 .build();
     }
+
+    public static ChatMessage from(Long id, ChatRoomId chatRoomId, boolean isImage, String imageUrl, String extractedText, String content, SenderType senderType, LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
+        return ChatMessage.builder()
+                .id(id)
+                .chatRoomId(chatRoomId)
+                .isImage(isImage)
+                .imageUrl(imageUrl)
+                .extractedText(extractedText)
+                .content(content)
+                .senderType(senderType)
+                .createdAt(createdAt)
+                .modifiedAt(modifiedAt)
+                .deletedAt(deletedAt)
+                .build();
+    }
+
 }
