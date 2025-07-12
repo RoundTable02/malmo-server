@@ -9,6 +9,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.repository.ChatMessageRepository
 import makeus.cmc.malmo.adaptor.out.persistence.repository.ChatRoomRepository;
 import makeus.cmc.malmo.application.port.out.LoadChatRoomPort;
 import makeus.cmc.malmo.application.port.out.LoadCurrentMessagesPort;
+import makeus.cmc.malmo.application.port.out.SaveChatMessagePort;
 import makeus.cmc.malmo.application.port.out.SaveChatRoomPort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
@@ -21,7 +22,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class ChatRoomPersistenceAdapter implements LoadCurrentMessagesPort, SaveChatRoomPort, LoadChatRoomPort {
+public class ChatRoomPersistenceAdapter implements LoadCurrentMessagesPort, SaveChatRoomPort, LoadChatRoomPort, SaveChatMessagePort {
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
