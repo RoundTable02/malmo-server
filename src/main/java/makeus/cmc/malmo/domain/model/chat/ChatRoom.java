@@ -4,13 +4,20 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
-import makeus.cmc.malmo.domain.model.member.Member;
+import makeus.cmc.malmo.domain.model.value.MemberId;
 
 @Getter
 @SuperBuilder
 @AllArgsConstructor
 public class ChatRoom extends BaseTimeEntity {
     private Long id;
-    private Member member;
+    private MemberId memberId;
     private ChatRoomState chatRoomState;
+
+    public static ChatRoom createChatRoom(MemberId memberId) {
+        return ChatRoom.builder()
+                .memberId(memberId)
+                .chatRoomState(ChatRoomState.ALIVE)
+                .build();
+    }
 }

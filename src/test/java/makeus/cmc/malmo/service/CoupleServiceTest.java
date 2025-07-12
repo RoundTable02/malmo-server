@@ -1,17 +1,16 @@
 package makeus.cmc.malmo.service;
 
-import makeus.cmc.malmo.application.port.out.SendSseEventPort;
-import makeus.cmc.malmo.domain.exception.InviteCodeNotFoundException;
-import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
 import makeus.cmc.malmo.application.port.in.CoupleLinkUseCase;
 import makeus.cmc.malmo.application.port.out.SaveCouplePort;
+import makeus.cmc.malmo.application.port.out.SendSseEventPort;
 import makeus.cmc.malmo.application.service.CoupleService;
+import makeus.cmc.malmo.domain.exception.InviteCodeNotFoundException;
 import makeus.cmc.malmo.domain.model.couple.Couple;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.value.InviteCodeValue;
 import makeus.cmc.malmo.domain.model.value.MemberId;
-import makeus.cmc.malmo.domain.service.InviteCodeDomainService;
 import makeus.cmc.malmo.domain.service.CoupleDomainService;
+import makeus.cmc.malmo.domain.service.InviteCodeDomainService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

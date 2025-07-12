@@ -3,6 +3,7 @@ package makeus.cmc.malmo.adaptor.in.web.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.application.port.in.ConnectSseUseCase;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,6 +26,7 @@ public class SseController {
             description = "사용자의 SSE 연결을 설정합니다. JWT 토큰이 필요합니다. BaseResponse를 사용하지 않습니다."
     )
     @GetMapping(value = "/connect", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @ApiCommonResponses.RequireAuth
     public SseEmitter connectSse(@AuthenticationPrincipal User user) {
         ConnectSseUseCase.SseConnectionCommand command = ConnectSseUseCase.SseConnectionCommand.builder()
                 .userId(Long.valueOf(user.getUsername()))

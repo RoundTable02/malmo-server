@@ -1,7 +1,7 @@
 package makeus.cmc.malmo.domain_service;
 
-import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
 import makeus.cmc.malmo.application.port.out.LoadMemberPort;
+import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.member.MemberRole;
 import makeus.cmc.malmo.domain.model.member.MemberState;

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntityJpa;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.ChatRoomEntityId;
 
 @Getter
 @SuperBuilder
@@ -18,15 +19,16 @@ public class ChatMessageEntity extends BaseTimeEntityJpa {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "chat_room_id")
-    private ChatRoomEntity chatRoom;
+    @Embedded
+    private ChatRoomEntityId chatRoomEntityId;
 
     private boolean isImage;
 
     private String imageUrl;
 
     private String extractedText;
+
+    private String content;
 
     @Enumerated(EnumType.STRING)
     private SenderTypeJpa senderTypeJpa;

@@ -146,6 +146,12 @@ public class SwaggerResponses {
     public static class TermsListSuccessResponse extends BaseSwaggerResponse<BaseListSwaggerResponse<TermsResponseData>> {
     }
 
+    // 채팅 관련 응답
+    @Getter
+    @Schema(description = "채팅 전송 성공 응답")
+    public static class SendChatSuccessResponse extends BaseSwaggerResponse<SendChatData> {
+    }
+
     // 데이터 클래스들
     @Getter
     @Schema(description = "로그인 응답 데이터")
@@ -432,5 +438,12 @@ public class SwaggerResponses {
     @Schema(description = "초대 코드 응답 데이터")
     public static class InviteCodeResponseData {
         private String coupleCode;
+    }
+
+    @Getter
+    @Schema(description = "채팅 응답 데이터")
+    public static class SendChatData {
+        @Schema(description = "사용자가 보낸 메시지의 ID", example = "1")
+        private Long messageId;
     }
 }
