@@ -2,8 +2,6 @@ package makeus.cmc.malmo.mapper;
 
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleMemberEntity;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleMemberStateJpa;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleStateJpa;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.CoupleAggregateMapper;
@@ -90,11 +88,11 @@ class CoupleAggregateMapperTest {
         @DisplayName("다양한 CoupleState를 가진 Entity를 변환한다")
         void givenDifferentCoupleStates_whenToDomain_thenReturnsCorrectStates() {
             // given & when & then
-            CoupleEntity inactiveEntity = createEntityWithState(CoupleStateJpa.DELETED);
+            CoupleEntity inactiveEntity = createEntityWithState(CoupleState.DELETED);
             Couple inactiveResult = coupleAggregateMapper.toDomain(inactiveEntity);
             assertThat(inactiveResult.getCoupleState()).isEqualTo(CoupleState.DELETED);
 
-            CoupleEntity deletedEntity = createEntityWithState(CoupleStateJpa.DELETED);
+            CoupleEntity deletedEntity = createEntityWithState(CoupleState.DELETED);
             Couple deletedResult = coupleAggregateMapper.toDomain(deletedEntity);
             assertThat(deletedResult.getCoupleState()).isEqualTo(CoupleState.DELETED);
         }
@@ -147,7 +145,7 @@ class CoupleAggregateMapperTest {
             assertThat(result).isNotNull();
             assertThat(result.getId()).isEqualTo(1L);
             assertThat(result.getStartLoveDate()).isEqualTo(LocalDate.of(2024, 1, 1));
-            assertThat(result.getCoupleStateJpa()).isEqualTo(CoupleStateJpa.ALIVE);
+            assertThat(result.getCoupleState()).isEqualTo(CoupleState.ALIVE);
             assertThat(result.getCoupleMembers()).hasSize(2);
             assertThat(result.getCreatedAt()).isNotNull();
             assertThat(result.getModifiedAt()).isNotNull();
@@ -158,13 +156,13 @@ class CoupleAggregateMapperTest {
             assertThat(firstMemberEntity.getId()).isEqualTo(10L);
             assertThat(firstMemberEntity.getMemberEntityId().getValue()).isEqualTo(100L);
             assertThat(firstMemberEntity.getCoupleEntityId().getValue()).isEqualTo(1L);
-            assertThat(firstMemberEntity.getCoupleMemberStateJpa()).isEqualTo(CoupleMemberStateJpa.ALIVE);
+            assertThat(firstMemberEntity.getCoupleMemberState()).isEqualTo(CoupleMemberState.ALIVE);
 
             CoupleMemberEntity secondMemberEntity = result.getCoupleMembers().get(1);
             assertThat(secondMemberEntity.getId()).isEqualTo(20L);
             assertThat(secondMemberEntity.getMemberEntityId().getValue()).isEqualTo(200L);
             assertThat(secondMemberEntity.getCoupleEntityId().getValue()).isEqualTo(1L);
-            assertThat(secondMemberEntity.getCoupleMemberStateJpa()).isEqualTo(CoupleMemberStateJpa.ALIVE);
+            assertThat(secondMemberEntity.getCoupleMemberState()).isEqualTo(CoupleMemberState.ALIVE);
         }
 
         @Test
@@ -187,11 +185,11 @@ class CoupleAggregateMapperTest {
             // given & when & then
             Couple inactiveCouple = createCoupleWithState(CoupleState.DELETED);
             CoupleEntity inactiveResult = coupleAggregateMapper.toEntity(inactiveCouple);
-            assertThat(inactiveResult.getCoupleStateJpa()).isEqualTo(CoupleStateJpa.DELETED);
+            assertThat(inactiveResult.getCoupleState()).isEqualTo(CoupleState.DELETED);
 
             Couple deletedCouple = createCoupleWithState(CoupleState.DELETED);
             CoupleEntity deletedResult = coupleAggregateMapper.toEntity(deletedCouple);
-            assertThat(deletedResult.getCoupleStateJpa()).isEqualTo(CoupleStateJpa.DELETED);
+            assertThat(deletedResult.getCoupleState()).isEqualTo(CoupleState.DELETED);
         }
 
         @Test
@@ -205,9 +203,9 @@ class CoupleAggregateMapperTest {
 
             // then
             assertThat(result.getCoupleMembers()).hasSize(3);
-            assertThat(result.getCoupleMembers().get(0).getCoupleMemberStateJpa()).isEqualTo(CoupleMemberStateJpa.ALIVE);
-            assertThat(result.getCoupleMembers().get(1).getCoupleMemberStateJpa()).isEqualTo(CoupleMemberStateJpa.NOT_ALLOCATED);
-            assertThat(result.getCoupleMembers().get(2).getCoupleMemberStateJpa()).isEqualTo(CoupleMemberStateJpa.DELETED);
+            assertThat(result.getCoupleMembers().get(0).getCoupleMemberState()).isEqualTo(CoupleMemberState.ALIVE);
+            assertThat(result.getCoupleMembers().get(1).getCoupleMemberState()).isEqualTo(CoupleMemberState.NOT_ALLOCATED);
+            assertThat(result.getCoupleMembers().get(2).getCoupleMemberState()).isEqualTo(CoupleMemberState.DELETED);
         }
 
         @Test
@@ -221,7 +219,7 @@ class CoupleAggregateMapperTest {
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getCoupleStateJpa()).isNull();
+            assertThat(result.getCoupleState()).isNull();
         }
 
         @Test
@@ -236,21 +234,21 @@ class CoupleAggregateMapperTest {
             // then
             assertThat(result).isNotNull();
             assertThat(result.getCoupleMembers()).hasSize(1);
-            assertThat(result.getCoupleMembers().get(0).getCoupleMemberStateJpa()).isNull();
+            assertThat(result.getCoupleMembers().get(0).getCoupleMemberState()).isNull();
         }
     }
 
     // Test data creation methods for Entity
     private CoupleEntity createCompleteEntity() {
         List<CoupleMemberEntity> members = Arrays.asList(
-                createCoupleMemberEntity(10L, 100L, 1L, CoupleMemberStateJpa.ALIVE),
-                createCoupleMemberEntity(20L, 200L, 1L, CoupleMemberStateJpa.ALIVE)
+                createCoupleMemberEntity(10L, 100L, 1L, CoupleMemberState.ALIVE),
+                createCoupleMemberEntity(20L, 200L, 1L, CoupleMemberState.ALIVE)
         );
 
         return CoupleEntity.builder()
                 .id(1L)
                 .startLoveDate(LocalDate.of(2024, 1, 1))
-                .coupleStateJpa(CoupleStateJpa.ALIVE)
+                .coupleState(CoupleState.ALIVE)
                 .coupleMembers(members)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
@@ -262,31 +260,31 @@ class CoupleAggregateMapperTest {
         return CoupleEntity.builder()
                 .id(1L)
                 .startLoveDate(LocalDate.of(2024, 1, 1))
-                .coupleStateJpa(CoupleStateJpa.ALIVE)
+                .coupleState(CoupleState.ALIVE)
                 .coupleMembers(Collections.emptyList())
                 .build();
     }
 
-    private CoupleEntity createEntityWithState(CoupleStateJpa state) {
+    private CoupleEntity createEntityWithState(CoupleState state) {
         return CoupleEntity.builder()
                 .id(1L)
                 .startLoveDate(LocalDate.of(2024, 1, 1))
-                .coupleStateJpa(state)
+                .coupleState(state)
                 .coupleMembers(Collections.emptyList())
                 .build();
     }
 
     private CoupleEntity createEntityWithDifferentMemberStates() {
         List<CoupleMemberEntity> members = Arrays.asList(
-                createCoupleMemberEntity(10L, 100L, 1L, CoupleMemberStateJpa.ALIVE),
-                createCoupleMemberEntity(20L, 200L, 1L, CoupleMemberStateJpa.NOT_ALLOCATED),
-                createCoupleMemberEntity(30L, 300L, 1L, CoupleMemberStateJpa.DELETED)
+                createCoupleMemberEntity(10L, 100L, 1L, CoupleMemberState.ALIVE),
+                createCoupleMemberEntity(20L, 200L, 1L, CoupleMemberState.NOT_ALLOCATED),
+                createCoupleMemberEntity(30L, 300L, 1L, CoupleMemberState.DELETED)
         );
 
         return CoupleEntity.builder()
                 .id(1L)
                 .startLoveDate(LocalDate.of(2024, 1, 1))
-                .coupleStateJpa(CoupleStateJpa.ALIVE)
+                .coupleState(CoupleState.ALIVE)
                 .coupleMembers(members)
                 .build();
     }
@@ -295,17 +293,17 @@ class CoupleAggregateMapperTest {
         return CoupleEntity.builder()
                 .id(1L)
                 .startLoveDate(LocalDate.of(2024, 1, 1))
-                .coupleStateJpa(null)
+                .coupleState(null)
                 .coupleMembers(Collections.emptyList())
                 .build();
     }
 
-    private CoupleMemberEntity createCoupleMemberEntity(Long id, Long memberId, Long coupleId, CoupleMemberStateJpa state) {
+    private CoupleMemberEntity createCoupleMemberEntity(Long id, Long memberId, Long coupleId, CoupleMemberState state) {
         return CoupleMemberEntity.builder()
                 .id(id)
                 .memberEntityId(MemberEntityId.of(memberId))
                 .coupleEntityId(CoupleEntityId.of(coupleId))
-                .coupleMemberStateJpa(state)
+                .coupleMemberState(state)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
                 .build();
@@ -314,84 +312,100 @@ class CoupleAggregateMapperTest {
     // Test data creation methods for Domain
     private Couple createCompleteCouple() {
         List<CoupleMember> members = Arrays.asList(
-                createCoupleMember(10L, 100L, 1L, CoupleMemberState.ALIVE),
-                createCoupleMember(20L, 200L, 1L, CoupleMemberState.ALIVE)
+                createCoupleMemberFromStatic(10L, 100L, 1L, CoupleMemberState.ALIVE),
+                createCoupleMemberFromStatic(20L, 200L, 1L, CoupleMemberState.ALIVE)
         );
 
-        return Couple.builder()
-                .id(1L)
-                .startLoveDate(LocalDate.of(2024, 1, 1))
-                .coupleState(CoupleState.ALIVE)
-                .coupleMembers(members)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .deletedAt(null)
-                .build();
+        return Couple.from(
+                1L,
+                LocalDate.of(2024, 1, 1),
+                CoupleState.ALIVE,
+                members,
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                null
+        );
     }
 
     private Couple createCoupleWithEmptyMembers() {
-        return Couple.builder()
-                .id(1L)
-                .startLoveDate(LocalDate.of(2024, 1, 1))
-                .coupleState(CoupleState.ALIVE)
-                .coupleMembers(Collections.emptyList())
-                .build();
+        return Couple.from(
+                1L,
+                LocalDate.of(2024, 1, 1),
+                CoupleState.ALIVE,
+                Collections.emptyList(),
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                null
+        );
     }
 
     private Couple createCoupleWithState(CoupleState state) {
-        return Couple.builder()
-                .id(1L)
-                .startLoveDate(LocalDate.of(2024, 1, 1))
-                .coupleState(state)
-                .coupleMembers(Collections.emptyList())
-                .build();
+        return Couple.from(
+                1L,
+                LocalDate.of(2024, 1, 1),
+                state,
+                Collections.emptyList(),
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                null
+        );
     }
 
     private Couple createCoupleWithDifferentMemberStates() {
         List<CoupleMember> members = Arrays.asList(
-                createCoupleMember(10L, 100L, 1L, CoupleMemberState.ALIVE),
-                createCoupleMember(20L, 200L, 1L, CoupleMemberState.NOT_ALLOCATED),
-                createCoupleMember(30L, 300L, 1L, CoupleMemberState.DELETED)
+                createCoupleMemberFromStatic(10L, 100L, 1L, CoupleMemberState.ALIVE),
+                createCoupleMemberFromStatic(20L, 200L, 1L, CoupleMemberState.NOT_ALLOCATED),
+                createCoupleMemberFromStatic(30L, 300L, 1L, CoupleMemberState.DELETED)
         );
 
-        return Couple.builder()
-                .id(1L)
-                .startLoveDate(LocalDate.of(2024, 1, 1))
-                .coupleState(CoupleState.ALIVE)
-                .coupleMembers(members)
-                .build();
+        return Couple.from(
+                1L,
+                LocalDate.of(2024, 1, 1),
+                CoupleState.ALIVE,
+                members,
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                null
+        );
     }
 
     private Couple createCoupleWithNullState() {
-        return Couple.builder()
-                .id(1L)
-                .startLoveDate(LocalDate.of(2024, 1, 1))
-                .coupleState(null)
-                .coupleMembers(Collections.emptyList())
-                .build();
+        return Couple.from(
+                1L,
+                LocalDate.of(2024, 1, 1),
+                null,
+                Collections.emptyList(),
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                null
+        );
     }
 
     private Couple createCoupleWithNullMemberState() {
         List<CoupleMember> members = Arrays.asList(
-                createCoupleMember(10L, 100L, 1L, null)
+                createCoupleMemberFromStatic(10L, 100L, 1L, null)
         );
 
-        return Couple.builder()
-                .id(1L)
-                .startLoveDate(LocalDate.of(2024, 1, 1))
-                .coupleState(CoupleState.ALIVE)
-                .coupleMembers(members)
-                .build();
+        return Couple.from(
+                1L,
+                LocalDate.of(2024, 1, 1),
+                CoupleState.ALIVE,
+                members,
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                null
+        );
     }
 
-    private CoupleMember createCoupleMember(Long id, Long memberId, Long coupleId, CoupleMemberState state) {
-        return CoupleMember.builder()
-                .id(id)
-                .memberId(MemberId.of(memberId))
-                .coupleId(CoupleId.of(coupleId))
-                .coupleMemberState(state)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build();
+    private CoupleMember createCoupleMemberFromStatic(Long id, Long memberId, Long coupleId, CoupleMemberState state) {
+        return CoupleMember.from(
+                id,
+                MemberId.of(memberId),
+                CoupleId.of(coupleId),
+                state,
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                null
+        );
     }
 }

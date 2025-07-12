@@ -223,14 +223,17 @@ class LoveTypeServiceTest {
     }
 
     private LoveType createLoveType() {
-        return LoveType.builder()
-                .id(1L)
-                .title("안정형")
-                .summary("안정적인 애착 유형")
-                .content("안정적인 애착 스타일입니다.")
-                .imageUrl("http://example.com/secure.jpg")
-                .loveTypeCategory(LoveTypeCategory.STABLE_TYPE)
-                .build();
+        return LoveType.from(
+                1L,
+                "안정형",
+                "안정적인 애착 유형",
+                "안정적인 애착 스타일입니다.",
+                "http://example.com/secure.jpg",
+                LoveTypeCategory.STABLE_TYPE,
+                null,
+                null,
+                null
+        );
     }
 
     private List<UpdateMemberLoveTypeUseCase.LoveTypeTestResult> createLoveTypeTestResults() {

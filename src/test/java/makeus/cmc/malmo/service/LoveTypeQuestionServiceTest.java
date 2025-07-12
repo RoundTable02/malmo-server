@@ -83,30 +83,39 @@ class LoveTypeQuestionServiceTest {
 
     private List<LoveTypeQuestion> createLoveTypeQuestions() {
         return List.of(
-                LoveTypeQuestion.builder()
-                        .id(1L)
-                        .questionNumber(1)
-                        .content("나는 상대방과 가까워지는 것이 쉽다.")
-                        .isReversed(false)
-                        .loveTypeQuestionType(LoveTypeQuestionType.AVOIDANCE)
-                        .weight(1)
-                        .build(),
-                LoveTypeQuestion.builder()
-                        .id(2L)
-                        .questionNumber(2)
-                        .content("나는 상대방에게 의존하는 것이 편안하다.")
-                        .isReversed(false)
-                        .loveTypeQuestionType(LoveTypeQuestionType.AVOIDANCE)
-                        .weight(1)
-                        .build(),
-                LoveTypeQuestion.builder()
-                        .id(3L)
-                        .questionNumber(3)
-                        .content("나는 상대방이 나를 떠날까봐 걱정한다.")
-                        .isReversed(false)
-                        .loveTypeQuestionType(LoveTypeQuestionType.ANXIETY)
-                        .weight(1)
-                        .build()
+                LoveTypeQuestion.from(
+                        1L,
+                        1,
+                        false,
+                        "나는 상대방과 가까워지는 것이 쉽다.",
+                        LoveTypeQuestionType.AVOIDANCE,
+                        1,
+                        null,
+                        null,
+                        null
+                ),
+                LoveTypeQuestion.from(
+                        2L,
+                        2,
+                        false,
+                        "나는 상대방에게 의존하는 것이 편안하다.",
+                        LoveTypeQuestionType.AVOIDANCE,
+                        1,
+                        null,
+                        null,
+                        null
+                ),
+                LoveTypeQuestion.from(
+                        3L,
+                        3,
+                        false,
+                        "나는 상대방이 나를 떠날까봐 걱정한다.",
+                        LoveTypeQuestionType.ANXIETY,
+                        1,
+                        null,
+                        null,
+                        null
+                )
         );
     }
 }

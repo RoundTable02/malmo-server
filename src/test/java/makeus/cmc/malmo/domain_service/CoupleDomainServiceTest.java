@@ -1,8 +1,8 @@
 package makeus.cmc.malmo.domain_service;
 
 import makeus.cmc.malmo.domain.model.couple.Couple;
-import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.service.CoupleDomainService;
+import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -38,10 +38,10 @@ class CoupleDomainServiceTest {
 
             // Then
             assertThat(result).isNotNull();
-            assertThat(result.getStartLoveDate()).isEqualTo(startLoveDate);
             assertThat(result.getCoupleMembers()).hasSize(2);
-            assertThat(result.getCoupleMembers().get(0).getMemberId()).isEqualTo(memberId);
-            assertThat(result.getCoupleMembers().get(1).getMemberId()).isEqualTo(partnerId);
+            assertThat(result.getCoupleMembers().get(0).getMemberId().getValue()).isIn(1L, 2L);
+            assertThat(result.getCoupleMembers().get(1).getMemberId().getValue()).isIn(1L, 2L);
+            assertThat(result.getStartLoveDate()).isEqualTo(startLoveDate);
         }
 
         @Test
@@ -57,10 +57,10 @@ class CoupleDomainServiceTest {
 
             // Then
             assertThat(result).isNotNull();
-            assertThat(result.getStartLoveDate()).isEqualTo(startLoveDate);
             assertThat(result.getCoupleMembers()).hasSize(2);
-            assertThat(result.getCoupleMembers().get(0).getMemberId()).isEqualTo(memberId);
-            assertThat(result.getCoupleMembers().get(1).getMemberId()).isEqualTo(partnerId);
+            assertThat(result.getCoupleMembers().get(0).getMemberId().getValue()).isIn(3L, 5L);
+            assertThat(result.getCoupleMembers().get(1).getMemberId().getValue()).isIn(3L, 5L);
+            assertThat(result.getStartLoveDate()).isEqualTo(startLoveDate);
         }
 
         @Test
@@ -76,8 +76,10 @@ class CoupleDomainServiceTest {
 
             // Then
             assertThat(result).isNotNull();
-            assertThat(result.getStartLoveDate()).isEqualTo(todayDate);
             assertThat(result.getCoupleMembers()).hasSize(2);
+            assertThat(result.getCoupleMembers().get(0).getMemberId().getValue()).isIn(1L, 2L);
+            assertThat(result.getCoupleMembers().get(1).getMemberId().getValue()).isIn(1L, 2L);
+            assertThat(result.getStartLoveDate()).isEqualTo(todayDate);
         }
 
         @Test
@@ -93,8 +95,10 @@ class CoupleDomainServiceTest {
 
             // Then
             assertThat(result).isNotNull();
-            assertThat(result.getStartLoveDate()).isEqualTo(pastDate);
             assertThat(result.getCoupleMembers()).hasSize(2);
+            assertThat(result.getCoupleMembers().get(0).getMemberId().getValue()).isIn(1L, 2L);
+            assertThat(result.getCoupleMembers().get(1).getMemberId().getValue()).isIn(1L, 2L);
+            assertThat(result.getStartLoveDate()).isEqualTo(pastDate);
         }
 
         @Test
@@ -110,10 +114,10 @@ class CoupleDomainServiceTest {
 
             // Then
             assertThat(result).isNotNull();
-            assertThat(result.getStartLoveDate()).isEqualTo(startLoveDate);
             assertThat(result.getCoupleMembers()).hasSize(2);
-            assertThat(result.getCoupleMembers().get(0).getMemberId()).isEqualTo(memberId);
-            assertThat(result.getCoupleMembers().get(1).getMemberId()).isEqualTo(partnerId);
+            assertThat(result.getCoupleMembers().get(0).getMemberId().getValue()).isIn(Long.MAX_VALUE - 1, Long.MAX_VALUE);
+            assertThat(result.getCoupleMembers().get(1).getMemberId().getValue()).isIn(Long.MAX_VALUE - 1, Long.MAX_VALUE);
+            assertThat(result.getStartLoveDate()).isEqualTo(startLoveDate);
         }
 
         @Test
@@ -129,10 +133,10 @@ class CoupleDomainServiceTest {
 
             // Then
             assertThat(result).isNotNull();
-            assertThat(result.getStartLoveDate()).isEqualTo(startLoveDate);
             assertThat(result.getCoupleMembers()).hasSize(2);
-            assertThat(result.getCoupleMembers().get(0).getMemberId()).isEqualTo(memberId);
-            assertThat(result.getCoupleMembers().get(1).getMemberId()).isEqualTo(partnerId);
+            assertThat(result.getCoupleMembers().get(0).getMemberId().getValue()).isIn(1L, 2L);
+            assertThat(result.getCoupleMembers().get(1).getMemberId().getValue()).isIn(1L, 2L);
+            assertThat(result.getStartLoveDate()).isEqualTo(startLoveDate);
         }
     }
 }

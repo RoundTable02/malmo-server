@@ -8,6 +8,10 @@ import org.springframework.stereotype.Component;
 public class LoveTypeMapper {
 
     public LoveType toDomain(LoveTypeEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+
         return LoveType.from(
                 entity.getId(),
                 entity.getTitle(),

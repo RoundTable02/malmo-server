@@ -45,3 +45,7 @@ swagger:
   server:
     production:
       url: sample.url.com
+
+openai:
+  api:
+    key: sk-test-openai-api-key-for-testing-only

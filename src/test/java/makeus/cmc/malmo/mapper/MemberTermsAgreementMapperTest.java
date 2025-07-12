@@ -205,42 +205,46 @@ class MemberTermsAgreementMapperTest {
     }
 
     private MemberTermsAgreement createCompleteMemberTermsAgreement() {
-        return MemberTermsAgreement.builder()
-                .id(1L)
-                .memberId(MemberId.of(100L))
-                .termsId(TermsId.of(200L))
-                .agreed(true)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .deletedAt(null)
-                .build();
+        return MemberTermsAgreement.from(
+                1L,
+                MemberId.of(100L),
+                TermsId.of(200L),
+                true,
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                null
+        );
     }
 
     private MemberTermsAgreement createDisagreedMemberTermsAgreement() {
-        return MemberTermsAgreement.builder()
-                .id(1L)
-                .memberId(MemberId.of(100L))
-                .termsId(TermsId.of(200L))
-                .agreed(false)
-                .build();
+        return MemberTermsAgreement.from(
+                1L,
+                MemberId.of(100L),
+                TermsId.of(200L),
+                false,
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                null
+        );
     }
 
     private MemberTermsAgreement createDeletedMemberTermsAgreement(LocalDateTime deletedAt) {
-        return MemberTermsAgreement.builder()
-                .id(1L)
-                .memberId(MemberId.of(100L))
-                .termsId(TermsId.of(200L))
-                .agreed(true)
-                .deletedAt(deletedAt)
-                .build();
+        return MemberTermsAgreement.from(
+                1L,
+                MemberId.of(100L),
+                TermsId.of(200L),
+                true,
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                deletedAt
+        );
     }
 
     private MemberTermsAgreement createMemberTermsAgreementWithNullId() {
-        return MemberTermsAgreement.builder()
-                .id(null)
-                .memberId(MemberId.of(100L))
-                .termsId(TermsId.of(200L))
-                .agreed(true)
-                .build();
+        return MemberTermsAgreement.signTerms(
+                MemberId.of(100L),
+                TermsId.of(200L),
+                true
+        );
     }
 }
