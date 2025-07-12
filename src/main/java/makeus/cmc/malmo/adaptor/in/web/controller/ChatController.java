@@ -55,7 +55,7 @@ public class ChatController {
 
     @Getter
     @AllArgsConstructor
-    public class ChatRequest {
+    public static class ChatRequest {
         @NotBlank(message = "메시지는 비어있을 수 없습니다.")
         private String message;
     }
