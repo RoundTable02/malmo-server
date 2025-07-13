@@ -72,7 +72,7 @@ public class SignInService implements SignInUseCase {
                     // 이메일 정보 가져오기
                     String email = appleIdTokenPort.extractEmailFromIdToken(command.getIdToken());
                     InviteCodeValue inviteCodeValue = inviteCodeDomainService.generateUniqueInviteCode();
-                    Member newMember = memberDomainService.createMember(Provider.KAKAO, providerId, email, inviteCodeValue);
+                    Member newMember = memberDomainService.createMember(Provider.APPLE, providerId, email, inviteCodeValue);
                     return saveMemberPort.saveMember(newMember);
                 });
 
