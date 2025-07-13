@@ -29,13 +29,14 @@ public class Member extends BaseTimeEntity {
     private InviteCodeValue inviteCode;
     private LocalDate startLoveDate;
     
-    public static Member createMember(Provider provider, String providerId, MemberRole memberRole, MemberState memberState, String email) {
+    public static Member createMember(Provider provider, String providerId, MemberRole memberRole, MemberState memberState, String email, InviteCodeValue inviteCode) {
         return Member.builder()
                 .provider(provider)
                 .providerId(providerId)
                 .memberRole(memberRole)
                 .memberState(memberState)
                 .email(email)
+                .inviteCode(inviteCode)
                 .build();
     }
 
