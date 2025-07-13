@@ -25,7 +25,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
         LoadMemberPort.MemberResponseRepositoryDto dto = queryFactory
                 .select(Projections.constructor(LoadMemberPort.MemberResponseRepositoryDto.class,
                         memberEntity.memberStateJpa.stringValue(),
-                        memberEntity.startLoveDate,
+                        coupleEntity.startLoveDate.coalesce(memberEntity.startLoveDate),
                         loveTypeEntity.id,
                         loveTypeEntity.title,
                         memberEntity.avoidanceRate,
