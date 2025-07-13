@@ -97,10 +97,6 @@ public class Member {
         this.memberState = MemberState.ALIVE;
     }
 
-    public void updateInviteCode(InviteCodeValue inviteCode) {
-        this.inviteCode = inviteCode;
-    }
-
     public void updateMemberProfile(String nickname, String email) {
         this.nickname = nickname;
         this.email = email;
