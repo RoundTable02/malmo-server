@@ -7,6 +7,7 @@ import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.member.MemberRole;
 import makeus.cmc.malmo.domain.model.member.MemberState;
 import makeus.cmc.malmo.domain.model.member.Provider;
+import makeus.cmc.malmo.domain.model.value.InviteCodeValue;
 import makeus.cmc.malmo.domain.model.value.MemberId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,13 +24,14 @@ public class MemberDomainService {
                 .orElseThrow(MemberNotFoundException::new);
     }
 
-    public Member createMember(Provider provider, String providerId, String email) {
+    public Member createMember(Provider provider, String providerId, String email, InviteCodeValue inviteCode) {
         return Member.createMember(
                 provider,
                 providerId,
                 MemberRole.MEMBER,
                 MemberState.BEFORE_ONBOARDING,
-                email
+                email,
+                inviteCode
         );
     }
 
