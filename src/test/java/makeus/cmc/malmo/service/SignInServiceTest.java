@@ -8,6 +8,8 @@ import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.member.MemberRole;
 import makeus.cmc.malmo.domain.model.member.MemberState;
 import makeus.cmc.malmo.domain.model.member.Provider;
+import makeus.cmc.malmo.domain.model.value.InviteCodeValue;
+import makeus.cmc.malmo.domain.service.InviteCodeDomainService;
 import makeus.cmc.malmo.domain.service.MemberDomainService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -47,6 +49,9 @@ class SignInServiceTest {
 
     @Mock
     private FetchFromOAuthProviderPort fetchFromOAuthProviderPort;
+
+    @Mock
+    private InviteCodeDomainService inviteCodeDomainService;
 
     @InjectMocks
     private SignInService signInService;
@@ -117,6 +122,7 @@ class SignInServiceTest {
             String grantType = "Bearer";
             String newAccessToken = "newAccessToken123";
             String newRefreshToken = "newRefreshToken123";
+            String inviteCode = "INVITE123";
 
             SignInUseCase.SignInKakaoCommand command = SignInUseCase.SignInKakaoCommand.builder()
                     .idToken(idToken)
@@ -137,9 +143,10 @@ class SignInServiceTest {
             given(loadMemberPort.loadMemberByProviderId(Provider.KAKAO, providerId))
                     .willReturn(Optional.empty());
             given(fetchFromOAuthProviderPort.fetchMemberEmailFromKakao(accessToken)).willReturn(email);
-            given(memberDomainService.createMember(Provider.KAKAO, providerId, email)).willReturn(newMember);
+            given(memberDomainService.createMember(eq(Provider.KAKAO), eq(providerId), eq(email), any(InviteCodeValue.class))).willReturn(newMember);
             given(saveMemberPort.saveMember(newMember)).willReturn(newMember);
             given(generateTokenPort.generateToken(newMemberId, MemberRole.MEMBER)).willReturn(tokenInfo);
+            given(inviteCodeDomainService.generateUniqueInviteCode()).willReturn(InviteCodeValue.of(inviteCode));
 
             // When
             SignInUseCase.SignInResponse response = signInService.signInKakao(command);
@@ -154,9 +161,10 @@ class SignInServiceTest {
             then(kakaoIdTokenPort).should().validateToken(idToken);
             then(loadMemberPort).should().loadMemberByProviderId(Provider.KAKAO, providerId);
             then(fetchFromOAuthProviderPort).should().fetchMemberEmailFromKakao(accessToken);
-            then(memberDomainService).should().createMember(Provider.KAKAO, providerId, email);
+            then(memberDomainService).should().createMember(eq(Provider.KAKAO), eq(providerId), eq(email), any(InviteCodeValue.class));
             then(saveMemberPort).should(times(2)).saveMember(newMember);
             then(generateTokenPort).should().generateToken(newMemberId, MemberRole.MEMBER);
+            then(inviteCodeDomainService).should().generateUniqueInviteCode();
             then(newMember).should().refreshMemberToken(newRefreshToken);
         }
 
@@ -225,6 +233,7 @@ class SignInServiceTest {
             String grantType = "Bearer";
             String newAccessToken = "newAccessToken123";
             String newRefreshToken = "newRefreshToken123";
+            String inviteCode = "INVITE123";
 
             SignInUseCase.SignInAppleCommand command = SignInUseCase.SignInAppleCommand.builder()
                     .idToken(idToken)
@@ -244,9 +253,10 @@ class SignInServiceTest {
             given(loadMemberPort.loadMemberByProviderId(Provider.APPLE, providerId))
                     .willReturn(Optional.empty());
             given(appleIdTokenPort.extractEmailFromIdToken(idToken)).willReturn(email);
-            given(memberDomainService.createMember(Provider.APPLE, providerId, email)).willReturn(newMember);
+            given(memberDomainService.createMember(eq(Provider.APPLE), eq(providerId), eq(email), any(InviteCodeValue.class))).willReturn(newMember);
             given(saveMemberPort.saveMember(newMember)).willReturn(newMember);
             given(generateTokenPort.generateToken(newMemberId, MemberRole.MEMBER)).willReturn(tokenInfo);
+            given(inviteCodeDomainService.generateUniqueInviteCode()).willReturn(InviteCodeValue.of(inviteCode));
 
             // When
             SignInUseCase.SignInResponse response = signInService.signInApple(command);
@@ -261,7 +271,7 @@ class SignInServiceTest {
             then(appleIdTokenPort).should().validateToken(idToken);
             then(loadMemberPort).should().loadMemberByProviderId(Provider.APPLE, providerId);
             then(appleIdTokenPort).should().extractEmailFromIdToken(idToken);
-            then(memberDomainService).should().createMember(Provider.APPLE, providerId, email);
+            then(memberDomainService).should().createMember(eq(Provider.APPLE), eq(providerId), eq(email), any(InviteCodeValue.class));
             then(saveMemberPort).should(times(2)).saveMember(newMember);
             then(generateTokenPort).should().generateToken(newMemberId, MemberRole.MEMBER);
             then(newMember).should().refreshMemberToken(newRefreshToken);
