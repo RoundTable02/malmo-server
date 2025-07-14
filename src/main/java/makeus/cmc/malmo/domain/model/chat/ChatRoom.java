@@ -23,10 +23,11 @@ public class ChatRoom {
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
 
-    public static ChatRoom createChatRoom(MemberId memberId, int level) {
+    public static ChatRoom createChatRoom(MemberId memberId, int level, boolean isCurrentPromptForMetadata) {
         return ChatRoom.builder()
                 .memberId(memberId)
                 .level(level)
+                .isCurrentPromptForMetadata(isCurrentPromptForMetadata)
                 .chatRoomState(ChatRoomState.ALIVE)
                 .build();
     }

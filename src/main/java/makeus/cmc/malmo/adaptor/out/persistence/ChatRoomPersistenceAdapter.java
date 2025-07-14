@@ -38,6 +38,11 @@ public class ChatRoomPersistenceAdapter implements LoadCurrentMessagesPort, Save
     }
 
     @Override
+    public List<ChatRoomMessageRepositoryDto> loadMessagesDto(ChatRoomId chatRoomId, int page, int size) {
+        return chatMessageRepository.loadCurrentMessagesDto(chatRoomId.getValue(), page, size);
+    }
+
+    @Override
     public Optional<ChatRoom> loadCurrentChatRoomByMemberId(MemberId memberId) {
         return chatRoomRepository.findCurrentChatRoomByMemberEntityId(memberId.getValue())
                 .map(chatRoomMapper::toDomain);

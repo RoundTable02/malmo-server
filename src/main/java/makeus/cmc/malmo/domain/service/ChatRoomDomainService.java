@@ -26,6 +26,7 @@ public class ChatRoomDomainService {
                 .orElseGet(() -> {
                     // 현재 채팅방이 존재하지 않는 경우 새로 채팅방을 생성
                     int level = 0;
+                    boolean isCurrentPromptForMetadata = true;
                     // 이전 채팅방 중 가장 LEVEL이 큰 채팅방 조회
                     Optional<ChatRoom> chatRoom = loadChatRoomPort.loadMaxLevelChatRoomByMemberId(memberId);
                     if (chatRoom.isPresent()) {
@@ -38,11 +39,12 @@ public class ChatRoomDomainService {
                             // TODO : 예외 설정
                             Prompt prompt = loadPromptPort.loadPromptMinLevelPrompt().get();
                             level = prompt.getLevel();
+                            isCurrentPromptForMetadata = false;
                         }
                     }
                     // 이전 채팅방이 존재하지 않는 경우, LEVEL 0으로 설정
                     return saveChatRoomPort.saveChatRoom(
-                            ChatRoom.createChatRoom(memberId, level)
+                            ChatRoom.createChatRoom(memberId, level, isCurrentPromptForMetadata)
                     );
                 });
     }

@@ -18,6 +18,10 @@ public class ChatMessagesDomainService {
     private final LoadCurrentMessagesPort loadMessagesPort;
     private final SaveChatMessagePort saveChatMessagePort;
 
+    public List<LoadCurrentMessagesPort.ChatRoomMessageRepositoryDto> getChatMessagesDto(ChatRoomId chatRoomId, int page, int size) {
+        return loadMessagesPort.loadMessagesDto(chatRoomId, page, size);
+    }
+
     public List<ChatMessage> getChatMessages(ChatRoomId chatRoomId) {
         return loadMessagesPort.loadMessages(chatRoomId);
     }
