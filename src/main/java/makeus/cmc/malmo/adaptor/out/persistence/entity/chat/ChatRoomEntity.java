@@ -25,4 +25,6 @@ public class ChatRoomEntity extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     private ChatRoomState chatRoomState;
+
+    // TODO : LastMessageSentTime 필요
 }

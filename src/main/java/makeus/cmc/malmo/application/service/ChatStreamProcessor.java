@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @RequiredArgsConstructor
 @Component
@@ -23,7 +24,24 @@ public class ChatStreamProcessor {
     public void requestApiStream(MemberId memberId,
                                  List<Map<String, String>> messages,
                                  ChatRoomId chatRoomId) {
+        AtomicBoolean isOkDetected = new AtomicBoolean(false);
+
         // OpenAI API 스트리밍 호출
+        // TODO : chunk가 "OK"인 경우
+        //  ==========================< 메타데이터 수집 완료 단계 >=============================
+        //  - isLastPromptForMetaData = true
+        //      * 커플이 연동되지 않은 경우
+        //          - ChatRoom의 State를 PAUSED로 변경
+        //          - SSE 이벤트 current_level_finished 전송 : 프론트에서 message 없이 재요청
+        //          - SSE 이벤트 chat_room_paused 전송
+        //      * 커플이 연동된 경우
+        //          - ChatRoom의 State 변경이나 SSE 이벤트 전송은 따로 하지 않고 고정된 멘트 전송
+        //  ======================< 메타데이터 수집 or 일반적인 상담 >===========================
+        //  -> ChatRoom의 State를 NEED_NEXT_QUESTION로 변경
+        //  -> ChatRoom의 LEVEL을 다음 단계로 변경
+        //  -> SSE 이벤트 current_level_finished 전송 : 프론트에서 message 없이 재요청
+        //  -> 만약 예기치 못한 종료가 발생한 경우 : 프론트에서 ChatRoom의 State를 NEED_NEXT_QUESTION인 경우 재요청
+        //  ===============================================================================
         requestStreamChatPort.streamChat(messages,
                 //  데이터 stream 수신 시 SSE 이벤트 전송
                 chunk -> sendSseMessage(memberId, chunk),
@@ -34,6 +52,13 @@ public class ChatStreamProcessor {
         );
 
     }
+
+    // TODO : Message 요약 API 요청 Async Function
+    //  - isCurrentPromptForMetaData = true
+    //      => 메타데이터 수집 단계 (MemberMemory에 요약된 메타데이터 저장)
+    //  - isCurrentPromptForMetaData = false
+    //      => 일반적인 상담 단계 ChatMessageSummary (level=now,current=false)로 저장
+
 
     private void saveAiMessage(MemberId memberId, ChatRoomId chatRoomId, String fullAnswer) {
         ChatMessage aiTextMessage = chatMessagesDomainService.createAiTextMessage(chatRoomId, fullAnswer);
@@ -46,6 +71,7 @@ public class ChatStreamProcessor {
     }
 
     private void sendSseMessage(MemberId memberId, String chunk) {
+        // TODO : SSE Emitter 초기화 필요
         sendSseEventPort.sendToMember(
                 memberId,
                 new SendSseEventPort.NotificationEvent(

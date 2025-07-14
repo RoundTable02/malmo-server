@@ -35,7 +35,35 @@ public class ChatService implements SendChatMessageUseCase {
     public SendChatMessageResponse processUserMessage(SendChatMessageCommand command) {
         Member member = memberDomainService.getMemberById(MemberId.of(command.getUserId()));
 
-        // 과거 메시지 불러오기
+        // TODO : MemberMemory 가져오기
+        // TODO : Member의 닉네임, 디데이, 애착 유형, 상대방 애착 유형 정보 가져오기. (user : 사용자 메타데이터)
+        //  D-day 정보는 다음과 같이 구분해서 활용
+        //  - 단기연애 = ~ 100일
+        //  - 중기연애 = 101일 ~ 1년 미만
+        //  - 장기연애 = 1년 이상
+
+        // TODO : 시스템 프롬프트 불러오기 (system)
+        //  현재 ChatRoom의 LEVEL 불러오기
+        //  LEVEL에 따라 프롬프트 불러오기 (user : [현재 단계 지시])
+        //  ChatRoom의 isLastPromptForMetaData를 Prompt와 동기화
+
+        // TODO : Message가 없다면?? => 이전 LEVEL이 종료, 현재 레벨에 처음 진입했다는 의미.
+        //  이전 레벨의 ChatMessageSummary와 summarized = false인 ChatMessage를 비동기 요약 처리
+        //  요약 전 메시지를 바탕으로 현재 단계 지시 프롬프트로 요청 (status를 다시 ALIVE로 변경)
+
+        // TODO : 현재 LEVEL에 해당하는 ChatMessage 불러오기 (level = now, summarized = false) (user, assistant)
+        //  현재 LEVEL의 ChatMessage 수가 10 이상
+        //      => 요약본 생성 프롬프트로 요약 요청
+        //          - 비동기 처리
+        //          - stream = false
+        //          - 현재 단계 지시 + 이후부터는 요약된 메시지만 참조할 것 ~ + 현재 단계 메시지들
+        //      => ChatMessageSummary에 (current=true) 저장
+        //  요약된 ChatMessage의 summarized = true로 변경 (bulk update)
+        //  이전 요약본을 가져오기 위해 ChatMessageSummary를 전체 조회 (user : [이전 단계 요약])
+        //      - isSummaryForMetaData = false && current = false
+        //  현재 LEVEL의 ChatMessageSummary 불러오기 (level=now, current=true) (user : [현재 단계 요약])
+
+        // TODO : 시스템 프롬프트, 이전 단계 요약, 현재 단계 지시, 현재 단계 요약, 현재 단계 메시지들을 모아서 OpenAI API에 요청
         ChatRoom chatRoom = chatRoomDomainService.getCurrentChatRoomByMemberId(MemberId.of(member.getId()));
         List<ChatMessage> history = chatMessagesDomainService.getChatMessages(ChatRoomId.of(chatRoom.getId()));
 

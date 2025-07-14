@@ -29,6 +29,10 @@ public class ChatController {
 
     private final SendChatMessageUseCase sendChatMessageUseCase;
 
+
+    // TODO : 채팅방 정보 조회 API
+    //  채팅방이 없으면 생성하고 전달
+
     @Operation(
             summary = "채팅 메시지 전송",
             description = "서버로 AI 상담을 위한 사용자의 메시지를 전달합니다. AI 응답은 SSE로 전달됩니다. JWT 토큰이 필요합니다.",
