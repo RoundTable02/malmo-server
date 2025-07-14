@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface LoadChatRoomPort {
     Optional<ChatRoom> loadCurrentChatRoomByMemberId(MemberId memberId);
+    Optional<ChatRoom> loadMaxLevelChatRoomByMemberId(MemberId memberId);
 }

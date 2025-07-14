@@ -14,9 +14,11 @@ import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
+import makeus.cmc.malmo.application.port.in.GetCurrentChatRoomUseCase;
 import makeus.cmc.malmo.application.port.in.SendChatMessageUseCase;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,10 +30,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChatController {
 
     private final SendChatMessageUseCase sendChatMessageUseCase;
+    private final GetCurrentChatRoomUseCase getCurrentChatRoomUseCase;
 
 
-    // TODO : 채팅방 정보 조회 API
-    //  채팅방이 없으면 생성하고 전달
+    // 채팅방 정보 조회 API 채팅방이 없으면 생성하고 전달
+    @GetMapping("/room/current")
+    public BaseResponse<GetCurrentChatRoomUseCase.GetCurrentChatRoomResponse> getCurrentChatRoom(
+            @AuthenticationPrincipal User user) {
+        GetCurrentChatRoomUseCase.GetCurrentChatRoomCommand command = GetCurrentChatRoomUseCase.GetCurrentChatRoomCommand.builder()
+                .userId(Long.valueOf(user.getUsername()))
+                .build();
+        return BaseResponse.success(getCurrentChatRoomUseCase.getCurrentChatRoom(command));
+    }
 
     @Operation(
             summary = "채팅 메시지 전송",

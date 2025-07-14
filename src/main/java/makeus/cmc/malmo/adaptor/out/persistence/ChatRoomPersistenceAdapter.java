@@ -39,7 +39,13 @@ public class ChatRoomPersistenceAdapter implements LoadCurrentMessagesPort, Save
 
     @Override
     public Optional<ChatRoom> loadCurrentChatRoomByMemberId(MemberId memberId) {
-        return chatRoomRepository.findChatRoomEntityByMemberEntityId_Value(memberId.getValue())
+        return chatRoomRepository.findCurrentChatRoomByMemberEntityId(memberId.getValue())
+                .map(chatRoomMapper::toDomain);
+    }
+
+    @Override
+    public Optional<ChatRoom> loadMaxLevelChatRoomByMemberId(MemberId memberId) {
+        return chatRoomRepository.findMaxLevelChatRoomByMemberEntityId(memberId.getValue())
                 .map(chatRoomMapper::toDomain);
     }
 

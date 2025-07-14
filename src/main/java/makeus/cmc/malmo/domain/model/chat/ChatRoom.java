@@ -15,24 +15,31 @@ public class ChatRoom {
     private MemberId memberId;
     private ChatRoomState chatRoomState;
 
+    private boolean isCurrentPromptForMetadata;
+    private int level;
+
     // BaseTimeEntity fields
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
 
-    public static ChatRoom createChatRoom(MemberId memberId) {
+    public static ChatRoom createChatRoom(MemberId memberId, int level) {
         return ChatRoom.builder()
                 .memberId(memberId)
+                .level(level)
                 .chatRoomState(ChatRoomState.ALIVE)
                 .build();
     }
 
     public static ChatRoom from(Long id, MemberId memberId, ChatRoomState chatRoomState,
+                                boolean isCurrentPromptForMetadata, int level,
                                 LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
         return ChatRoom.builder()
                 .id(id)
                 .memberId(memberId)
                 .chatRoomState(chatRoomState)
+                .isCurrentPromptForMetadata(isCurrentPromptForMetadata)
+                .level(level)
                 .createdAt(createdAt)
                 .modifiedAt(modifiedAt)
                 .deletedAt(deletedAt)

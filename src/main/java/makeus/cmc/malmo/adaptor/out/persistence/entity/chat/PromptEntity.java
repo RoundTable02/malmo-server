@@ -6,29 +6,23 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntity;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
-import makeus.cmc.malmo.domain.value.state.ChatRoomState;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.ChatRoomEntityId;
+import makeus.cmc.malmo.domain.value.type.SenderType;
 
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class ChatRoomEntity extends BaseTimeEntity {
+public class PromptEntity extends BaseTimeEntity {
 
-    @Column(name = "chatRoomId")
+    @Column(name = "promptId")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Embedded
-    private MemberEntityId memberEntityId;
-
-    @Enumerated(EnumType.STRING)
-    private ChatRoomState chatRoomState;
-
-    private boolean isCurrentPromptForMetadata;
-
     private int level;
 
-    // TODO : LastMessageSentTime 필요
+    private String content;
+
+    private boolean isForMetadata;
 }
