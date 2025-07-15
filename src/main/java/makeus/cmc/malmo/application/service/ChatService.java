@@ -3,17 +3,17 @@ package makeus.cmc.malmo.application.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.application.port.in.SendChatMessageUseCase;
+import makeus.cmc.malmo.application.port.out.LoadChatRoomMetadataPort;
+import makeus.cmc.malmo.application.port.out.LoadLoveTypePort;
+import makeus.cmc.malmo.application.port.out.LoadPartnerPort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
-import makeus.cmc.malmo.domain.model.member.MemberMemory;
-import makeus.cmc.malmo.domain.service.MemberMemoryDomainService;
+import makeus.cmc.malmo.domain.model.love_type.LoveType;
+import makeus.cmc.malmo.domain.service.*;
 import makeus.cmc.malmo.domain.value.type.SenderType;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
-import makeus.cmc.malmo.domain.service.ChatMessagesDomainService;
-import makeus.cmc.malmo.domain.service.ChatRoomDomainService;
-import makeus.cmc.malmo.domain.service.MemberDomainService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,16 +36,31 @@ public class ChatService implements SendChatMessageUseCase {
     @Override
     @Transactional
     public SendChatMessageResponse processUserMessage(SendChatMessageCommand command) {
+        List<Map<String, String>> messages = new ArrayList<>();
+
         Member member = memberDomainService.getMemberById(MemberId.of(command.getUserId()));
 
         // MemberMemory 가져오기
         String memberMemoryList = memberMemoryDomainService.getMemberMemoriesByMemberId(MemberId.of(member.getId()));
 
-        // TODO : Member의 닉네임, 디데이, 애착 유형, 상대방 애착 유형 정보 가져오기. (user : [사용자 메타데이터])
-        //  D-day 정보는 다음과 같이 구분해서 활용
-        //  - 단기연애 = ~ 100일
-        //  - 중기연애 = 101일 ~ 1년 미만
-        //  - 장기연애 = 1년 이상
+        // Member의 닉네임, 디데이, 애착 유형, 상대방 애착 유형 정보 가져오기. (user : [사용자 메타데이터])
+        //  D-day 정보는 단기, 중기, 장기로 구분하여 활용
+        StringBuilder metadataBuilder = new StringBuilder();
+        metadataBuilder.append("[사용자 메타데이터]\n");
+        String nickname = member.getNickname();
+        metadataBuilder.append("- 사용자 이름: ").append(nickname).append("\n");
+        String dDayState = memberDomainService.getMemberDDayState(member.getStartLoveDate());
+        metadataBuilder.append("- 연애 기간: ").append(dDayState).append("\n");
+
+        LoadChatRoomMetadataPort.ChatRoomMetadataDto chatRoomMetadataDto = chatRoomDomainService.getChatRoomMetadata(MemberId.of(member.getId()));
+        String memberLoveTypeTitle = chatRoomMetadataDto.memberLoveTypeTitle();
+        metadataBuilder.append("- 사용자 애착 유형: ").append(memberLoveTypeTitle).append("\n");
+
+        String partnerLoveType = chatRoomMetadataDto.partnerLoveTypeTitle();
+        metadataBuilder.append("- 애인 애착 유형: ").append(partnerLoveType).append("\n");
+        metadataBuilder.append(memberMemoryList);
+
+        messages.add(Map.of("role", "user", "content", metadataBuilder.toString()));
 
         // TODO : 시스템 프롬프트 불러오기 (system)
         //  현재 ChatRoom의 LEVEL 불러오기
@@ -71,8 +86,6 @@ public class ChatService implements SendChatMessageUseCase {
         // TODO : 시스템 프롬프트, 이전 단계 요약, 현재 단계 지시, 현재 단계 요약, 현재 단계 메시지들을 모아서 OpenAI API에 요청
         ChatRoom chatRoom = chatRoomDomainService.getCurrentChatRoomByMemberId(MemberId.of(member.getId()));
         List<ChatMessage> history = chatMessagesDomainService.getChatMessages(ChatRoomId.of(chatRoom.getId()));
-
-        List<Map<String, String>> messages = new ArrayList<>();
 
         for (ChatMessage record : history) {
             messages.add(createMessageMap(record.getSenderType(), record.getContent()));

@@ -1,4 +1,4 @@
-package makeus.cmc.malmo.adaptor.out;
+package makeus.cmc.malmo.adaptor.out.persistence;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.MemberMemoryMapper;
@@ -9,7 +9,6 @@ import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Component

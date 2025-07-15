@@ -1,6 +1,7 @@
 package makeus.cmc.malmo.domain.service;
 
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.application.port.out.LoadChatRoomMetadataPort;
 import makeus.cmc.malmo.application.port.out.LoadChatRoomPort;
 import makeus.cmc.malmo.application.port.out.LoadPromptPort;
 import makeus.cmc.malmo.application.port.out.SaveChatRoomPort;
@@ -20,6 +21,7 @@ public class ChatRoomDomainService {
     private final LoadChatRoomPort loadChatRoomPort;
     private final SaveChatRoomPort saveChatRoomPort;
     private final LoadPromptPort loadPromptPort;
+    private final LoadChatRoomMetadataPort loadChatRoomMetadataPort;
 
     public ChatRoom getCurrentChatRoomByMemberId(MemberId memberId) {
         return loadChatRoomPort.loadCurrentChatRoomByMemberId(memberId)
@@ -47,5 +49,15 @@ public class ChatRoomDomainService {
                             ChatRoom.createChatRoom(memberId, level, isCurrentPromptForMetadata)
                     );
                 });
+    }
+
+
+    public LoadChatRoomMetadataPort.ChatRoomMetadataDto getChatRoomMetadata(MemberId memberId) {
+        return loadChatRoomMetadataPort.loadChatRoomMetadata(memberId)
+                .map(
+                        metadata -> new LoadChatRoomMetadataPort.ChatRoomMetadataDto(
+                                metadata.memberLoveTypeTitle() != null ? metadata.memberLoveTypeTitle() : "알 수 없음",
+                                metadata.partnerLoveTypeTitle() != null ? metadata.partnerLoveTypeTitle() : "알 수 없음"
+                )).orElse(new LoadChatRoomMetadataPort.ChatRoomMetadataDto("알 수 없음", "알 수 없음"));
     }
 }
