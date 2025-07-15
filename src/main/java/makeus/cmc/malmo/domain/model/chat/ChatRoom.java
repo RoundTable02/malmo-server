@@ -46,4 +46,8 @@ public class ChatRoom {
                 .deletedAt(deletedAt)
                 .build();
     }
+
+    public void updateCurrentPromptStateNotForMetadata() {
+        this.isCurrentPromptForMetadata = false;
+    }
 }

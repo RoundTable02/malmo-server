@@ -4,11 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.application.port.in.SendChatMessageUseCase;
 import makeus.cmc.malmo.application.port.out.LoadChatRoomMetadataPort;
-import makeus.cmc.malmo.application.port.out.LoadLoveTypePort;
-import makeus.cmc.malmo.application.port.out.LoadPartnerPort;
+import makeus.cmc.malmo.application.port.out.LoadPromptPort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
-import makeus.cmc.malmo.domain.model.love_type.LoveType;
+import makeus.cmc.malmo.domain.model.chat.Prompt;
 import makeus.cmc.malmo.domain.service.*;
 import makeus.cmc.malmo.domain.value.type.SenderType;
 import makeus.cmc.malmo.domain.model.member.Member;
@@ -20,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -32,6 +32,8 @@ public class ChatService implements SendChatMessageUseCase {
     private final MemberDomainService memberDomainService;
     private final ChatStreamProcessor chatStreamProcessor;
     private final MemberMemoryDomainService memberMemoryDomainService;
+
+    private final LoadPromptPort loadPromptPort;
 
     @Override
     @Transactional
@@ -62,10 +64,41 @@ public class ChatService implements SendChatMessageUseCase {
 
         messages.add(Map.of("role", "user", "content", metadataBuilder.toString()));
 
-        // TODO : 시스템 프롬프트 불러오기 (system)
+        // 시스템 프롬프트 불러오기 (system)
+        // TODO : 예외 처리 필요
+        String systemPrompt = loadPromptPort.loadPromptByLevel(-2)
+                .map(Prompt::getContent)
+                .orElse("시스템 프롬프트가 없습니다.");
+        messages.add(
+                Map.of(
+                        "role", "system",
+                        "content", systemPrompt
+                )
+        );
+        log.info(systemPrompt);
+
         //  현재 ChatRoom의 LEVEL 불러오기
+        ChatRoom chatRoom = chatRoomDomainService.getCurrentChatRoomByMemberId(MemberId.of(member.getId()));
+        int nowChatRoomLevel = chatRoom.getLevel();
+
         //  LEVEL에 따라 프롬프트 불러오기 (user : [현재 단계 지시])
-        //  ChatRoom의 isLastPromptForMetaData를 Prompt와 동기화
+        Optional<Prompt> prompt = loadPromptPort.loadPromptByLevel(nowChatRoomLevel);
+        String promptContent = prompt.map(Prompt::getContent)
+                .orElse("현재 단계에 해당하는 프롬프트가 없습니다.");
+
+        messages.add(
+                Map.of(
+                        "role", "user",
+                        "content",promptContent
+                )
+        );
+        log.info(promptContent);
+
+        //  ChatRoom의 isCurrentPromptForMetadata를 Prompt와 동기화
+        if (prompt.isPresent() && !prompt.get().isForMetadata()) {
+            chatRoom.updateCurrentPromptStateNotForMetadata();
+            chatRoomDomainService.saveChatRoom(chatRoom);
+        }
 
         // TODO : Message가 없다면?? => 이전 LEVEL이 종료, 현재 레벨에 처음 진입했다는 의미.
         //  이전 레벨의 ChatMessageSummary와 summarized = false인 ChatMessage를 비동기 요약 처리
@@ -84,7 +117,6 @@ public class ChatService implements SendChatMessageUseCase {
         //  현재 LEVEL의 ChatMessageSummary 불러오기 (level=now, current=true) (user : [현재 단계 요약])
 
         // TODO : 시스템 프롬프트, 이전 단계 요약, 현재 단계 지시, 현재 단계 요약, 현재 단계 메시지들을 모아서 OpenAI API에 요청
-        ChatRoom chatRoom = chatRoomDomainService.getCurrentChatRoomByMemberId(MemberId.of(member.getId()));
         List<ChatMessage> history = chatMessagesDomainService.getChatMessages(ChatRoomId.of(chatRoom.getId()));
 
         for (ChatMessage record : history) {

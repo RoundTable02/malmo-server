@@ -60,4 +60,8 @@ public class ChatRoomDomainService {
                                 metadata.partnerLoveTypeTitle() != null ? metadata.partnerLoveTypeTitle() : "알 수 없음"
                 )).orElse(new LoadChatRoomMetadataPort.ChatRoomMetadataDto("알 수 없음", "알 수 없음"));
     }
+
+    public void saveChatRoom(ChatRoom chatRoom) {
+        saveChatRoomPort.saveChatRoom(chatRoom);
+    }
 }
