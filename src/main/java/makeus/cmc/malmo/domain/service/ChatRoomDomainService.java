@@ -7,6 +7,7 @@ import makeus.cmc.malmo.application.port.out.LoadPromptPort;
 import makeus.cmc.malmo.application.port.out.SaveChatRoomPort;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
 import makeus.cmc.malmo.domain.model.chat.Prompt;
+import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,5 +64,27 @@ public class ChatRoomDomainService {
 
     public void saveChatRoom(ChatRoom chatRoom) {
         saveChatRoomPort.saveChatRoom(chatRoom);
+    }
+
+    public void updateChatRoomStateToPaused(ChatRoomId chatRoomId) {
+        // TODO: 예외 처리 필요
+        ChatRoom chatRoom = loadChatRoomPort.loadChatRoomById(chatRoomId)
+                .orElse(null);
+
+        if (chatRoom != null) {
+            chatRoom.updateChatRoomStatePaused();
+            saveChatRoom(chatRoom);
+        }
+    }
+
+    public void updateChatRoomStateToNeedNextQuestion(ChatRoomId chatRoomId) {
+        // TODO: 예외 처리 필요
+        ChatRoom chatRoom = loadChatRoomPort.loadChatRoomById(chatRoomId)
+                .orElse(null);
+
+        if (chatRoom != null) {
+            chatRoom.updateChatRoomStateNeedNextQuestion();
+            saveChatRoom(chatRoom);
+        }
     }
 }

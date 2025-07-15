@@ -67,4 +67,11 @@ public class ChatRoomPersistenceAdapter implements LoadCurrentMessagesPort, Save
         ChatMessageEntity savedEntity = chatMessageRepository.save(entity);
         return chatMessageMapper.toDomain(savedEntity);
     }
+
+
+    @Override
+    public Optional<ChatRoom> loadChatRoomById(ChatRoomId chatRoomId) {
+        return chatRoomRepository.findById(chatRoomId.getValue())
+                .map(chatRoomMapper::toDomain);
+    }
 }

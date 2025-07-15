@@ -15,19 +15,21 @@ public class Prompt extends BaseTimeEntity {
     private int level;
     private String content;
     private boolean isForMetadata;
+    private boolean isLastPromptForMetadata;
 
     // BaseTimeEntity fields
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
 
-    public static Prompt from(Long id, int level, String content, boolean isForMetadata,
+    public static Prompt from(Long id, int level, String content, boolean isForMetadata, boolean isLastPromptForMetadata,
                                  LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
         return Prompt.builder()
                 .id(id)
                 .level(level)
                 .content(content)
                 .isForMetadata(isForMetadata)
+                .isLastPromptForMetadata(isLastPromptForMetadata)
                 .createdAt(createdAt)
                 .modifiedAt(modifiedAt)
                 .deletedAt(deletedAt)

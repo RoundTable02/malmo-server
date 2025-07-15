@@ -26,4 +26,6 @@ public class PromptEntity extends BaseTimeEntity {
     private String content;
 
     private boolean isForMetadata;
+
+    private boolean isLastPromptForMetadata;
 }

@@ -16,10 +16,7 @@ import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -82,9 +79,9 @@ public class ChatService implements SendChatMessageUseCase {
         int nowChatRoomLevel = chatRoom.getLevel();
 
         //  LEVEL에 따라 프롬프트 불러오기 (user : [현재 단계 지시])
-        Optional<Prompt> prompt = loadPromptPort.loadPromptByLevel(nowChatRoomLevel);
-        String promptContent = prompt.map(Prompt::getContent)
-                .orElse("현재 단계에 해당하는 프롬프트가 없습니다.");
+        Prompt prompt = loadPromptPort.loadPromptByLevel(nowChatRoomLevel)
+                .orElse(null); // TODO: 예외 처리 필요
+        String promptContent = prompt.getContent();
 
         messages.add(
                 Map.of(
@@ -95,7 +92,7 @@ public class ChatService implements SendChatMessageUseCase {
         log.info(promptContent);
 
         //  ChatRoom의 isCurrentPromptForMetadata를 Prompt와 동기화
-        if (prompt.isPresent() && !prompt.get().isForMetadata()) {
+        if (!prompt.isForMetadata()) {
             chatRoom.updateCurrentPromptStateNotForMetadata();
             chatRoomDomainService.saveChatRoom(chatRoom);
         }
@@ -116,6 +113,8 @@ public class ChatService implements SendChatMessageUseCase {
         //      - isSummaryForMetaData = false && current = false
         //  현재 LEVEL의 ChatMessageSummary 불러오기 (level=now, current=true) (user : [현재 단계 요약])
 
+        // TODO : 커플 연동이 된다면, PAUSED 상태인 ChatRoom을 ALIVE 상태로 변경
+
         // TODO : 시스템 프롬프트, 이전 단계 요약, 현재 단계 지시, 현재 단계 요약, 현재 단계 메시지들을 모아서 OpenAI API에 요청
         List<ChatMessage> history = chatMessagesDomainService.getChatMessages(ChatRoomId.of(chatRoom.getId()));
 
@@ -130,6 +129,8 @@ public class ChatService implements SendChatMessageUseCase {
         // OpenAI API 스트리밍 호출
         chatStreamProcessor.requestApiStream(
                 MemberId.of(command.getUserId()),
+                !Objects.equals(partnerLoveType, "알 수 없음"), // TODO: 커플 연동 여부 확인 로직 추가
+                prompt.isLastPromptForMetadata(),
                 messages,
                 ChatRoomId.of(chatRoom.getId()));
 
