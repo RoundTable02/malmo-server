@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.application.port.in.SendChatMessageUseCase;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
+import makeus.cmc.malmo.domain.model.member.MemberMemory;
+import makeus.cmc.malmo.domain.service.MemberMemoryDomainService;
 import makeus.cmc.malmo.domain.value.type.SenderType;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
@@ -29,14 +31,17 @@ public class ChatService implements SendChatMessageUseCase {
     private final ChatMessagesDomainService chatMessagesDomainService;
     private final MemberDomainService memberDomainService;
     private final ChatStreamProcessor chatStreamProcessor;
+    private final MemberMemoryDomainService memberMemoryDomainService;
 
     @Override
     @Transactional
     public SendChatMessageResponse processUserMessage(SendChatMessageCommand command) {
         Member member = memberDomainService.getMemberById(MemberId.of(command.getUserId()));
 
-        // TODO : MemberMemory 가져오기
-        // TODO : Member의 닉네임, 디데이, 애착 유형, 상대방 애착 유형 정보 가져오기. (user : 사용자 메타데이터)
+        // MemberMemory 가져오기
+        String memberMemoryList = memberMemoryDomainService.getMemberMemoriesByMemberId(MemberId.of(member.getId()));
+
+        // TODO : Member의 닉네임, 디데이, 애착 유형, 상대방 애착 유형 정보 가져오기. (user : [사용자 메타데이터])
         //  D-day 정보는 다음과 같이 구분해서 활용
         //  - 단기연애 = ~ 100일
         //  - 중기연애 = 101일 ~ 1년 미만
