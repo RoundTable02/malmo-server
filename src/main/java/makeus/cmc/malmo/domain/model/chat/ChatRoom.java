@@ -28,7 +28,7 @@ public class ChatRoom {
                 .memberId(memberId)
                 .level(level)
                 .isCurrentPromptForMetadata(isCurrentPromptForMetadata)
-                .chatRoomState(isCurrentPromptForMetadata ? ChatRoomState.COLLECT_METADATA : ChatRoomState.ALIVE)
+                .chatRoomState(ChatRoomState.ALIVE)
                 .build();
     }
 
@@ -49,7 +49,6 @@ public class ChatRoom {
 
     public void updateCurrentPromptStateNotForMetadata() {
         this.isCurrentPromptForMetadata = false;
-        this.chatRoomState = ChatRoomState.ALIVE;
     }
 
     public void updateChatRoomStatePaused() {
@@ -59,5 +58,9 @@ public class ChatRoom {
     public void updateChatRoomStateNeedNextQuestion() {
         this.level += 1;
         this.chatRoomState = ChatRoomState.NEED_NEXT_QUESTION;
+    }
+
+    public void updateChatRoomStateAlive() {
+        this.chatRoomState = ChatRoomState.ALIVE;
     }
 }

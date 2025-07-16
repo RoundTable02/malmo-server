@@ -13,9 +13,9 @@ import makeus.cmc.malmo.domain.value.type.SenderType;
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class ChatMessageEntity extends BaseTimeEntity {
+public class ChatMessageSummaryEntity extends BaseTimeEntity {
 
-    @Column(name = "chatMessageId")
+    @Column(name = "chatMessageSummaryId")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,17 +23,9 @@ public class ChatMessageEntity extends BaseTimeEntity {
     @Embedded
     private ChatRoomEntityId chatRoomEntityId;
 
-    private boolean isImage;
+    private int level;
 
-    private String imageUrl;
-
-    private String extractedText;
-
-    @Column(columnDefinition = "TEXT")
     private String content;
 
-    @Enumerated(EnumType.STRING)
-    private SenderType senderType;
-
-    private boolean isSummarized;
+    private boolean isForCurrentLevel;
 }

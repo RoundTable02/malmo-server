@@ -4,6 +4,8 @@ import makeus.cmc.malmo.application.port.out.LoadCurrentMessagesPort;
 
 import java.util.List;
 
-public interface ChatRoomRepositoryCustom {
+public interface ChatMessageRepositoryCustom {
     List<LoadCurrentMessagesPort.ChatRoomMessageRepositoryDto> loadCurrentMessagesDto(Long chatRoomId, int page, int size);
+
+    void updateChatMessageSummarizedAllTrue(Long chatRoomId);
 }

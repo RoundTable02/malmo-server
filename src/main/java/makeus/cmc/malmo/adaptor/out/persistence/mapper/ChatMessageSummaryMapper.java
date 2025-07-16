@@ -1,46 +1,42 @@
 package makeus.cmc.malmo.adaptor.out.persistence.mapper;
 
-import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatMessageEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatMessageSummaryEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.ChatRoomEntityId;
-import makeus.cmc.malmo.domain.model.chat.ChatMessage;
+import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ChatMessageMapper {
+public class ChatMessageSummaryMapper {
 
-    public ChatMessage toDomain(ChatMessageEntity entity) {
-        return ChatMessage.from(
+    public ChatMessageSummary toDomain(ChatMessageSummaryEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+        return ChatMessageSummary.from(
                 entity.getId(),
                 entity.getChatRoomEntityId() != null ?
                         ChatRoomId.of(entity.getChatRoomEntityId().getValue()) : null,
-                entity.isImage(),
-                entity.getImageUrl(),
-                entity.getExtractedText(),
                 entity.getContent(),
-                entity.getSenderType(),
-                entity.isSummarized(),
+                entity.getLevel(),
+                entity.isForCurrentLevel(),
                 entity.getCreatedAt(),
                 entity.getModifiedAt(),
                 entity.getDeletedAt()
         );
     }
 
-    public ChatMessageEntity toEntity(ChatMessage domain) {
+    public ChatMessageSummaryEntity toEntity(ChatMessageSummary domain) {
         if (domain == null) {
             return null;
         }
-
-        return ChatMessageEntity.builder()
+        return ChatMessageSummaryEntity.builder()
                 .id(domain.getId())
                 .chatRoomEntityId(domain.getChatRoomId() != null ?
                         ChatRoomEntityId.of(domain.getChatRoomId().getValue()) : null)
-                .isImage(domain.isImage())
-                .imageUrl(domain.getImageUrl())
-                .extractedText(domain.getExtractedText())
                 .content(domain.getContent())
-                .senderType(domain.getSenderType())
-                .isSummarized(domain.isSummarized())
+                .level(domain.getLevel())
+                .isForCurrentLevel(domain.isForCurrentLevel())
                 .createdAt(domain.getCreatedAt())
                 .modifiedAt(domain.getModifiedAt())
                 .deletedAt(domain.getDeletedAt())

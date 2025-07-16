@@ -5,4 +5,6 @@ import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 
 public interface SaveChatRoomPort {
     ChatRoom saveChatRoom(ChatRoom chatRoom);
+
+    void updateAllMessagesSummarizedIsTrue(ChatRoomId chatRoomId);
 }

@@ -29,4 +29,11 @@ public class MemberMemory {
                 .deletedAt(deletedAt)
                 .build();
     }
+
+    public static MemberMemory createMemberMemory(MemberId memberId, String content) {
+        return MemberMemory.builder()
+                .memberId(memberId)
+                .content(content)
+                .build();
+    }
 }

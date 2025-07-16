@@ -12,7 +12,7 @@ import static makeus.cmc.malmo.adaptor.out.persistence.entity.chat.QChatMessageE
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.chat.QSavedChatMessageEntity.savedChatMessageEntity;
 
 @RequiredArgsConstructor
-public class ChatRoomRepositoryCustomImpl implements ChatRoomRepositoryCustom {
+public class ChatMessageRepositoryCustomImpl implements ChatMessageRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
@@ -34,5 +34,14 @@ public class ChatRoomRepositoryCustomImpl implements ChatRoomRepositoryCustom {
                 .offset((long) page * size)
                 .limit(size)
                 .fetch();
+    }
+
+    @Override
+    public void updateChatMessageSummarizedAllTrue(Long chatRoomId) {
+        queryFactory.update(chatMessageEntity)
+            .set(chatMessageEntity.isSummarized, true)
+            .where(chatMessageEntity.chatRoomEntityId.value.eq(chatRoomId)
+                    .and(chatMessageEntity.isSummarized.eq(false)))
+            .execute();
     }
 }

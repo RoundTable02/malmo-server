@@ -62,10 +62,12 @@ public class ChatRoomDomainService {
                 )).orElse(new LoadChatRoomMetadataPort.ChatRoomMetadataDto("알 수 없음", "알 수 없음"));
     }
 
+    @Transactional
     public void saveChatRoom(ChatRoom chatRoom) {
         saveChatRoomPort.saveChatRoom(chatRoom);
     }
 
+    @Transactional
     public void updateChatRoomStateToPaused(ChatRoomId chatRoomId) {
         // TODO: 예외 처리 필요
         ChatRoom chatRoom = loadChatRoomPort.loadChatRoomById(chatRoomId)
@@ -77,6 +79,7 @@ public class ChatRoomDomainService {
         }
     }
 
+    @Transactional
     public void updateChatRoomStateToNeedNextQuestion(ChatRoomId chatRoomId) {
         // TODO: 예외 처리 필요
         ChatRoom chatRoom = loadChatRoomPort.loadChatRoomById(chatRoomId)
@@ -86,5 +89,22 @@ public class ChatRoomDomainService {
             chatRoom.updateChatRoomStateNeedNextQuestion();
             saveChatRoom(chatRoom);
         }
+    }
+
+    @Transactional
+    public void updateChatRoomStateToAlive(ChatRoomId chatRoomId) {
+        // TODO: 예외 처리 필요
+        ChatRoom chatRoom = loadChatRoomPort.loadChatRoomById(chatRoomId)
+                .orElse(null);
+
+        if (chatRoom != null) {
+            chatRoom.updateChatRoomStateAlive();
+            saveChatRoom(chatRoom);
+        }
+    }
+
+    @Transactional
+    public void updateAllMessagesSummarized(ChatRoomId chatRoomId) {
+        saveChatRoomPort.updateAllMessagesSummarizedIsTrue(chatRoomId);
     }
 }

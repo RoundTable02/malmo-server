@@ -82,6 +82,17 @@ public class ChatController {
         return BaseResponse.success(sendChatMessageResponse);
     }
 
+    @PostMapping("/room/upgrade")
+    public BaseResponse<SendChatMessageUseCase.SendChatMessageResponse> sendChatMessage(
+            @AuthenticationPrincipal User user) {
+        SendChatMessageUseCase.SendChatMessageResponse sendChatMessageResponse = sendChatMessageUseCase.upgradeChatRoom(
+                SendChatMessageUseCase.SendChatMessageCommand.builder()
+                        .userId(Long.valueOf(user.getUsername()))
+                        .build());
+
+        return BaseResponse.success(sendChatMessageResponse);
+    }
+
     @Getter
     @AllArgsConstructor
     public static class ChatRequest {
