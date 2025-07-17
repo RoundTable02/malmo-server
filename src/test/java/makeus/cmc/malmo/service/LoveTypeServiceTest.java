@@ -3,7 +3,6 @@ package makeus.cmc.malmo.service;
 import makeus.cmc.malmo.domain.exception.LoveTypeNotFoundException;
 import makeus.cmc.malmo.domain.exception.LoveTypeQuestionNotFoundException;
 import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
-import makeus.cmc.malmo.application.port.in.GetLoveTypeUseCase;
 import makeus.cmc.malmo.application.port.in.UpdateMemberLoveTypeUseCase;
 import makeus.cmc.malmo.application.port.out.SaveMemberPort;
 import makeus.cmc.malmo.application.service.LoveTypeService;
@@ -11,6 +10,7 @@ import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.value.MemberId;
 import makeus.cmc.malmo.domain.service.MemberDomainService;
+import makeus.cmc.malmo.domain.service.LoveTypeDataService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,10 +21,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,6 +33,9 @@ class LoveTypeServiceTest {
 
     @Mock
     private MemberDomainService memberDomainService;
+
+    @Mock
+    private LoveTypeDataService loveTypeDataService;
 
     @Mock
     private SaveMemberPort saveMemberPort;
@@ -57,23 +60,20 @@ class LoveTypeServiceTest {
                             .build();
 
             Member member = mock(Member.class);
-            LoveType loveType = createLoveType();
-            LoveTypeDomainService.LoveTypeCalculationResult calculationResult = 
-                    new LoveTypeDomainService.LoveTypeCalculationResult(loveType, 2.5f, 1.8f);
+            LoveTypeDataService.LoveTypeCalculationResult calculationResult = 
+                    new LoveTypeDataService.LoveTypeCalculationResult(LoveTypeCategory.STABLE_TYPE, 2.5f, 1.8f);
 
             given(memberDomainService.getMemberById(MemberId.of(memberId))).willReturn(member);
-            given(loveTypeDomainService.calculateLoveType(anyList())).willReturn(calculationResult);
+            given(loveTypeDataService.findLoveTypeCategoryByTestResult(anyList())).willReturn(calculationResult);
             given(saveMemberPort.saveMember(member)).willReturn(member);
-            given(member.getAvoidanceRate()).willReturn(2.5f);
-            given(member.getAnxietyRate()).willReturn(1.8f);
 
             // When
             loveTypeService.updateMemberLoveType(command);
 
             // Then
             then(memberDomainService).should().getMemberById(MemberId.of(memberId));
-            then(loveTypeDomainService).should().calculateLoveType(anyList());
-            then(member).should().updateLoveTypeId(any(LoveTypeCategory.class), eq(2.5f), eq(1.8f));
+            then(loveTypeDataService).should().findLoveTypeCategoryByTestResult(anyList());
+            then(member).should().updateLoveTypeId(eq(LoveTypeCategory.STABLE_TYPE), eq(2.5f), eq(1.8f));
             then(saveMemberPort).should().saveMember(member);
         }
 
@@ -97,7 +97,7 @@ class LoveTypeServiceTest {
                     .isInstanceOf(MemberNotFoundException.class);
 
             then(memberDomainService).should().getMemberById(MemberId.of(nonExistentMemberId));
-            then(loveTypeDomainService).should(never()).calculateLoveType(anyList());
+            then(loveTypeDataService).should(never()).findLoveTypeCategoryByTestResult(anyList());
             then(saveMemberPort).should(never()).saveMember(any());
         }
 
@@ -116,7 +116,7 @@ class LoveTypeServiceTest {
             Member member = mock(Member.class);
 
             given(memberDomainService.getMemberById(MemberId.of(memberId))).willReturn(member);
-            given(loveTypeDomainService.calculateLoveType(anyList()))
+            given(loveTypeDataService.findLoveTypeCategoryByTestResult(anyList()))
                     .willThrow(new LoveTypeQuestionNotFoundException());
 
             // When & Then
@@ -124,7 +124,7 @@ class LoveTypeServiceTest {
                     .isInstanceOf(LoveTypeQuestionNotFoundException.class);
 
             then(memberDomainService).should().getMemberById(MemberId.of(memberId));
-            then(loveTypeDomainService).should().calculateLoveType(anyList());
+            then(loveTypeDataService).should().findLoveTypeCategoryByTestResult(anyList());
             then(saveMemberPort).should(never()).saveMember(any());
         }
 
@@ -143,7 +143,7 @@ class LoveTypeServiceTest {
             Member member = mock(Member.class);
 
             given(memberDomainService.getMemberById(MemberId.of(memberId))).willReturn(member);
-            given(loveTypeDomainService.calculateLoveType(anyList()))
+            given(loveTypeDataService.findLoveTypeCategoryByTestResult(anyList()))
                     .willThrow(new LoveTypeNotFoundException());
 
             // When & Then
@@ -151,20 +151,9 @@ class LoveTypeServiceTest {
                     .isInstanceOf(LoveTypeNotFoundException.class);
 
             then(memberDomainService).should().getMemberById(MemberId.of(memberId));
-            then(loveTypeDomainService).should().calculateLoveType(anyList());
+            then(loveTypeDataService).should().findLoveTypeCategoryByTestResult(anyList());
             then(saveMemberPort).should(never()).saveMember(any());
         }
-    }
-
-    private LoveType createLoveType() {
-        return LoveType.builder()
-                .id(1L)
-                .title("안정형")
-                .summary("안정적인 애착 유형")
-                .content("안정적인 애착 스타일입니다.")
-                .imageUrl("http://example.com/secure.jpg")
-                .loveTypeCategory(LoveTypeCategory.STABLE_TYPE)
-                .build();
     }
 
     private List<UpdateMemberLoveTypeUseCase.LoveTypeTestResult> createLoveTypeTestResults() {
