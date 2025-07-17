@@ -1,11 +1,12 @@
 package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.application.port.in.GetLoveTypeUseCase;
+import makeus.cmc.malmo.application.port.in.GetMemberLoveTypeDetailsUseCase;
 import makeus.cmc.malmo.application.port.in.UpdateMemberLoveTypeUseCase;
 import makeus.cmc.malmo.application.port.out.SaveMemberPort;
 import makeus.cmc.malmo.domain.model.love_type.LoveType;
 import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
+import makeus.cmc.malmo.domain.model.love_type.LoveTypeData;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.value.LoveTypeId;
 import makeus.cmc.malmo.domain.model.value.MemberId;
@@ -21,19 +22,11 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class LoveTypeService implements GetLoveTypeUseCase, UpdateMemberLoveTypeUseCase {
+public class LoveTypeService implements UpdateMemberLoveTypeUseCase, GetMemberLoveTypeDetailsUseCase {
 
     private final LoveTypeDataService loveTypeDataService;
     private final MemberDomainService memberDomainService;
     private final SaveMemberPort saveMemberPort;
-
-    @Override
-    public GetLoveTypeResponseDto getLoveType(GetLoveTypeCommand command) {
-//        LoveType loveType = loveTypeDataService.getLoveTypeData(LoveTypeId.of(command.getLoveTypeId()));
-
-        return GetLoveTypeResponseDto.builder()
-                .build();
-    }
 
     @Override
     @Transactional
@@ -52,5 +45,37 @@ public class LoveTypeService implements GetLoveTypeUseCase, UpdateMemberLoveType
 
         member.updateLoveTypeId(category, avoidanceScore, anxietyScore);
         saveMemberPort.saveMember(member);
+    }
+
+    @Override
+    public LoveTypeDetailsDto getMemberLoveTypeInfo(MemberLoveTypeCommand command) {
+        Member member = memberDomainService.getMemberById(MemberId.of(command.getMemberId()));
+        LoveTypeCategory category = member.getLoveTypeCategory();
+        LoveTypeData loveTypeData = loveTypeDataService.getLoveTypeData(category);
+
+        return LoveTypeDetailsDto.builder()
+                .memberAnxietyScore(member.getAnxietyRate())
+                .memberAvoidanceScore(member.getAvoidanceRate())
+                .name(loveTypeData.getName())
+                .loveTypeName(loveTypeData.getLoveTypeName())
+                .imageUrl(loveTypeData.getImageUrl())
+                .summary(loveTypeData.getSummary())
+                .description(loveTypeData.getDescription())
+                .anxietyOver(
+                        category.getAnxietyOver() == LoveTypeCategory.MIN_SCORE ? null : category.getAnxietyOver()
+                )
+                .anxietyUnder(
+                        category.getAnxietyUnder() == LoveTypeCategory.MAX_SCORE ? null : category.getAnxietyUnder()
+                )
+                .avoidanceOver(
+                        category.getAvoidanceOver() == LoveTypeCategory.MIN_SCORE ? null : category.getAvoidanceOver()
+                )
+                .avoidanceUnder(
+                        category.getAvoidanceUnder() == LoveTypeCategory.MAX_SCORE ? null : category.getAvoidanceUnder()
+                )
+                .relationshipAttitudes(loveTypeData.getRelationshipAttitudes())
+                .problemSolvingAttitudes(loveTypeData.getProblemSolvingAttitudes())
+                .emotionalExpressions(loveTypeData.getEmotionalExpressions())
+                .build();
     }
 }

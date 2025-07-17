@@ -38,6 +38,7 @@ public class MemberController {
     private final UpdateMemberUseCase updateMemberUseCase;
     private final UpdateTermsAgreementUseCase updateTermsAgreementUseCase;
     private final UpdateMemberLoveTypeUseCase updateMemberLoveTypeUseCase;
+    private final GetMemberLoveTypeDetailsUseCase getMemberLoveTypeDetailsUseCase;
 
     @Operation(
             summary = "멤버 정보 조회",
@@ -208,6 +209,16 @@ public class MemberController {
         updateMemberLoveTypeUseCase.updateMemberLoveType(command);
 
         return BaseResponse.success(null);
+    }
+
+    @GetMapping("/love-type")
+    public BaseResponse<GetMemberLoveTypeDetailsUseCase.LoveTypeDetailsDto> getMemberLoveTypeInfo(
+            @AuthenticationPrincipal User user
+    ) {
+        GetMemberLoveTypeDetailsUseCase.MemberLoveTypeCommand command = GetMemberLoveTypeDetailsUseCase.MemberLoveTypeCommand.builder()
+                .memberId(Long.valueOf(user.getUsername()))
+                .build();
+        return BaseResponse.success(getMemberLoveTypeDetailsUseCase.getMemberLoveTypeInfo(command));
     }
 
     @Data
