@@ -1,6 +1,8 @@
 package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.adaptor.in.aop.CheckCoupleMember;
+import makeus.cmc.malmo.adaptor.in.exception.NotCoupleMemberException;
 import makeus.cmc.malmo.application.exception.MemberNotTestedException;
 import makeus.cmc.malmo.application.port.in.GetMemberLoveTypeDetailsUseCase;
 import makeus.cmc.malmo.application.port.in.UpdateMemberLoveTypeUseCase;
@@ -84,12 +86,16 @@ public class LoveTypeService implements UpdateMemberLoveTypeUseCase, GetMemberLo
     }
 
     @Override
+    @CheckCoupleMember
     public LoveTypeDetailsDto getPartnerLoveTypeInfo(MemberLoveTypeCommand command) {
         LoadPartnerPort.PartnerLoveTypeRepositoryDto dto = loadPartnerPort.loadPartnerLoveTypeCategory(MemberId.of(command.getMemberId()))
-                .orElseThrow(MemberNotTestedException::new);
+                .orElseThrow(NotCoupleMemberException::new);
 
         LoveTypeCategory category = dto.getLoveTypeCategory();
-
+        if (category == null) {
+            throw new MemberNotTestedException();
+        }
+        
         LoveTypeData loveTypeData = loveTypeDataService.getLoveTypeData(category);
 
         return LoveTypeDetailsDto.builder()
