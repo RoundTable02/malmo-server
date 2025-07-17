@@ -9,7 +9,6 @@ import makeus.cmc.malmo.application.port.out.LoadInviteCodePort;
 import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.LoadPartnerPort;
 import makeus.cmc.malmo.application.port.out.SaveMemberPort;
-import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.member.Provider;
 import makeus.cmc.malmo.domain.model.value.InviteCodeValue;

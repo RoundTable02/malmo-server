@@ -7,13 +7,11 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleMemberStateJ
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.LoadPartnerPort;
-import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
 
 import java.util.Optional;
 
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleEntity.coupleEntity;
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleMemberEntity.coupleMemberEntity;
-import static makeus.cmc.malmo.adaptor.out.persistence.entity.love_type.QLoveTypeEntity.loveTypeEntity;
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.member.QMemberEntity.memberEntity;
 
 @RequiredArgsConstructor

@@ -2,7 +2,6 @@ package makeus.cmc.malmo.application.port.in;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.Setter;
 import makeus.cmc.malmo.domain.model.member.MemberState;
 
 import java.time.LocalDate;

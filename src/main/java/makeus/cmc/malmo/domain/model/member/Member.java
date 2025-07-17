@@ -6,7 +6,6 @@ import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.domain.model.BaseTimeEntity;
 import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.model.value.InviteCodeValue;
-import makeus.cmc.malmo.domain.model.value.LoveTypeId;
 
 import java.time.LocalDate;
 

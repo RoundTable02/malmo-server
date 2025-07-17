@@ -1,11 +1,8 @@
 package makeus.cmc.malmo.domain.model.love_type;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
-import makeus.cmc.malmo.domain.model.BaseTimeEntity;
 
 @Getter
 @NoArgsConstructor
