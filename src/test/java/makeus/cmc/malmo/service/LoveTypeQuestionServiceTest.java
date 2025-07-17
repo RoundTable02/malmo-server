@@ -1,9 +1,7 @@
 package makeus.cmc.malmo.service;
 
 import makeus.cmc.malmo.application.port.in.GetLoveTypeQuestionsUseCase;
-import makeus.cmc.malmo.application.port.out.LoadLoveTypeQuestionsPort;
 import makeus.cmc.malmo.application.service.LoveTypeQuestionService;
-import makeus.cmc.malmo.domain.model.love_type.LoveTypeQuestion;
 import makeus.cmc.malmo.domain.model.love_type.LoveTypeQuestionType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

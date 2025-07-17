@@ -4,11 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.exception.JsonParsingException;
-import makeus.cmc.malmo.application.port.out.LoadLoveTypeDataPort;
 import makeus.cmc.malmo.application.port.out.LoadLoveTypeQuestionDataPort;
-import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
-import makeus.cmc.malmo.domain.model.love_type.LoveTypeData;
-import makeus.cmc.malmo.domain.model.love_type.LoveTypeQuestion;
 import makeus.cmc.malmo.domain.model.love_type.LoveTypeQuestionData;
 import org.springframework.stereotype.Component;
 
