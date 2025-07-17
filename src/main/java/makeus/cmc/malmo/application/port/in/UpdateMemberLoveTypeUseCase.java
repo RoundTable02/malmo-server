@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface UpdateMemberLoveTypeUseCase {
 
-    RegisterLoveTypeResponseDto updateMemberLoveType(UpdateMemberLoveTypeCommand command);
+    void updateMemberLoveType(UpdateMemberLoveTypeCommand command);
 
     @Data
     @Builder
@@ -21,17 +21,5 @@ public interface UpdateMemberLoveTypeUseCase {
     class LoveTypeTestResult {
         private Long questionId;
         private Integer score;
-    }
-
-    @Data
-    @Builder
-    class RegisterLoveTypeResponseDto {
-        private float avoidanceRate;
-        private float anxietyRate;
-        private Long loveTypeId;
-        private String title;
-        private String summary;
-        private String content;
-        private String imageUrl;
     }
 }

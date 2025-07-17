@@ -29,9 +29,7 @@ public class MemberMapper {
                 .isAlarmOn(entity.isAlarmOn())
                 .firebaseToken(entity.getFirebaseToken())
                 .refreshToken(entity.getRefreshToken())
-                .loveTypeId(LoveTypeId.of(
-                        entity.getLoveTypeEntityId() != null ? entity.getLoveTypeEntityId().getValue() : null
-                ))
+                .loveTypeCategory(entity.getLoveTypeCategory())
                 .avoidanceRate(entity.getAvoidanceRate())
                 .anxietyRate(entity.getAnxietyRate())
                 .nickname(entity.getNickname())
@@ -56,9 +54,7 @@ public class MemberMapper {
                 .isAlarmOn(domain.isAlarmOn())
                 .firebaseToken(domain.getFirebaseToken())
                 .refreshToken(domain.getRefreshToken())
-                .loveTypeEntityId(
-                        domain.getLoveTypeId() != null ? LoveTypeEntityId.of(domain.getLoveTypeId().getValue()) : null
-                )
+                .loveTypeCategory(domain.getLoveTypeCategory())
                 .avoidanceRate(domain.getAvoidanceRate())
                 .anxietyRate(domain.getAnxietyRate())
                 .email(domain.getEmail())

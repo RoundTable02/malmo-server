@@ -5,9 +5,11 @@ import makeus.cmc.malmo.application.port.in.GetLoveTypeUseCase;
 import makeus.cmc.malmo.application.port.in.UpdateMemberLoveTypeUseCase;
 import makeus.cmc.malmo.application.port.out.SaveMemberPort;
 import makeus.cmc.malmo.domain.model.love_type.LoveType;
+import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.value.LoveTypeId;
 import makeus.cmc.malmo.domain.model.value.MemberId;
+import makeus.cmc.malmo.domain.service.LoveTypeDataService;
 import makeus.cmc.malmo.domain.service.LoveTypeDomainService;
 import makeus.cmc.malmo.domain.service.MemberDomainService;
 import org.springframework.stereotype.Service;
@@ -21,49 +23,34 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class LoveTypeService implements GetLoveTypeUseCase, UpdateMemberLoveTypeUseCase {
 
-    private final LoveTypeDomainService loveTypeDomainService;
+    private final LoveTypeDataService loveTypeDataService;
     private final MemberDomainService memberDomainService;
     private final SaveMemberPort saveMemberPort;
 
     @Override
     public GetLoveTypeResponseDto getLoveType(GetLoveTypeCommand command) {
-        LoveType loveType = loveTypeDomainService.getLoveTypeById(LoveTypeId.of(command.getLoveTypeId()));
+//        LoveType loveType = loveTypeDataService.getLoveTypeData(LoveTypeId.of(command.getLoveTypeId()));
 
         return GetLoveTypeResponseDto.builder()
-                .loveTypeId(loveType.getId())
-                .title(loveType.getTitle())
-                .summary(loveType.getSummary())
-                .content(loveType.getContent())
-                .imageUrl(loveType.getImageUrl())
                 .build();
     }
 
     @Override
     @Transactional
-    public RegisterLoveTypeResponseDto updateMemberLoveType(UpdateMemberLoveTypeCommand command) {
+    public void updateMemberLoveType(UpdateMemberLoveTypeCommand command) {
         Member member = memberDomainService.getMemberById(MemberId.of(command.getMemberId()));
 
-        List<LoveTypeDomainService.TestResultInput> testResultInputs = command.getResults().stream()
-                .map(result -> new LoveTypeDomainService.TestResultInput(result.getQuestionId(), result.getScore()))
+        List<LoveTypeDataService.TestResultInput> testResultInputs = command.getResults().stream()
+                .map(result -> new LoveTypeDataService.TestResultInput(result.getQuestionId(), result.getScore()))
                 .collect(Collectors.toList());
 
-        LoveTypeDomainService.LoveTypeCalculationResult calculationResult = loveTypeDomainService.calculateLoveType(testResultInputs);
+        LoveTypeDataService.LoveTypeCalculationResult calculationResult = loveTypeDataService.findLoveTypeCategoryByTestResult(testResultInputs);
 
-        LoveType loveType = calculationResult.loveType();
+        LoveTypeCategory category = calculationResult.category();
         float avoidanceScore = calculationResult.avoidanceScore();
         float anxietyScore = calculationResult.anxietyScore();
 
-        member.updateLoveTypeId(LoveTypeId.of(loveType.getId()), avoidanceScore, anxietyScore);
+        member.updateLoveTypeId(category, avoidanceScore, anxietyScore);
         saveMemberPort.saveMember(member);
-
-        return RegisterLoveTypeResponseDto.builder()
-                .avoidanceRate(member.getAvoidanceRate())
-                .anxietyRate(member.getAnxietyRate())
-                .loveTypeId(loveType.getId())
-                .title(loveType.getTitle())
-                .summary(loveType.getSummary())
-                .content(loveType.getContent())
-                .imageUrl(loveType.getImageUrl())
-                .build();
     }
 }

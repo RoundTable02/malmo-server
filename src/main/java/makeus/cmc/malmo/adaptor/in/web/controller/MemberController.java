@@ -188,7 +188,7 @@ public class MemberController {
     )
     @ApiCommonResponses.RequireAuth
     @PostMapping("/love-type")
-    public BaseResponse<UpdateMemberLoveTypeUseCase.RegisterLoveTypeResponseDto> registerLoveType(
+    public BaseResponse registerLoveType(
             @AuthenticationPrincipal User user,
             @Valid @RequestBody RegisterLoveTypeRequestDto requestDto
     ) {
@@ -204,7 +204,10 @@ public class MemberController {
                 .memberId(Long.valueOf(user.getUsername()))
                 .results(results)
                 .build();
-        return BaseResponse.success(updateMemberLoveTypeUseCase.updateMemberLoveType(command));
+
+        updateMemberLoveTypeUseCase.updateMemberLoveType(command);
+
+        return BaseResponse.success(null);
     }
 
     @Data

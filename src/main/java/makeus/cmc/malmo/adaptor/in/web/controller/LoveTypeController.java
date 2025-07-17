@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class LoveTypeController {
 
     private final GetLoveTypeQuestionsUseCase getLoveTypeQuestionsUseCase;
-    private final GetLoveTypeUseCase getLoveTypeUseCase;
 
     @Operation(
             summary = "애착 유형 검사 질문 조회",
@@ -46,24 +45,5 @@ public class LoveTypeController {
                 = getLoveTypeQuestionsUseCase.getLoveTypeQuestions();
 
         return BaseListResponse.success(loveTypeQuestions.getList());
-    }
-
-    @Operation(
-            summary = "애착 유형 조회",
-            description = "애착 유형의 내용을 조회합니다. JWT 토큰이 필요합니다.",
-            security = @SecurityRequirement(name = "Bearer Authentication")
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "애착 유형 조회 성공",
-            content = @Content(schema = @Schema(implementation = SwaggerResponses.GetLoveTypeSuccessResponse.class))
-    )
-    @ApiCommonResponses.RequireAuth
-    @GetMapping("/{loveTypeId}")
-    public BaseResponse<GetLoveTypeUseCase.GetLoveTypeResponseDto> getLoveType(@PathVariable Integer loveTypeId) {
-        GetLoveTypeUseCase.GetLoveTypeCommand command = GetLoveTypeUseCase.GetLoveTypeCommand.builder()
-                .loveTypeId(loveTypeId.longValue())
-                .build();
-        return BaseResponse.success(getLoveTypeUseCase.getLoveType(command));
     }
 }

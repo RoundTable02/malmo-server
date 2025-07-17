@@ -1,7 +1,9 @@
 package makeus.cmc.malmo.domain.model.love_type;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+@Getter
 @RequiredArgsConstructor
 public enum LoveTypeCategory {
     STABLE_TYPE(LoveTypeCategory.MIN_SCORE, 2.33f, LoveTypeCategory.MIN_SCORE, 2.61f),

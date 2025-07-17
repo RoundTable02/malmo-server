@@ -1,10 +1,11 @@
 package makeus.cmc.malmo.domain.model.love_type;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LoveTypeData {
     private LoveTypeCategory category;
     private String name;

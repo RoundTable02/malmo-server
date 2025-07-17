@@ -34,7 +34,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
                         memberEntity.email
                 ))
                 .from(memberEntity)
-                .leftJoin(loveTypeEntity).on(loveTypeEntity.id.eq(memberEntity.loveTypeEntityId.value))
+//                .leftJoin(loveTypeEntity).on(loveTypeEntity.id.eq(memberEntity.loveTypeEntityId.value))
                 .leftJoin(coupleMemberEntity).on(coupleMemberEntity.memberEntityId.value.eq(memberEntity.id))
                 .leftJoin(coupleEntity).on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value))
                 .where(memberEntity.id.eq(memberId))
@@ -57,7 +57,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
                 .from(coupleEntity)
                 .join(coupleEntity.coupleMembers, coupleMemberEntity)
                 .join(memberEntity).on(memberEntity.id.eq(coupleMemberEntity.memberEntityId.value))
-                .leftJoin(loveTypeEntity).on(loveTypeEntity.id.eq(memberEntity.loveTypeEntityId.value))
+//                .leftJoin(loveTypeEntity).on(loveTypeEntity.id.eq(memberEntity.loveTypeEntityId.value))
                 .where(
                         coupleEntity.coupleMembers.any().memberEntityId.value.eq(memberId)
                                 .and(coupleMemberEntity.memberEntityId.value.ne(memberId))
