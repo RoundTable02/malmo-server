@@ -174,7 +174,7 @@ class MemberInfoServiceTest {
             given(loadPartnerPort.loadPartnerByMemberId(userId)).willReturn(Optional.of(partner));
 
             // When
-            GetPartnerUseCase.PartnerMemberResponseDto response = memberInfoService.getMemberInfo(command);
+            GetPartnerUseCase.PartnerMemberResponseDto response = memberInfoService.getPartnerInfo(command);
 
             // Then
             assertThat(response).isNotNull();
@@ -201,7 +201,7 @@ class MemberInfoServiceTest {
             given(loadPartnerPort.loadPartnerByMemberId(userId)).willReturn(Optional.empty());
 
             // When & Then
-            assertThatThrownBy(() -> memberInfoService.getMemberInfo(command))
+            assertThatThrownBy(() -> memberInfoService.getPartnerInfo(command))
                     .isInstanceOf(MemberNotFoundException.class);
 
             then(loadPartnerPort).should().loadPartnerByMemberId(userId);

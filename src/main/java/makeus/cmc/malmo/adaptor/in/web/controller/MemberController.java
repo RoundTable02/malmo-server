@@ -80,7 +80,7 @@ public class MemberController {
         GetPartnerUseCase.PartnerInfoCommand command = GetPartnerUseCase.PartnerInfoCommand.builder()
                 .userId(Long.valueOf(user.getUsername()))
                 .build();
-        return BaseResponse.success(getPartnerUseCase.getMemberInfo(command));
+        return BaseResponse.success(getPartnerUseCase.getPartnerInfo(command));
     }
 
     @Operation(

@@ -27,15 +27,13 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
                 .select(Projections.constructor(LoadMemberPort.MemberResponseRepositoryDto.class,
                         memberEntity.memberStateJpa.stringValue(),
                         coupleEntity.startLoveDate.coalesce(memberEntity.startLoveDate),
-                        loveTypeEntity.id,
-                        loveTypeEntity.title,
+                        memberEntity.loveTypeCategory,
                         memberEntity.avoidanceRate,
                         memberEntity.anxietyRate,
                         memberEntity.nickname,
                         memberEntity.email
                 ))
                 .from(memberEntity)
-//                .leftJoin(loveTypeEntity).on(loveTypeEntity.id.eq(memberEntity.loveTypeEntityId.value))
                 .leftJoin(coupleMemberEntity).on(coupleMemberEntity.memberEntityId.value.eq(memberEntity.id))
                 .leftJoin(coupleEntity).on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value))
                 .where(memberEntity.id.eq(memberId))
@@ -49,8 +47,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
         LoadPartnerPort.PartnerMemberRepositoryDto dto = queryFactory
                 .select(Projections.constructor(LoadPartnerPort.PartnerMemberRepositoryDto.class,
                         memberEntity.memberStateJpa.stringValue(),
-                        loveTypeEntity.id,
-                        loveTypeEntity.title,
+                        memberEntity.loveTypeCategory,
                         memberEntity.avoidanceRate,
                         memberEntity.anxietyRate,
                         memberEntity.nickname
@@ -58,7 +55,6 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
                 .from(coupleEntity)
                 .join(coupleEntity.coupleMembers, coupleMemberEntity)
                 .join(memberEntity).on(memberEntity.id.eq(coupleMemberEntity.memberEntityId.value))
-//                .leftJoin(loveTypeEntity).on(loveTypeEntity.id.eq(memberEntity.loveTypeEntityId.value))
                 .where(
                         coupleEntity.coupleMembers.any().memberEntityId.value.eq(memberId)
                                 .and(coupleMemberEntity.memberEntityId.value.ne(memberId))
