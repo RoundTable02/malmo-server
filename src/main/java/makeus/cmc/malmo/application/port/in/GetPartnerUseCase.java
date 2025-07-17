@@ -6,7 +6,7 @@ import makeus.cmc.malmo.domain.model.member.MemberState;
 
 public interface GetPartnerUseCase {
 
-    PartnerMemberResponseDto getMemberInfo(PartnerInfoCommand command);
+    PartnerMemberResponseDto getPartnerInfo(PartnerInfoCommand command);
 
     @Data
     @Builder
@@ -18,8 +18,8 @@ public interface GetPartnerUseCase {
     @Builder
     class PartnerMemberResponseDto {
         private MemberState memberState;
-        private Long loveTypeId;
         private String loveTypeTitle;
+        private String loveTypeImageUrl;
         private float avoidanceRate;
         private float anxietyRate;
         private String nickname;

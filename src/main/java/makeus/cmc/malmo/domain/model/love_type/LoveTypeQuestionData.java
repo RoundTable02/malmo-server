@@ -1,17 +1,16 @@
 package makeus.cmc.malmo.domain.model.love_type;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
-import lombok.experimental.SuperBuilder;
-import makeus.cmc.malmo.domain.model.BaseTimeEntity;
+import lombok.NoArgsConstructor;
 
 @Getter
-@SuperBuilder
-@AllArgsConstructor(access = lombok.AccessLevel.PRIVATE)
-public class LoveTypeQuestion extends BaseTimeEntity {
+@NoArgsConstructor
+public class LoveTypeQuestionData {
 
     private Long id;
     private int questionNumber;
+    @JsonProperty("isReversed")
     private boolean isReversed;
     private String content;
     private LoveTypeQuestionType loveTypeQuestionType;

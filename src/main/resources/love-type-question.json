@@ -1,0 +1,290 @@
+[
+  {
+    "isReversed": false,
+    "questionNumber": 1,
+    "weight": 1,
+    "id": 1,
+    "content": "내가 얼마나 호감을 갖고 있는지 연인에게 완전히 드러내고 싶지 않다",
+    "loveTypeQuestionType": "AVOIDANCE"
+  },
+  {
+    "isReversed": false,
+    "questionNumber": 2,
+    "weight": 1,
+    "id": 2,
+    "content": "연인이 가끔 이유 없이 나에 대한 감정이 달라질 것 같아 불안할 때가 있다",
+    "loveTypeQuestionType": "ANXIETY"
+  },
+  {
+    "isReversed": true,
+    "questionNumber": 3,
+    "weight": 1,
+    "id": 3,
+    "content": "연인과 가까워지는 것은 비교적 쉽다",
+    "loveTypeQuestionType": "AVOIDANCE"
+  },
+  {
+    "isReversed": false,
+    "questionNumber": 4,
+    "weight": 1,
+    "id": 4,
+    "content": "연인이 나와 너무 가까워지려고 하면 불편하다",
+    "loveTypeQuestionType": "AVOIDANCE"
+  },
+  {
+    "isReversed": true,
+    "questionNumber": 5,
+    "weight": 1,
+    "id": 5,
+    "content": "나는 연인에게 모든 것을 다 이야기한다",
+    "loveTypeQuestionType": "AVOIDANCE"
+  },
+  {
+    "isReversed": false,
+    "questionNumber": 6,
+    "weight": 1,
+    "id": 6,
+    "content": "연인은 내가 화나 있을 때만 나에게 주목하는 것 같다",
+    "loveTypeQuestionType": "ANXIETY"
+  },
+  {
+    "isReversed": true,
+    "questionNumber": 7,
+    "weight": 1,
+    "id": 7,
+    "content": "연인은 나와 내 마음을 잘 이해한다",
+    "loveTypeQuestionType": "AVOIDANCE"
+  },
+  {
+    "isReversed": true,
+    "questionNumber": 8,
+    "weight": 1,
+    "id": 8,
+    "content": "내가 버림받을까봐 걱정하는 일은 별로 없다",
+    "loveTypeQuestionType": "ANXIETY"
+  },
+  {
+    "isReversed": true,
+    "questionNumber": 9,
+    "weight": 1,
+    "id": 9,
+    "content": "나는 연인과 여러 가지에 대해 상의한다",
+    "loveTypeQuestionType": "AVOIDANCE"
+  },
+  {
+    "isReversed": false,
+    "questionNumber": 10,
+    "weight": 1,
+    "id": 10,
+    "content": "내가 연인에게 호감을 표현했을 때, 연인이 나에 대해 같은 감정이 아닐까봐 걱정된다",
+    "loveTypeQuestionType": "ANXIETY"
+  },
+  {
+    "isReversed": false,
+    "questionNumber": 11,
+    "weight": 1,
+    "id": 11,
+    "content": "나는 연인에게 내 마음 속 깊은 감정을 드러내는 것을 원하지 않는 편이다",
+    "loveTypeQuestionType": "AVOIDANCE"
+  },
+  {
+    "isReversed": false,
+    "questionNumber": 12,
+    "weight": 1,
+    "id": 12,
+    "content": "나는 연인의 기대에 못 미칠까봐 걱정된다",
+    "loveTypeQuestionType": "ANXIETY"
+  },
+  {
+    "isReversed": false,
+    "questionNumber": 13,
+    "weight": 1,
+    "id": 13,
+    "content": "연인이 내가 원하는 만큼의 애정을 주지 않을 때 화가 난다",
+    "loveTypeQuestionType": "ANXIETY"
+  },
+  {
+    "isReversed": false,
+    "questionNumber": 14,
+    "weight": 1,
+    "id": 14,
+    "content": "나는 위로와 확신을 비롯한 많은 일들을 연인에게 의지한다",
+    "loveTypeQuestionType": "ANXIETY"
+  },
+  {
+    "isReversed": false,
+    "questionNumber": 15,
+    "weight": 1,
+    "id": 15,
+    "content": "연인이 나를 진심으로 사랑하지 않을까봐 자주 걱정된다",
+    "loveTypeQuestionType": "ANXIETY"
+  },
+  {
+    "isReversed": false,
+    "questionNumber": 16,
+    "weight": 1,
+    "id": 16,
+    "content": "연인에게 속내를 털어놓는 것이 편하지 않다",
+    "loveTypeQuestionType": "AVOIDANCE"
+  },
+  {
+    "isReversed": false,
+    "questionNumber": 17,
+    "weight": 1,
+    "id": 17,
+    "content": "연인과 함께 있을수록 자존감이 낮아지는 느낌이 든다",
+    "loveTypeQuestionType": "ANXIETY"
+  },
+  {
+    "isReversed": true,
+    "questionNumber": 18,
+    "weight": 1,
+    "id": 18,
+    "content": "필요할 때 연인에게 의지하는 것은 도움이 된다",
+    "loveTypeQuestionType": "AVOIDANCE"
+  },
+  {
+    "isReversed": false,
+    "questionNumber": 19,
+    "weight": 1,
+    "id": 19,
+    "content": "나는 연인에게 완전히 의지하는 것이 어렵다",
+    "loveTypeQuestionType": "AVOIDANCE"
+  },
+  {
+    "isReversed": false,
+    "questionNumber": 20,
+    "weight": 1,
+    "id": 20,
+    "content": "내가 연인에게 갖는 애정만큼 연인도 내게 강한 애정을 가지기를 자주 원한다",
+    "loveTypeQuestionType": "ANXIETY"
+  },
+  {
+    "isReversed": false,
+    "questionNumber": 21,
+    "weight": 1,
+    "id": 21,
+    "content": "나는 연인과의 관계에 대해 걱정이 많다",
+    "loveTypeQuestionType": "ANXIETY"
+  },
+  {
+    "isReversed": false,
+    "questionNumber": 22,
+    "weight": 1,
+    "id": 22,
+    "content": "연인과 매우 가까워지고 싶은 나의 바람 때문에 연인이 종종 부담스러워 한다",
+    "loveTypeQuestionType": "ANXIETY"
+  },
+  {
+    "isReversed": true,
+    "questionNumber": 23,
+    "weight": 1,
+    "id": 23,
+    "content": "연인이 나를 떠날까봐 걱정하는 일이 거의 없다",
+    "loveTypeQuestionType": "ANXIETY"
+  },
+  {
+    "isReversed": false,
+    "questionNumber": 24,
+    "weight": 1,
+    "id": 24,
+    "content": "연인은 내가 바라는 만큼 나와 가까워지려 하지 않는다",
+    "loveTypeQuestionType": "ANXIETY"
+  },
+  {
+    "isReversed": false,
+    "questionNumber": 25,
+    "weight": 1,
+    "id": 25,
+    "content": "연인이 나 없이 많은 시간을 보냈을 때 나는 기분이 나쁘다",
+    "loveTypeQuestionType": "ANXIETY"
+  },
+  {
+    "isReversed": false,
+    "questionNumber": 26,
+    "weight": 1,
+    "id": 26,
+    "content": "연인이 내게 불만을 표현하면 나 자신이 부족한 사람처럼 느껴진다",
+    "loveTypeQuestionType": "ANXIETY"
+  },
+  {
+    "isReversed": true,
+    "questionNumber": 27,
+    "weight": 1,
+    "id": 27,
+    "content": "연인과 정서적으로 밀착되는 것이 매우 편하다",
+    "loveTypeQuestionType": "AVOIDANCE"
+  },
+  {
+    "isReversed": false,
+    "questionNumber": 28,
+    "weight": 1,
+    "id": 28,
+    "content": "연인에게 다정하게 대하는 것이 어려운 편이다",
+    "loveTypeQuestionType": "AVOIDANCE"
+  },
+  {
+    "isReversed": true,
+    "questionNumber": 29,
+    "weight": 1,
+    "id": 29,
+    "content": "연인에게 심적으로 기대는 것이 편하게 느껴진다",
+    "loveTypeQuestionType": "AVOIDANCE"
+  },
+  {
+    "isReversed": true,
+    "questionNumber": 30,
+    "weight": 1,
+    "id": 30,
+    "content": "연인에게 마음을 여는 것은 쉬운 일이다",
+    "loveTypeQuestionType": "AVOIDANCE"
+  },
+  {
+    "isReversed": false,
+    "questionNumber": 31,
+    "weight": 1,
+    "id": 31,
+    "content": "연인이 나와 함께 있기를 원하지 않을까봐 종종 걱정한다",
+    "loveTypeQuestionType": "ANXIETY"
+  },
+  {
+    "isReversed": true,
+    "questionNumber": 32,
+    "weight": 1,
+    "id": 32,
+    "content": "연인과 가까워지는 일은 매우 편안하다",
+    "loveTypeQuestionType": "AVOIDANCE"
+  },
+  {
+    "isReversed": true,
+    "questionNumber": 33,
+    "weight": 1,
+    "id": 33,
+    "content": "내 문제나 걱정거리를 보통 연인과 의논한다",
+    "loveTypeQuestionType": "AVOIDANCE"
+  },
+  {
+    "isReversed": true,
+    "questionNumber": 34,
+    "weight": 1,
+    "id": 34,
+    "content": "사적인 생각과 감정을 연인과 나누는 것에 대해 편안히 느낀다",
+    "loveTypeQuestionType": "AVOIDANCE"
+  },
+  {
+    "isReversed": false,
+    "questionNumber": 35,
+    "weight": 1,
+    "id": 35,
+    "content": "연인이 내게 너무 관여하려고 하면 불안하다",
+    "loveTypeQuestionType": "AVOIDANCE"
+  },
+  {
+    "isReversed": false,
+    "questionNumber": 36,
+    "weight": 1,
+    "id": 36,
+    "content": "일단 연인이 나에 대해 알게 되면, 있는 그대로의 내 모습을 좋아하지 않을까봐 두렵다",
+    "loveTypeQuestionType": "ANXIETY"
+  }
+]

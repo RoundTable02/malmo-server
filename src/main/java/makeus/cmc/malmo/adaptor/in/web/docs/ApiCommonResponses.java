@@ -146,4 +146,19 @@ public class ApiCommonResponses {
     })
     public @interface CoupleCode {
     }
+
+    /**
+     * 테스트 완료 조건의 API 응답
+     */
+    @Target({ElementType.METHOD})
+    @Retention(RetentionPolicy.RUNTIME)
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "테스트 전의 사용자입니다. 테스트 완료 후 이용해주세요.",
+                    content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class))
+            )
+    })
+    public @interface OnlyTested {
+    }
 }

@@ -1,7 +1,6 @@
 package makeus.cmc.malmo.domain.service;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.adaptor.in.exception.NotCoupleMemberException;
 import makeus.cmc.malmo.application.port.out.*;
 import makeus.cmc.malmo.domain.exception.AlreadyCoupledMemberException;
 import makeus.cmc.malmo.domain.exception.InviteCodeGenerateFailedException;

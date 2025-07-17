@@ -6,7 +6,10 @@ import makeus.cmc.malmo.application.port.in.GetPartnerUseCase;
 import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.LoadPartnerPort;
 import makeus.cmc.malmo.application.service.MemberInfoService;
+import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
+import makeus.cmc.malmo.domain.model.love_type.LoveTypeData;
 import makeus.cmc.malmo.domain.model.member.MemberState;
+import makeus.cmc.malmo.domain.service.LoveTypeDataService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -31,6 +34,9 @@ class MemberInfoServiceTest {
     @Mock
     private LoadPartnerPort loadPartnerPort;
 
+    @Mock
+    private LoveTypeDataService loveTypeDataService;
+
     @InjectMocks
     private MemberInfoService memberInfoService;
 
@@ -46,8 +52,9 @@ class MemberInfoServiceTest {
             String nickname = "테스트닉네임";
             String email = "test@example.com";
             MemberState memberState = MemberState.ALIVE;
-            Long loveTypeId = 1L; // 애착유형 ID
+            LoveTypeCategory loveTypeCategory = LoveTypeCategory.STABLE_TYPE;
             String loveTypeTitle = "안정형";
+            String loveTypeImageUrl = "http://example.com/image.jpg";
             float avoidanceRate = 0.3f;
             float anxietyRate = 0.2f;
 
@@ -61,10 +68,14 @@ class MemberInfoServiceTest {
             given(member.getMemberState()).willReturn(memberState.name());
             given(member.getAvoidanceRate()).willReturn(avoidanceRate);
             given(member.getAnxietyRate()).willReturn(anxietyRate);
-            given(member.getLoveTypeId()).willReturn(loveTypeId);
-            given(member.getLoveTypeTitle()).willReturn(loveTypeTitle);
+            given(member.getLoveTypeCategory()).willReturn(loveTypeCategory);
+
+            LoveTypeData loveTypeData = mock(LoveTypeData.class);
+            given(loveTypeData.getName()).willReturn(loveTypeTitle);
+            given(loveTypeData.getImageUrl()).willReturn(loveTypeImageUrl);
 
             given(loadMemberPort.loadMemberDetailsById(userId)).willReturn(Optional.of(member));
+            given(loveTypeDataService.getLoveTypeData(loveTypeCategory)).willReturn(loveTypeData);
 
             // When
             GetMemberUseCase.MemberResponseDto response = memberInfoService.getMemberInfo(command);
@@ -74,12 +85,13 @@ class MemberInfoServiceTest {
             assertThat(response.getNickname()).isEqualTo(nickname);
             assertThat(response.getEmail()).isEqualTo(email);
             assertThat(response.getMemberState()).isEqualTo(memberState);
-            assertThat(response.getLoveTypeId()).isEqualTo(loveTypeId);
             assertThat(response.getLoveTypeTitle()).isEqualTo(loveTypeTitle);
+            assertThat(response.getLoveTypeImageUrl()).isEqualTo(loveTypeImageUrl);
             assertThat(response.getAvoidanceRate()).isEqualTo(avoidanceRate);
             assertThat(response.getAnxietyRate()).isEqualTo(anxietyRate);
 
             then(loadMemberPort).should().loadMemberDetailsById(userId);
+            then(loveTypeDataService).should().getLoveTypeData(loveTypeCategory);
         }
 
         @Test
@@ -103,10 +115,10 @@ class MemberInfoServiceTest {
             given(member.getMemberState()).willReturn(memberState.name());
             given(member.getAvoidanceRate()).willReturn(avoidanceRate);
             given(member.getAnxietyRate()).willReturn(anxietyRate);
-            given(member.getLoveTypeId()).willReturn(null); // 애착유형 ID가 null
-            given(member.getLoveTypeTitle()).willReturn(null); // 애착유형 제목이 null
+            given(member.getLoveTypeCategory()).willReturn(null); // 애착유형 카테고리가 null
 
             given(loadMemberPort.loadMemberDetailsById(userId)).willReturn(Optional.of(member));
+            given(loveTypeDataService.getLoveTypeData(null)).willReturn(null);
 
             // When
             GetMemberUseCase.MemberResponseDto response = memberInfoService.getMemberInfo(command);
@@ -116,12 +128,13 @@ class MemberInfoServiceTest {
             assertThat(response.getNickname()).isEqualTo(nickname);
             assertThat(response.getEmail()).isEqualTo(email);
             assertThat(response.getMemberState()).isEqualTo(memberState);
-            assertThat(response.getLoveTypeId()).isNull();
             assertThat(response.getLoveTypeTitle()).isNull();
+            assertThat(response.getLoveTypeImageUrl()).isNull();
             assertThat(response.getAvoidanceRate()).isEqualTo(avoidanceRate);
             assertThat(response.getAnxietyRate()).isEqualTo(anxietyRate);
 
             then(loadMemberPort).should().loadMemberDetailsById(userId);
+            then(loveTypeDataService).should().getLoveTypeData(null);
         }
 
         @Test
@@ -155,7 +168,9 @@ class MemberInfoServiceTest {
             Long userId = 1L;
             String nickname = "파트너닉네임";
             String memberState = "ALIVE";
+            LoveTypeCategory loveTypeCategory = LoveTypeCategory.STABLE_TYPE;
             String loveTypeTitle = "안정형";
+            String loveTypeImageUrl = "http://example.com/image.jpg";
             float avoidanceRate = 0.3f;
             float anxietyRate = 0.2f;
 
@@ -166,26 +181,31 @@ class MemberInfoServiceTest {
             LoadPartnerPort.PartnerMemberRepositoryDto partner = mock(LoadPartnerPort.PartnerMemberRepositoryDto.class);
             given(partner.getNickname()).willReturn(nickname);
             given(partner.getMemberState()).willReturn(memberState);
-            given(partner.getLoveTypeId()).willReturn(1L);
-            given(partner.getLoveTypeTitle()).willReturn(loveTypeTitle);
+            given(partner.getLoveTypeCategory()).willReturn(loveTypeCategory);
             given(partner.getAvoidanceRate()).willReturn(avoidanceRate);
             given(partner.getAnxietyRate()).willReturn(anxietyRate);
 
+            LoveTypeData loveTypeData = mock(LoveTypeData.class);
+            given(loveTypeData.getName()).willReturn(loveTypeTitle);
+            given(loveTypeData.getImageUrl()).willReturn(loveTypeImageUrl);
+
             given(loadPartnerPort.loadPartnerByMemberId(userId)).willReturn(Optional.of(partner));
+            given(loveTypeDataService.getLoveTypeData(loveTypeCategory)).willReturn(loveTypeData);
 
             // When
-            GetPartnerUseCase.PartnerMemberResponseDto response = memberInfoService.getMemberInfo(command);
+            GetPartnerUseCase.PartnerMemberResponseDto response = memberInfoService.getPartnerInfo(command);
 
             // Then
             assertThat(response).isNotNull();
             assertThat(response.getNickname()).isEqualTo(nickname);
             assertThat(response.getMemberState()).isEqualTo(MemberState.ALIVE);
-            assertThat(response.getLoveTypeId()).isEqualTo(1L);
             assertThat(response.getLoveTypeTitle()).isEqualTo(loveTypeTitle);
+            assertThat(response.getLoveTypeImageUrl()).isEqualTo(loveTypeImageUrl);
             assertThat(response.getAvoidanceRate()).isEqualTo(avoidanceRate);
             assertThat(response.getAnxietyRate()).isEqualTo(anxietyRate);
 
             then(loadPartnerPort).should().loadPartnerByMemberId(userId);
+            then(loveTypeDataService).should().getLoveTypeData(loveTypeCategory);
         }
 
         @Test
@@ -201,7 +221,7 @@ class MemberInfoServiceTest {
             given(loadPartnerPort.loadPartnerByMemberId(userId)).willReturn(Optional.empty());
 
             // When & Then
-            assertThatThrownBy(() -> memberInfoService.getMemberInfo(command))
+            assertThatThrownBy(() -> memberInfoService.getPartnerInfo(command))
                     .isInstanceOf(MemberNotFoundException.class);
 
             then(loadPartnerPort).should().loadPartnerByMemberId(userId);

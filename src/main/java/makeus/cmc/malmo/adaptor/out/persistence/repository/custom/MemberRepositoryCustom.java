@@ -18,4 +18,6 @@ public interface MemberRepositoryCustom {
 
     Optional<InviteCodeEntityValue> findInviteCodeByMemberId(Long memberId);
 
+    Optional<LoadPartnerPort.PartnerLoveTypeRepositoryDto> findPartnerLoveTypeCategory(Long memberId);
+
 }

@@ -17,6 +17,7 @@ public enum ErrorCode {
     NO_SUCH_LOVE_TYPE_QUESTION(HttpStatus.BAD_REQUEST, 40005, "애착 유형 질문이 존재하지 않습니다."),
     USED_COUPLE_CODE(HttpStatus.BAD_REQUEST, 40006, "이미 사용된 초대 코드입니다."),
     ALREADY_COUPLED_MEMBER(HttpStatus.BAD_REQUEST, 40007, "이미 커플로 등록된 사용자입니다. 커플 등록을 해제 후 이용해주세요."),
+    MEMBER_NOT_TESTED(HttpStatus.BAD_REQUEST, 40008, "애착 유형 테스트를 완료하지 않은 사용자입니다. 애착 유형 테스트를 완료 후 이용해주세요."),
 
     // 401 Unauthorized
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, 40100, "인증되지 않은 사용자입니다."),

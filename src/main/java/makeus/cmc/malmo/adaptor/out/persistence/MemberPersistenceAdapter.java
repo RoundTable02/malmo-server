@@ -62,6 +62,11 @@ public class MemberPersistenceAdapter implements LoadMemberPort, SaveMemberPort,
     }
 
     @Override
+    public Optional<PartnerLoveTypeRepositoryDto> loadPartnerLoveTypeCategory(MemberId memberId) {
+        return memberRepository.findPartnerLoveTypeCategory(memberId.getValue());
+    }
+
+    @Override
     public Optional<InviteCodeValue> loadInviteCodeByMemberId(MemberId memberId) {
         return memberRepository.findInviteCodeByMemberId(memberId.getValue())
                 .map(code -> InviteCodeValue.of(code.getValue()));

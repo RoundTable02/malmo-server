@@ -12,7 +12,6 @@ import java.util.Optional;
 
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleEntity.coupleEntity;
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleMemberEntity.coupleMemberEntity;
-import static makeus.cmc.malmo.adaptor.out.persistence.entity.love_type.QLoveTypeEntity.loveTypeEntity;
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.member.QMemberEntity.memberEntity;
 
 @RequiredArgsConstructor
@@ -26,15 +25,13 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
                 .select(Projections.constructor(LoadMemberPort.MemberResponseRepositoryDto.class,
                         memberEntity.memberStateJpa.stringValue(),
                         coupleEntity.startLoveDate.coalesce(memberEntity.startLoveDate),
-                        loveTypeEntity.id,
-                        loveTypeEntity.title,
+                        memberEntity.loveTypeCategory,
                         memberEntity.avoidanceRate,
                         memberEntity.anxietyRate,
                         memberEntity.nickname,
                         memberEntity.email
                 ))
                 .from(memberEntity)
-                .leftJoin(loveTypeEntity).on(loveTypeEntity.id.eq(memberEntity.loveTypeEntityId.value))
                 .leftJoin(coupleMemberEntity).on(coupleMemberEntity.memberEntityId.value.eq(memberEntity.id))
                 .leftJoin(coupleEntity).on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value))
                 .where(memberEntity.id.eq(memberId))
@@ -48,8 +45,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
         LoadPartnerPort.PartnerMemberRepositoryDto dto = queryFactory
                 .select(Projections.constructor(LoadPartnerPort.PartnerMemberRepositoryDto.class,
                         memberEntity.memberStateJpa.stringValue(),
-                        loveTypeEntity.id,
-                        loveTypeEntity.title,
+                        memberEntity.loveTypeCategory,
                         memberEntity.avoidanceRate,
                         memberEntity.anxietyRate,
                         memberEntity.nickname
@@ -57,7 +53,6 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
                 .from(coupleEntity)
                 .join(coupleEntity.coupleMembers, coupleMemberEntity)
                 .join(memberEntity).on(memberEntity.id.eq(coupleMemberEntity.memberEntityId.value))
-                .leftJoin(loveTypeEntity).on(loveTypeEntity.id.eq(memberEntity.loveTypeEntityId.value))
                 .where(
                         coupleEntity.coupleMembers.any().memberEntityId.value.eq(memberId)
                                 .and(coupleMemberEntity.memberEntityId.value.ne(memberId))
@@ -104,5 +99,25 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
                 .fetchOne();
 
         return Optional.ofNullable(inviteCodeEntityValue);
+    }
+
+    @Override
+    public Optional<LoadPartnerPort.PartnerLoveTypeRepositoryDto> findPartnerLoveTypeCategory(Long memberId) {
+        LoadPartnerPort.PartnerLoveTypeRepositoryDto dto = queryFactory
+                .select(Projections.constructor(LoadPartnerPort.PartnerLoveTypeRepositoryDto.class,
+                        memberEntity.loveTypeCategory,
+                        memberEntity.avoidanceRate,
+                        memberEntity.anxietyRate
+                ))
+                .from(coupleEntity)
+                .join(coupleEntity.coupleMembers, coupleMemberEntity)
+                .join(memberEntity).on(memberEntity.id.eq(coupleMemberEntity.memberEntityId.value))
+                .where(
+                        coupleEntity.coupleMembers.any().memberEntityId.value.eq(memberId)
+                                .and(coupleMemberEntity.memberEntityId.value.ne(memberId))
+                )
+                .fetchOne();
+
+        return Optional.ofNullable(dto);
     }
 }
