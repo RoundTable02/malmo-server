@@ -221,6 +221,16 @@ public class MemberController {
         return BaseResponse.success(getMemberLoveTypeDetailsUseCase.getMemberLoveTypeInfo(command));
     }
 
+    @GetMapping("/partner/love-type")
+    public BaseResponse<GetMemberLoveTypeDetailsUseCase.LoveTypeDetailsDto> getPartnerLoveTypeInfo(
+            @AuthenticationPrincipal User user
+    ) {
+        GetMemberLoveTypeDetailsUseCase.MemberLoveTypeCommand command = GetMemberLoveTypeDetailsUseCase.MemberLoveTypeCommand.builder()
+                .memberId(Long.valueOf(user.getUsername()))
+                .build();
+        return BaseResponse.success(getMemberLoveTypeDetailsUseCase.getPartnerLoveTypeInfo(command));
+    }
+
     @Data
     @Builder
     public static class DeleteMemberResponseDto {

@@ -7,6 +7,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleMemberStateJ
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.LoadPartnerPort;
+import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
 
 import java.util.Optional;
 
@@ -104,5 +105,25 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
                 .fetchOne();
 
         return Optional.ofNullable(inviteCodeEntityValue);
+    }
+
+    @Override
+    public Optional<LoadPartnerPort.PartnerLoveTypeRepositoryDto> findPartnerLoveTypeCategory(Long memberId) {
+        LoadPartnerPort.PartnerLoveTypeRepositoryDto dto = queryFactory
+                .select(Projections.constructor(LoadPartnerPort.PartnerLoveTypeRepositoryDto.class,
+                        memberEntity.loveTypeCategory,
+                        memberEntity.avoidanceRate,
+                        memberEntity.anxietyRate
+                ))
+                .from(coupleEntity)
+                .join(coupleEntity.coupleMembers, coupleMemberEntity)
+                .join(memberEntity).on(memberEntity.id.eq(coupleMemberEntity.memberEntityId.value))
+                .where(
+                        coupleEntity.coupleMembers.any().memberEntityId.value.eq(memberId)
+                                .and(coupleMemberEntity.memberEntityId.value.ne(memberId))
+                )
+                .fetchOne();
+
+        return Optional.ofNullable(dto);
     }
 }

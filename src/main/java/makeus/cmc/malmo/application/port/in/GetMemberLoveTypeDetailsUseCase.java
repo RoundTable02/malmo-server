@@ -6,6 +6,7 @@ import lombok.Data;
 public interface GetMemberLoveTypeDetailsUseCase {
 
     LoveTypeDetailsDto getMemberLoveTypeInfo(MemberLoveTypeCommand command);
+    LoveTypeDetailsDto getPartnerLoveTypeInfo(MemberLoveTypeCommand command);
 
     @Data
     @Builder
@@ -16,17 +17,17 @@ public interface GetMemberLoveTypeDetailsUseCase {
     @Data
     @Builder
     class LoveTypeDetailsDto {
-        private float memberAnxietyScore;
-        private float memberAvoidanceScore;
+        private Float memberAnxietyScore;
+        private Float memberAvoidanceScore;
         private String name;
         private String loveTypeName;
         private String imageUrl;
         private String summary;
         private String description;
-        private float anxietyOver;
-        private float anxietyUnder;
-        private float avoidanceOver;
-        private float avoidanceUnder;
+        private Float anxietyOver;
+        private Float anxietyUnder;
+        private Float avoidanceOver;
+        private Float avoidanceUnder;
         private String[] relationshipAttitudes;
         private String[] problemSolvingAttitudes;
         private String[] emotionalExpressions;

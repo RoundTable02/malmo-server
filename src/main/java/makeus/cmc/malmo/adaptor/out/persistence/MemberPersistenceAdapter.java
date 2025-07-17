@@ -9,6 +9,7 @@ import makeus.cmc.malmo.application.port.out.LoadInviteCodePort;
 import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.LoadPartnerPort;
 import makeus.cmc.malmo.application.port.out.SaveMemberPort;
+import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.member.Provider;
 import makeus.cmc.malmo.domain.model.value.InviteCodeValue;
@@ -59,6 +60,11 @@ public class MemberPersistenceAdapter implements LoadMemberPort, SaveMemberPort,
     @Override
     public Optional<PartnerMemberRepositoryDto> loadPartnerByMemberId(Long memberId) {
         return memberRepository.findPartnerMember(memberId);
+    }
+
+    @Override
+    public Optional<PartnerLoveTypeRepositoryDto> loadPartnerLoveTypeCategory(MemberId memberId) {
+        return memberRepository.findPartnerLoveTypeCategory(memberId.getValue());
     }
 
     @Override
