@@ -2,6 +2,7 @@ package makeus.cmc.malmo.domain.service;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.application.port.out.LoadLoveTypeDataPort;
 import makeus.cmc.malmo.application.port.out.LoadLoveTypeQuestionDataPort;
 import makeus.cmc.malmo.domain.exception.LoveTypeNotFoundException;
@@ -14,13 +15,13 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class LoveTypeDataService {
 
     private final LoadLoveTypeDataPort loadLoveTypeDataPort;
     private final LoadLoveTypeQuestionDataPort loadLoveTypeQuestionDataPort;
-    private final List<LoveTypeCategory> loveTypeCategories;
     private Map<LoveTypeCategory, LoveTypeData> loveTypeDataMap;
     private Map<Long, LoveTypeQuestionData> questionMap;
 
@@ -65,6 +66,8 @@ public class LoveTypeDataService {
     }
 
     private LoveTypeCategory matchLoveType(float anxietyScore, float avoidanceScore) {
+        LoveTypeCategory[] loveTypeCategories = LoveTypeCategory.values();
+
         for (LoveTypeCategory loveTypeCategory : loveTypeCategories) {
             if (anxietyScore >= loveTypeCategory.getAnxietyOver() &&
                 anxietyScore < loveTypeCategory.getAnxietyUnder() &&
