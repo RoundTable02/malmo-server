@@ -98,6 +98,18 @@ public class ChatRoomDomainService {
     }
 
     @Transactional
+    public void completeChatRoom(ChatRoom chatRoom) {
+        chatRoom.complete();
+        saveChatRoom(chatRoom);
+    }
+
+    @Transactional
+    public void updateChatRoomSummary(ChatRoom chatRoom, String summary) {
+        chatRoom.updateChatRoomSummary(summary);
+        saveChatRoom(chatRoom);
+    }
+
+    @Transactional
     public void updateMemberPausedChatRoomStateToAlive(MemberId memberId) {
         loadChatRoomPort.loadPausedChatRoomByMemberId(memberId)
                         .ifPresent(

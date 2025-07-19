@@ -18,6 +18,7 @@ public class ChatRoom {
     private ChatRoomState chatRoomState;
     private int level;
     private LocalDateTime lastMessageSentTime;
+    private String totalSummary;
 
     // BaseTimeEntity fields
     private LocalDateTime createdAt;
@@ -34,7 +35,7 @@ public class ChatRoom {
     }
 
     public static ChatRoom from(Long id, MemberId memberId, ChatRoomState chatRoomState,
-                                int level, LocalDateTime lastMessageSentTime,
+                                int level, LocalDateTime lastMessageSentTime, String totalSummary,
                                 LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
         return ChatRoom.builder()
                 .id(id)
@@ -42,6 +43,7 @@ public class ChatRoom {
                 .chatRoomState(chatRoomState)
                 .level(level)
                 .lastMessageSentTime(lastMessageSentTime)
+                .totalSummary(totalSummary)
                 .createdAt(createdAt)
                 .modifiedAt(modifiedAt)
                 .deletedAt(deletedAt)
@@ -63,6 +65,14 @@ public class ChatRoom {
 
     public void updateChatRoomStateAlive() {
         this.chatRoomState = ChatRoomState.ALIVE;
+    }
+
+    public void updateChatRoomSummary(String summary) {
+        this.totalSummary = summary;
+    }
+
+    public void complete() {
+        this.chatRoomState = ChatRoomState.COMPLETED;
     }
 
     public boolean isChatRoomValid() {

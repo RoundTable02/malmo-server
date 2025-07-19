@@ -148,7 +148,6 @@ public class ChatService implements SendChatMessageUseCase {
         // 요약 요청 (비동기)
         chatStreamProcessor.requestSummaryAsync(
                 ChatRoomId.of(chatRoom.getId()),
-                MemberId.of(member.getId()),
                 systemPrompt, prompt, summaryPrompt,
                 messages
         );

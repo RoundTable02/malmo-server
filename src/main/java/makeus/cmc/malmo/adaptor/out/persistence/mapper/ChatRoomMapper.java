@@ -18,6 +18,7 @@ public class ChatRoomMapper {
                 entity.getChatRoomState(),
                 entity.getLevel(),
                 entity.getLastMessageSentTime(),
+                entity.getTotalSummary(),
                 entity.getCreatedAt(),
                 entity.getModifiedAt(),
                 entity.getDeletedAt()
@@ -35,6 +36,7 @@ public class ChatRoomMapper {
                 .chatRoomState(domain.getChatRoomState())
                 .lastMessageSentTime(domain.getLastMessageSentTime())
                 .level(domain.getLevel())
+                .totalSummary(domain.getTotalSummary())
                 .createdAt(domain.getCreatedAt())
                 .modifiedAt(domain.getModifiedAt())
                 .deletedAt(domain.getDeletedAt())

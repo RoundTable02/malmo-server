@@ -7,6 +7,7 @@ import makeus.cmc.malmo.application.port.out.SaveChatMessageSummaryPort;
 import makeus.cmc.malmo.application.port.out.SendSseEventPort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
+import makeus.cmc.malmo.domain.model.chat.ChatRoom;
 import makeus.cmc.malmo.domain.model.chat.Prompt;
 import makeus.cmc.malmo.domain.service.ChatMessagesDomainService;
 import makeus.cmc.malmo.domain.service.ChatRoomDomainService;
@@ -15,6 +16,7 @@ import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.type.SenderType;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -88,7 +90,7 @@ public class ChatStreamProcessor {
     }
 
     // Message 요약 API 요청 Async Function
-    public void requestSummaryAsync(ChatRoomId chatRoomId, MemberId memberId, Prompt systemPrompt, Prompt prompt, Prompt summaryPrompt, List<Map<String, String>> summaryRequestMessages) {
+    public void requestSummaryAsync(ChatRoomId chatRoomId, Prompt systemPrompt, Prompt prompt, Prompt summaryPrompt, List<Map<String, String>> summaryRequestMessages) {
         summaryRequestMessages.add(
                 createMessageMap(SenderType.SYSTEM, systemPrompt.getContent())
         );
@@ -107,10 +109,22 @@ public class ChatStreamProcessor {
                             chatRoomId, summary, prompt.getLevel()
                     );
                     saveChatMessageSummaryPort.saveChatMessageSummary(chatMessageSummary);
-                    log.info("요약 요청 완료: chatRoomId={}, memberId={}, summary={}", chatRoomId, memberId, summary);
                 }
         );
 
+    }
+
+    public void requestTotalSummary(ChatRoom chatRoom, Prompt systemPrompt, Prompt totalSummaryPrompt, List<Map<String, String>> messages) {
+        messages.add(
+                createMessageMap(SenderType.SYSTEM, systemPrompt.getContent())
+        );
+        messages.add(
+                createMessageMap(SenderType.SYSTEM, "[현재 단계 지시]\n" + totalSummaryPrompt.getContent())
+        );
+
+        String summary = requestChatApiPort.requestTotalSummary(messages);
+
+        chatRoomDomainService.updateChatRoomSummary(chatRoom, summary);
     }
 
     private void saveAiMessage(MemberId memberId, ChatRoomId chatRoomId, int level, String fullAnswer) {

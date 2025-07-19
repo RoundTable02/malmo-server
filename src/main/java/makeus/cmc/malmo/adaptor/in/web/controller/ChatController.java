@@ -16,6 +16,7 @@ import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseListResponse;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
+import makeus.cmc.malmo.application.port.in.CompleteChatRoomUseCase;
 import makeus.cmc.malmo.application.port.in.GetCurrentChatRoomMessagesUseCase;
 import makeus.cmc.malmo.application.port.in.GetCurrentChatRoomUseCase;
 import makeus.cmc.malmo.application.port.in.SendChatMessageUseCase;
@@ -32,6 +33,7 @@ public class ChatController {
     private final SendChatMessageUseCase sendChatMessageUseCase;
     private final GetCurrentChatRoomUseCase getCurrentChatRoomUseCase;
     private final GetCurrentChatRoomMessagesUseCase getCurrentChatRoomMessagesUseCase;
+    private final CompleteChatRoomUseCase completeChatRoomUseCase;
 
     @Operation(
             summary = "채팅방 상태 조회",
@@ -115,11 +117,30 @@ public class ChatController {
     )
     @ApiCommonResponses.RequireAuth
     @PostMapping("/current/upgrade")
-    public BaseResponse<SendChatMessageUseCase.SendChatMessageResponse> sendChatMessage(
-            @AuthenticationPrincipal User user) {
+    public BaseResponse sendChatMessage(@AuthenticationPrincipal User user) {
         sendChatMessageUseCase.upgradeChatRoom(SendChatMessageUseCase.SendChatMessageCommand.builder()
                         .userId(Long.valueOf(user.getUsername()))
                         .build());
+
+        return BaseResponse.success(null);
+    }
+
+    @Operation(
+            summary = "채팅방 종료",
+            description = "현재 채팅방을 종료합니다. JWT 토큰이 필요합니다.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "채팅방 종료 성공; 데이터 응답 값은 없음",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.BaseSwaggerResponse.class))
+    )
+    @ApiCommonResponses.RequireAuth
+    @PostMapping("/current/complete")
+    public BaseResponse completeChatRoom(@AuthenticationPrincipal User user) {
+        completeChatRoomUseCase.completeChatRoom(CompleteChatRoomUseCase.CompleteChatRoomCommand.builder()
+                .userId(Long.valueOf(user.getUsername()))
+                .build());
 
         return BaseResponse.success(null);
     }
