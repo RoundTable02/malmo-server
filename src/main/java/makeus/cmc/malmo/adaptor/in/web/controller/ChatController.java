@@ -33,8 +33,17 @@ public class ChatController {
     private final GetCurrentChatRoomUseCase getCurrentChatRoomUseCase;
     private final GetCurrentChatRoomMessagesUseCase getCurrentChatRoomMessagesUseCase;
 
-
-    // 채팅방 정보 조회 API 채팅방이 없으면 생성하고 전달
+    @Operation(
+            summary = "채팅방 상태 조회",
+            description = "현재 채팅방의 상태를 조회합니다. JWT 토큰이 필요합니다.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "채팅방 상태 조회 성공",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.ChatRoomStateResponse.class))
+    )
+    @ApiCommonResponses.RequireAuth
     @GetMapping("/current")
     public BaseResponse<GetCurrentChatRoomUseCase.GetCurrentChatRoomResponse> getCurrentChatRoom(
             @AuthenticationPrincipal User user) {
@@ -44,6 +53,17 @@ public class ChatController {
         return BaseResponse.success(getCurrentChatRoomUseCase.getCurrentChatRoom(command));
     }
 
+    @Operation(
+            summary = "현재 채팅방 메시지 조회",
+            description = "현재 채팅방의 메시지를 페이지네이션으로 조회합니다. JWT 토큰이 필요합니다.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "채팅방 상태 조회 성공",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.ChatMessageListSuccessResponse.class))
+    )
+    @ApiCommonResponses.RequireAuth
     @GetMapping("/current/messages")
     public BaseResponse<BaseListResponse<GetCurrentChatRoomMessagesUseCase.ChatRoomMessageDto>> getCurrentChatRoomMessages(
             @RequestParam(value = "page", defaultValue = "0") int page,
@@ -83,15 +103,25 @@ public class ChatController {
         return BaseResponse.success(sendChatMessageResponse);
     }
 
+    @Operation(
+            summary = "채팅방 단계 변경",
+            description = "현재 채팅방의 단계를 업그레이드합니다. 다음 단계의 오프닝 멘트를 SSE로 전달됩니다. JWT 토큰이 필요합니다.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "채팅방 단계 변경 성공; 데이터 응답 값은 없음",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.BaseSwaggerResponse.class))
+    )
+    @ApiCommonResponses.RequireAuth
     @PostMapping("/current/upgrade")
     public BaseResponse<SendChatMessageUseCase.SendChatMessageResponse> sendChatMessage(
             @AuthenticationPrincipal User user) {
-        SendChatMessageUseCase.SendChatMessageResponse sendChatMessageResponse = sendChatMessageUseCase.upgradeChatRoom(
-                SendChatMessageUseCase.SendChatMessageCommand.builder()
+        sendChatMessageUseCase.upgradeChatRoom(SendChatMessageUseCase.SendChatMessageCommand.builder()
                         .userId(Long.valueOf(user.getUsername()))
                         .build());
 
-        return BaseResponse.success(sendChatMessageResponse);
+        return BaseResponse.success(null);
     }
 
     @Getter

@@ -30,7 +30,7 @@ public class ChatRoomService implements GetCurrentChatRoomUseCase, GetCurrentCha
         ChatRoom currentChatRoom = chatRoomDomainService.getCurrentChatRoomByMemberId(MemberId.of(command.getUserId()));
 
         return GetCurrentChatRoomResponse.builder()
-                .chatRoomStatus(currentChatRoom.getChatRoomState())
+                .chatRoomState(currentChatRoom.getChatRoomState())
                 .build();
     }
 

@@ -1,5 +1,6 @@
 package makeus.cmc.malmo.application.port.in;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 
@@ -22,6 +23,7 @@ public interface TermsUseCase {
         private String title;
         private String content;
         private float version;
+        @JsonProperty("isRequired")
         private boolean isRequired;
     }
 }

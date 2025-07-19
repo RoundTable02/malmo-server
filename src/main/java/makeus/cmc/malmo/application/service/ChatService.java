@@ -109,7 +109,7 @@ public class ChatService implements SendChatMessageUseCase {
 
     @Override
     @Transactional
-    public SendChatMessageResponse upgradeChatRoom(SendChatMessageCommand command) {
+    public void upgradeChatRoom(SendChatMessageCommand command) {
         // 이전 LEVEL이 종료, 현재 레벨에 처음 진입한 경우
         //  이전 레벨의 ChatMessageSummary와 summarized = false인 ChatMessage를 비동기 요약 처리
         //  요약 전 메시지를 바탕으로 현재 단계 지시 프롬프트로 요청 (status를 다시 ALIVE로 변경)
@@ -170,10 +170,6 @@ public class ChatService implements SendChatMessageUseCase {
                 ChatRoomId.of(chatRoom.getId()));
 
         chatRoomDomainService.updateChatRoomStateToAlive(ChatRoomId.of(chatRoom.getId()));
-
-        return SendChatMessageResponse.builder()
-                .messageId(null) // 업그레이드 시에는 메시지 ID가 필요하지 않음
-                .build();
     }
 
     private String getSummarizedMessageContent(List<ChatMessageSummary> summarizedMessages) {

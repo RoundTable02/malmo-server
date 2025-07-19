@@ -1,8 +1,12 @@
 package makeus.cmc.malmo.adaptor.in.web.docs;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
+import makeus.cmc.malmo.domain.value.state.ChatRoomState;
 import makeus.cmc.malmo.domain.value.state.MemberState;
+import makeus.cmc.malmo.domain.value.type.SenderType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -150,6 +154,16 @@ public class SwaggerResponses {
     @Getter
     @Schema(description = "채팅 전송 성공 응답")
     public static class SendChatSuccessResponse extends BaseSwaggerResponse<SendChatData> {
+    }
+
+    @Getter
+    @Schema(description = "채팅방 상태 조회 성공 응답")
+    public static class ChatRoomStateResponse extends BaseSwaggerResponse<ChatRoomStateData> {
+    }
+
+    @Getter
+    @Schema(description = "채팅 메시지 리스트 조회 성공 응답")
+    public static class ChatMessageListSuccessResponse extends BaseSwaggerResponse<BaseListSwaggerResponse<ChatRoomMessageData>> {
     }
 
     // 데이터 클래스들
@@ -445,5 +459,27 @@ public class SwaggerResponses {
     public static class SendChatData {
         @Schema(description = "사용자가 보낸 메시지의 ID", example = "1")
         private Long messageId;
+    }
+
+    @Getter
+    @Schema(description = "채팅방 상태 응답 데이터")
+    public static class ChatRoomStateData {
+        @Schema(description = "현재 채팅방의 상태", example = "BEFORE_INIT")
+        private ChatRoomState chatRoomState;
+    }
+
+    @Getter
+    @Schema(description = "채팅방 메시지 응답 데이터")
+    class ChatRoomMessageData {
+        @Schema(description = "채팅 메시지 ID", example = "1")
+        private Long messageId;
+        @Schema(description = "채팅 전송자(유저, 모모)", example = "USER")
+        private SenderType senderType;
+        @Schema(description = "채팅 내용", example = "안녕?")
+        private String content;
+        @Schema(description = "채팅 생성 시간", example = "2025-07-20T10:15:30")
+        private LocalDateTime createdAt;
+        @Schema(description = "채팅 저장 여부", example = "true")
+        private boolean isSaved;
     }
 }
