@@ -2,6 +2,7 @@ package makeus.cmc.malmo.application.port.in;
 
 import lombok.Builder;
 import lombok.Data;
+import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.model.member.MemberState;
 
 import java.time.LocalDate;
@@ -22,8 +23,7 @@ public interface GetMemberUseCase {
         private MemberState memberState;
         private LocalDate startLoveDate;
 
-        private String loveTypeTitle;
-        private String loveTypeImageUrl;
+        private LoveTypeCategory loveTypeCategory;
 
         private float avoidanceRate;
         private float anxietyRate;

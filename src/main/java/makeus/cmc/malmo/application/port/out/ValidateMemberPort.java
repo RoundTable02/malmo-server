@@ -4,4 +4,6 @@ import makeus.cmc.malmo.domain.model.value.MemberId;
 
 public interface ValidateMemberPort {
     boolean isCoupleMember(MemberId memberId);
+
+    boolean isTestedMember(MemberId memberId);
 }

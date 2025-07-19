@@ -21,29 +21,20 @@ public class MemberInfoService implements GetMemberUseCase, GetPartnerUseCase {
     private final LoadMemberPort loadMemberPort;
     private final LoadPartnerPort loadPartnerPort;
 
-    private final LoveTypeDataService loveTypeDataService;
-
     @Override
     public MemberResponseDto getMemberInfo(MemberInfoCommand command) {
         LoadMemberPort.MemberResponseRepositoryDto member = loadMemberPort.loadMemberDetailsById(command.getUserId())
                 .orElseThrow(MemberNotFoundException::new);
-        LoveTypeData loveTypeData = loveTypeDataService.getLoveTypeData(member.getLoveTypeCategory());
 
-        MemberResponseDto dto = MemberResponseDto.builder()
+        return MemberResponseDto.builder()
                 .memberState(MemberState.valueOf(member.getMemberState()))
                 .startLoveDate(member.getStartLoveDate())
                 .avoidanceRate(member.getAvoidanceRate())
                 .anxietyRate(member.getAnxietyRate())
+                .loveTypeCategory(member.getLoveTypeCategory())
                 .nickname(member.getNickname())
                 .email(member.getEmail())
                 .build();
-
-        if (loveTypeData != null) {
-            dto.setLoveTypeTitle(loveTypeData.getName());
-            dto.setLoveTypeImageUrl(loveTypeData.getImageUrl());
-        }
-
-        return dto;
     }
 
     @Override
@@ -51,21 +42,13 @@ public class MemberInfoService implements GetMemberUseCase, GetPartnerUseCase {
     public PartnerMemberResponseDto getPartnerInfo(PartnerInfoCommand command) {
         LoadPartnerPort.PartnerMemberRepositoryDto partner = loadPartnerPort.loadPartnerByMemberId(command.getUserId())
                 .orElseThrow(MemberNotFoundException::new);
-        LoveTypeData loveTypeData = loveTypeDataService.getLoveTypeData(partner.getLoveTypeCategory());
 
-
-        PartnerMemberResponseDto dto = PartnerMemberResponseDto.builder()
+        return PartnerMemberResponseDto.builder()
                 .memberState(MemberState.valueOf(partner.getMemberState()))
+                .loveTypeCategory(partner.getLoveTypeCategory())
                 .avoidanceRate(partner.getAvoidanceRate())
                 .anxietyRate(partner.getAnxietyRate())
                 .nickname(partner.getNickname())
                 .build();
-
-        if (loveTypeData != null) {
-            dto.setLoveTypeTitle(loveTypeData.getName());
-            dto.setLoveTypeImageUrl(loveTypeData.getImageUrl());
-        }
-
-        return dto;
     }
 }

@@ -2,6 +2,7 @@ package makeus.cmc.malmo.application.port.in;
 
 import lombok.Builder;
 import lombok.Data;
+import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
 
 public interface GetMemberLoveTypeDetailsUseCase {
 
@@ -19,17 +20,6 @@ public interface GetMemberLoveTypeDetailsUseCase {
     class LoveTypeDetailsDto {
         private Float memberAnxietyScore;
         private Float memberAvoidanceScore;
-        private String name;
-        private String loveTypeName;
-        private String imageUrl;
-        private String summary;
-        private String description;
-        private Float anxietyOver;
-        private Float anxietyUnder;
-        private Float avoidanceOver;
-        private Float avoidanceUnder;
-        private String[] relationshipAttitudes;
-        private String[] problemSolvingAttitudes;
-        private String[] emotionalExpressions;
+        private LoveTypeCategory loveTypeCategory;
     }
 }
