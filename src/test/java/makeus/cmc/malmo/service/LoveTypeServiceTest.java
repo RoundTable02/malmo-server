@@ -1,16 +1,16 @@
 package makeus.cmc.malmo.service;
 
-import makeus.cmc.malmo.domain.exception.LoveTypeNotFoundException;
-import makeus.cmc.malmo.domain.exception.LoveTypeQuestionNotFoundException;
-import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
 import makeus.cmc.malmo.application.port.in.UpdateMemberLoveTypeUseCase;
 import makeus.cmc.malmo.application.port.out.SaveMemberPort;
 import makeus.cmc.malmo.application.service.LoveTypeService;
+import makeus.cmc.malmo.domain.exception.LoveTypeNotFoundException;
+import makeus.cmc.malmo.domain.exception.LoveTypeQuestionNotFoundException;
+import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
 import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.value.MemberId;
-import makeus.cmc.malmo.domain.service.MemberDomainService;
 import makeus.cmc.malmo.domain.service.LoveTypeDataService;
+import makeus.cmc.malmo.domain.service.MemberDomainService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,9 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
