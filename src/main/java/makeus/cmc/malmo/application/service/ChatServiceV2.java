@@ -13,6 +13,7 @@ import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.service.*;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
+import makeus.cmc.malmo.domain.value.state.ChatRoomState;
 import makeus.cmc.malmo.domain.value.type.SenderType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +56,10 @@ public class ChatServiceV2 implements SendChatMessageUseCase {
 
         //  현재 ChatRoom의 LEVEL 불러오기
         ChatRoom chatRoom = chatRoomDomainService.getCurrentChatRoomByMemberId(MemberId.of(member.getId()));
+
+        if (chatRoom.getChatRoomState() == ChatRoomState.BEFORE_INIT) {
+            chatRoomDomainService.updateChatRoomStateToAlive(ChatRoomId.of(chatRoom.getId()));
+        }
 
         int chatRoomLevel = chatRoom.getLevel();
 

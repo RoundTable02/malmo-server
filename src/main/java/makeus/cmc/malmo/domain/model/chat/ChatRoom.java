@@ -28,7 +28,7 @@ public class ChatRoom {
         return ChatRoom.builder()
                 .memberId(memberId)
                 .level(INIT_CHATROOM_LEVEL)
-                .chatRoomState(ChatRoomState.ALIVE)
+                .chatRoomState(ChatRoomState.BEFORE_INIT)
                 .lastMessageSentTime(LocalDateTime.now())
                 .build();
     }
@@ -66,6 +66,6 @@ public class ChatRoom {
     }
 
     public boolean isChatRoomValid() {
-        return this.chatRoomState == ChatRoomState.ALIVE;
+        return this.chatRoomState == ChatRoomState.ALIVE || this.chatRoomState == ChatRoomState.BEFORE_INIT;
     }
 }

@@ -6,7 +6,4 @@ import makeus.cmc.malmo.domain.value.id.MemberId;
 
 public interface SaveChatRoomPort {
     ChatRoom saveChatRoom(ChatRoom chatRoom);
-
-    void updatePausedChatRoomAlive(MemberId memberId);
-
 }
