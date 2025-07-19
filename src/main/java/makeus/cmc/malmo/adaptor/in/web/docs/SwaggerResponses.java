@@ -2,6 +2,7 @@ package makeus.cmc.malmo.adaptor.in.web.docs;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
+import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.model.member.MemberState;
 
 import java.time.LocalDate;
@@ -192,11 +193,8 @@ public class SwaggerResponses {
         @Schema(description = "연애 시작일", example = "2023-01-15")
         private LocalDate startLoveDate;
 
-        @Schema(description = "애착 유형 제목", example = "안정형")
-        private String loveTypeTitle;
-
-        @Schema(description = "애착 유형 이미지 URL", example = "s3://malmo-images/love-type/stable.png")
-        private String loveTypeImageUrl;
+        @Schema(description = "애착 유형", example = "STABLE_TYPE")
+        private LoveTypeCategory loveTypeCategory;
 
         @Schema(description = "회피 비율", example = "0.3")
         private float avoidanceRate;
@@ -217,11 +215,8 @@ public class SwaggerResponses {
         @Schema(description = "멤버 상태", example = "ALIVE")
         private MemberState memberState;
 
-        @Schema(description = "애착 유형 제목", example = "안정형")
-        private String loveTypeTitle;
-
-        @Schema(description = "애착 유형 이미지 URL", example = "s3://malmo-images/love-type/stable.png")
-        private String loveTypeImageUrl;
+        @Schema(description = "애착 유형", example = "STABLE_TYPE")
+        private LoveTypeCategory loveTypeCategory;
 
         @Schema(description = "회피 비율", example = "0.3")
         private float avoidanceRate;
@@ -290,31 +285,9 @@ public class SwaggerResponses {
         private Float memberAnxietyScore;
         @Schema(description = "사용자 회피형 점수", example = "0.4")
         private Float memberAvoidanceScore;
-        @Schema(description = "애착 유형 이름(별명)", example = "안정형")
-        private String name;
-        @Schema(description = "애착 유형 전체 이름", example = "안정형 애착")
-        private String loveTypeName;
-        @Schema(description = "애착 유형 이미지 URL", example = "s3://malmo-images/love-type/stable.png")
-        private String imageUrl;
-        @Schema(description = "애착 유형 요약", example = "안정적인 애착 유형입니다.")
-        private String summary;
-        @Schema(description = "애착 유형 설명", example = "안정형 애착은 서로의 감정을 존중하고 신뢰하는 관계입니다.")
-        private String description;
-        @Schema(description = "불안형 점수 이상 기준값, 조건이 없는 경우 null", example = "0.5")
-        private Float anxietyOver;
-        @Schema(description = "불안형 점수 미만 기준값, 조건이 없는 경우 null", example = "0.2")
-        private Float anxietyUnder;
-        @Schema(description = "회피형 점수 이상 기준값, 조건이 없는 경우 null", example = "0.5")
-        private Float avoidanceOver;
-        @Schema(description = "회피형 점수 미만 기준값, 조건이 없는 경우 null", example = "0.2")
-        private Float avoidanceUnder;
 
-        @Schema(description = "관계에 대한 태도", example = "[\"서로 존중합니다.\", \"신뢰가 중요합니다.\"]")
-        private String[] relationshipAttitudes;
-        @Schema(description = "갈등 해결 태도", example = "[\"대화를 통해 해결합니다.\", \"서로의 의견을 존중합니다.\"]")
-        private String[] problemSolvingAttitudes;
-        @Schema(description = "정서적인 표현", example = "[\"사랑을 자주 표현합니다.\", \"서로의 감정을 이해하려고 노력합니다.\"]")
-        private String[] emotionalExpressions;
+        @Schema(description = "사용자 애착유형", example = "STABLE_TYPE")
+        private LoveTypeCategory loveTypeCategory;
     }
 
     @Getter

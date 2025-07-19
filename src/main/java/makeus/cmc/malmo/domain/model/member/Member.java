@@ -46,10 +46,6 @@ public class Member extends BaseTimeEntity {
         this.memberState = MemberState.ALIVE;
     }
 
-    public void updateInviteCode(InviteCodeValue inviteCode) {
-        this.inviteCode = inviteCode;
-    }
-
     public void updateMemberProfile(String nickname, String email) {
         this.nickname = nickname;
         this.email = email;
@@ -57,8 +53,8 @@ public class Member extends BaseTimeEntity {
 
     public void updateLoveTypeId(LoveTypeCategory loveTypeCategory, float avoidanceRate, float anxietyRate) {
         this.loveTypeCategory = loveTypeCategory;
-        this.avoidanceRate = avoidanceRate / 18.0f;
-        this.anxietyRate = anxietyRate / 18.0f;
+        this.avoidanceRate = avoidanceRate;
+        this.anxietyRate = anxietyRate;
     }
 
     public void refreshMemberToken(String refreshToken) {
