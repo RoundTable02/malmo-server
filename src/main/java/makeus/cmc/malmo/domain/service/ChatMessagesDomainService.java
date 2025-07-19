@@ -15,14 +15,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatMessagesDomainService {
 
-    private final LoadCurrentMessagesPort loadMessagesPort;
+    private final LoadMessagesPort loadMessagesPort;
     private final SaveChatMessagePort saveChatMessagePort;
 
     private final LoadChatMessageSummaryPort loadChatMessageSummaryPort;
     private final LoadUnsummarizedChatMessages loadUnsummarizedChatMessages;
     private final LoadSummarizedMessages loadSummarizedMessages;
 
-    public List<LoadCurrentMessagesPort.ChatRoomMessageRepositoryDto> getChatMessagesDto(ChatRoomId chatRoomId, int page, int size) {
+    public List<LoadMessagesPort.ChatRoomMessageRepositoryDto> getChatMessagesDto(ChatRoomId chatRoomId, int page, int size) {
         return loadMessagesPort.loadMessagesDto(chatRoomId, page, size);
     }
 
@@ -50,7 +50,11 @@ public class ChatMessagesDomainService {
         return loadUnsummarizedChatMessages.getUnsummarizedChatMessages(chatRoomId);
     }
 
-    public List<ChatMessageSummary> getPreviousLevelsSummarizedMessages(ChatRoomId chatRoomId) {
-        return loadSummarizedMessages.loadSummarizedMessagesNotCurrent(chatRoomId);
+    public List<ChatMessageSummary> getSummarizedMessages(ChatRoomId chatRoomId) {
+        return loadSummarizedMessages.loadSummarizedMessages(chatRoomId);
+    }
+
+    public List<ChatMessage> getChatRoomLevelMessages(ChatRoomId chatRoomId, int level) {
+        return loadMessagesPort.loadChatRoomMessagesByLevel(chatRoomId, level);
     }
 }

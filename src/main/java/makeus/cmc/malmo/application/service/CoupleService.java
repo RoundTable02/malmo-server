@@ -6,6 +6,7 @@ import makeus.cmc.malmo.application.port.out.SaveCouplePort;
 import makeus.cmc.malmo.application.port.out.SendSseEventPort;
 import makeus.cmc.malmo.domain.model.couple.Couple;
 import makeus.cmc.malmo.domain.model.member.Member;
+import makeus.cmc.malmo.domain.service.ChatRoomDomainService;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.service.CoupleDomainService;
@@ -22,6 +23,8 @@ public class CoupleService implements CoupleLinkUseCase {
 
     private final InviteCodeDomainService inviteCodeDomainService;
     private final CoupleDomainService coupleDomainService;
+    private final ChatRoomDomainService chatRoomDomainService;
+
     private final SendSseEventPort sendSseEventPort;
 
     private final SaveCouplePort saveCouplePort;
@@ -42,6 +45,9 @@ public class CoupleService implements CoupleLinkUseCase {
         );
 
         Couple savedCouple = saveCouplePort.saveCouple(couple);
+
+        // 커플 연결 전 일시 정지 상태의 채팅방을 활성화
+        chatRoomDomainService.updateMemberPausedChatRoomStateToAlive(MemberId.of(command.getUserId()));
 
         sendSseEventPort.sendToMember(
                 MemberId.of(partner.getId()),

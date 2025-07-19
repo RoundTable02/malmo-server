@@ -25,7 +25,4 @@ public class PromptEntity extends BaseTimeEntity {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    private boolean isForMetadata;
-
-    private boolean isLastPromptForMetadata;
 }

@@ -20,7 +20,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class ChatRoomPersistenceAdapter
-        implements LoadCurrentMessagesPort, SaveChatRoomPort, LoadChatRoomPort, SaveChatMessagePort,
+        implements LoadMessagesPort, SaveChatRoomPort, LoadChatRoomPort, SaveChatMessagePort,
         LoadUnsummarizedChatMessages {
 
     private final ChatRoomRepository chatRoomRepository;
@@ -39,6 +39,14 @@ public class ChatRoomPersistenceAdapter
     @Override
     public List<ChatRoomMessageRepositoryDto> loadMessagesDto(ChatRoomId chatRoomId, int page, int size) {
         return chatMessageRepository.loadCurrentMessagesDto(chatRoomId.getValue(), page, size);
+    }
+
+    @Override
+    public List<ChatMessage> loadChatRoomMessagesByLevel(ChatRoomId chatRoomId, int level) {
+        return chatMessageRepository.findByChatRoomIdAndLevel(chatRoomId.getValue(), level)
+                .stream()
+                .map(chatMessageMapper::toDomain)
+                .toList();
     }
 
     @Override
@@ -72,10 +80,15 @@ public class ChatRoomPersistenceAdapter
         return chatMessageMapper.toDomain(savedEntity);
     }
 
-
     @Override
     public Optional<ChatRoom> loadChatRoomById(ChatRoomId chatRoomId) {
         return chatRoomRepository.findById(chatRoomId.getValue())
+                .map(chatRoomMapper::toDomain);
+    }
+
+    @Override
+    public Optional<ChatRoom> loadPausedChatRoomByMemberId(MemberId memberId) {
+        return chatRoomRepository.findPausedChatRoomByMemberEntityId(memberId.getValue())
                 .map(chatRoomMapper::toDomain);
     }
 

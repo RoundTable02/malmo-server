@@ -2,6 +2,7 @@ package makeus.cmc.malmo.domain.service;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.application.port.out.*;
+import makeus.cmc.malmo.domain.exception.ChatRoomNotFoundException;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
 import makeus.cmc.malmo.domain.model.chat.ChatRoomConstant;
@@ -53,38 +54,40 @@ public class ChatRoomDomainService {
 
     @Transactional
     public void updateChatRoomStateToPaused(ChatRoomId chatRoomId) {
-        // TODO: 예외 처리 필요
         ChatRoom chatRoom = loadChatRoomPort.loadChatRoomById(chatRoomId)
-                .orElse(null);
+                .orElseThrow(ChatRoomNotFoundException::new);
 
-        if (chatRoom != null) {
-            chatRoom.updateChatRoomStatePaused();
-            saveChatRoom(chatRoom);
-        }
+        chatRoom.updateChatRoomStatePaused();
+        saveChatRoom(chatRoom);
     }
 
     @Transactional
     public void updateChatRoomStateToNeedNextQuestion(ChatRoomId chatRoomId) {
-        // TODO: 예외 처리 필요
         ChatRoom chatRoom = loadChatRoomPort.loadChatRoomById(chatRoomId)
-                .orElse(null);
+                .orElseThrow(ChatRoomNotFoundException::new);
 
-        if (chatRoom != null) {
-            chatRoom.updateChatRoomStateNeedNextQuestion();
-            saveChatRoom(chatRoom);
-        }
+        chatRoom.updateChatRoomStateNeedNextQuestion();
+        saveChatRoom(chatRoom);
     }
 
     @Transactional
     public void updateChatRoomStateToAlive(ChatRoomId chatRoomId) {
-        // TODO: 예외 처리 필요
         ChatRoom chatRoom = loadChatRoomPort.loadChatRoomById(chatRoomId)
-                .orElse(null);
+                .orElseThrow(ChatRoomNotFoundException::new);
 
-        if (chatRoom != null) {
-            chatRoom.updateChatRoomStateAlive();
-            saveChatRoom(chatRoom);
-        }
+        chatRoom.updateChatRoomStateAlive();
+        saveChatRoom(chatRoom);
+    }
+
+    @Transactional
+    public void updateMemberPausedChatRoomStateToAlive(MemberId memberId) {
+        loadChatRoomPort.loadPausedChatRoomByMemberId(memberId)
+                        .ifPresent(
+                                chatRoom -> {
+                                    chatRoom.updateChatRoomStateNeedNextQuestion();
+                                    saveChatRoomPort.updatePausedChatRoomAlive(memberId);
+                                }
+                        );
     }
 
     @Transactional

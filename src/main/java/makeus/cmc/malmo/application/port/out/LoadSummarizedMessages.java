@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface LoadSummarizedMessages {
 
-    List<ChatMessageSummary> loadSummarizedMessagesNotCurrent(ChatRoomId chatRoomId);
+    List<ChatMessageSummary> loadSummarizedMessages(ChatRoomId chatRoomId);
 }

@@ -27,5 +27,4 @@ public class ChatMessageSummaryEntity extends BaseTimeEntity {
 
     private String content;
 
-    private boolean isForCurrentLevel;
 }

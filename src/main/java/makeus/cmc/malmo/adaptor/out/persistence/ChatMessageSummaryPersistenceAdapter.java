@@ -30,8 +30,8 @@ public class ChatMessageSummaryPersistenceAdapter
     }
 
     @Override
-    public List<ChatMessageSummary> loadSummarizedMessagesNotCurrent(ChatRoomId chatRoomId) {
-        return chatMessageSummaryRepository.findNotCurrentMessagesByChatRoomEntityId(chatRoomId.getValue())
+    public List<ChatMessageSummary> loadSummarizedMessages(ChatRoomId chatRoomId) {
+        return chatMessageSummaryRepository.findSummarizedMessagesByChatRoomEntityId(chatRoomId.getValue())
                 .stream()
                 .map(chatMessageSummaryMapper::toDomain)
                 .toList();

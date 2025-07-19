@@ -12,4 +12,8 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoomEntity, Long> 
     Optional<ChatRoomEntity> findCurrentChatRoomByMemberEntityId(Long memberId);
     @Query("select c from ChatRoomEntity c where c.memberEntityId.value = ?1 order by c.level desc limit 1")
     Optional<ChatRoomEntity> findMaxLevelChatRoomByMemberEntityId(Long memberId);
+
+
+    @Query("select c from ChatRoomEntity c where c.memberEntityId.value = ?1 AND c.chatRoomState = 'PAUSED'")
+    Optional<ChatRoomEntity> findPausedChatRoomByMemberEntityId(Long memberId);
 }
