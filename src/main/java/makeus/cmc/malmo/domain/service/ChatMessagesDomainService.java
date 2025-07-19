@@ -17,37 +17,22 @@ public class ChatMessagesDomainService {
 
     private final LoadMessagesPort loadMessagesPort;
     private final SaveChatMessagePort saveChatMessagePort;
-
-    private final LoadChatMessageSummaryPort loadChatMessageSummaryPort;
-    private final LoadUnsummarizedChatMessages loadUnsummarizedChatMessages;
     private final LoadSummarizedMessages loadSummarizedMessages;
 
     public List<LoadMessagesPort.ChatRoomMessageRepositoryDto> getChatMessagesDto(ChatRoomId chatRoomId, int page, int size) {
         return loadMessagesPort.loadMessagesDto(chatRoomId, page, size);
     }
 
-    public List<ChatMessage> getChatMessages(ChatRoomId chatRoomId) {
-        return loadMessagesPort.loadMessages(chatRoomId);
-    }
-
     @Transactional
-    public ChatMessage createUserTextMessage(ChatRoomId chatRoomId, String content) {
-        ChatMessage chatMessage = ChatMessage.createUserTextMessage(chatRoomId, content);
+    public ChatMessage createUserTextMessage(ChatRoomId chatRoomId, int level, String content) {
+        ChatMessage chatMessage = ChatMessage.createUserTextMessage(chatRoomId, level, content);
         return saveChatMessagePort.saveChatMessage(chatMessage);
     }
 
     @Transactional
-    public ChatMessage createAiTextMessage(ChatRoomId chatRoomId, String content) {
-        ChatMessage chatMessage = ChatMessage.createAssistantTextMessage(chatRoomId, content);
+    public ChatMessage createAiTextMessage(ChatRoomId chatRoomId, int level, String content) {
+        ChatMessage chatMessage = ChatMessage.createAssistantTextMessage(chatRoomId, level, content);
         return saveChatMessagePort.saveChatMessage(chatMessage);
-    }
-
-    public List<ChatMessageSummary> getCurrentSummarizedMessagesByLevel(ChatRoomId chatRoomId, int level) {
-        return loadChatMessageSummaryPort.loadChatMessageSummaries(chatRoomId, level);
-    }
-
-    public List<ChatMessage> getNotSummarizedChatMessages(ChatRoomId chatRoomId) {
-        return loadUnsummarizedChatMessages.getUnsummarizedChatMessages(chatRoomId);
     }
 
     public List<ChatMessageSummary> getSummarizedMessages(ChatRoomId chatRoomId) {

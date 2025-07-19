@@ -9,5 +9,4 @@ public interface SaveChatRoomPort {
 
     void updatePausedChatRoomAlive(MemberId memberId);
 
-    void updateAllMessagesSummarizedIsTrue(ChatRoomId chatRoomId);
 }

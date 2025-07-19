@@ -83,7 +83,7 @@ public class ChatServiceV2 implements SendChatMessageUseCase {
         messages.add(
                 createMessageMap(SenderType.USER, command.getMessage())
         );
-        ChatMessage savedUserTextMessage = chatMessagesDomainService.createUserTextMessage(ChatRoomId.of(chatRoom.getId()), command.getMessage());
+        ChatMessage savedUserTextMessage = chatMessagesDomainService.createUserTextMessage(ChatRoomId.of(chatRoom.getId()), chatRoomLevel, command.getMessage());
 
         boolean isMemberCouple = validateMemberPort.isCoupleMember(MemberId.of(member.getId()));
         // OpenAI API 스트리밍 호출

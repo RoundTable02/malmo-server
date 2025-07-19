@@ -14,12 +14,9 @@ public class ChatMessageMapper {
                 entity.getId(),
                 entity.getChatRoomEntityId() != null ?
                         ChatRoomId.of(entity.getChatRoomEntityId().getValue()) : null,
-                entity.isImage(),
-                entity.getImageUrl(),
-                entity.getExtractedText(),
+                entity.getLevel(),
                 entity.getContent(),
                 entity.getSenderType(),
-                entity.isSummarized(),
                 entity.getCreatedAt(),
                 entity.getModifiedAt(),
                 entity.getDeletedAt()
@@ -35,12 +32,9 @@ public class ChatMessageMapper {
                 .id(domain.getId())
                 .chatRoomEntityId(domain.getChatRoomId() != null ?
                         ChatRoomEntityId.of(domain.getChatRoomId().getValue()) : null)
-                .isImage(domain.isImage())
-                .imageUrl(domain.getImageUrl())
-                .extractedText(domain.getExtractedText())
+                .level(domain.getLevel())
                 .content(domain.getContent())
                 .senderType(domain.getSenderType())
-                .isSummarized(domain.isSummarized())
                 .createdAt(domain.getCreatedAt())
                 .modifiedAt(domain.getModifiedAt())
                 .deletedAt(domain.getDeletedAt())

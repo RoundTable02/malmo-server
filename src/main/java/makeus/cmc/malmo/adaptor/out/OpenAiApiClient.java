@@ -21,8 +21,8 @@ import java.util.function.Consumer;
 @Component
 public class OpenAiApiClient implements RequestChatApiPort {
 
-    public static final String GPT_VERSION = "gpt-3.5-turbo";
-    public static final double GPT_TEMPERATURE = 0.7;
+    public static final String GPT_VERSION = "gpt-4o";
+    public static final double GPT_TEMPERATURE = 0.5;
 
     @Value("${openai.api.key}")
     private String openAiApiKey;

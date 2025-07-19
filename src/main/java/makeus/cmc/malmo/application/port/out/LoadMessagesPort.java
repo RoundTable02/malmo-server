@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface LoadMessagesPort {
-    List<ChatMessage> loadMessages(ChatRoomId chatRoomId);
     List<ChatRoomMessageRepositoryDto> loadMessagesDto(ChatRoomId chatRoomId, int page, int size);
     List<ChatMessage> loadChatRoomMessagesByLevel(ChatRoomId chatRoomId, int level);
 

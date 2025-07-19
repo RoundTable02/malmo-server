@@ -3,16 +3,18 @@ package makeus.cmc.malmo.domain.service;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.application.port.out.*;
 import makeus.cmc.malmo.domain.exception.ChatRoomNotFoundException;
+import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
 import makeus.cmc.malmo.domain.model.chat.ChatRoomConstant;
-import makeus.cmc.malmo.domain.model.chat.Prompt;
+import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.INIT_CHATROOM_LEVEL;
+import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.INIT_CHAT_MESSAGE;
 
 @Service
 @Transactional(readOnly = true)
@@ -20,6 +22,7 @@ import java.util.Optional;
 public class ChatRoomDomainService {
 
     private final LoadChatRoomPort loadChatRoomPort;
+    private final LoadMemberPort loadMemberPort;
     private final SaveChatRoomPort saveChatRoomPort;
     private final SaveChatMessagePort saveChatMessagePort;
     private final LoadChatRoomMetadataPort loadChatRoomMetadataPort;
@@ -28,9 +31,11 @@ public class ChatRoomDomainService {
         // 현재 채팅방이 존재하는지 확인하고, 없으면 초기 메시지와 함께 새로 생성
         return loadChatRoomPort.loadCurrentChatRoomByMemberId(memberId)
                 .orElseGet(() -> {
+                    Member member = loadMemberPort.loadMemberById(memberId.getValue())
+                            .orElseThrow(MemberNotFoundException::new);
                     ChatRoom chatRoom = saveChatRoomPort.saveChatRoom(ChatRoom.createChatRoom(memberId));
                     ChatMessage initMessage = ChatMessage.createAssistantTextMessage(
-                            ChatRoomId.of(chatRoom.getId()), ChatRoomConstant.INIT_CHAT_MESSAGE);
+                            ChatRoomId.of(chatRoom.getId()), INIT_CHATROOM_LEVEL, member.getNickname() + INIT_CHAT_MESSAGE);
                     saveChatMessagePort.saveChatMessage(initMessage);
 
                     return chatRoom;
@@ -66,7 +71,7 @@ public class ChatRoomDomainService {
         ChatRoom chatRoom = loadChatRoomPort.loadChatRoomById(chatRoomId)
                 .orElseThrow(ChatRoomNotFoundException::new);
 
-        chatRoom.updateChatRoomStateNeedNextQuestion();
+        chatRoom.upgradeChatRoom();
         saveChatRoom(chatRoom);
     }
 
@@ -84,14 +89,9 @@ public class ChatRoomDomainService {
         loadChatRoomPort.loadPausedChatRoomByMemberId(memberId)
                         .ifPresent(
                                 chatRoom -> {
-                                    chatRoom.updateChatRoomStateNeedNextQuestion();
+                                    chatRoom.upgradeChatRoom();
                                     saveChatRoomPort.updatePausedChatRoomAlive(memberId);
                                 }
                         );
-    }
-
-    @Transactional
-    public void updateAllMessagesSummarized(ChatRoomId chatRoomId) {
-        saveChatRoomPort.updateAllMessagesSummarizedIsTrue(chatRoomId);
     }
 }

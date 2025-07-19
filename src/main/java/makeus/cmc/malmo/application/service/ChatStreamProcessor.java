@@ -59,14 +59,11 @@ public class ChatStreamProcessor {
                 // 응답 완료 시 전체 응답 저장
                 fullAnswer -> {
                     if (!isOkDetected.get()) {
-                        saveAiMessage(memberId, chatRoomId, fullAnswer);
+                        saveAiMessage(memberId, chatRoomId, prompt.getLevel(), fullAnswer);
                     } else {
                         // 현재 단계가 종료된 경우 && 커플 연동이 되지 않은 멤버의 마지막 프롬프트인 경우
-                        // * 커플이 연동되지 않은 경우
-                        //    - ChatRoom의 State를 PAUSED로 변경
-                        //    - SSE 이벤트 chat_room_paused 전송
                         if (prompt.isLastPromptForNotCoupleMember() && !isMemberCoupled) {
-                            // 커플이 연동되지 않은 경우
+                            // 채팅방 상태를 PAUSED로 변경하고, SSE 이벤트 전송
                             chatRoomDomainService.updateChatRoomStateToPaused(chatRoomId);
                             sendSseEventPort.sendToMember(
                                     memberId,
@@ -117,8 +114,8 @@ public class ChatStreamProcessor {
 
     }
 
-    private void saveAiMessage(MemberId memberId, ChatRoomId chatRoomId, String fullAnswer) {
-        ChatMessage aiTextMessage = chatMessagesDomainService.createAiTextMessage(chatRoomId, fullAnswer);
+    private void saveAiMessage(MemberId memberId, ChatRoomId chatRoomId, int level, String fullAnswer) {
+        ChatMessage aiTextMessage = chatMessagesDomainService.createAiTextMessage(chatRoomId, level, fullAnswer);
         sendSseEventPort.sendToMember(
                 memberId,
                 new SendSseEventPort.NotificationEvent(
@@ -128,7 +125,6 @@ public class ChatStreamProcessor {
     }
 
     private void sendSseMessage(MemberId memberId, String chunk) {
-        // TODO : SSE Emitter 초기화 필요
         sendSseEventPort.sendToMember(
                 memberId,
                 new SendSseEventPort.NotificationEvent(

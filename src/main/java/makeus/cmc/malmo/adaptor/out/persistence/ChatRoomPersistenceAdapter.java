@@ -20,21 +20,12 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class ChatRoomPersistenceAdapter
-        implements LoadMessagesPort, SaveChatRoomPort, LoadChatRoomPort, SaveChatMessagePort,
-        LoadUnsummarizedChatMessages {
+        implements LoadMessagesPort, SaveChatRoomPort, LoadChatRoomPort, SaveChatMessagePort{
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomMapper chatRoomMapper;
     private final ChatMessageMapper chatMessageMapper;
-
-    @Override
-    public List<ChatMessage> loadMessages(ChatRoomId chatRoomId) {
-        return chatMessageRepository.findByChatRoomId(chatRoomId.getValue())
-                .stream()
-                .map(chatMessageMapper::toDomain)
-                .toList();
-    }
 
     @Override
     public List<ChatRoomMessageRepositoryDto> loadMessagesDto(ChatRoomId chatRoomId, int page, int size) {
@@ -56,12 +47,6 @@ public class ChatRoomPersistenceAdapter
     }
 
     @Override
-    public Optional<ChatRoom> loadMaxLevelChatRoomByMemberId(MemberId memberId) {
-        return chatRoomRepository.findMaxLevelChatRoomByMemberEntityId(memberId.getValue())
-                .map(chatRoomMapper::toDomain);
-    }
-
-    @Override
     public ChatRoom saveChatRoom(ChatRoom chatRoom) {
         ChatRoomEntity entity = chatRoomMapper.toEntity(chatRoom);
         ChatRoomEntity savedEntity = chatRoomRepository.save(entity);
@@ -69,8 +54,8 @@ public class ChatRoomPersistenceAdapter
     }
 
     @Override
-    public void updateAllMessagesSummarizedIsTrue(ChatRoomId chatRoomId) {
-        chatMessageRepository.updateChatMessageSummarizedAllTrue(chatRoomId.getValue());
+    public void updatePausedChatRoomAlive(MemberId memberId) {
+        chatRoomRepository.findPausedChatRoomByMemberEntityId(memberId.getValue());
     }
 
     @Override
@@ -90,13 +75,5 @@ public class ChatRoomPersistenceAdapter
     public Optional<ChatRoom> loadPausedChatRoomByMemberId(MemberId memberId) {
         return chatRoomRepository.findPausedChatRoomByMemberEntityId(memberId.getValue())
                 .map(chatRoomMapper::toDomain);
-    }
-
-    @Override
-    public List<ChatMessage> getUnsummarizedChatMessages(ChatRoomId chatRoomId) {
-        return chatMessageRepository.findUnsummarizedChatMessagesByChatRoomId(chatRoomId.getValue())
-                .stream()
-                .map(chatMessageMapper::toDomain)
-                .toList();
     }
 }

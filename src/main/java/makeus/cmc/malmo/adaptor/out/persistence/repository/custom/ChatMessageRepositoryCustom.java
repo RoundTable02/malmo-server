@@ -6,5 +6,4 @@ import java.util.List;
 
 public interface ChatMessageRepositoryCustom {
     List<LoadMessagesPort.ChatRoomMessageRepositoryDto> loadCurrentMessagesDto(Long chatRoomId, int page, int size);
-    void updateChatMessageSummarizedAllTrue(Long chatRoomId);
 }

@@ -13,52 +13,40 @@ import java.time.LocalDateTime;
 public class ChatMessage {
     private Long id;
     private ChatRoomId chatRoomId;
-    private boolean isImage;
-    private String imageUrl;
-    private String extractedText;
+    private int level;
     private String content;
     private SenderType senderType;
-    private boolean isSummarized;
 
     // BaseTimeEntity fields
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
 
-    public static ChatMessage createUserTextMessage(ChatRoomId chatRoomId, String content) {
+    public static ChatMessage createUserTextMessage(ChatRoomId chatRoomId, int level, String content) {
         return ChatMessage.builder()
                 .chatRoomId(chatRoomId)
-                .isImage(false)
-                .imageUrl(null)
-                .extractedText(null)
+                .level(level)
                 .content(content)
                 .senderType(SenderType.USER)
-                .isSummarized(false)
                 .build();
     }
 
-    public static ChatMessage createAssistantTextMessage(ChatRoomId chatRoomId, String content) {
+    public static ChatMessage createAssistantTextMessage(ChatRoomId chatRoomId, int level, String content) {
         return ChatMessage.builder()
                 .chatRoomId(chatRoomId)
-                .isImage(false)
-                .imageUrl(null)
-                .extractedText(null)
+                .level(level)
                 .content(content)
                 .senderType(SenderType.ASSISTANT)
-                .isSummarized(false)
                 .build();
     }
 
-    public static ChatMessage from(Long id, ChatRoomId chatRoomId, boolean isImage, String imageUrl, String extractedText, String content, SenderType senderType, boolean isSummarized, LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
+    public static ChatMessage from(Long id, ChatRoomId chatRoomId, int level, String content, SenderType senderType, LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
         return ChatMessage.builder()
                 .id(id)
                 .chatRoomId(chatRoomId)
-                .isImage(isImage)
-                .imageUrl(imageUrl)
-                .extractedText(extractedText)
+                .level(level)
                 .content(content)
                 .senderType(senderType)
-                .isSummarized(isSummarized)
                 .createdAt(createdAt)
                 .modifiedAt(modifiedAt)
                 .deletedAt(deletedAt)

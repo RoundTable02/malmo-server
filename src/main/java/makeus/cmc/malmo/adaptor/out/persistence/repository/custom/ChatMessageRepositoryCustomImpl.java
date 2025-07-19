@@ -35,13 +35,4 @@ public class ChatMessageRepositoryCustomImpl implements ChatMessageRepositoryCus
                 .limit(size)
                 .fetch();
     }
-
-    @Override
-    public void updateChatMessageSummarizedAllTrue(Long chatRoomId) {
-        queryFactory.update(chatMessageEntity)
-            .set(chatMessageEntity.isSummarized, true)
-            .where(chatMessageEntity.chatRoomEntityId.value.eq(chatRoomId)
-                    .and(chatMessageEntity.isSummarized.eq(false)))
-            .execute();
-    }
 }

@@ -52,7 +52,7 @@ public class ChatRoom {
         this.chatRoomState = ChatRoomState.PAUSED;
     }
 
-    public void updateChatRoomStateNeedNextQuestion() {
+    public void upgradeChatRoom() {
         this.level += 1;
         this.chatRoomState = ChatRoomState.NEED_NEXT_QUESTION;
     }
