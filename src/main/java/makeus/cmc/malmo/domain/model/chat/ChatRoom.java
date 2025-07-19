@@ -64,4 +64,8 @@ public class ChatRoom {
     public void updateChatRoomStateAlive() {
         this.chatRoomState = ChatRoomState.ALIVE;
     }
+
+    public boolean isChatRoomValid() {
+        return this.chatRoomState == ChatRoomState.ALIVE;
+    }
 }

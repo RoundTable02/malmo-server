@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.application.port.out.*;
 import makeus.cmc.malmo.domain.exception.ChatRoomNotFoundException;
 import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
+import makeus.cmc.malmo.domain.exception.NotValidChatRoomException;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
 import makeus.cmc.malmo.domain.model.chat.ChatRoomConstant;
@@ -40,6 +41,19 @@ public class ChatRoomDomainService {
 
                     return chatRoom;
                 });
+    }
+
+    public void validateChatRoomAlive(MemberId memberId) {
+        loadChatRoomPort.loadCurrentChatRoomByMemberId(memberId)
+                .ifPresentOrElse(chatRoom -> {
+                            if (!chatRoom.isChatRoomValid()) {
+                                throw new NotValidChatRoomException();
+                            }
+                        }
+                        , () -> {
+                            throw new ChatRoomNotFoundException();
+                        }
+                );
     }
 
 

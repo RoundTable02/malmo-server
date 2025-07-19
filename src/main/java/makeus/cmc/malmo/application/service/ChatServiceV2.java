@@ -39,7 +39,7 @@ public class ChatServiceV2 implements SendChatMessageUseCase {
     @Override
     @Transactional
     public SendChatMessageResponse processUserMessage(SendChatMessageCommand command) {
-        // TODO : 채팅방이 PAUSED, DELETED 상태인 경우 예외 처리 필요
+        chatRoomDomainService.validateChatRoomAlive(MemberId.of(command.getUserId()));
 
         List<Map<String, String>> messages = new ArrayList<>();
 
@@ -55,6 +55,7 @@ public class ChatServiceV2 implements SendChatMessageUseCase {
 
         //  현재 ChatRoom의 LEVEL 불러오기
         ChatRoom chatRoom = chatRoomDomainService.getCurrentChatRoomByMemberId(MemberId.of(member.getId()));
+
         int chatRoomLevel = chatRoom.getLevel();
 
         //  시스템 프롬프트 불러오기 (system)
