@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.ChatRoomEntityId;
-import makeus.cmc.malmo.domain.value.type.SenderType;
 
 @Getter
 @SuperBuilder

@@ -2,18 +2,16 @@ package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import makeus.cmc.malmo.application.port.out.LoadPromptPort;
 import makeus.cmc.malmo.application.port.out.RequestChatApiPort;
 import makeus.cmc.malmo.application.port.out.SaveChatMessageSummaryPort;
 import makeus.cmc.malmo.application.port.out.SendSseEventPort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
 import makeus.cmc.malmo.domain.model.chat.Prompt;
+import makeus.cmc.malmo.domain.service.ChatMessagesDomainService;
 import makeus.cmc.malmo.domain.service.ChatRoomDomainService;
-import makeus.cmc.malmo.domain.service.MemberMemoryDomainService;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
-import makeus.cmc.malmo.domain.service.ChatMessagesDomainService;
 import makeus.cmc.malmo.domain.value.type.SenderType;
 import org.springframework.stereotype.Component;
 

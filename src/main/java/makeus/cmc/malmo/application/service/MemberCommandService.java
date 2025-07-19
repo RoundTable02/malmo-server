@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.application.port.in.UpdateMemberUseCase;
 import makeus.cmc.malmo.application.port.out.SaveMemberPort;
 import makeus.cmc.malmo.domain.model.member.Member;
-import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.service.MemberDomainService;
+import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

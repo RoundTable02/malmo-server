@@ -7,7 +7,6 @@ import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
 import makeus.cmc.malmo.domain.exception.NotValidChatRoomException;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
-import makeus.cmc.malmo.domain.model.chat.ChatRoomConstant;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;

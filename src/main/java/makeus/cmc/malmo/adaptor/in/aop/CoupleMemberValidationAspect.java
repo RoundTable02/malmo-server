@@ -1,8 +1,8 @@
 package makeus.cmc.malmo.adaptor.in.aop;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.service.MemberDomainValidationService;
+import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;

@@ -7,7 +7,10 @@ import makeus.cmc.malmo.adaptor.out.persistence.mapper.ChatMessageMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.ChatRoomMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.ChatMessageRepository;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.ChatRoomRepository;
-import makeus.cmc.malmo.application.port.out.*;
+import makeus.cmc.malmo.application.port.out.LoadChatRoomPort;
+import makeus.cmc.malmo.application.port.out.LoadMessagesPort;
+import makeus.cmc.malmo.application.port.out.SaveChatMessagePort;
+import makeus.cmc.malmo.application.port.out.SaveChatRoomPort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
@@ -51,11 +54,6 @@ public class ChatRoomPersistenceAdapter
         ChatRoomEntity entity = chatRoomMapper.toEntity(chatRoom);
         ChatRoomEntity savedEntity = chatRoomRepository.save(entity);
         return chatRoomMapper.toDomain(savedEntity);
-    }
-
-    @Override
-    public void updatePausedChatRoomAlive(MemberId memberId) {
-        chatRoomRepository.findPausedChatRoomByMemberEntityId(memberId.getValue());
     }
 
     @Override

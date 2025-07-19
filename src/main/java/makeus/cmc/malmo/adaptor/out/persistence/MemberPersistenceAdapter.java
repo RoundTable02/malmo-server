@@ -6,9 +6,9 @@ import makeus.cmc.malmo.adaptor.out.persistence.mapper.MemberMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.MemberRepository;
 import makeus.cmc.malmo.application.port.out.*;
 import makeus.cmc.malmo.domain.model.member.Member;
-import makeus.cmc.malmo.domain.value.type.Provider;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
 import makeus.cmc.malmo.domain.value.id.MemberId;
+import makeus.cmc.malmo.domain.value.type.Provider;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
