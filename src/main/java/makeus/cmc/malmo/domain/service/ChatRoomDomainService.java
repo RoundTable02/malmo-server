@@ -89,8 +89,8 @@ public class ChatRoomDomainService {
         loadChatRoomPort.loadPausedChatRoomByMemberId(memberId)
                         .ifPresent(
                                 chatRoom -> {
-                                    chatRoom.upgradeChatRoom();
-                                    saveChatRoomPort.updatePausedChatRoomAlive(memberId);
+                                    chatRoom.updateChatRoomStateNeedNextQuestion();
+                                    saveChatRoomPort.saveChatRoom(chatRoom);
                                 }
                         );
     }

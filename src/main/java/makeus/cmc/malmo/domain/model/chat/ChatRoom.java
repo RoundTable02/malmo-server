@@ -57,6 +57,10 @@ public class ChatRoom {
         this.chatRoomState = ChatRoomState.NEED_NEXT_QUESTION;
     }
 
+    public void updateChatRoomStateNeedNextQuestion() {
+        this.chatRoomState = ChatRoomState.NEED_NEXT_QUESTION;
+    }
+
     public void updateChatRoomStateAlive() {
         this.chatRoomState = ChatRoomState.ALIVE;
     }

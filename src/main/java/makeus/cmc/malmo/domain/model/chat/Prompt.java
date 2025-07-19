@@ -7,6 +7,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntity;
 
 import java.time.LocalDateTime;
 
+import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.LAST_PROMPT_LEVEL;
 import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.NOT_COUPLE_MEMBER_LAST_PROMPT_LEVEL;
 
 @Getter
@@ -36,5 +37,9 @@ public class Prompt extends BaseTimeEntity {
 
     public boolean isLastPromptForNotCoupleMember() {
         return level == NOT_COUPLE_MEMBER_LAST_PROMPT_LEVEL;
+    }
+
+    public boolean isLastPrompt() {
+        return level == LAST_PROMPT_LEVEL;
     }
 }

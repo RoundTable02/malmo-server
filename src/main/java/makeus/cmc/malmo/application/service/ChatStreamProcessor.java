@@ -50,7 +50,8 @@ public class ChatStreamProcessor {
         requestChatApiPort.streamChat(messages,
                 //  데이터 stream 수신 시 SSE 이벤트 전송
                 chunk -> {
-                    if(chunk.contains("OK")) {
+                    // OK 응답이 감지된 경우, 마지막 단계가 아닌 경우 => 현재 단계 종료 처리
+                    if(chunk.contains("OK") && !prompt.isLastPrompt()) {
                         isOkDetected.set(true);
                     } else {
                         sendSseMessage(memberId, chunk);

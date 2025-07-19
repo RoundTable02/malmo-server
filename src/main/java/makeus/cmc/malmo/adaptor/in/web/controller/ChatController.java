@@ -70,7 +70,7 @@ public class ChatController {
             content = @Content(schema = @Schema(implementation = SwaggerResponses.SendChatSuccessResponse.class))
     )
     @ApiCommonResponses.RequireAuth
-    @PostMapping("/send")
+    @PostMapping("/current/send")
     public BaseResponse<SendChatMessageUseCase.SendChatMessageResponse> sendChatMessage(
             @AuthenticationPrincipal User user,
             @Valid @RequestBody ChatRequest request) {
@@ -83,7 +83,7 @@ public class ChatController {
         return BaseResponse.success(sendChatMessageResponse);
     }
 
-    @PostMapping("/room/upgrade")
+    @PostMapping("/current/upgrade")
     public BaseResponse<SendChatMessageUseCase.SendChatMessageResponse> sendChatMessage(
             @AuthenticationPrincipal User user) {
         SendChatMessageUseCase.SendChatMessageResponse sendChatMessageResponse = sendChatMessageUseCase.upgradeChatRoom(
