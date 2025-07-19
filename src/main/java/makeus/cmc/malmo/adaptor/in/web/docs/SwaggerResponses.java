@@ -190,7 +190,7 @@ public class SwaggerResponses {
         private MemberState memberState;
 
         @Schema(description = "연애 시작일", example = "2023-01-15")
-        private LocalDate loveStartDate;
+        private LocalDate startLoveDate;
 
         @Schema(description = "애착 유형 제목", example = "안정형")
         private String loveTypeTitle;
