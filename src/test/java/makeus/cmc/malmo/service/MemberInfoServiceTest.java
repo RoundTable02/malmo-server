@@ -8,7 +8,6 @@ import makeus.cmc.malmo.application.port.out.LoadPartnerPort;
 import makeus.cmc.malmo.application.service.MemberInfoService;
 import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.model.member.MemberState;
-import makeus.cmc.malmo.domain.service.LoveTypeDataService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
