@@ -166,6 +166,11 @@ public class SwaggerResponses {
     public static class ChatMessageListSuccessResponse extends BaseSwaggerResponse<BaseListSwaggerResponse<ChatRoomMessageData>> {
     }
 
+    @Getter
+    @Schema(description = "채팅방 완료 성공 응답")
+    public static class CompleteChatRoomResponse extends BaseSwaggerResponse<CompleteChatRoomData> {
+    }
+
     // 데이터 클래스들
     @Getter
     @Schema(description = "로그인 응답 데이터")
@@ -481,5 +486,12 @@ public class SwaggerResponses {
         private LocalDateTime createdAt;
         @Schema(description = "채팅 저장 여부", example = "true")
         private boolean isSaved;
+    }
+
+    @Getter
+    @Schema(description = "채팅 완료 응답 데이터")
+    public static class CompleteChatRoomData {
+        @Schema(description = "채팅방의 ID", example = "1")
+        private Long chatRoomId;
     }
 }

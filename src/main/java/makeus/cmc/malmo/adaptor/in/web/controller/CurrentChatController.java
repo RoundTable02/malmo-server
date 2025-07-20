@@ -26,9 +26,9 @@ import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "채팅 전송 API", description = "사용자 채팅 전송을 위한 API")
 @RestController
-@RequestMapping("/chat")
+@RequestMapping("/chat/current")
 @RequiredArgsConstructor
-public class ChatController {
+public class CurrentChatController {
 
     private final SendChatMessageUseCase sendChatMessageUseCase;
     private final GetCurrentChatRoomUseCase getCurrentChatRoomUseCase;
@@ -46,7 +46,7 @@ public class ChatController {
             content = @Content(schema = @Schema(implementation = SwaggerResponses.ChatRoomStateResponse.class))
     )
     @ApiCommonResponses.RequireAuth
-    @GetMapping("/current")
+    @GetMapping
     public BaseResponse<GetCurrentChatRoomUseCase.GetCurrentChatRoomResponse> getCurrentChatRoom(
             @AuthenticationPrincipal User user) {
         GetCurrentChatRoomUseCase.GetCurrentChatRoomCommand command = GetCurrentChatRoomUseCase.GetCurrentChatRoomCommand.builder()
@@ -66,7 +66,7 @@ public class ChatController {
             content = @Content(schema = @Schema(implementation = SwaggerResponses.ChatMessageListSuccessResponse.class))
     )
     @ApiCommonResponses.RequireAuth
-    @GetMapping("/current/messages")
+    @GetMapping("/messages")
     public BaseResponse<BaseListResponse<GetCurrentChatRoomMessagesUseCase.ChatRoomMessageDto>> getCurrentChatRoomMessages(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
@@ -92,7 +92,7 @@ public class ChatController {
             content = @Content(schema = @Schema(implementation = SwaggerResponses.SendChatSuccessResponse.class))
     )
     @ApiCommonResponses.RequireAuth
-    @PostMapping("/current/send")
+    @PostMapping("/send")
     public BaseResponse<SendChatMessageUseCase.SendChatMessageResponse> sendChatMessage(
             @AuthenticationPrincipal User user,
             @Valid @RequestBody ChatRequest request) {
@@ -116,7 +116,7 @@ public class ChatController {
             content = @Content(schema = @Schema(implementation = SwaggerResponses.BaseSwaggerResponse.class))
     )
     @ApiCommonResponses.RequireAuth
-    @PostMapping("/current/upgrade")
+    @PostMapping("/upgrade")
     public BaseResponse sendChatMessage(@AuthenticationPrincipal User user) {
         sendChatMessageUseCase.upgradeChatRoom(SendChatMessageUseCase.SendChatMessageCommand.builder()
                         .userId(Long.valueOf(user.getUsername()))
@@ -133,10 +133,10 @@ public class ChatController {
     @ApiResponse(
             responseCode = "200",
             description = "채팅방 종료 성공; 데이터 응답 값은 없음",
-            content = @Content(schema = @Schema(implementation = SwaggerResponses.BaseSwaggerResponse.class))
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.CompleteChatRoomResponse.class))
     )
     @ApiCommonResponses.RequireAuth
-    @PostMapping("/current/complete")
+    @PostMapping("/complete")
     public BaseResponse<CompleteChatRoomUseCase.CompleteChatRoomResponse> completeChatRoom(
             @AuthenticationPrincipal User user) {
         CompleteChatRoomUseCase.CompleteChatRoomCommand command = CompleteChatRoomUseCase.CompleteChatRoomCommand.builder()
