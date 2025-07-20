@@ -285,25 +285,25 @@ class MemberMapperTest {
 
     private Member createMemberWithNulls() {
         return Member.createMember(
-                null, null, null, null, null
+                null, null, null, null, null, null
         );
     }
 
     private Member createMemberWithProvider(Provider provider) {
         return Member.createMember(
-                provider, "provider123", MemberRole.MEMBER, MemberState.ALIVE, ""
+                provider, "provider123", MemberRole.MEMBER, MemberState.ALIVE, "", null
         );
     }
 
     private Member createMemberWithRole(MemberRole role) {
         return Member.createMember(
-                Provider.KAKAO, "provider123", role, MemberState.ALIVE, ""
+                Provider.KAKAO, "provider123", role, MemberState.ALIVE, "", null
         );
     }
 
     private Member createMemberWithState(MemberState state) {
         return Member.createMember(
-                Provider.KAKAO, "provider123", MemberRole.MEMBER, state, ""
+                Provider.KAKAO, "provider123", MemberRole.MEMBER, state, "", null
         );
     }
 
