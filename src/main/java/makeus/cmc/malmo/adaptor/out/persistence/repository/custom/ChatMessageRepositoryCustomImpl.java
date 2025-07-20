@@ -35,4 +35,24 @@ public class ChatMessageRepositoryCustomImpl implements ChatMessageRepositoryCus
                 .limit(size)
                 .fetch();
     }
+
+    @Override
+    public List<LoadMessagesPort.ChatRoomMessageRepositoryDto> loadCurrentMessagesDtoAsc(Long chatRoomId, int page, int size) {
+        return queryFactory.select(Projections.constructor(LoadMessagesPort.ChatRoomMessageRepositoryDto.class,
+                        chatMessageEntity.id,
+                        chatMessageEntity.senderType,
+                        chatMessageEntity.content,
+                        chatMessageEntity.createdAt,
+                        savedChatMessageEntity.isNotNull()
+                ))
+                .from(chatMessageEntity)
+                .leftJoin(savedChatMessageEntity)
+                .on(savedChatMessageEntity.chatMessageEntityId.value.eq(chatMessageEntity.id)
+                        .and(savedChatMessageEntity.savedChatMessageState.eq(SavedChatMessageState.ALIVE)))
+                .where(chatMessageEntity.chatRoomEntityId.value.eq(chatRoomId))
+                .orderBy(chatMessageEntity.createdAt.asc())
+                .offset((long) page * size)
+                .limit(size)
+                .fetch();
+    }
 }

@@ -34,4 +34,10 @@ public class ChatRoomEntity extends BaseTimeEntity {
 
     @Column(columnDefinition = "TEXT")
     private String totalSummary;
+
+    @Column(columnDefinition = "TEXT")
+    private String situationKeyword;
+
+    @Column(columnDefinition = "TEXT")
+    private String solutionKeyword;
 }

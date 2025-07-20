@@ -3,6 +3,7 @@ package makeus.cmc.malmo.domain.service;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.application.port.out.*;
 import makeus.cmc.malmo.domain.exception.ChatRoomNotFoundException;
+import makeus.cmc.malmo.domain.exception.MemberAccessDeniedException;
 import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
 import makeus.cmc.malmo.domain.exception.NotValidChatRoomException;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
@@ -12,6 +13,8 @@ import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.INIT_CHATROOM_LEVEL;
 import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.INIT_CHAT_MESSAGE;
@@ -24,8 +27,28 @@ public class ChatRoomDomainService {
     private final LoadChatRoomPort loadChatRoomPort;
     private final LoadMemberPort loadMemberPort;
     private final SaveChatRoomPort saveChatRoomPort;
+    private final DeleteChatRoomPort deleteChatRoomPort;
     private final SaveChatMessagePort saveChatMessagePort;
     private final LoadChatRoomMetadataPort loadChatRoomMetadataPort;
+
+    public void validateChatRoomOwnership(MemberId memberId, ChatRoomId chatRoomId) {
+        // 채팅방이 존재하는지 확인하고, 존재하지 않으면 예외 발생
+        ChatRoom chatRoom = loadChatRoomPort.loadChatRoomById(chatRoomId)
+                .orElseThrow(ChatRoomNotFoundException::new);
+
+        // 채팅방의 소유자와 요청한 멤버가 일치하는지 확인
+        if (!chatRoom.isOwner(memberId)) {
+            throw new MemberAccessDeniedException("채팅방에 접근할 권한이 없습니다.");
+        }
+    }
+
+    public void validateChatRoomsOwnership(MemberId memberId, List<ChatRoomId> chatRoomIds) {
+        boolean valid = loadChatRoomPort.isMemberOwnerOfChatRooms(memberId, chatRoomIds);
+
+        if (!valid) {
+            throw new MemberAccessDeniedException("채팅방에 접근할 권한이 없습니다.");
+        }
+    }
 
     public ChatRoom getCurrentChatRoomByMemberId(MemberId memberId) {
         // 현재 채팅방이 존재하는지 확인하고, 없으면 초기 메시지와 함께 새로 생성
@@ -63,6 +86,10 @@ public class ChatRoomDomainService {
 
     public ChatRoom getChatRoomById(ChatRoomId chatRoomId) {
         return loadChatRoomPort.loadChatRoomById(chatRoomId).orElseThrow(ChatRoomNotFoundException::new);
+    }
+
+    public List<ChatRoom> getCompletedChatRoomsByMemberId(MemberId memberId, String keyword, int page, int size) {
+        return loadChatRoomPort.loadAliveChatRoomsByMemberId(memberId, keyword, page, size);
     }
 
     @Transactional
@@ -104,8 +131,8 @@ public class ChatRoomDomainService {
     }
 
     @Transactional
-    public void updateChatRoomSummary(ChatRoom chatRoom, String summary) {
-        chatRoom.updateChatRoomSummary(summary);
+    public void updateChatRoomSummary(ChatRoom chatRoom, String totalSummary, String situationKeyword, String solutionKeyword) {
+        chatRoom.updateChatRoomSummary(totalSummary, situationKeyword, solutionKeyword);
         saveChatRoom(chatRoom);
     }
 
@@ -118,5 +145,10 @@ public class ChatRoomDomainService {
                                     saveChatRoomPort.saveChatRoom(chatRoom);
                                 }
                         );
+    }
+
+    @Transactional
+    public void deleteChatRooms(List<ChatRoomId> chatRoomIds) {
+        deleteChatRoomPort.deleteChatRooms(chatRoomIds);
     }
 }

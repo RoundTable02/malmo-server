@@ -19,6 +19,8 @@ public class ChatRoomMapper {
                 entity.getLevel(),
                 entity.getLastMessageSentTime(),
                 entity.getTotalSummary(),
+                entity.getSituationKeyword(),
+                entity.getSolutionKeyword(),
                 entity.getCreatedAt(),
                 entity.getModifiedAt(),
                 entity.getDeletedAt()
@@ -37,6 +39,8 @@ public class ChatRoomMapper {
                 .lastMessageSentTime(domain.getLastMessageSentTime())
                 .level(domain.getLevel())
                 .totalSummary(domain.getTotalSummary())
+                .situationKeyword(domain.getSituationKeyword())
+                .solutionKeyword(domain.getSolutionKeyword())
                 .createdAt(domain.getCreatedAt())
                 .modifiedAt(domain.getModifiedAt())
                 .deletedAt(domain.getDeletedAt())
