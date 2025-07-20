@@ -6,17 +6,22 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.*;
 import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseListResponse;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
+import makeus.cmc.malmo.application.port.in.DeleteChatRoomUseCase;
 import makeus.cmc.malmo.application.port.in.GetChatRoomListUseCase;
 import makeus.cmc.malmo.application.port.in.GetChatRoomMessagesUseCase;
 import makeus.cmc.malmo.application.port.in.GetChatRoomSummaryUseCase;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "채팅방 API", description = "사용자의 채팅방 관리 및 조회를 위한 API")
 @RestController
@@ -27,6 +32,7 @@ public class ChatRoomController {
     private final GetChatRoomSummaryUseCase getChatRoomSummaryUseCase;
     private final GetChatRoomListUseCase getChatRoomListUseCase;
     private final GetChatRoomMessagesUseCase getChatRoomMessagesUseCase;
+    private final DeleteChatRoomUseCase deleteChatRoomUseCase;
 
     @Operation(
             summary = "채팅방 요약 조회",
@@ -101,5 +107,35 @@ public class ChatRoomController {
                 .build();
 
         return BaseListResponse.success(getChatRoomMessagesUseCase.getChatRoomMessages(command).getMessages());
+    }
+
+    @Operation(
+            summary = "채팅방 삭제",
+            description = "채팅방을 id 리스트를 통해 다건 동시 삭제합니다. JWT 토큰이 필요합니다.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "채팅방 삭제 성공",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.ChatRoomDeleteSuccessResponse.class))
+    )
+    @ApiCommonResponses.RequireAuth
+    @DeleteMapping
+    public BaseResponse getCurrentChatRoom(
+            @AuthenticationPrincipal User user, @RequestBody DeleteChatRoomRequestDto requestDto) {
+        DeleteChatRoomUseCase.DeleteChatRoomsCommand command = DeleteChatRoomUseCase.DeleteChatRoomsCommand.builder()
+                .userId(Long.valueOf(user.getUsername()))
+                .chatRoomIdList(requestDto.chatRoomIdList)
+                .build();
+        deleteChatRoomUseCase.deleteChatRooms(command);
+
+        return BaseResponse.success(null);
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class DeleteChatRoomRequestDto {
+        private List<Long> chatRoomIdList;
     }
 }

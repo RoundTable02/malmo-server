@@ -27,6 +27,7 @@ public class ChatRoomDomainService {
     private final LoadChatRoomPort loadChatRoomPort;
     private final LoadMemberPort loadMemberPort;
     private final SaveChatRoomPort saveChatRoomPort;
+    private final DeleteChatRoomPort deleteChatRoomPort;
     private final SaveChatMessagePort saveChatMessagePort;
     private final LoadChatRoomMetadataPort loadChatRoomMetadataPort;
 
@@ -37,6 +38,14 @@ public class ChatRoomDomainService {
 
         // 채팅방의 소유자와 요청한 멤버가 일치하는지 확인
         if (!chatRoom.isOwner(memberId)) {
+            throw new MemberAccessDeniedException("채팅방에 접근할 권한이 없습니다.");
+        }
+    }
+
+    public void validateChatRoomsOwnership(MemberId memberId, List<ChatRoomId> chatRoomIds) {
+        boolean valid = loadChatRoomPort.isMemberOwnerOfChatRooms(memberId, chatRoomIds);
+
+        if (!valid) {
             throw new MemberAccessDeniedException("채팅방에 접근할 권한이 없습니다.");
         }
     }
@@ -136,5 +145,10 @@ public class ChatRoomDomainService {
                                     saveChatRoomPort.saveChatRoom(chatRoom);
                                 }
                         );
+    }
+
+    @Transactional
+    public void deleteChatRooms(List<ChatRoomId> chatRoomIds) {
+        deleteChatRoomPort.deleteChatRooms(chatRoomIds);
     }
 }

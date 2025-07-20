@@ -13,4 +13,6 @@ public interface LoadChatRoomPort {
     Optional<ChatRoom> loadPausedChatRoomByMemberId(MemberId memberId);
 
     List<ChatRoom> loadAliveChatRoomsByMemberId(MemberId memberId, String keyword, int page, int size);
+
+    boolean isMemberOwnerOfChatRooms(MemberId memberId, List<ChatRoomId> chatRoomIds);
 }

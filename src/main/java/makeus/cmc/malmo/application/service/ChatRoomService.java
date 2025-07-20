@@ -1,10 +1,7 @@
 package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.application.port.in.GetChatRoomListUseCase;
-import makeus.cmc.malmo.application.port.in.GetChatRoomMessagesUseCase;
-import makeus.cmc.malmo.application.port.in.GetChatRoomSummaryUseCase;
-import makeus.cmc.malmo.application.port.in.GetCurrentChatRoomMessagesUseCase;
+import makeus.cmc.malmo.application.port.in.*;
 import makeus.cmc.malmo.application.port.out.LoadMessagesPort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
@@ -21,7 +18,8 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Service
 public class ChatRoomService
-        implements GetChatRoomSummaryUseCase, GetChatRoomListUseCase, GetChatRoomMessagesUseCase {
+        implements GetChatRoomSummaryUseCase, GetChatRoomListUseCase,
+        GetChatRoomMessagesUseCase, DeleteChatRoomUseCase {
 
     private final ChatRoomDomainService chatRoomDomainService;
     private final ChatMessagesDomainService chatMessagesDomainService;
@@ -93,5 +91,17 @@ public class ChatRoomService
         return GetCurrentChatRoomMessagesResponse.builder()
                 .messages(list)
                 .build();
+    }
+
+    @Override
+    public void deleteChatRooms(DeleteChatRoomsCommand command) {
+        // 모든 채팅방이 멤버 소유인지 검증
+        chatRoomDomainService.validateChatRoomsOwnership(
+                MemberId.of(command.getUserId()),
+                command.getChatRoomIdList().stream().map(ChatRoomId::of).toList());
+
+        chatRoomDomainService.deleteChatRooms(
+                command.getChatRoomIdList().stream().map(ChatRoomId::of).toList()
+        );
     }
 }

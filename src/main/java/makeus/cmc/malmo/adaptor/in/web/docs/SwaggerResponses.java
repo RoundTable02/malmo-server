@@ -180,6 +180,11 @@ public class SwaggerResponses {
     public static class ChatRoomListSuccessResponse extends BaseSwaggerResponse<BaseListSwaggerResponse<GetChatRoomListResponse>> {
     }
 
+    @Getter
+    @Schema(description = "채팅방 삭제 성공 응답")
+    public static class ChatRoomDeleteSuccessResponse extends BaseSwaggerResponse {
+    }
+
     // 데이터 클래스들
     @Getter
     @Schema(description = "로그인 응답 데이터")

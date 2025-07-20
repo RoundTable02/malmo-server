@@ -7,10 +7,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.mapper.ChatMessageMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.ChatRoomMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.ChatMessageRepository;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.ChatRoomRepository;
-import makeus.cmc.malmo.application.port.out.LoadChatRoomPort;
-import makeus.cmc.malmo.application.port.out.LoadMessagesPort;
-import makeus.cmc.malmo.application.port.out.SaveChatMessagePort;
-import makeus.cmc.malmo.application.port.out.SaveChatRoomPort;
+import makeus.cmc.malmo.application.port.out.*;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
@@ -23,7 +20,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class ChatRoomPersistenceAdapter
-        implements LoadMessagesPort, SaveChatRoomPort, LoadChatRoomPort, SaveChatMessagePort{
+        implements LoadMessagesPort, SaveChatRoomPort, LoadChatRoomPort, SaveChatMessagePort, DeleteChatRoomPort {
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
@@ -86,5 +83,19 @@ public class ChatRoomPersistenceAdapter
                 .stream()
                 .map(chatRoomMapper::toDomain)
                 .toList();
+    }
+
+    @Override
+    public boolean isMemberOwnerOfChatRooms(MemberId memberId, List<ChatRoomId> chatRoomIds) {
+        return chatRoomRepository.isMemberOwnerOfChatRooms(
+                memberId.getValue(),
+                chatRoomIds.stream().map(ChatRoomId::getValue).toList());
+    }
+
+    @Override
+    public void deleteChatRooms(List<ChatRoomId> chatRoomIds) {
+        chatRoomRepository.deleteChatRooms(
+                chatRoomIds.stream().map(ChatRoomId::getValue).toList()
+        );
     }
 }

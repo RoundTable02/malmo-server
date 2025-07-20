@@ -30,4 +30,24 @@ public class ChatRoomRepositoryCustomImpl implements ChatRoomRepositoryCustom{
                 .limit(size)
                 .fetch();
     }
+
+    @Override
+    public boolean isMemberOwnerOfChatRooms(Long memberId, List<Long> chatRoomIds) {
+        Long count = queryFactory.select(chatRoomEntity.count())
+                .from(chatRoomEntity)
+                .where(chatRoomEntity.memberEntityId.value.eq(memberId)
+                        .and(chatRoomEntity.chatRoomState.eq(ChatRoomState.COMPLETED))
+                        .and(chatRoomEntity.id.in(chatRoomIds)))
+                .fetchOne();
+
+        return count != null && count == chatRoomIds.size();
+    }
+
+    @Override
+    public void deleteChatRooms(List<Long> chatRoomIds) {
+        queryFactory.update(chatRoomEntity)
+                .set(chatRoomEntity.chatRoomState, ChatRoomState.DELETED)
+                .where(chatRoomEntity.id.in(chatRoomIds))
+                .execute();
+    }
 }

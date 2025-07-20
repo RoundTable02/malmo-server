@@ -118,6 +118,12 @@ public class GlobalExceptionHandler {
         return ErrorResponse.of(ErrorCode.NOT_VALID_CHAT_ROOM);
     }
 
+    @ExceptionHandler({MemberAccessDeniedException.class})
+    public ResponseEntity<ErrorResponse> handleMemberAccessDeniedException(MemberAccessDeniedException e) {
+        log.error("[GlobalExceptionHandler: handleMemberAccessDeniedException 호출]", e);
+        return ErrorResponse.of(ErrorCode.MEMBER_ACCESS_DENIED);
+    }
+
 
 
 

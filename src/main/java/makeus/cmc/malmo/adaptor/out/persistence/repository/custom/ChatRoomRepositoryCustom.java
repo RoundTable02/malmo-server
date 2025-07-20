@@ -8,4 +8,8 @@ import java.util.List;
 
 public interface ChatRoomRepositoryCustom {
     List<ChatRoomEntity> loadChatRoomListByMemberId(Long memberId, String keyword, int page, int size);
+
+    boolean isMemberOwnerOfChatRooms(Long memberId, List<Long> chatRoomIds);
+
+    void deleteChatRooms(List<Long> chatRoomIds);
 }
