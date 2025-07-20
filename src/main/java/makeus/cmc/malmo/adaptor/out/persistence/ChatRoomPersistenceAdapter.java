@@ -36,6 +36,11 @@ public class ChatRoomPersistenceAdapter
     }
 
     @Override
+    public List<ChatRoomMessageRepositoryDto> loadMessagesDtoAsc(ChatRoomId chatRoomId, int page, int size) {
+        return chatMessageRepository.loadCurrentMessagesDtoAsc(chatRoomId.getValue(), page, size);
+    }
+
+    @Override
     public List<ChatMessage> loadChatRoomMessagesByLevel(ChatRoomId chatRoomId, int level) {
         return chatMessageRepository.findByChatRoomIdAndLevel(chatRoomId.getValue(), level)
                 .stream()

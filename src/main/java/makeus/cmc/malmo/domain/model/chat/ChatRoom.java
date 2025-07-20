@@ -7,6 +7,7 @@ import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.state.ChatRoomState;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.INIT_CHATROOM_LEVEL;
 
@@ -84,5 +85,9 @@ public class ChatRoom {
 
     public boolean isChatRoomValid() {
         return this.chatRoomState == ChatRoomState.ALIVE || this.chatRoomState == ChatRoomState.BEFORE_INIT;
+    }
+
+    public boolean isOwner(MemberId memberId) {
+        return Objects.equals(this.memberId.getValue(), memberId.getValue());
     }
 }

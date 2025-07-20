@@ -2,7 +2,10 @@ package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.application.port.in.GetChatRoomListUseCase;
+import makeus.cmc.malmo.application.port.in.GetChatRoomMessagesUseCase;
 import makeus.cmc.malmo.application.port.in.GetChatRoomSummaryUseCase;
+import makeus.cmc.malmo.application.port.in.GetCurrentChatRoomMessagesUseCase;
+import makeus.cmc.malmo.application.port.out.LoadMessagesPort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
 import makeus.cmc.malmo.domain.service.ChatMessagesDomainService;
@@ -17,13 +20,16 @@ import java.util.Objects;
 
 @RequiredArgsConstructor
 @Service
-public class ChatRoomService implements GetChatRoomSummaryUseCase, GetChatRoomListUseCase {
+public class ChatRoomService
+        implements GetChatRoomSummaryUseCase, GetChatRoomListUseCase, GetChatRoomMessagesUseCase {
 
     private final ChatRoomDomainService chatRoomDomainService;
     private final ChatMessagesDomainService chatMessagesDomainService;
 
     @Override
     public GetChatRoomSummaryResponse getChatRoomSummary(GetChatRoomSummaryCommand command) {
+        chatRoomDomainService.validateChatRoomOwnership(MemberId.of(command.getUserId()), ChatRoomId.of(command.getChatRoomId()));
+
         ChatRoom chatRoom = chatRoomDomainService.getChatRoomById(ChatRoomId.of(command.getChatRoomId()));
         if (!Objects.equals(chatRoom.getMemberId().getValue(), command.getUserId())) {
             throw new AccessDeniedException("User does not have access to this chat room");
@@ -62,6 +68,30 @@ public class ChatRoomService implements GetChatRoomSummaryUseCase, GetChatRoomLi
 
         return GetChatRoomListResponse.builder()
                 .chatRoomList(response)
+                .build();
+    }
+
+    @Override
+    public GetCurrentChatRoomMessagesResponse getChatRoomMessages(GetChatRoomMessagesCommand command) {
+        chatRoomDomainService.validateChatRoomOwnership(MemberId.of(command.getUserId()), ChatRoomId.of(command.getChatRoomId()));
+
+        List<LoadMessagesPort.ChatRoomMessageRepositoryDto> chatMessagesDto = chatMessagesDomainService.getChatMessagesDtoAsc(
+                ChatRoomId.of(command.getChatRoomId()), command.getPage(), command.getSize());
+
+        List<GetChatRoomMessagesUseCase.ChatRoomMessageDto> list = chatMessagesDto
+                .stream()
+                .map(cm ->
+                        GetChatRoomMessagesUseCase.ChatRoomMessageDto.builder()
+                                .messageId(cm.getMessageId())
+                                .senderType(cm.getSenderType())
+                                .content(cm.getContent())
+                                .createdAt(cm.getCreatedAt())
+                                .isSaved(cm.isSaved())
+                                .build())
+                .toList();
+
+        return GetCurrentChatRoomMessagesResponse.builder()
+                .messages(list)
                 .build();
     }
 }

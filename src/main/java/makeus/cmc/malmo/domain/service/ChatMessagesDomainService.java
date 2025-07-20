@@ -25,6 +25,10 @@ public class ChatMessagesDomainService {
         return loadMessagesPort.loadMessagesDto(chatRoomId, page, size);
     }
 
+    public List<LoadMessagesPort.ChatRoomMessageRepositoryDto> getChatMessagesDtoAsc(ChatRoomId chatRoomId, int page, int size) {
+        return loadMessagesPort.loadMessagesDtoAsc(chatRoomId, page, size);
+    }
+
     @Transactional
     public ChatMessage createUserTextMessage(ChatRoomId chatRoomId, int level, String content) {
         ChatMessage chatMessage = ChatMessage.createUserTextMessage(chatRoomId, level, content);

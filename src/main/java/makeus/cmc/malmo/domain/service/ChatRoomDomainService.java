@@ -3,6 +3,7 @@ package makeus.cmc.malmo.domain.service;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.application.port.out.*;
 import makeus.cmc.malmo.domain.exception.ChatRoomNotFoundException;
+import makeus.cmc.malmo.domain.exception.MemberAccessDeniedException;
 import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
 import makeus.cmc.malmo.domain.exception.NotValidChatRoomException;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
@@ -28,6 +29,17 @@ public class ChatRoomDomainService {
     private final SaveChatRoomPort saveChatRoomPort;
     private final SaveChatMessagePort saveChatMessagePort;
     private final LoadChatRoomMetadataPort loadChatRoomMetadataPort;
+
+    public void validateChatRoomOwnership(MemberId memberId, ChatRoomId chatRoomId) {
+        // 채팅방이 존재하는지 확인하고, 존재하지 않으면 예외 발생
+        ChatRoom chatRoom = loadChatRoomPort.loadChatRoomById(chatRoomId)
+                .orElseThrow(ChatRoomNotFoundException::new);
+
+        // 채팅방의 소유자와 요청한 멤버가 일치하는지 확인
+        if (!chatRoom.isOwner(memberId)) {
+            throw new MemberAccessDeniedException("채팅방에 접근할 권한이 없습니다.");
+        }
+    }
 
     public ChatRoom getCurrentChatRoomByMemberId(MemberId memberId) {
         // 현재 채팅방이 존재하는지 확인하고, 없으면 초기 메시지와 함께 새로 생성
