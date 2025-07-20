@@ -45,6 +45,7 @@ public class ChatRoomController {
             content = @Content(schema = @Schema(implementation = SwaggerResponses.GetChatRoomSummaryResponse.class))
     )
     @ApiCommonResponses.RequireAuth
+    @ApiCommonResponses.OnlyOwner
     @GetMapping("/{chatRoomId}/summary")
     public BaseResponse<GetChatRoomSummaryUseCase.GetChatRoomSummaryResponse> getCurrentChatRoom(
             @AuthenticationPrincipal User user, @PathVariable Long chatRoomId) {
@@ -68,7 +69,7 @@ public class ChatRoomController {
     )
     @ApiCommonResponses.RequireAuth
     @GetMapping
-    public BaseResponse<BaseListResponse<GetChatRoomListUseCase.GetChatRoomResponse>> getCurrentChatRoom(
+    public BaseResponse<BaseListResponse<GetChatRoomListUseCase.GetChatRoomResponse>> getChatRoomList(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "keyword", defaultValue = "") String keyword,
@@ -94,8 +95,9 @@ public class ChatRoomController {
             content = @Content(schema = @Schema(implementation = SwaggerResponses.ChatMessageListSuccessResponse.class))
     )
     @ApiCommonResponses.RequireAuth
+    @ApiCommonResponses.OnlyOwner
     @GetMapping("/{chatRoomId}/messages")
-    public BaseResponse<BaseListResponse<GetChatRoomMessagesUseCase.ChatRoomMessageDto>> getCurrentChatRoomMessages(
+    public BaseResponse<BaseListResponse<GetChatRoomMessagesUseCase.ChatRoomMessageDto>> getChatRoomMessages(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
             @AuthenticationPrincipal User user, @PathVariable Long chatRoomId) {
@@ -120,8 +122,9 @@ public class ChatRoomController {
             content = @Content(schema = @Schema(implementation = SwaggerResponses.ChatRoomDeleteSuccessResponse.class))
     )
     @ApiCommonResponses.RequireAuth
+    @ApiCommonResponses.OnlyOwner
     @DeleteMapping
-    public BaseResponse getCurrentChatRoom(
+    public BaseResponse deleteChatRooms(
             @AuthenticationPrincipal User user, @RequestBody DeleteChatRoomRequestDto requestDto) {
         DeleteChatRoomUseCase.DeleteChatRoomsCommand command = DeleteChatRoomUseCase.DeleteChatRoomsCommand.builder()
                 .userId(Long.valueOf(user.getUsername()))
