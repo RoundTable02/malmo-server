@@ -3,6 +3,11 @@ package makeus.cmc.malmo.domain_service;
 import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
 import makeus.cmc.malmo.domain.model.member.Member;
+import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
+import makeus.cmc.malmo.domain.value.type.MemberRole;
+import makeus.cmc.malmo.domain.value.state.MemberState;
+import makeus.cmc.malmo.domain.value.type.Provider;
+import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.service.MemberDomainService;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.state.MemberState;
@@ -115,6 +120,7 @@ class MemberDomainServiceTest {
             Provider provider = Provider.KAKAO;
             String providerId = "kakao123";
             String email = "test@kakao.com";
+            InviteCodeValue inviteCode = InviteCodeValue.of("INVITE123");
             Member expectedMember = mock(Member.class);
 
             try (MockedStatic<Member> memberMock = mockStatic(Member.class)) {
@@ -123,11 +129,12 @@ class MemberDomainServiceTest {
                         providerId,
                         MemberRole.MEMBER,
                         MemberState.BEFORE_ONBOARDING,
-                        email
+                        email,
+                        inviteCode
                 )).thenReturn(expectedMember);
 
                 // When
-                Member result = memberDomainService.createMember(provider, providerId, email);
+                Member result = memberDomainService.createMember(provider, providerId, email, inviteCode);
 
                 // Then
                 assertThat(result).isEqualTo(expectedMember);
@@ -136,7 +143,8 @@ class MemberDomainServiceTest {
                         providerId,
                         MemberRole.MEMBER,
                         MemberState.BEFORE_ONBOARDING,
-                        email
+                        email,
+                        inviteCode
                 ));
             }
         }
@@ -148,6 +156,7 @@ class MemberDomainServiceTest {
             Provider provider = Provider.APPLE;
             String providerId = "apple123";
             String email = "test@apple.com";
+            InviteCodeValue inviteCode = InviteCodeValue.of("INVITE456");
             Member expectedMember = mock(Member.class);
 
             try (MockedStatic<Member> memberMock = mockStatic(Member.class)) {
@@ -156,11 +165,12 @@ class MemberDomainServiceTest {
                         providerId,
                         MemberRole.MEMBER,
                         MemberState.BEFORE_ONBOARDING,
-                        email
+                        email,
+                        inviteCode
                 )).thenReturn(expectedMember);
 
                 // When
-                Member result = memberDomainService.createMember(provider, providerId, email);
+                Member result = memberDomainService.createMember(provider, providerId, email, inviteCode);
 
                 // Then
                 assertThat(result).isEqualTo(expectedMember);
@@ -169,7 +179,8 @@ class MemberDomainServiceTest {
                         providerId,
                         MemberRole.MEMBER,
                         MemberState.BEFORE_ONBOARDING,
-                        email
+                        email,
+                        inviteCode
                 ));
             }
         }
@@ -181,6 +192,7 @@ class MemberDomainServiceTest {
             Provider provider = Provider.KAKAO;
             String providerId = "kakao123";
             String email = null;
+            InviteCodeValue inviteCode = InviteCodeValue.of("INVITE789");
             Member expectedMember = mock(Member.class);
 
             try (MockedStatic<Member> memberMock = mockStatic(Member.class)) {
@@ -189,11 +201,12 @@ class MemberDomainServiceTest {
                         providerId,
                         MemberRole.MEMBER,
                         MemberState.BEFORE_ONBOARDING,
-                        email
+                        email,
+                        inviteCode
                 )).thenReturn(expectedMember);
 
                 // When
-                Member result = memberDomainService.createMember(provider, providerId, email);
+                Member result = memberDomainService.createMember(provider, providerId, email, inviteCode);
 
                 // Then
                 assertThat(result).isEqualTo(expectedMember);
@@ -202,7 +215,8 @@ class MemberDomainServiceTest {
                         providerId,
                         MemberRole.MEMBER,
                         MemberState.BEFORE_ONBOARDING,
-                        email
+                        email,
+                        inviteCode
                 ));
             }
         }
@@ -214,6 +228,7 @@ class MemberDomainServiceTest {
             Provider provider = Provider.APPLE;
             String providerId = "apple123";
             String email = "";
+            InviteCodeValue inviteCode = InviteCodeValue.of("INVITE000");
             Member expectedMember = mock(Member.class);
 
             try (MockedStatic<Member> memberMock = mockStatic(Member.class)) {
@@ -222,11 +237,12 @@ class MemberDomainServiceTest {
                         providerId,
                         MemberRole.MEMBER,
                         MemberState.BEFORE_ONBOARDING,
-                        email
+                        email,
+                        inviteCode
                 )).thenReturn(expectedMember);
 
                 // When
-                Member result = memberDomainService.createMember(provider, providerId, email);
+                Member result = memberDomainService.createMember(provider, providerId, email, inviteCode);
 
                 // Then
                 assertThat(result).isEqualTo(expectedMember);
@@ -235,7 +251,8 @@ class MemberDomainServiceTest {
                         providerId,
                         MemberRole.MEMBER,
                         MemberState.BEFORE_ONBOARDING,
-                        email
+                        email,
+                        inviteCode
                 ));
             }
         }
@@ -247,6 +264,7 @@ class MemberDomainServiceTest {
             Provider provider = Provider.KAKAO;
             String providerId = "";
             String email = "test@example.com";
+            InviteCodeValue inviteCode = InviteCodeValue.of("INVITE111");
             Member expectedMember = mock(Member.class);
 
             try (MockedStatic<Member> memberMock = mockStatic(Member.class)) {
@@ -255,11 +273,12 @@ class MemberDomainServiceTest {
                         providerId,
                         MemberRole.MEMBER,
                         MemberState.BEFORE_ONBOARDING,
-                        email
+                        email,
+                        inviteCode
                 )).thenReturn(expectedMember);
 
                 // When
-                Member result = memberDomainService.createMember(provider, providerId, email);
+                Member result = memberDomainService.createMember(provider, providerId, email, inviteCode);
 
                 // Then
                 assertThat(result).isEqualTo(expectedMember);
@@ -268,7 +287,8 @@ class MemberDomainServiceTest {
                         providerId,
                         MemberRole.MEMBER,
                         MemberState.BEFORE_ONBOARDING,
-                        email
+                        email,
+                        inviteCode
                 ));
             }
         }
@@ -280,6 +300,7 @@ class MemberDomainServiceTest {
             Provider provider = Provider.APPLE;
             String providerId = "apple123";
             String email = "a".repeat(100) + "@example.com";
+            InviteCodeValue inviteCode = InviteCodeValue.of("INVITE222");
             Member expectedMember = mock(Member.class);
 
             try (MockedStatic<Member> memberMock = mockStatic(Member.class)) {
@@ -288,11 +309,12 @@ class MemberDomainServiceTest {
                         providerId,
                         MemberRole.MEMBER,
                         MemberState.BEFORE_ONBOARDING,
-                        email
+                        email,
+                        inviteCode
                 )).thenReturn(expectedMember);
 
                 // When
-                Member result = memberDomainService.createMember(provider, providerId, email);
+                Member result = memberDomainService.createMember(provider, providerId, email, inviteCode);
 
                 // Then
                 assertThat(result).isEqualTo(expectedMember);
@@ -301,7 +323,8 @@ class MemberDomainServiceTest {
                         providerId,
                         MemberRole.MEMBER,
                         MemberState.BEFORE_ONBOARDING,
-                        email
+                        email,
+                        inviteCode
                 ));
             }
         }
@@ -313,6 +336,7 @@ class MemberDomainServiceTest {
             Provider provider = Provider.KAKAO;
             String providerId = "a".repeat(1000);
             String email = "test@example.com";
+            InviteCodeValue inviteCode = InviteCodeValue.of("INVITE333");
             Member expectedMember = mock(Member.class);
 
             try (MockedStatic<Member> memberMock = mockStatic(Member.class)) {
@@ -321,11 +345,12 @@ class MemberDomainServiceTest {
                         providerId,
                         MemberRole.MEMBER,
                         MemberState.BEFORE_ONBOARDING,
-                        email
+                        email,
+                        inviteCode
                 )).thenReturn(expectedMember);
 
                 // When
-                Member result = memberDomainService.createMember(provider, providerId, email);
+                Member result = memberDomainService.createMember(provider, providerId, email, inviteCode);
 
                 // Then
                 assertThat(result).isEqualTo(expectedMember);
@@ -334,7 +359,8 @@ class MemberDomainServiceTest {
                         providerId,
                         MemberRole.MEMBER,
                         MemberState.BEFORE_ONBOARDING,
-                        email
+                        email,
+                        inviteCode
                 ));
             }
         }
@@ -346,6 +372,7 @@ class MemberDomainServiceTest {
             Provider provider = Provider.APPLE;
             String providerId = "apple123";
             String email = "test+tag@sub.example.com";
+            InviteCodeValue inviteCode = InviteCodeValue.of("INVITE444");
             Member expectedMember = mock(Member.class);
 
             try (MockedStatic<Member> memberMock = mockStatic(Member.class)) {
@@ -354,11 +381,12 @@ class MemberDomainServiceTest {
                         providerId,
                         MemberRole.MEMBER,
                         MemberState.BEFORE_ONBOARDING,
-                        email
+                        email,
+                        inviteCode
                 )).thenReturn(expectedMember);
 
                 // When
-                Member result = memberDomainService.createMember(provider, providerId, email);
+                Member result = memberDomainService.createMember(provider, providerId, email, inviteCode);
 
                 // Then
                 assertThat(result).isEqualTo(expectedMember);
@@ -367,7 +395,8 @@ class MemberDomainServiceTest {
                         providerId,
                         MemberRole.MEMBER,
                         MemberState.BEFORE_ONBOARDING,
-                        email
+                        email,
+                        inviteCode
                 ));
             }
         }
