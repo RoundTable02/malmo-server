@@ -29,6 +29,7 @@ public enum ErrorCode {
     // 403 Forbidden
     FORBIDDEN(HttpStatus.FORBIDDEN, 40300, "접근 권한이 없습니다."),
     NOT_COUPLE_MEMBER(HttpStatus.FORBIDDEN, 40301, "커플 등록 전인 사용자입니다. 커플 등록 후 이용해주세요."),
+    MEMBER_ACCESS_DENIED(HttpStatus.FORBIDDEN, 40302, "사용자의 리소스 접근 권한이 없습니다."),
 
     // 404 Not Found
     NOT_FOUND(HttpStatus.NOT_FOUND, 40400, "요청한 리소스를 찾을 수 없습니다."),

@@ -7,6 +7,7 @@ import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.state.ChatRoomState;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.INIT_CHATROOM_LEVEL;
 
@@ -19,6 +20,8 @@ public class ChatRoom {
     private int level;
     private LocalDateTime lastMessageSentTime;
     private String totalSummary;
+    private String situationKeyword;
+    private String solutionKeyword;
 
     // BaseTimeEntity fields
     private LocalDateTime createdAt;
@@ -35,7 +38,8 @@ public class ChatRoom {
     }
 
     public static ChatRoom from(Long id, MemberId memberId, ChatRoomState chatRoomState,
-                                int level, LocalDateTime lastMessageSentTime, String totalSummary,
+                                int level, LocalDateTime lastMessageSentTime,
+                                String totalSummary, String situationKeyword, String solutionKeyword,
                                 LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
         return ChatRoom.builder()
                 .id(id)
@@ -44,6 +48,8 @@ public class ChatRoom {
                 .level(level)
                 .lastMessageSentTime(lastMessageSentTime)
                 .totalSummary(totalSummary)
+                .situationKeyword(situationKeyword)
+                .solutionKeyword(solutionKeyword)
                 .createdAt(createdAt)
                 .modifiedAt(modifiedAt)
                 .deletedAt(deletedAt)
@@ -67,8 +73,10 @@ public class ChatRoom {
         this.chatRoomState = ChatRoomState.ALIVE;
     }
 
-    public void updateChatRoomSummary(String summary) {
-        this.totalSummary = summary;
+    public void updateChatRoomSummary(String totalSummary, String situationKeyword, String solutionKeyword) {
+        this.totalSummary = totalSummary;
+        this.situationKeyword = situationKeyword;
+        this.solutionKeyword = solutionKeyword;
     }
 
     public void complete() {
@@ -77,5 +85,9 @@ public class ChatRoom {
 
     public boolean isChatRoomValid() {
         return this.chatRoomState == ChatRoomState.ALIVE || this.chatRoomState == ChatRoomState.BEFORE_INIT;
+    }
+
+    public boolean isOwner(MemberId memberId) {
+        return Objects.equals(this.memberId.getValue(), memberId.getValue());
     }
 }

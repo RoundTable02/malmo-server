@@ -1,5 +1,10 @@
 package makeus.cmc.malmo.application.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.application.port.out.RequestChatApiPort;
@@ -30,6 +35,8 @@ public class ChatStreamProcessor {
     private final ChatRoomDomainService chatRoomDomainService;
     private final SendSseEventPort sendSseEventPort;
     private final SaveChatMessageSummaryPort saveChatMessageSummaryPort;
+
+    private final ObjectMapper objectMapper;
 
     public void requestApiStream(MemberId memberId,
                                  boolean isMemberCoupled,
@@ -125,7 +132,26 @@ public class ChatStreamProcessor {
 
         String summary = requestChatApiPort.requestTotalSummary(messages);
 
-        chatRoomDomainService.updateChatRoomSummary(chatRoom, summary);
+        try {
+            CounselingSummary counselingSummary = objectMapper.readValue(summary, CounselingSummary.class);
+
+            chatRoomDomainService.updateChatRoomSummary(chatRoom,
+                    counselingSummary.totalSummary,
+                    counselingSummary.situationKeyword,
+                    counselingSummary.solutionKeyword);
+        } catch (JsonProcessingException e) {
+            // TODO: 에러 처리 로직 추가
+            log.error("Failed to parse summary JSON: {}", summary, e);
+        }
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CounselingSummary {
+        private String totalSummary;
+        private String situationKeyword;
+        private String solutionKeyword;
     }
 
     private void saveAiMessage(MemberId memberId, ChatRoomId chatRoomId, int level, String fullAnswer) {

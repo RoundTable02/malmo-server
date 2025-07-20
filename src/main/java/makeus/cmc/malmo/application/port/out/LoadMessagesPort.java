@@ -11,6 +11,7 @@ import java.util.List;
 
 public interface LoadMessagesPort {
     List<ChatRoomMessageRepositoryDto> loadMessagesDto(ChatRoomId chatRoomId, int page, int size);
+    List<ChatRoomMessageRepositoryDto> loadMessagesDtoAsc(ChatRoomId chatRoomId, int page, int size);
     List<ChatMessage> loadChatRoomMessagesByLevel(ChatRoomId chatRoomId, int level);
 
     @Data

@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface ChatMessageRepositoryCustom {
     List<LoadMessagesPort.ChatRoomMessageRepositoryDto> loadCurrentMessagesDto(Long chatRoomId, int page, int size);
+    List<LoadMessagesPort.ChatRoomMessageRepositoryDto> loadCurrentMessagesDtoAsc(Long chatRoomId, int page, int size);
 }

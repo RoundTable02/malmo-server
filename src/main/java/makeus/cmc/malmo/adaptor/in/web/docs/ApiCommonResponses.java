@@ -161,4 +161,19 @@ public class ApiCommonResponses {
     })
     public @interface OnlyTested {
     }
+
+    /**
+     * 리소스 주인만 접근 가능
+     */
+    @Target({ElementType.METHOD})
+    @Retention(RetentionPolicy.RUNTIME)
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "해당 리소스의 소유자가 아닙니다.",
+                    content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class))
+            )
+    })
+    public @interface OnlyOwner {
+    }
 }

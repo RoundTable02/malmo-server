@@ -104,7 +104,8 @@ public class OpenAiApiClient implements RequestChatApiPort {
 
     @Override
     public String requestTotalSummary(List<Map<String, String>> messages) {
-        Map<String, Object> body = createBody(messages);
+        // OpenAI API에 요청할 때 응답 형식을 JSON으로 지정
+        Map<String, Object> body = createBodyForJsonResponse(messages);
         Request request = createRequest(body);
 
         try (Response response = client.newCall(request).execute()) {
@@ -186,6 +187,16 @@ public class OpenAiApiClient implements RequestChatApiPort {
     private Map<String, Object> createBody(List<Map<String, String>> messages) {
         return Map.of(
                 "model", GPT_VERSION,
+                "messages", messages,
+                "temperature", GPT_TEMPERATURE,
+                "stream", false
+        );
+    }
+
+    private Map<String, Object> createBodyForJsonResponse(List<Map<String, String>> messages) {
+        return Map.of(
+                "model", GPT_VERSION,
+                "response_format", Map.of("type", "json_object"),
                 "messages", messages,
                 "temperature", GPT_TEMPERATURE,
                 "stream", false
