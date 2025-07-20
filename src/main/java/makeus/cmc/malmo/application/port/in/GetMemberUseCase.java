@@ -2,9 +2,8 @@ package makeus.cmc.malmo.application.port.in;
 
 import lombok.Builder;
 import lombok.Data;
-import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
-import makeus.cmc.malmo.domain.model.member.MemberState;
 import makeus.cmc.malmo.domain.value.state.MemberState;
+import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 
 import java.time.LocalDate;
 

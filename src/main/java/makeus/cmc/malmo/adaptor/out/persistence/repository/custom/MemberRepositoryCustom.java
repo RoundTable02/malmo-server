@@ -20,6 +20,5 @@ public interface MemberRepositoryCustom {
     Optional<InviteCodeEntityValue> findInviteCodeByMemberId(Long memberId);
 
     Optional<LoadChatRoomMetadataPort.ChatRoomMetadataDto> loadChatRoomMetadata(Long memberId);
-    Optional<LoadPartnerPort.PartnerLoveTypeRepositoryDto> findPartnerLoveTypeCategory(Long memberId);
 
 }

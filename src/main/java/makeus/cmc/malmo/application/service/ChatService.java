@@ -198,10 +198,10 @@ public class ChatService implements SendChatMessageUseCase {
         metadataBuilder.append("- 연애 기간: ").append(dDayState).append("\n");
 
         LoadChatRoomMetadataPort.ChatRoomMetadataDto chatRoomMetadataDto = chatRoomDomainService.getChatRoomMetadata(MemberId.of(member.getId()));
-        String memberLoveTypeTitle = chatRoomMetadataDto.memberLoveTypeTitle();
+        String memberLoveTypeTitle = chatRoomMetadataDto.memberLoveType() != null ? chatRoomMetadataDto.memberLoveType().getTitle() : "알 수 없음";
         metadataBuilder.append("- 사용자 애착 유형: ").append(memberLoveTypeTitle).append("\n");
 
-        String partnerLoveType = chatRoomMetadataDto.partnerLoveTypeTitle();
+        String partnerLoveType = chatRoomMetadataDto.partnerLoveType() != null ? chatRoomMetadataDto.partnerLoveType().getTitle() : "알 수 없음";
         metadataBuilder.append("- 애인 애착 유형: ").append(partnerLoveType).append("\n");
         metadataBuilder.append(memberMemoryList);
 

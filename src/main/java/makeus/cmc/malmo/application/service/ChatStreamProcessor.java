@@ -45,6 +45,8 @@ public class ChatStreamProcessor {
                 createMessageMap(SenderType.SYSTEM, prompt.getContent())
         );
 
+        log.info("total messages: {}", messages);
+
         // OpenAI API 스트리밍 호출
         requestChatApiPort.streamChat(messages,
                 //  데이터 stream 수신 시 SSE 이벤트 전송

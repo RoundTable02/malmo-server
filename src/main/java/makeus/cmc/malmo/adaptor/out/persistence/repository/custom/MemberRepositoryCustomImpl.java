@@ -4,7 +4,6 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleMemberEntity;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.love_type.QLoveTypeEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.QMemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.application.port.out.LoadChatRoomMetadataPort;
@@ -109,23 +108,20 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
     public Optional<LoadChatRoomMetadataPort.ChatRoomMetadataDto> loadChatRoomMetadata(Long memberId) {
         QMemberEntity partnerMemberEntity = new QMemberEntity("partnerMemberEntity");
         QCoupleMemberEntity partnerCoupleMemberEntity = new QCoupleMemberEntity("partnerCoupleMemberEntity");
-        QLoveTypeEntity partnerLoveTypeEntity = new QLoveTypeEntity("partnerLoveTypeEntity");
 
         LoadChatRoomMetadataPort.ChatRoomMetadataDto dto = queryFactory
                 .select(Projections.constructor(
                         LoadChatRoomMetadataPort.ChatRoomMetadataDto.class,
-                        loveTypeEntity.title,
-                        partnerLoveTypeEntity.title
+                        memberEntity.loveTypeCategory,
+                        partnerMemberEntity.loveTypeCategory
                 ))
                 .from(memberEntity)
-                .leftJoin(loveTypeEntity).on(loveTypeEntity.id.eq(memberEntity.loveTypeEntityId.value))
                 .leftJoin(coupleMemberEntity).on(coupleMemberEntity.memberEntityId.value.eq(memberEntity.id))
                 .leftJoin(coupleEntity).on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value))
                 .leftJoin(partnerCoupleMemberEntity)
                     .on(partnerCoupleMemberEntity.coupleEntityId.value.eq(coupleEntity.id)
                             .and(partnerCoupleMemberEntity.memberEntityId.value.ne(memberId)))
                 .leftJoin(partnerMemberEntity).on(partnerMemberEntity.id.eq(partnerCoupleMemberEntity.memberEntityId.value))
-                .leftJoin(partnerLoveTypeEntity).on(partnerLoveTypeEntity.id.eq(partnerMemberEntity.loveTypeEntityId.value))
                 .where(memberEntity.id.eq(memberId))
                 .fetchOne();
 

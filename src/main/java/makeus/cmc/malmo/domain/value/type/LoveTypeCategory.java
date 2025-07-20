@@ -6,11 +6,12 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum LoveTypeCategory {
-    STABLE_TYPE(LoveTypeCategory.MIN_SCORE, 2.33f, LoveTypeCategory.MIN_SCORE, 2.61f),
-    ANXIETY_TYPE(LoveTypeCategory.MIN_SCORE, 2.33f, 2.61f, LoveTypeCategory.MAX_SCORE),
-    AVOIDANCE_TYPE(2.33f, LoveTypeCategory.MAX_SCORE, LoveTypeCategory.MIN_SCORE, 2.61f),
-    CONFUSION_TYPE(2.33f, LoveTypeCategory.MAX_SCORE, 2.61f, LoveTypeCategory.MAX_SCORE);
+    STABLE_TYPE("안정형", LoveTypeCategory.MIN_SCORE, 2.33f, LoveTypeCategory.MIN_SCORE, 2.61f),
+    ANXIETY_TYPE("불안형", LoveTypeCategory.MIN_SCORE, 2.33f, 2.61f, LoveTypeCategory.MAX_SCORE),
+    AVOIDANCE_TYPE("회피형", 2.33f, LoveTypeCategory.MAX_SCORE, LoveTypeCategory.MIN_SCORE, 2.61f),
+    CONFUSION_TYPE("혼란형", 2.33f, LoveTypeCategory.MAX_SCORE, 2.61f, LoveTypeCategory.MAX_SCORE);
 
+    private final String title;
     private final float avoidanceOver;
     private final float avoidanceUnder;
     private final float anxietyOver;

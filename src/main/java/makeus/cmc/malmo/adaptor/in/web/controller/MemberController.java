@@ -38,7 +38,6 @@ public class MemberController {
     private final UpdateMemberUseCase updateMemberUseCase;
     private final UpdateTermsAgreementUseCase updateTermsAgreementUseCase;
     private final UpdateMemberLoveTypeUseCase updateMemberLoveTypeUseCase;
-    private final GetMemberLoveTypeDetailsUseCase getMemberLoveTypeDetailsUseCase;
 
     @Operation(
             summary = "멤버 정보 조회",
@@ -209,51 +208,6 @@ public class MemberController {
         updateMemberLoveTypeUseCase.updateMemberLoveType(command);
 
         return BaseResponse.success(null);
-    }
-
-    @Operation(
-            summary = "애착 유형 검사 결과 조회",
-            description = "애착 유형 검사의 결과를 조회합니다. JWT 토큰이 필요합니다.",
-            security = @SecurityRequirement(name = "Bearer Authentication")
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "애착 유형 조회 성공",
-            content = @Content(schema = @Schema(implementation = SwaggerResponses.GetLoveTypeSuccessResponse.class))
-    )
-    @ApiCommonResponses.OnlyTested
-    @ApiCommonResponses.RequireAuth
-    @GetMapping("/love-type")
-    public BaseResponse<GetMemberLoveTypeDetailsUseCase.LoveTypeDetailsDto> getMemberLoveTypeInfo(
-            @AuthenticationPrincipal User user
-    ) {
-        GetMemberLoveTypeDetailsUseCase.MemberLoveTypeCommand command = GetMemberLoveTypeDetailsUseCase.MemberLoveTypeCommand.builder()
-                .memberId(Long.valueOf(user.getUsername()))
-                .build();
-        return BaseResponse.success(getMemberLoveTypeDetailsUseCase.getMemberLoveTypeInfo(command));
-    }
-
-    @Operation(
-            summary = "파트너 애착 유형 검사 결과 조회",
-            description = "애착 유형 검사의 결과를 조회합니다. JWT 토큰이 필요합니다.",
-            security = @SecurityRequirement(name = "Bearer Authentication")
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "파트너 애착 유형 조회 성공",
-            content = @Content(schema = @Schema(implementation = SwaggerResponses.GetLoveTypeSuccessResponse.class))
-    )
-    @ApiCommonResponses.OnlyCouple
-    @ApiCommonResponses.OnlyTested
-    @ApiCommonResponses.RequireAuth
-    @GetMapping("/partner/love-type")
-    public BaseResponse<GetMemberLoveTypeDetailsUseCase.LoveTypeDetailsDto> getPartnerLoveTypeInfo(
-            @AuthenticationPrincipal User user
-    ) {
-        GetMemberLoveTypeDetailsUseCase.MemberLoveTypeCommand command = GetMemberLoveTypeDetailsUseCase.MemberLoveTypeCommand.builder()
-                .memberId(Long.valueOf(user.getUsername()))
-                .build();
-        return BaseResponse.success(getMemberLoveTypeDetailsUseCase.getPartnerLoveTypeInfo(command));
     }
 
     @Data

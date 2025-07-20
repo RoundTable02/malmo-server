@@ -58,11 +58,7 @@ public class ChatRoomDomainService {
 
     public LoadChatRoomMetadataPort.ChatRoomMetadataDto getChatRoomMetadata(MemberId memberId) {
         return loadChatRoomMetadataPort.loadChatRoomMetadata(memberId)
-                .map(
-                        metadata -> new LoadChatRoomMetadataPort.ChatRoomMetadataDto(
-                                metadata.memberLoveTypeTitle() != null ? metadata.memberLoveTypeTitle() : "알 수 없음",
-                                metadata.partnerLoveTypeTitle() != null ? metadata.partnerLoveTypeTitle() : "알 수 없음"
-                )).orElse(new LoadChatRoomMetadataPort.ChatRoomMetadataDto("알 수 없음", "알 수 없음"));
+                .orElse(new LoadChatRoomMetadataPort.ChatRoomMetadataDto(null, null));
     }
 
     public ChatRoom getChatRoomById(ChatRoomId chatRoomId) {
