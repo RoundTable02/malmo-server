@@ -70,7 +70,7 @@ public class ChatRoomService
 
     @Override
     @Transactional
-    public void completeChatRoom(CompleteChatRoomCommand command) {
+    public CompleteChatRoomResponse completeChatRoom(CompleteChatRoomCommand command) {
         ChatRoom chatRoom = chatRoomDomainService.getCurrentChatRoomByMemberId(MemberId.of(command.getUserId()));
         chatRoomDomainService.completeChatRoom(chatRoom);
 
@@ -106,5 +106,9 @@ public class ChatRoomService
         }
 
         chatStreamProcessor.requestTotalSummary(chatRoom, systemPrompt, totalSummaryPrompt, messages);
+
+        return CompleteChatRoomResponse.builder()
+                .chatRoomId(chatRoom.getId())
+                .build();
     }
 }

@@ -137,12 +137,13 @@ public class ChatController {
     )
     @ApiCommonResponses.RequireAuth
     @PostMapping("/current/complete")
-    public BaseResponse completeChatRoom(@AuthenticationPrincipal User user) {
-        completeChatRoomUseCase.completeChatRoom(CompleteChatRoomUseCase.CompleteChatRoomCommand.builder()
+    public BaseResponse<CompleteChatRoomUseCase.CompleteChatRoomResponse> completeChatRoom(
+            @AuthenticationPrincipal User user) {
+        CompleteChatRoomUseCase.CompleteChatRoomCommand command = CompleteChatRoomUseCase.CompleteChatRoomCommand.builder()
                 .userId(Long.valueOf(user.getUsername()))
-                .build());
+                .build();
 
-        return BaseResponse.success(null);
+        return BaseResponse.success(completeChatRoomUseCase.completeChatRoom(command));
     }
 
     @Getter
