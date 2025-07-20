@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatMessageSummaryEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.ChatMessageSummaryMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.ChatMessageSummaryRepository;
-import makeus.cmc.malmo.application.port.out.LoadChatMessageSummaryPort;
 import makeus.cmc.malmo.application.port.out.LoadSummarizedMessages;
 import makeus.cmc.malmo.application.port.out.SaveChatMessageSummaryPort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
@@ -16,22 +15,14 @@ import java.util.List;
 @RequiredArgsConstructor
 @Component
 public class ChatMessageSummaryPersistenceAdapter
-        implements LoadChatMessageSummaryPort, LoadSummarizedMessages, SaveChatMessageSummaryPort {
+        implements LoadSummarizedMessages, SaveChatMessageSummaryPort {
 
     private final ChatMessageSummaryRepository chatMessageSummaryRepository;
     private final ChatMessageSummaryMapper chatMessageSummaryMapper;
 
     @Override
-    public List<ChatMessageSummary> loadChatMessageSummaries(ChatRoomId chatRoomId, int level) {
-        return chatMessageSummaryRepository.findByChatRoomEntityId_ValueAndLevel(chatRoomId.getValue(), level)
-                .stream()
-                .map(chatMessageSummaryMapper::toDomain)
-                .toList();
-    }
-
-    @Override
-    public List<ChatMessageSummary> loadSummarizedMessagesNotCurrent(ChatRoomId chatRoomId) {
-        return chatMessageSummaryRepository.findNotCurrentMessagesByChatRoomEntityId(chatRoomId.getValue())
+    public List<ChatMessageSummary> loadSummarizedMessages(ChatRoomId chatRoomId) {
+        return chatMessageSummaryRepository.findSummarizedMessagesByChatRoomEntityId(chatRoomId.getValue())
                 .stream()
                 .map(chatMessageSummaryMapper::toDomain)
                 .toList();

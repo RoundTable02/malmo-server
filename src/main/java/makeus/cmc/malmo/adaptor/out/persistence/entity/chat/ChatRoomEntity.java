@@ -9,6 +9,8 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
 import makeus.cmc.malmo.domain.value.state.ChatRoomState;
 
+import java.time.LocalDateTime;
+
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -26,9 +28,10 @@ public class ChatRoomEntity extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private ChatRoomState chatRoomState;
 
-    private boolean isCurrentPromptForMetadata;
-
     private int level;
 
-    // TODO : LastMessageSentTime 필요
+    private LocalDateTime lastMessageSentTime;
+
+    @Column(columnDefinition = "TEXT")
+    private String totalSummary;
 }

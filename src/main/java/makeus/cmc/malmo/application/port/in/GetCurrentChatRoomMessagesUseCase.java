@@ -1,8 +1,8 @@
 package makeus.cmc.malmo.application.port.in;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
-import makeus.cmc.malmo.domain.value.state.ChatRoomState;
 import makeus.cmc.malmo.domain.value.type.SenderType;
 
 import java.time.LocalDateTime;
@@ -33,6 +33,7 @@ public interface GetCurrentChatRoomMessagesUseCase {
         private SenderType senderType;
         private String content;
         private LocalDateTime createdAt;
+        @JsonProperty("isSaved")
         private boolean isSaved;
     }
 }

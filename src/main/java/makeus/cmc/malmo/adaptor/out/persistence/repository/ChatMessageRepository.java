@@ -9,9 +9,6 @@ import java.util.List;
 
 public interface ChatMessageRepository extends JpaRepository<ChatMessageEntity, Long>, ChatMessageRepositoryCustom {
 
-    @Query("SELECT c FROM ChatMessageEntity c WHERE c.chatRoomEntityId.value = :chatRoomId")
-    List<ChatMessageEntity> findByChatRoomId(Long chatRoomId);
-
-    @Query("SELECT c FROM ChatMessageEntity c WHERE c.chatRoomEntityId.value = :chatRoomId and c.isSummarized = false")
-    List<ChatMessageEntity> findUnsummarizedChatMessagesByChatRoomId(Long chatRoomId);
+    @Query("SELECT c FROM ChatMessageEntity c WHERE c.chatRoomEntityId.value = :chatRoomId AND c.level = :level")
+    List<ChatMessageEntity> findByChatRoomIdAndLevel(Long chatRoomId, int level);
 }

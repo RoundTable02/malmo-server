@@ -3,7 +3,7 @@ package makeus.cmc.malmo.adaptor.out.persistence.repository.custom;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.application.port.out.LoadCurrentMessagesPort;
+import makeus.cmc.malmo.application.port.out.LoadMessagesPort;
 import makeus.cmc.malmo.domain.value.state.SavedChatMessageState;
 
 import java.util.List;
@@ -17,8 +17,8 @@ public class ChatMessageRepositoryCustomImpl implements ChatMessageRepositoryCus
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<LoadCurrentMessagesPort.ChatRoomMessageRepositoryDto> loadCurrentMessagesDto(Long chatRoomId, int page, int size) {
-        return queryFactory.select(Projections.constructor(LoadCurrentMessagesPort.ChatRoomMessageRepositoryDto.class,
+    public List<LoadMessagesPort.ChatRoomMessageRepositoryDto> loadCurrentMessagesDto(Long chatRoomId, int page, int size) {
+        return queryFactory.select(Projections.constructor(LoadMessagesPort.ChatRoomMessageRepositoryDto.class,
                         chatMessageEntity.id,
                         chatMessageEntity.senderType,
                         chatMessageEntity.content,
@@ -34,14 +34,5 @@ public class ChatMessageRepositoryCustomImpl implements ChatMessageRepositoryCus
                 .offset((long) page * size)
                 .limit(size)
                 .fetch();
-    }
-
-    @Override
-    public void updateChatMessageSummarizedAllTrue(Long chatRoomId) {
-        queryFactory.update(chatMessageEntity)
-            .set(chatMessageEntity.isSummarized, true)
-            .where(chatMessageEntity.chatRoomEntityId.value.eq(chatRoomId)
-                    .and(chatMessageEntity.isSummarized.eq(false)))
-            .execute();
     }
 }

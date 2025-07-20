@@ -5,12 +5,12 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.LoveTypeEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.MemberMapper;
 import makeus.cmc.malmo.domain.model.love_type.LoveType;
-import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.model.member.Member;
-import makeus.cmc.malmo.domain.value.type.MemberRole;
-import makeus.cmc.malmo.domain.value.state.MemberState;
-import makeus.cmc.malmo.domain.value.type.Provider;
 import makeus.cmc.malmo.domain.value.id.LoveTypeId;
+import makeus.cmc.malmo.domain.value.state.MemberState;
+import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
+import makeus.cmc.malmo.domain.value.type.MemberRole;
+import makeus.cmc.malmo.domain.value.type.Provider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -285,25 +285,25 @@ class MemberMapperTest {
 
     private Member createMemberWithNulls() {
         return Member.createMember(
-                null, null, null, null, null
+                null, null, null, null, null, null
         );
     }
 
     private Member createMemberWithProvider(Provider provider) {
         return Member.createMember(
-                provider, "provider123", MemberRole.MEMBER, MemberState.ALIVE, ""
+                provider, "provider123", MemberRole.MEMBER, MemberState.ALIVE, "", null
         );
     }
 
     private Member createMemberWithRole(MemberRole role) {
         return Member.createMember(
-                Provider.KAKAO, "provider123", role, MemberState.ALIVE, ""
+                Provider.KAKAO, "provider123", role, MemberState.ALIVE, "", null
         );
     }
 
     private Member createMemberWithState(MemberState state) {
         return Member.createMember(
-                Provider.KAKAO, "provider123", MemberRole.MEMBER, state, ""
+                Provider.KAKAO, "provider123", MemberRole.MEMBER, state, "", null
         );
     }
 

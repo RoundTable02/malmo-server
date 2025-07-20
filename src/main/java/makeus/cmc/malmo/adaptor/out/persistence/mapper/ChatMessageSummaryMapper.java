@@ -19,7 +19,6 @@ public class ChatMessageSummaryMapper {
                         ChatRoomId.of(entity.getChatRoomEntityId().getValue()) : null,
                 entity.getContent(),
                 entity.getLevel(),
-                entity.isForCurrentLevel(),
                 entity.getCreatedAt(),
                 entity.getModifiedAt(),
                 entity.getDeletedAt()
@@ -36,7 +35,6 @@ public class ChatMessageSummaryMapper {
                         ChatRoomEntityId.of(domain.getChatRoomId().getValue()) : null)
                 .content(domain.getContent())
                 .level(domain.getLevel())
-                .isForCurrentLevel(domain.isForCurrentLevel())
                 .createdAt(domain.getCreatedAt())
                 .modifiedAt(domain.getModifiedAt())
                 .deletedAt(domain.getDeletedAt())

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import makeus.cmc.malmo.adaptor.out.exception.OpenAiRequestException;
 import makeus.cmc.malmo.application.port.out.RequestChatApiPort;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
@@ -21,8 +22,8 @@ import java.util.function.Consumer;
 @Component
 public class OpenAiApiClient implements RequestChatApiPort {
 
-    public static final String GPT_VERSION = "gpt-3.5-turbo";
-    public static final double GPT_TEMPERATURE = 0.7;
+    public static final String GPT_VERSION = "gpt-4o";
+    public static final double GPT_TEMPERATURE = 0.5;
 
     @Value("${openai.api.key}")
     private String openAiApiKey;
@@ -39,8 +40,6 @@ public class OpenAiApiClient implements RequestChatApiPort {
 
         Map<String, Object> body = createStreamBody(messages);
         Request request = createStreamRequest(body, onError);
-
-        log.info("streamChat messages: {}", messages);
 
         client.newCall(request).enqueue(new Callback() {
             @Override
@@ -83,8 +82,6 @@ public class OpenAiApiClient implements RequestChatApiPort {
         Map<String, Object> body = createBody(messages);
         Request request = createRequest(body);
 
-        log.info("requestSummary messages: {}", messages);
-
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
@@ -103,6 +100,25 @@ public class OpenAiApiClient implements RequestChatApiPort {
             }
         });
 
+    }
+
+    @Override
+    public String requestTotalSummary(List<Map<String, String>> messages) {
+        Map<String, Object> body = createBody(messages);
+        Request request = createRequest(body);
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                throw new OpenAiRequestException("OpenAI API request failed with code: " + response.code());
+            }
+
+            String data = response.body().string();
+            return extractContent(data);
+        } catch (IOException e) {
+            throw new OpenAiRequestException("Failed to connect to OpenAI API");
+        } catch (Exception e) {
+            throw new OpenAiRequestException("Error processing OpenAI API response");
+        }
     }
 
     private String extractStreamContent(String data) throws JsonProcessingException {

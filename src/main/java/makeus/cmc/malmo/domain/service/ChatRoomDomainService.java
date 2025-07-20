@@ -1,18 +1,20 @@
 package makeus.cmc.malmo.domain.service;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.application.port.out.LoadChatRoomMetadataPort;
-import makeus.cmc.malmo.application.port.out.LoadChatRoomPort;
-import makeus.cmc.malmo.application.port.out.LoadPromptPort;
-import makeus.cmc.malmo.application.port.out.SaveChatRoomPort;
+import makeus.cmc.malmo.application.port.out.*;
+import makeus.cmc.malmo.domain.exception.ChatRoomNotFoundException;
+import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
+import makeus.cmc.malmo.domain.exception.NotValidChatRoomException;
+import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
-import makeus.cmc.malmo.domain.model.chat.Prompt;
+import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.INIT_CHATROOM_LEVEL;
+import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.INIT_CHAT_MESSAGE;
 
 @Service
 @Transactional(readOnly = true)
@@ -20,36 +22,37 @@ import java.util.Optional;
 public class ChatRoomDomainService {
 
     private final LoadChatRoomPort loadChatRoomPort;
+    private final LoadMemberPort loadMemberPort;
     private final SaveChatRoomPort saveChatRoomPort;
-    private final LoadPromptPort loadPromptPort;
+    private final SaveChatMessagePort saveChatMessagePort;
     private final LoadChatRoomMetadataPort loadChatRoomMetadataPort;
 
     public ChatRoom getCurrentChatRoomByMemberId(MemberId memberId) {
+        // 현재 채팅방이 존재하는지 확인하고, 없으면 초기 메시지와 함께 새로 생성
         return loadChatRoomPort.loadCurrentChatRoomByMemberId(memberId)
                 .orElseGet(() -> {
-                    // 현재 채팅방이 존재하지 않는 경우 새로 채팅방을 생성
-                    int level = 0;
-                    boolean isCurrentPromptForMetadata = true;
-                    // 이전 채팅방 중 가장 LEVEL이 큰 채팅방 조회
-                    Optional<ChatRoom> chatRoom = loadChatRoomPort.loadMaxLevelChatRoomByMemberId(memberId);
-                    if (chatRoom.isPresent()) {
-                        ChatRoom maxChatRoom = chatRoom.get();
-                        if (maxChatRoom.isCurrentPromptForMetadata()) {
-                            // Metadata 수집 중인 채팅방이 존재하는 경우, 해당 채팅방의 LEVEL로 설정
-                            level = maxChatRoom.getLevel();
-                        } else {
-                            // 과거에 Metadata 수집을 완료한 채팅방이 존재하는 경우, Metadata 수집 이후 단계의 Prompt로 레벨 설정
-                            // TODO : 예외 설정
-                            Prompt prompt = loadPromptPort.loadPromptMinLevelPrompt().get();
-                            level = prompt.getLevel();
-                            isCurrentPromptForMetadata = false;
-                        }
-                    }
-                    // 이전 채팅방이 존재하지 않는 경우, LEVEL 0으로 설정
-                    return saveChatRoomPort.saveChatRoom(
-                            ChatRoom.createChatRoom(memberId, level, isCurrentPromptForMetadata)
-                    );
+                    Member member = loadMemberPort.loadMemberById(memberId.getValue())
+                            .orElseThrow(MemberNotFoundException::new);
+                    ChatRoom chatRoom = saveChatRoomPort.saveChatRoom(ChatRoom.createChatRoom(memberId));
+                    ChatMessage initMessage = ChatMessage.createAssistantTextMessage(
+                            ChatRoomId.of(chatRoom.getId()), INIT_CHATROOM_LEVEL, member.getNickname() + INIT_CHAT_MESSAGE);
+                    saveChatMessagePort.saveChatMessage(initMessage);
+
+                    return chatRoom;
                 });
+    }
+
+    public void validateChatRoomAlive(MemberId memberId) {
+        loadChatRoomPort.loadCurrentChatRoomByMemberId(memberId)
+                .ifPresentOrElse(chatRoom -> {
+                            if (!chatRoom.isChatRoomValid()) {
+                                throw new NotValidChatRoomException();
+                            }
+                        }
+                        , () -> {
+                            throw new ChatRoomNotFoundException();
+                        }
+                );
     }
 
 
@@ -62,6 +65,10 @@ public class ChatRoomDomainService {
                 )).orElse(new LoadChatRoomMetadataPort.ChatRoomMetadataDto("알 수 없음", "알 수 없음"));
     }
 
+    public ChatRoom getChatRoomById(ChatRoomId chatRoomId) {
+        return loadChatRoomPort.loadChatRoomById(chatRoomId).orElseThrow(ChatRoomNotFoundException::new);
+    }
+
     @Transactional
     public void saveChatRoom(ChatRoom chatRoom) {
         saveChatRoomPort.saveChatRoom(chatRoom);
@@ -69,42 +76,51 @@ public class ChatRoomDomainService {
 
     @Transactional
     public void updateChatRoomStateToPaused(ChatRoomId chatRoomId) {
-        // TODO: 예외 처리 필요
         ChatRoom chatRoom = loadChatRoomPort.loadChatRoomById(chatRoomId)
-                .orElse(null);
+                .orElseThrow(ChatRoomNotFoundException::new);
 
-        if (chatRoom != null) {
-            chatRoom.updateChatRoomStatePaused();
-            saveChatRoom(chatRoom);
-        }
+        chatRoom.updateChatRoomStatePaused();
+        saveChatRoom(chatRoom);
     }
 
     @Transactional
     public void updateChatRoomStateToNeedNextQuestion(ChatRoomId chatRoomId) {
-        // TODO: 예외 처리 필요
         ChatRoom chatRoom = loadChatRoomPort.loadChatRoomById(chatRoomId)
-                .orElse(null);
+                .orElseThrow(ChatRoomNotFoundException::new);
 
-        if (chatRoom != null) {
-            chatRoom.updateChatRoomStateNeedNextQuestion();
-            saveChatRoom(chatRoom);
-        }
+        chatRoom.upgradeChatRoom();
+        saveChatRoom(chatRoom);
     }
 
     @Transactional
     public void updateChatRoomStateToAlive(ChatRoomId chatRoomId) {
-        // TODO: 예외 처리 필요
         ChatRoom chatRoom = loadChatRoomPort.loadChatRoomById(chatRoomId)
-                .orElse(null);
+                .orElseThrow(ChatRoomNotFoundException::new);
 
-        if (chatRoom != null) {
-            chatRoom.updateChatRoomStateAlive();
-            saveChatRoom(chatRoom);
-        }
+        chatRoom.updateChatRoomStateAlive();
+        saveChatRoom(chatRoom);
     }
 
     @Transactional
-    public void updateAllMessagesSummarized(ChatRoomId chatRoomId) {
-        saveChatRoomPort.updateAllMessagesSummarizedIsTrue(chatRoomId);
+    public void completeChatRoom(ChatRoom chatRoom) {
+        chatRoom.complete();
+        saveChatRoom(chatRoom);
+    }
+
+    @Transactional
+    public void updateChatRoomSummary(ChatRoom chatRoom, String summary) {
+        chatRoom.updateChatRoomSummary(summary);
+        saveChatRoom(chatRoom);
+    }
+
+    @Transactional
+    public void updateMemberPausedChatRoomStateToAlive(MemberId memberId) {
+        loadChatRoomPort.loadPausedChatRoomByMemberId(memberId)
+                        .ifPresent(
+                                chatRoom -> {
+                                    chatRoom.updateChatRoomStateNeedNextQuestion();
+                                    saveChatRoomPort.saveChatRoom(chatRoom);
+                                }
+                        );
     }
 }

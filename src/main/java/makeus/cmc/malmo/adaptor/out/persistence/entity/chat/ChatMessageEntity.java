@@ -23,17 +23,11 @@ public class ChatMessageEntity extends BaseTimeEntity {
     @Embedded
     private ChatRoomEntityId chatRoomEntityId;
 
-    private boolean isImage;
-
-    private String imageUrl;
-
-    private String extractedText;
-
     @Column(columnDefinition = "TEXT")
     private String content;
 
     @Enumerated(EnumType.STRING)
     private SenderType senderType;
 
-    private boolean isSummarized;
+    private int level;
 }

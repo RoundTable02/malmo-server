@@ -17,12 +17,6 @@ public class PromptPersistenceAdapter implements LoadPromptPort {
     private final PromptMapper promptMapper;
 
     @Override
-    public Optional<Prompt> loadPromptMinLevelPrompt() {
-        return promptRepository.findMinLevelPromptNotForMetadata()
-                .map(promptMapper::toDomain);
-    }
-
-    @Override
     public Optional<Prompt> loadPromptByLevel(int level) {
         return promptRepository.findByLevel(level)
                 .map(promptMapper::toDomain);

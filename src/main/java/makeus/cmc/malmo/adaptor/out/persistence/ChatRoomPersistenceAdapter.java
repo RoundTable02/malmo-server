@@ -7,7 +7,10 @@ import makeus.cmc.malmo.adaptor.out.persistence.mapper.ChatMessageMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.ChatRoomMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.ChatMessageRepository;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.ChatRoomRepository;
-import makeus.cmc.malmo.application.port.out.*;
+import makeus.cmc.malmo.application.port.out.LoadChatRoomPort;
+import makeus.cmc.malmo.application.port.out.LoadMessagesPort;
+import makeus.cmc.malmo.application.port.out.SaveChatMessagePort;
+import makeus.cmc.malmo.application.port.out.SaveChatRoomPort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
@@ -20,8 +23,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class ChatRoomPersistenceAdapter
-        implements LoadCurrentMessagesPort, SaveChatRoomPort, LoadChatRoomPort, SaveChatMessagePort,
-        LoadUnsummarizedChatMessages {
+        implements LoadMessagesPort, SaveChatRoomPort, LoadChatRoomPort, SaveChatMessagePort{
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
@@ -29,27 +31,21 @@ public class ChatRoomPersistenceAdapter
     private final ChatMessageMapper chatMessageMapper;
 
     @Override
-    public List<ChatMessage> loadMessages(ChatRoomId chatRoomId) {
-        return chatMessageRepository.findByChatRoomId(chatRoomId.getValue())
+    public List<ChatRoomMessageRepositoryDto> loadMessagesDto(ChatRoomId chatRoomId, int page, int size) {
+        return chatMessageRepository.loadCurrentMessagesDto(chatRoomId.getValue(), page, size);
+    }
+
+    @Override
+    public List<ChatMessage> loadChatRoomMessagesByLevel(ChatRoomId chatRoomId, int level) {
+        return chatMessageRepository.findByChatRoomIdAndLevel(chatRoomId.getValue(), level)
                 .stream()
                 .map(chatMessageMapper::toDomain)
                 .toList();
     }
 
     @Override
-    public List<ChatRoomMessageRepositoryDto> loadMessagesDto(ChatRoomId chatRoomId, int page, int size) {
-        return chatMessageRepository.loadCurrentMessagesDto(chatRoomId.getValue(), page, size);
-    }
-
-    @Override
     public Optional<ChatRoom> loadCurrentChatRoomByMemberId(MemberId memberId) {
         return chatRoomRepository.findCurrentChatRoomByMemberEntityId(memberId.getValue())
-                .map(chatRoomMapper::toDomain);
-    }
-
-    @Override
-    public Optional<ChatRoom> loadMaxLevelChatRoomByMemberId(MemberId memberId) {
-        return chatRoomRepository.findMaxLevelChatRoomByMemberEntityId(memberId.getValue())
                 .map(chatRoomMapper::toDomain);
     }
 
@@ -61,17 +57,11 @@ public class ChatRoomPersistenceAdapter
     }
 
     @Override
-    public void updateAllMessagesSummarizedIsTrue(ChatRoomId chatRoomId) {
-        chatMessageRepository.updateChatMessageSummarizedAllTrue(chatRoomId.getValue());
-    }
-
-    @Override
     public ChatMessage saveChatMessage(ChatMessage chatMessage) {
         ChatMessageEntity entity = chatMessageMapper.toEntity(chatMessage);
         ChatMessageEntity savedEntity = chatMessageRepository.save(entity);
         return chatMessageMapper.toDomain(savedEntity);
     }
-
 
     @Override
     public Optional<ChatRoom> loadChatRoomById(ChatRoomId chatRoomId) {
@@ -80,10 +70,8 @@ public class ChatRoomPersistenceAdapter
     }
 
     @Override
-    public List<ChatMessage> getUnsummarizedChatMessages(ChatRoomId chatRoomId) {
-        return chatMessageRepository.findUnsummarizedChatMessagesByChatRoomId(chatRoomId.getValue())
-                .stream()
-                .map(chatMessageMapper::toDomain)
-                .toList();
+    public Optional<ChatRoom> loadPausedChatRoomByMemberId(MemberId memberId) {
+        return chatRoomRepository.findPausedChatRoomByMemberEntityId(memberId.getValue())
+                .map(chatRoomMapper::toDomain);
     }
 }

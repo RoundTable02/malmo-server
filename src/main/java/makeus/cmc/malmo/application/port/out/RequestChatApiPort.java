@@ -14,4 +14,6 @@ public interface RequestChatApiPort {
     void requestSummary(
             List<Map<String, String>> messages,
             Consumer<String> onCompleteFullResponse);
+
+    String requestTotalSummary(List<Map<String, String>> messages);
 }

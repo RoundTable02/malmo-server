@@ -6,7 +6,7 @@ import lombok.Data;
 public interface SendChatMessageUseCase {
     SendChatMessageResponse processUserMessage(SendChatMessageCommand command);
 
-    SendChatMessageResponse upgradeChatRoom(SendChatMessageCommand command);
+    void upgradeChatRoom(SendChatMessageCommand command);
 
     @Data
     @Builder

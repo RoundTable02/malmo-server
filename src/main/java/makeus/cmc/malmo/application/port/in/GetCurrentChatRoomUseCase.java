@@ -17,6 +17,6 @@ public interface GetCurrentChatRoomUseCase {
     @Data
     @Builder
     class GetCurrentChatRoomResponse {
-        private ChatRoomState chatRoomStatus;
+        private ChatRoomState chatRoomState;
     }
 }

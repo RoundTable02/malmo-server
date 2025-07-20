@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum SenderType {
-    USER("user"), ASSISTANT("assistant");
+    USER("user"), ASSISTANT("assistant"), SYSTEM("system");
 
     private final String apiName;
 

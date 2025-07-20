@@ -8,8 +8,6 @@ import java.util.List;
 
 public interface ChatMessageSummaryRepository extends JpaRepository<ChatMessageSummaryEntity, Long> {
 
-    List<ChatMessageSummaryEntity> findByChatRoomEntityId_ValueAndLevel(Long chatRoomId, int level);
-
-    @Query("SELECT c FROM ChatMessageSummaryEntity c WHERE c.chatRoomEntityId.value = :chatRoomId and c.isForCurrentLevel = false")
-    List<ChatMessageSummaryEntity> findNotCurrentMessagesByChatRoomEntityId(Long chatRoomId);
+    @Query("SELECT c FROM ChatMessageSummaryEntity c WHERE c.chatRoomEntityId.value = :chatRoomId")
+    List<ChatMessageSummaryEntity> findSummarizedMessagesByChatRoomEntityId(Long chatRoomId);
 }
