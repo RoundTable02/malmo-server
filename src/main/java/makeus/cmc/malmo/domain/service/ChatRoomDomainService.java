@@ -104,8 +104,8 @@ public class ChatRoomDomainService {
     }
 
     @Transactional
-    public void updateChatRoomSummary(ChatRoom chatRoom, String summary) {
-        chatRoom.updateChatRoomSummary(summary);
+    public void updateChatRoomSummary(ChatRoom chatRoom, String totalSummary, String situationKeyword, String solutionKeyword) {
+        chatRoom.updateChatRoomSummary(totalSummary, situationKeyword, solutionKeyword);
         saveChatRoom(chatRoom);
     }
 
