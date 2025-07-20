@@ -175,6 +175,11 @@ public class SwaggerResponses {
     public static class GetChatRoomSummaryResponse extends BaseSwaggerResponse<GetChatRoomSummaryData> {
     }
 
+    @Getter
+    @Schema(description = "채팅방 리스트 조회 성공 응답")
+    public static class ChatRoomListSuccessResponse extends BaseSwaggerResponse<BaseListSwaggerResponse<GetChatRoomListResponse>> {
+    }
+
     // 데이터 클래스들
     @Getter
     @Schema(description = "로그인 응답 데이터")
@@ -472,5 +477,20 @@ public class SwaggerResponses {
         private String secondSummary;
         @Schema(description = "채팅방 해결 제안", example = "남자친구가 방어적이지 않도록, 대화 전 일정한 거리를 두고 대화하길 추천함. 대화 목적이 관계 개선임을 먼저 짚고, 자기방어형 말하기에는 상대의 의도를 인정하면서도 감정을 정리해 전하는 것이 중요함. 예: “네가 그런 의도가 아니었다는 건 알지만, 나는 그 말에 힘들었어.")
         private String thirdSummary;
+    }
+
+    @Getter
+    @Schema(description = "채팅 리스트 조회 완료 응답 데이터")
+    public static class GetChatRoomListResponse {
+        @Schema(description = "채팅방의 ID", example = "1")
+        private Long chatRoomId;
+        @Schema(description = "채팅방 전체 요약", example = "회피형 남자친구의 연락두절 문제")
+        private String totalSummary;
+        @Schema(description = "채팅방 상황 키워드", example = "연락 회피")
+        private String situationKeyword;
+        @Schema(description = "채팅방 해결 키워드", example = "완충 표현")
+        private String solutionKeyword;
+        @Schema(description = "채팅방 생성 시간", example = "2025-07-20T10:15:30")
+        private LocalDateTime createdAt;
     }
 }

@@ -9,14 +9,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
+import makeus.cmc.malmo.adaptor.in.web.dto.BaseListResponse;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
+import makeus.cmc.malmo.application.port.in.GetChatRoomListUseCase;
 import makeus.cmc.malmo.application.port.in.GetChatRoomSummaryUseCase;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "채팅방 API", description = "사용자의 채팅방 관리 및 조회를 위한 API")
 @RestController
@@ -25,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChatRoomController {
 
     private final GetChatRoomSummaryUseCase getChatRoomSummaryUseCase;
+    private final GetChatRoomListUseCase getChatRoomListUseCase;
 
     @Operation(
             summary = "채팅방 요약 조회",
@@ -46,5 +46,32 @@ public class ChatRoomController {
                 .build();
 
         return BaseResponse.success(getChatRoomSummaryUseCase.getChatRoomSummary(command));
+    }
+
+    @Operation(
+            summary = "채팅방 리스트 조회",
+            description = "조건에 부합하는 채팅방 리스트를 조회합니다. JWT 토큰이 필요합니다.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "채팅방 리스트 조회 성공",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.ChatRoomListSuccessResponse.class))
+    )
+    @ApiCommonResponses.RequireAuth
+    @GetMapping
+    public BaseResponse<BaseListResponse<GetChatRoomListUseCase.GetChatRoomResponse>> getCurrentChatRoom(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "keyword", defaultValue = "") String keyword,
+            @AuthenticationPrincipal User user) {
+        GetChatRoomListUseCase.GetChatRoomListCommand command = GetChatRoomListUseCase.GetChatRoomListCommand.builder()
+                .userId(Long.valueOf(user.getUsername()))
+                .keyword(keyword)
+                .page(page)
+                .size(size)
+                .build();
+
+        return BaseListResponse.success(getChatRoomListUseCase.getChatRoomList(command).getChatRoomList());
     }
 }

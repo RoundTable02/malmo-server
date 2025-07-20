@@ -74,4 +74,12 @@ public class ChatRoomPersistenceAdapter
         return chatRoomRepository.findPausedChatRoomByMemberEntityId(memberId.getValue())
                 .map(chatRoomMapper::toDomain);
     }
+
+    @Override
+    public List<ChatRoom> loadAliveChatRoomsByMemberId(MemberId memberId, String keyword, int page, int size) {
+        return chatRoomRepository.loadChatRoomListByMemberId(memberId.getValue(), keyword, page, size)
+                .stream()
+                .map(chatRoomMapper::toDomain)
+                .toList();
+    }
 }

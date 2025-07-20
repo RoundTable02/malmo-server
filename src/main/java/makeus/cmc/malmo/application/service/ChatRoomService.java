@@ -1,12 +1,14 @@
 package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.application.port.in.GetChatRoomListUseCase;
 import makeus.cmc.malmo.application.port.in.GetChatRoomSummaryUseCase;
 import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
 import makeus.cmc.malmo.domain.service.ChatMessagesDomainService;
 import makeus.cmc.malmo.domain.service.ChatRoomDomainService;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
+import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +17,7 @@ import java.util.Objects;
 
 @RequiredArgsConstructor
 @Service
-public class ChatRoomService implements GetChatRoomSummaryUseCase {
+public class ChatRoomService implements GetChatRoomSummaryUseCase, GetChatRoomListUseCase {
 
     private final ChatRoomDomainService chatRoomDomainService;
     private final ChatMessagesDomainService chatMessagesDomainService;
@@ -39,6 +41,27 @@ public class ChatRoomService implements GetChatRoomSummaryUseCase {
                 .firstSummary(firstSummary)
                 .secondSummary(secondSummary)
                 .thirdSummary(thirdSummary)
+                .build();
+    }
+
+    @Override
+    public GetChatRoomListResponse getChatRoomList(GetChatRoomListCommand command) {
+        List<ChatRoom> chatRoomList = chatRoomDomainService.getCompletedChatRoomsByMemberId(
+                MemberId.of(command.getUserId()), command.getKeyword(), command.getPage(), command.getSize()
+        );
+
+        List<GetChatRoomResponse> response = chatRoomList.stream()
+                .map(chatRoom -> GetChatRoomResponse.builder()
+                        .chatRoomId(chatRoom.getId())
+                        .totalSummary(chatRoom.getTotalSummary())
+                        .situationKeyword(chatRoom.getSituationKeyword())
+                        .solutionKeyword(chatRoom.getSolutionKeyword())
+                        .createdAt(chatRoom.getCreatedAt())
+                        .build())
+                .toList();
+
+        return GetChatRoomListResponse.builder()
+                .chatRoomList(response)
                 .build();
     }
 }

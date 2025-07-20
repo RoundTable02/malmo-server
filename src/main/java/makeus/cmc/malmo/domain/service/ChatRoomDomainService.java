@@ -13,6 +13,8 @@ import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.INIT_CHATROOM_LEVEL;
 import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.INIT_CHAT_MESSAGE;
 
@@ -63,6 +65,10 @@ public class ChatRoomDomainService {
 
     public ChatRoom getChatRoomById(ChatRoomId chatRoomId) {
         return loadChatRoomPort.loadChatRoomById(chatRoomId).orElseThrow(ChatRoomNotFoundException::new);
+    }
+
+    public List<ChatRoom> getCompletedChatRoomsByMemberId(MemberId memberId, String keyword, int page, int size) {
+        return loadChatRoomPort.loadAliveChatRoomsByMemberId(memberId, keyword, page, size);
     }
 
     @Transactional
