@@ -140,6 +140,7 @@ public class ChatStreamProcessor {
                     counselingSummary.situationKeyword,
                     counselingSummary.solutionKeyword);
         } catch (JsonProcessingException e) {
+            // TODO: 에러 처리 로직 추가
             log.error("Failed to parse summary JSON: {}", summary, e);
         }
     }
