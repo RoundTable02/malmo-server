@@ -65,6 +65,10 @@ public class ChatRoomDomainService {
                 )).orElse(new LoadChatRoomMetadataPort.ChatRoomMetadataDto("알 수 없음", "알 수 없음"));
     }
 
+    public ChatRoom getChatRoomById(ChatRoomId chatRoomId) {
+        return loadChatRoomPort.loadChatRoomById(chatRoomId).orElseThrow(ChatRoomNotFoundException::new);
+    }
+
     @Transactional
     public void saveChatRoom(ChatRoom chatRoom) {
         saveChatRoomPort.saveChatRoom(chatRoom);

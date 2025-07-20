@@ -16,40 +16,39 @@ import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseListResponse;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
-import makeus.cmc.malmo.application.port.in.CompleteChatRoomUseCase;
-import makeus.cmc.malmo.application.port.in.GetCurrentChatRoomMessagesUseCase;
-import makeus.cmc.malmo.application.port.in.GetCurrentChatRoomUseCase;
-import makeus.cmc.malmo.application.port.in.SendChatMessageUseCase;
+import makeus.cmc.malmo.application.port.in.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "채팅 전송 API", description = "사용자 채팅 전송을 위한 API")
 @RestController
-@RequestMapping("/chat")
+@RequestMapping("/chatroom")
 @RequiredArgsConstructor
 public class ChatRoomController {
 
-    private final GetCurrentChatRoomUseCase getCurrentChatRoomUseCase;
+    private final GetChatRoomSummaryUseCase getChatRoomSummaryUseCase;
 
     @Operation(
-            summary = "채팅방 상태 조회",
-            description = "현재 채팅방의 상태를 조회합니다. JWT 토큰이 필요합니다.",
+            summary = "채팅방 요약 조회",
+            description = "해당하는 채팅방의 요약를 조회합니다. JWT 토큰이 필요합니다.",
             security = @SecurityRequirement(name = "Bearer Authentication")
     )
     @ApiResponse(
             responseCode = "200",
-            description = "채팅방 상태 조회 성공",
-            content = @Content(schema = @Schema(implementation = SwaggerResponses.ChatRoomStateResponse.class))
+            description = "채팅방 요약 조회 성공",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.GetChatRoomSummaryResponse.class))
     )
     @ApiCommonResponses.RequireAuth
-    @GetMapping
-    public BaseResponse<GetCurrentChatRoomUseCase.GetCurrentChatRoomResponse> getCurrentChatRoom(
-            @AuthenticationPrincipal User user) {
-        GetCurrentChatRoomUseCase.GetCurrentChatRoomCommand command = GetCurrentChatRoomUseCase.GetCurrentChatRoomCommand.builder()
+    @GetMapping("/{chatRoomId}/summary")
+    public BaseResponse<GetChatRoomSummaryUseCase.GetChatRoomSummaryResponse> getCurrentChatRoom(
+            @AuthenticationPrincipal User user, @PathVariable Long chatRoomId) {
+        GetChatRoomSummaryUseCase.GetChatRoomSummaryCommand command = GetChatRoomSummaryUseCase.GetChatRoomSummaryCommand.builder()
                 .userId(Long.valueOf(user.getUsername()))
+                .chatRoomId(chatRoomId)
                 .build();
-        return BaseResponse.success(getCurrentChatRoomUseCase.getCurrentChatRoom(command));
+
+        return BaseResponse.success(getChatRoomSummaryUseCase.getChatRoomSummary(command));
     }
 
     @Getter
