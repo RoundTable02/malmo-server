@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "채팅방 API", description = "사용자의 채팅방 곤리 및 조회를 위한 API")
+@Tag(name = "채팅방 API", description = "사용자의 채팅방 관리 및 조회를 위한 API")
 @RestController
 @RequestMapping("/chatroom")
 @RequiredArgsConstructor
