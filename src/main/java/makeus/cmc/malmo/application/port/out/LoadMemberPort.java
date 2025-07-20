@@ -2,6 +2,7 @@ package makeus.cmc.malmo.application.port.out;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
 import makeus.cmc.malmo.domain.value.type.Provider;
@@ -20,8 +21,7 @@ public interface LoadMemberPort {
     class MemberResponseRepositoryDto {
         private String memberState;
         private LocalDate startLoveDate;
-        private Long loveTypeId;
-        private String loveTypeTitle;
+        private LoveTypeCategory loveTypeCategory;
         private float avoidanceRate;
         private float anxietyRate;
         private String nickname;

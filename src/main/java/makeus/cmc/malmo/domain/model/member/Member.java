@@ -6,6 +6,7 @@ import lombok.Getter;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
 import makeus.cmc.malmo.domain.value.id.LoveTypeId;
 import makeus.cmc.malmo.domain.value.state.MemberState;
+import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.value.type.MemberRole;
 import makeus.cmc.malmo.domain.value.type.Provider;
 
@@ -23,7 +24,7 @@ public class Member {
     private boolean isAlarmOn;
     private String firebaseToken;
     private String refreshToken;
-    private LoveTypeId loveTypeId;
+    private LoveTypeCategory loveTypeCategory;
     private float avoidanceRate;
     private float anxietyRate;
     private String nickname;
@@ -36,7 +37,7 @@ public class Member {
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
 
-    
+
     public static Member createMember(Provider provider, String providerId, MemberRole memberRole, MemberState memberState, String email, InviteCodeValue inviteCode) {
         return Member.builder()
                 .provider(provider)
@@ -57,7 +58,7 @@ public class Member {
             boolean isAlarmOn,
             String firebaseToken,
             String refreshToken,
-            LoveTypeId loveTypeId,
+            LoveTypeCategory loveTypeCategory,
             float avoidanceRate,
             float anxietyRate,
             String nickname,
@@ -77,7 +78,7 @@ public class Member {
                 .isAlarmOn(isAlarmOn)
                 .firebaseToken(firebaseToken)
                 .refreshToken(refreshToken)
-                .loveTypeId(loveTypeId)
+                .loveTypeCategory(loveTypeCategory)
                 .avoidanceRate(avoidanceRate)
                 .anxietyRate(anxietyRate)
                 .nickname(nickname)
@@ -102,10 +103,10 @@ public class Member {
         this.email = email;
     }
 
-    public void updateLoveTypeId(LoveTypeId loveTypeId, float avoidanceRate, float anxietyRate) {
-        this.loveTypeId = loveTypeId;
-        this.avoidanceRate = avoidanceRate / 18.0f;
-        this.anxietyRate = anxietyRate / 18.0f;
+    public void updateLoveTypeId(LoveTypeCategory loveTypeCategory, float avoidanceRate, float anxietyRate) {
+        this.loveTypeCategory = loveTypeCategory;
+        this.avoidanceRate = avoidanceRate;
+        this.anxietyRate = anxietyRate;
     }
 
     public void refreshMemberToken(String refreshToken) {

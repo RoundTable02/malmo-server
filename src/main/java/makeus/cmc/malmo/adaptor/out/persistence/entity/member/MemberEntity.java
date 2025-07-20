@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.value.LoveTypeEntityId;
 import makeus.cmc.malmo.domain.value.state.MemberState;
+import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.value.type.MemberRole;
 import makeus.cmc.malmo.domain.value.type.Provider;
 
@@ -42,8 +42,8 @@ public class MemberEntity extends BaseTimeEntity {
 
     private String refreshToken;
 
-    @Embedded
-    private LoveTypeEntityId loveTypeEntityId;
+    @Enumerated(value = EnumType.STRING)
+    private LoveTypeCategory loveTypeCategory;
 
     private float avoidanceRate;
 

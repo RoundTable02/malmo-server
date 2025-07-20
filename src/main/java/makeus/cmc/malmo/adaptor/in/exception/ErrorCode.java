@@ -19,6 +19,7 @@ public enum ErrorCode {
     ALREADY_COUPLED_MEMBER(HttpStatus.BAD_REQUEST, 40007, "이미 커플로 등록된 사용자입니다. 커플 등록을 해제 후 이용해주세요."),
     NO_SUCH_CHAT_ROOM(HttpStatus.BAD_REQUEST, 40008, "채팅방이 존재하지 않습니다."),
     NOT_VALID_CHAT_ROOM(HttpStatus.BAD_REQUEST, 40009, "종료되었거나, 유효하지 않은 채팅방입니다."),
+    MEMBER_NOT_TESTED(HttpStatus.BAD_REQUEST, 40010, "애착 유형 테스트를 완료하지 않은 사용자입니다. 애착 유형 테스트를 완료 후 이용해주세요."),
 
     // 401 Unauthorized
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, 40100, "인증되지 않은 사용자입니다."),

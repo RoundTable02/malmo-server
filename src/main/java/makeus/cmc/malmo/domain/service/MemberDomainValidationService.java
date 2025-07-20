@@ -19,4 +19,12 @@ public class MemberDomainValidationService {
             throw new NotCoupleMemberException("커플 등록 전인 사용자입니다. 커플 등록 후 이용해주세요.");
         }
     }
+
+    public void isMemberTested(MemberId memberId) {
+        boolean testedMember = validateMemberPort.isTestedMember(memberId);
+
+        if (!testedMember) {
+            throw new NotCoupleMemberException("테스트를 완료하지 않은 사용자입니다. 테스트 후 이용해주세요.");
+        }
+    }
 }

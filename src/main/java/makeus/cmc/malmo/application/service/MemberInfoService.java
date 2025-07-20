@@ -27,10 +27,9 @@ public class MemberInfoService implements GetMemberUseCase, GetPartnerUseCase {
         return MemberResponseDto.builder()
                 .memberState(MemberState.valueOf(member.getMemberState()))
                 .startLoveDate(member.getStartLoveDate())
-                .loveTypeId(member.getLoveTypeId())
-                .loveTypeTitle(member.getLoveTypeTitle())
                 .avoidanceRate(member.getAvoidanceRate())
                 .anxietyRate(member.getAnxietyRate())
+                .loveTypeCategory(member.getLoveTypeCategory())
                 .nickname(member.getNickname())
                 .email(member.getEmail())
                 .build();
@@ -38,14 +37,13 @@ public class MemberInfoService implements GetMemberUseCase, GetPartnerUseCase {
 
     @Override
     @CheckCoupleMember
-    public PartnerMemberResponseDto getMemberInfo(PartnerInfoCommand command) {
+    public PartnerMemberResponseDto getPartnerInfo(PartnerInfoCommand command) {
         LoadPartnerPort.PartnerMemberRepositoryDto partner = loadPartnerPort.loadPartnerByMemberId(command.getUserId())
                 .orElseThrow(MemberNotFoundException::new);
 
         return PartnerMemberResponseDto.builder()
                 .memberState(MemberState.valueOf(partner.getMemberState()))
-                .loveTypeId(partner.getLoveTypeId())
-                .loveTypeTitle(partner.getLoveTypeTitle())
+                .loveTypeCategory(partner.getLoveTypeCategory())
                 .avoidanceRate(partner.getAvoidanceRate())
                 .anxietyRate(partner.getAnxietyRate())
                 .nickname(partner.getNickname())

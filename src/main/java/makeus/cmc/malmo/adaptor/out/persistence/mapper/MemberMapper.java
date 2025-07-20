@@ -3,7 +3,6 @@ package makeus.cmc.malmo.adaptor.out.persistence.mapper;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.value.LoveTypeEntityId;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
 import makeus.cmc.malmo.domain.value.id.LoveTypeId;
@@ -23,7 +22,7 @@ public class MemberMapper {
                 entity.isAlarmOn(),
                 entity.getFirebaseToken(),
                 entity.getRefreshToken(),
-                entity.getLoveTypeEntityId() != null ? LoveTypeId.of(entity.getLoveTypeEntityId().getValue()) : null,
+                entity.getLoveTypeCategory(),
                 entity.getAvoidanceRate(),
                 entity.getAnxietyRate(),
                 entity.getNickname(),
@@ -46,9 +45,7 @@ public class MemberMapper {
                 .isAlarmOn(domain.isAlarmOn())
                 .firebaseToken(domain.getFirebaseToken())
                 .refreshToken(domain.getRefreshToken())
-                .loveTypeEntityId(
-                        domain.getLoveTypeId() != null ? LoveTypeEntityId.of(domain.getLoveTypeId().getValue()) : null
-                )
+                .loveTypeCategory(domain.getLoveTypeCategory())
                 .avoidanceRate(domain.getAvoidanceRate())
                 .anxietyRate(domain.getAnxietyRate())
                 .email(domain.getEmail())

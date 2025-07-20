@@ -1,19 +1,16 @@
 package makeus.cmc.malmo.service;
 
-import makeus.cmc.malmo.application.port.in.GetLoveTypeUseCase;
 import makeus.cmc.malmo.application.port.in.UpdateMemberLoveTypeUseCase;
 import makeus.cmc.malmo.application.port.out.SaveMemberPort;
 import makeus.cmc.malmo.application.service.LoveTypeService;
 import makeus.cmc.malmo.domain.exception.LoveTypeNotFoundException;
 import makeus.cmc.malmo.domain.exception.LoveTypeQuestionNotFoundException;
 import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
-import makeus.cmc.malmo.domain.model.love_type.LoveType;
+import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.model.member.Member;
-import makeus.cmc.malmo.domain.service.LoveTypeDomainService;
+import makeus.cmc.malmo.domain.model.value.MemberId;
+import makeus.cmc.malmo.domain.service.LoveTypeDataService;
 import makeus.cmc.malmo.domain.service.MemberDomainService;
-import makeus.cmc.malmo.domain.value.id.LoveTypeId;
-import makeus.cmc.malmo.domain.value.id.MemberId;
-import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -24,10 +21,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,10 +30,10 @@ import static org.mockito.BDDMockito.*;
 class LoveTypeServiceTest {
 
     @Mock
-    private LoveTypeDomainService loveTypeDomainService;
+    private MemberDomainService memberDomainService;
 
     @Mock
-    private MemberDomainService memberDomainService;
+    private LoveTypeDataService loveTypeDataService;
 
     @Mock
     private SaveMemberPort saveMemberPort;
@@ -47,61 +42,11 @@ class LoveTypeServiceTest {
     private LoveTypeService loveTypeService;
 
     @Nested
-    @DisplayName("사랑 유형 조회 기능")
-    class GetLoveTypeFeature {
-
-        @Test
-        @DisplayName("성공: 유효한 사랑 유형 ID로 조회가 성공한다")
-        void givenValidLoveTypeId_whenGetLoveType_thenReturnLoveTypeResponse() {
-            // Given
-            Long loveTypeId = 1L;
-            GetLoveTypeUseCase.GetLoveTypeCommand command = GetLoveTypeUseCase.GetLoveTypeCommand.builder()
-                    .loveTypeId(loveTypeId)
-                    .build();
-
-            LoveType loveType = createLoveType();
-            given(loveTypeDomainService.getLoveTypeById(LoveTypeId.of(loveTypeId))).willReturn(loveType);
-
-            // When
-            GetLoveTypeUseCase.GetLoveTypeResponseDto response = loveTypeService.getLoveType(command);
-
-            // Then
-            assertThat(response).isNotNull();
-            assertThat(response.getLoveTypeId()).isEqualTo(loveTypeId);
-            assertThat(response.getTitle()).isEqualTo("안정형");
-            assertThat(response.getSummary()).isEqualTo("안정적인 애착 유형");
-            assertThat(response.getContent()).isEqualTo("안정적인 애착 스타일입니다.");
-            assertThat(response.getImageUrl()).isEqualTo("http://example.com/secure.jpg");
-
-            then(loveTypeDomainService).should().getLoveTypeById(LoveTypeId.of(loveTypeId));
-        }
-
-        @Test
-        @DisplayName("실패: 존재하지 않는 사랑 유형 ID로 조회 시 LoveTypeNotFoundException이 발생한다")
-        void givenNonExistentLoveTypeId_whenGetLoveType_thenThrowLoveTypeNotFoundException() {
-            // Given
-            Long nonExistentLoveTypeId = 999L;
-            GetLoveTypeUseCase.GetLoveTypeCommand command = GetLoveTypeUseCase.GetLoveTypeCommand.builder()
-                    .loveTypeId(nonExistentLoveTypeId)
-                    .build();
-
-            given(loveTypeDomainService.getLoveTypeById(LoveTypeId.of(nonExistentLoveTypeId)))
-                    .willThrow(new LoveTypeNotFoundException());
-
-            // When & Then
-            assertThatThrownBy(() -> loveTypeService.getLoveType(command))
-                    .isInstanceOf(LoveTypeNotFoundException.class);
-
-            then(loveTypeDomainService).should().getLoveTypeById(LoveTypeId.of(nonExistentLoveTypeId));
-        }
-    }
-
-    @Nested
-    @DisplayName("회원 사랑 유형 업데이트 기능")
+    @DisplayName("회원 애착 유형 업데이트 기능")
     class UpdateMemberLoveTypeFeature {
 
         @Test
-        @DisplayName("성공: 유효한 회원 ID와 테스트 결과로 사랑 유형 업데이트가 성공한다")
+        @DisplayName("성공: 유효한 회원 ID와 테스트 결과로 애착 유형 업데이트가 성공한다")
         void givenValidMemberAndTestResults_whenUpdateMemberLoveType_thenReturnRegisterLoveTypeResponse() {
             // Given
             Long memberId = 1L;
@@ -113,33 +58,20 @@ class LoveTypeServiceTest {
                             .build();
 
             Member member = mock(Member.class);
-            LoveType loveType = createLoveType();
-            LoveTypeDomainService.LoveTypeCalculationResult calculationResult = 
-                    new LoveTypeDomainService.LoveTypeCalculationResult(loveType, 2.5f, 1.8f);
+            LoveTypeDataService.LoveTypeCalculationResult calculationResult = 
+                    new LoveTypeDataService.LoveTypeCalculationResult(LoveTypeCategory.STABLE_TYPE, 2.5f, 1.8f);
 
             given(memberDomainService.getMemberById(MemberId.of(memberId))).willReturn(member);
-            given(loveTypeDomainService.calculateLoveType(anyList())).willReturn(calculationResult);
+            given(loveTypeDataService.findLoveTypeCategoryByTestResult(anyList())).willReturn(calculationResult);
             given(saveMemberPort.saveMember(member)).willReturn(member);
-            given(member.getAvoidanceRate()).willReturn(2.5f);
-            given(member.getAnxietyRate()).willReturn(1.8f);
 
             // When
-            UpdateMemberLoveTypeUseCase.RegisterLoveTypeResponseDto response = 
-                    loveTypeService.updateMemberLoveType(command);
+            loveTypeService.updateMemberLoveType(command);
 
             // Then
-            assertThat(response).isNotNull();
-            assertThat(response.getLoveTypeId()).isEqualTo(1L);
-            assertThat(response.getTitle()).isEqualTo("안정형");
-            assertThat(response.getSummary()).isEqualTo("안정적인 애착 유형");
-            assertThat(response.getContent()).isEqualTo("안정적인 애착 스타일입니다.");
-            assertThat(response.getImageUrl()).isEqualTo("http://example.com/secure.jpg");
-            assertThat(response.getAvoidanceRate()).isEqualTo(2.5f);
-            assertThat(response.getAnxietyRate()).isEqualTo(1.8f);
-
             then(memberDomainService).should().getMemberById(MemberId.of(memberId));
-            then(loveTypeDomainService).should().calculateLoveType(anyList());
-            then(member).should().updateLoveTypeId(any(LoveTypeId.class), eq(2.5f), eq(1.8f));
+            then(loveTypeDataService).should().findLoveTypeCategoryByTestResult(anyList());
+            then(member).should().updateLoveTypeId(eq(LoveTypeCategory.STABLE_TYPE), eq(2.5f), eq(1.8f));
             then(saveMemberPort).should().saveMember(member);
         }
 
@@ -163,7 +95,7 @@ class LoveTypeServiceTest {
                     .isInstanceOf(MemberNotFoundException.class);
 
             then(memberDomainService).should().getMemberById(MemberId.of(nonExistentMemberId));
-            then(loveTypeDomainService).should(never()).calculateLoveType(anyList());
+            then(loveTypeDataService).should(never()).findLoveTypeCategoryByTestResult(anyList());
             then(saveMemberPort).should(never()).saveMember(any());
         }
 
@@ -182,7 +114,7 @@ class LoveTypeServiceTest {
             Member member = mock(Member.class);
 
             given(memberDomainService.getMemberById(MemberId.of(memberId))).willReturn(member);
-            given(loveTypeDomainService.calculateLoveType(anyList()))
+            given(loveTypeDataService.findLoveTypeCategoryByTestResult(anyList()))
                     .willThrow(new LoveTypeQuestionNotFoundException());
 
             // When & Then
@@ -190,12 +122,12 @@ class LoveTypeServiceTest {
                     .isInstanceOf(LoveTypeQuestionNotFoundException.class);
 
             then(memberDomainService).should().getMemberById(MemberId.of(memberId));
-            then(loveTypeDomainService).should().calculateLoveType(anyList());
+            then(loveTypeDataService).should().findLoveTypeCategoryByTestResult(anyList());
             then(saveMemberPort).should(never()).saveMember(any());
         }
 
         @Test
-        @DisplayName("실패: 계산된 사랑 유형을 찾을 수 없을 때 LoveTypeNotFoundException이 발생한다")
+        @DisplayName("실패: 계산된 애착 유형을 찾을 수 없을 때 LoveTypeNotFoundException이 발생한다")
         void givenCalculatedLoveTypeNotFound_whenUpdateMemberLoveType_thenThrowLoveTypeNotFoundException() {
             // Given
             Long memberId = 1L;
@@ -209,7 +141,7 @@ class LoveTypeServiceTest {
             Member member = mock(Member.class);
 
             given(memberDomainService.getMemberById(MemberId.of(memberId))).willReturn(member);
-            given(loveTypeDomainService.calculateLoveType(anyList()))
+            given(loveTypeDataService.findLoveTypeCategoryByTestResult(anyList()))
                     .willThrow(new LoveTypeNotFoundException());
 
             // When & Then
@@ -217,23 +149,9 @@ class LoveTypeServiceTest {
                     .isInstanceOf(LoveTypeNotFoundException.class);
 
             then(memberDomainService).should().getMemberById(MemberId.of(memberId));
-            then(loveTypeDomainService).should().calculateLoveType(anyList());
+            then(loveTypeDataService).should().findLoveTypeCategoryByTestResult(anyList());
             then(saveMemberPort).should(never()).saveMember(any());
         }
-    }
-
-    private LoveType createLoveType() {
-        return LoveType.from(
-                1L,
-                "안정형",
-                "안정적인 애착 유형",
-                "안정적인 애착 스타일입니다.",
-                "http://example.com/secure.jpg",
-                LoveTypeCategory.STABLE_TYPE,
-                null,
-                null,
-                null
-        );
     }
 
     private List<UpdateMemberLoveTypeUseCase.LoveTypeTestResult> createLoveTypeTestResults() {

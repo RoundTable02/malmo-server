@@ -14,4 +14,5 @@ public interface MemberRepository extends JpaRepository<MemberEntity, Long>, Mem
 
     @Query("select m from MemberEntity m where m.inviteCodeEntityValue.value = ?1 and m.memberState = 'ALIVE'")
     Optional<MemberEntity> findMemberEntityByInviteCode(String inviteCode);
+
 }

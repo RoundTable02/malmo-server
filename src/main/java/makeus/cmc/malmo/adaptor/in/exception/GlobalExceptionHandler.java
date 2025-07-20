@@ -5,6 +5,7 @@ import makeus.cmc.malmo.adaptor.out.exception.SseConnectionException;
 import makeus.cmc.malmo.adaptor.out.oidc.exception.OidcIdTokenException;
 import makeus.cmc.malmo.adaptor.out.oidc.exception.RestApiException;
 import makeus.cmc.malmo.application.exception.InvalidRefreshTokenException;
+import makeus.cmc.malmo.application.exception.MemberNotTestedException;
 import makeus.cmc.malmo.domain.NotCoupleMemberException;
 import makeus.cmc.malmo.domain.exception.*;
 import org.hibernate.TypeMismatchException;
@@ -97,6 +98,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleSseConnectionException(SseConnectionException e) {
         log.error("[GlobalExceptionHandler: handleSseConnectionException 호출]", e);
         return ErrorResponse.of(ErrorCode.SSE_CONNECTION_ERROR);
+    }
+
+    @ExceptionHandler({MemberNotTestedException.class})
+    public ResponseEntity<ErrorResponse> handleMemberNotTestedException(MemberNotTestedException e) {
+        log.error("[GlobalExceptionHandler: handleMemberNotTestedException 호출]", e);
+        return ErrorResponse.of(ErrorCode.MEMBER_NOT_TESTED);
     }
 
     @ExceptionHandler({ChatRoomNotFoundException.class})

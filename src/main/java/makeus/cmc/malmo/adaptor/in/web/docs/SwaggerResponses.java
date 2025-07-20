@@ -2,9 +2,8 @@ package makeus.cmc.malmo.adaptor.in.web.docs;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
-import makeus.cmc.malmo.domain.value.state.ChatRoomState;
 import makeus.cmc.malmo.domain.value.state.MemberState;
-import makeus.cmc.malmo.domain.value.type.SenderType;
+import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -108,7 +107,7 @@ public class SwaggerResponses {
 
     @Getter
     @Schema(description = "애착유형 등록 성공 응답")
-    public static class RegisterLoveTypeSuccessResponse extends BaseSwaggerResponse<RegisterLoveTypeData> {
+    public static class RegisterLoveTypeSuccessResponse extends BaseSwaggerResponse<Void> {
     }
 
     @Getter
@@ -211,13 +210,10 @@ public class SwaggerResponses {
         private MemberState memberState;
 
         @Schema(description = "연애 시작일", example = "2023-01-15")
-        private LocalDate loveStartDate;
+        private LocalDate startLoveDate;
 
-        @Schema(description = "애착 유형 ID", example = "1")
-        private Long loveTypeId;
-
-        @Schema(description = "애착 유형 제목", example = "안정형")
-        private String loveTypeTitle;
+        @Schema(description = "애착 유형", example = "STABLE_TYPE")
+        private LoveTypeCategory loveTypeCategory;
 
         @Schema(description = "회피 비율", example = "0.3")
         private float avoidanceRate;
@@ -238,11 +234,8 @@ public class SwaggerResponses {
         @Schema(description = "멤버 상태", example = "ALIVE")
         private MemberState memberState;
 
-        @Schema(description = "애착 유형 ID", example = "1")
-        private Long loveTypeId;
-
-        @Schema(description = "애착 유형 제목", example = "안정형")
-        private String loveTypeTitle;
+        @Schema(description = "애착 유형", example = "STABLE_TYPE")
+        private LoveTypeCategory loveTypeCategory;
 
         @Schema(description = "회피 비율", example = "0.3")
         private float avoidanceRate;
@@ -305,42 +298,15 @@ public class SwaggerResponses {
     }
 
     @Getter
-    @Schema(description = "애착유형 등록 응답 데이터")
-    public static class RegisterLoveTypeData {
-        @Schema(description = "애착 유형 ID", example = "1")
-        private Long loveTypeId;
-
-        @Schema(description = "애착 유형", example = "안정형")
-        private String title;
-
-        @Schema(description = "애착유형 요약", example = "안정적인 유형")
-        private String summary;
-
-        @Schema(description = "애착유형 설명", example = "안정된 애착 관계를 형성하는 유형입니다.")
-        private String content;
-
-        @Schema(description = "이미지 URL", example = "https://example.com/image.jpg")
-        private String imageUrl;
-    }
-
-    @Getter
     @Schema(description = "애착유형 조회 응답 데이터")
     public static class GetLoveTypeData {
+        @Schema(description = "사용자 불안형 점수", example = "0.3")
+        private Float memberAnxietyScore;
+        @Schema(description = "사용자 회피형 점수", example = "0.4")
+        private Float memberAvoidanceScore;
 
-        @Schema(description = "애착 유형 ID", example = "1")
-        private Long loveTypeId;
-
-        @Schema(description = "애착 유형", example = "안정형")
-        private String title;
-
-        @Schema(description = "애착유형 요약", example = "안정적인 유형")
-        private String summary;
-
-        @Schema(description = "애착유형 설명", example = "안정된 애착 관계를 형성하는 유형입니다.")
-        private String content;
-
-        @Schema(description = "이미지 URL", example = "https://example.com/image.jpg")
-        private String imageUrl;
+        @Schema(description = "사용자 애착유형", example = "STABLE_TYPE")
+        private LoveTypeCategory loveTypeCategory;
     }
 
     @Getter
