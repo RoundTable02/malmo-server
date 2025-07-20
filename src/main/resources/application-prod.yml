@@ -36,3 +36,7 @@ swagger:
   server:
     production:
       url: ${SWAGGER_SERVER_PRODUCTION_URL}
+
+openai:
+  api:
+    key: ${OPENAI_API_KEY}
