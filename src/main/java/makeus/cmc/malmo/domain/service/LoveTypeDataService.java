@@ -6,8 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.application.port.out.LoadLoveTypeQuestionDataPort;
 import makeus.cmc.malmo.domain.exception.LoveTypeNotFoundException;
 import makeus.cmc.malmo.domain.exception.LoveTypeQuestionNotFoundException;
-import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.model.love_type.LoveTypeQuestionData;
+import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

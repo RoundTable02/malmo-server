@@ -3,6 +3,7 @@ package makeus.cmc.malmo.domain.model.love_type;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import makeus.cmc.malmo.domain.value.type.LoveTypeQuestionType;
 
 @Getter
 @NoArgsConstructor

@@ -1,5 +1,6 @@
 package makeus.cmc.malmo.application.port.in;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 
@@ -26,6 +27,7 @@ public interface UpdateTermsAgreementUseCase {
     @Builder
     class TermsDto {
         private Long termsId;
+        @JsonProperty("isAgreed")
         private Boolean isAgreed;
     }
 }

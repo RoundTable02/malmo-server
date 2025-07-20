@@ -1,8 +1,8 @@
 package makeus.cmc.malmo.application.port.out;
 
 import makeus.cmc.malmo.domain.model.terms.MemberTermsAgreement;
-import makeus.cmc.malmo.domain.model.value.MemberId;
-import makeus.cmc.malmo.domain.model.value.TermsId;
+import makeus.cmc.malmo.domain.value.id.MemberId;
+import makeus.cmc.malmo.domain.value.id.TermsId;
 
 import java.util.Optional;
 

@@ -3,13 +3,11 @@ package makeus.cmc.malmo.application.service;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.application.port.in.ConnectSseUseCase;
 import makeus.cmc.malmo.application.port.out.ConnectSsePort;
-import makeus.cmc.malmo.domain.model.value.MemberId;
+import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class SseService implements ConnectSseUseCase {
 

@@ -6,8 +6,8 @@ import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.LoadPartnerPort;
 import makeus.cmc.malmo.application.service.MemberInfoService;
 import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
-import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
-import makeus.cmc.malmo.domain.model.member.MemberState;
+import makeus.cmc.malmo.domain.value.state.MemberState;
+import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -48,8 +48,6 @@ class MemberInfoServiceTest {
             String email = "test@example.com";
             MemberState memberState = MemberState.ALIVE;
             LoveTypeCategory loveTypeCategory = LoveTypeCategory.STABLE_TYPE;
-            String loveTypeTitle = "안정형";
-            String loveTypeImageUrl = "http://example.com/image.jpg";
             float avoidanceRate = 0.3f;
             float anxietyRate = 0.2f;
 

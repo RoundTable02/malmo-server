@@ -5,9 +5,12 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
-import makeus.cmc.malmo.domain.model.BaseTimeEntity;
-import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
+import makeus.cmc.malmo.domain.value.state.MemberState;
+import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
+import makeus.cmc.malmo.domain.value.type.MemberRole;
+import makeus.cmc.malmo.domain.value.type.Provider;
 
 import java.time.LocalDate;
 
@@ -23,15 +26,15 @@ public class MemberEntity extends BaseTimeEntity {
     private Long id;
 
     @Enumerated(value = EnumType.STRING)
-    private ProviderJpa providerJpa;
+    private Provider provider;
 
     private String providerId;
 
     @Enumerated(value = EnumType.STRING)
-    private MemberRoleJpa memberRoleJpa;
+    private MemberRole memberRole;
 
     @Enumerated(value = EnumType.STRING)
-    private MemberStateJpa memberStateJpa;
+    private MemberState memberState;
 
     private boolean isAlarmOn;
 

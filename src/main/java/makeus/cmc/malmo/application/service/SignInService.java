@@ -5,10 +5,10 @@ import makeus.cmc.malmo.adaptor.out.jwt.TokenInfo;
 import makeus.cmc.malmo.application.port.in.SignInUseCase;
 import makeus.cmc.malmo.application.port.out.*;
 import makeus.cmc.malmo.domain.model.member.Member;
-import makeus.cmc.malmo.domain.model.member.Provider;
-import makeus.cmc.malmo.domain.model.value.InviteCodeValue;
 import makeus.cmc.malmo.domain.service.InviteCodeDomainService;
 import makeus.cmc.malmo.domain.service.MemberDomainService;
+import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
+import makeus.cmc.malmo.domain.value.type.Provider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

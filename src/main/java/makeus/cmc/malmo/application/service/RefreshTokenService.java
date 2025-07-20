@@ -8,8 +8,8 @@ import makeus.cmc.malmo.application.port.out.GenerateTokenPort;
 import makeus.cmc.malmo.application.port.out.SaveMemberPort;
 import makeus.cmc.malmo.application.port.out.ValidateTokenPort;
 import makeus.cmc.malmo.domain.model.member.Member;
-import makeus.cmc.malmo.domain.model.value.MemberId;
 import makeus.cmc.malmo.domain.service.MemberDomainService;
+import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
