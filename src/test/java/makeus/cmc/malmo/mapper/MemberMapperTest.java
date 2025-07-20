@@ -1,10 +1,8 @@
 package makeus.cmc.malmo.mapper;
 
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.value.LoveTypeEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.MemberMapper;
 import makeus.cmc.malmo.domain.model.member.Member;
-import makeus.cmc.malmo.domain.value.id.LoveTypeId;
 import makeus.cmc.malmo.domain.value.state.MemberState;
 import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.value.type.MemberRole;
@@ -124,8 +122,7 @@ class MemberMapperTest {
         @DisplayName("모든 필드가 있는 Member를 MemberEntity로 변환한다")
         void givenCompleteMember_whenToEntity_thenReturnsCompleteEntity() {
             // given
-            LoveType loveTypeDomain = createLoveTypeDomain();
-            Member domain = createCompleteMember(loveTypeDomain);
+            Member domain = createCompleteMember();
 
             // when
             MemberEntity result = memberMapper.toEntity(domain);
@@ -158,7 +155,7 @@ class MemberMapperTest {
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getId()).isEqualTo(1L);
+            assertThat(result.getId()).isNull();
             assertThat(result.getLoveTypeCategory()).isNull();
             assertThat(result.getProvider()).isNull();
             assertThat(result.getMemberRole()).isNull();

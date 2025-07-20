@@ -5,7 +5,6 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
-import makeus.cmc.malmo.domain.value.id.LoveTypeId;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
