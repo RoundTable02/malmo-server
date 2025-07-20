@@ -21,7 +21,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "채팅 전송 API", description = "사용자 채팅 전송을 위한 API")
+@Tag(name = "채팅방 API", description = "사용자의 채팅방 곤리 및 조회를 위한 API")
 @RestController
 @RequestMapping("/chatroom")
 @RequiredArgsConstructor
