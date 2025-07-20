@@ -46,8 +46,9 @@ public class CoupleService implements CoupleLinkUseCase {
 
         Couple savedCouple = saveCouplePort.saveCouple(couple);
 
-        // 커플 연결 전 일시 정지 상태의 채팅방을 활성화
+        // 커플 연결 전 일시 정지 상태의 채팅방을 활성화 (나 & 상대방)
         chatRoomDomainService.updateMemberPausedChatRoomStateToAlive(MemberId.of(command.getUserId()));
+        chatRoomDomainService.updateMemberPausedChatRoomStateToAlive(MemberId.of(partner.getId()));
 
         sendSseEventPort.sendToMember(
                 MemberId.of(partner.getId()),

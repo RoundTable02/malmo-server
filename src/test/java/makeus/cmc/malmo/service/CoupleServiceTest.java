@@ -7,6 +7,7 @@ import makeus.cmc.malmo.application.service.CoupleService;
 import makeus.cmc.malmo.domain.exception.InviteCodeNotFoundException;
 import makeus.cmc.malmo.domain.model.couple.Couple;
 import makeus.cmc.malmo.domain.model.member.Member;
+import makeus.cmc.malmo.domain.service.ChatRoomDomainService;
 import makeus.cmc.malmo.domain.service.CoupleDomainService;
 import makeus.cmc.malmo.domain.service.InviteCodeDomainService;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
@@ -41,6 +42,9 @@ class CoupleServiceTest {
 
     @Mock
     private SendSseEventPort sendSseEventPort;
+
+    @Mock
+    private ChatRoomDomainService chatRoomDomainService;
 
     @InjectMocks
     private CoupleService coupleService;
@@ -90,6 +94,8 @@ class CoupleServiceTest {
             then(inviteCodeDomainService).should().getMemberByInviteCode(inviteCodeValue);
             then(coupleDomainService).should().createCoupleByInviteCode(MemberId.of(userId), MemberId.of(partnerId), startLoveDate);
             then(saveCouplePort).should().saveCouple(createdCouple);
+            then(chatRoomDomainService).should().updateMemberPausedChatRoomStateToAlive(MemberId.of(userId));
+            then(chatRoomDomainService).should().updateMemberPausedChatRoomStateToAlive(MemberId.of(partnerId));
         }
 
         @Test
