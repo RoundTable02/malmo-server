@@ -2,8 +2,10 @@ package makeus.cmc.malmo.adaptor.in.web.docs;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
-import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
-import makeus.cmc.malmo.domain.model.member.MemberState;
+import makeus.cmc.malmo.domain.value.state.ChatRoomState;
+import makeus.cmc.malmo.domain.value.state.MemberState;
+import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
+import makeus.cmc.malmo.domain.value.type.SenderType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -54,7 +56,7 @@ public class SwaggerResponses {
     // 회원가입 관련 응답
     @Getter
     @Schema(description = "회원가입 성공 응답")
-    public static class SignUpSuccessResponse extends BaseSwaggerResponse<SignUpData> {
+    public static class SignUpSuccessResponse extends BaseSwaggerResponse {
     }
 
     // 멤버 관련 응답
@@ -147,6 +149,32 @@ public class SwaggerResponses {
     public static class TermsListSuccessResponse extends BaseSwaggerResponse<BaseListSwaggerResponse<TermsResponseData>> {
     }
 
+    // 채팅 관련 응답
+    @Getter
+    @Schema(description = "채팅 전송 성공 응답")
+    public static class SendChatSuccessResponse extends BaseSwaggerResponse<SendChatData> {
+    }
+
+    @Getter
+    @Schema(description = "채팅방 상태 조회 성공 응답")
+    public static class ChatRoomStateResponse extends BaseSwaggerResponse<ChatRoomStateData> {
+    }
+
+    @Getter
+    @Schema(description = "채팅 메시지 리스트 조회 성공 응답")
+    public static class ChatMessageListSuccessResponse extends BaseSwaggerResponse<BaseListSwaggerResponse<ChatRoomMessageData>> {
+    }
+
+    @Getter
+    @Schema(description = "채팅방 완료 성공 응답")
+    public static class CompleteChatRoomResponse extends BaseSwaggerResponse<CompleteChatRoomData> {
+    }
+
+    @Getter
+    @Schema(description = "채팅방 요약 조회 성공 응답")
+    public static class GetChatRoomSummaryResponse extends BaseSwaggerResponse<GetChatRoomSummaryData> {
+    }
+
     // 데이터 클래스들
     @Getter
     @Schema(description = "로그인 응답 데이터")
@@ -175,13 +203,6 @@ public class SwaggerResponses {
 
         @Schema(description = "리프레시 토큰", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
         private String refreshToken;
-    }
-
-    @Getter
-    @Schema(description = "회원가입 응답 데이터")
-    public static class SignUpData {
-        @Schema(description = "생성된 커플 코드", example = "ABC12345")
-        private String coupleCode;
     }
 
     @Getter
@@ -400,5 +421,56 @@ public class SwaggerResponses {
     @Schema(description = "초대 코드 응답 데이터")
     public static class InviteCodeResponseData {
         private String coupleCode;
+    }
+
+    @Getter
+    @Schema(description = "채팅 응답 데이터")
+    public static class SendChatData {
+        @Schema(description = "사용자가 보낸 메시지의 ID", example = "1")
+        private Long messageId;
+    }
+
+    @Getter
+    @Schema(description = "채팅방 상태 응답 데이터")
+    public static class ChatRoomStateData {
+        @Schema(description = "현재 채팅방의 상태", example = "BEFORE_INIT")
+        private ChatRoomState chatRoomState;
+    }
+
+    @Getter
+    @Schema(description = "채팅방 메시지 응답 데이터")
+    class ChatRoomMessageData {
+        @Schema(description = "채팅 메시지 ID", example = "1")
+        private Long messageId;
+        @Schema(description = "채팅 전송자(유저, 모모)", example = "USER")
+        private SenderType senderType;
+        @Schema(description = "채팅 내용", example = "안녕?")
+        private String content;
+        @Schema(description = "채팅 생성 시간", example = "2025-07-20T10:15:30")
+        private LocalDateTime createdAt;
+        @Schema(description = "채팅 저장 여부", example = "true")
+        private boolean isSaved;
+    }
+
+    @Getter
+    @Schema(description = "채팅 완료 응답 데이터")
+    public static class CompleteChatRoomData {
+        @Schema(description = "채팅방의 ID", example = "1")
+        private Long chatRoomId;
+    }
+
+    @Getter
+    @Schema(description = "채팅 요약 조회 완료 응답 데이터")
+    public static class GetChatRoomSummaryData {
+        @Schema(description = "채팅방의 ID", example = "1")
+        private Long chatRoomId;
+        @Schema(description = "채팅방 전체 요약", example = "회피형 남자친구의 연락두절 문제")
+        private String totalSummary;
+        @Schema(description = "채팅방 상황 요약", example = "남자친구는 여사친과 몰래 밥을 먹은 일에 대해 사과하길 회피했다. 이전에도 비슷한 상황이 반복되었고, 베리는 자신의 감정을 과한 것으로 여기며 소통에 어려움을 경험했다.")
+        private String firstSummary;
+        @Schema(description = "채팅방 관계 이해", example = "회피형 성향의 남자친구는 비난으로 느껴지는 말과 요구에 부담을 느끼고, 불안형 성향의 베리는 명확한 애정 표현과 확인을 요구하면서 두 사람의 갈등이 심화되고 있다.")
+        private String secondSummary;
+        @Schema(description = "채팅방 해결 제안", example = "남자친구가 방어적이지 않도록, 대화 전 일정한 거리를 두고 대화하길 추천함. 대화 목적이 관계 개선임을 먼저 짚고, 자기방어형 말하기에는 상대의 의도를 인정하면서도 감정을 정리해 전하는 것이 중요함. 예: “네가 그런 의도가 아니었다는 건 알지만, 나는 그 말에 힘들었어.")
+        private String thirdSummary;
     }
 }

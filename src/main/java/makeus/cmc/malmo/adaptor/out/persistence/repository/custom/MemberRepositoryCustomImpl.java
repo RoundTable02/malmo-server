@@ -3,10 +3,13 @@ package makeus.cmc.malmo.adaptor.out.persistence.repository.custom;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleMemberStateJpa;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleMemberEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.member.QMemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
+import makeus.cmc.malmo.application.port.out.LoadChatRoomMetadataPort;
 import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.LoadPartnerPort;
+import makeus.cmc.malmo.domain.value.state.CoupleMemberState;
 
 import java.util.Optional;
 
@@ -15,7 +18,7 @@ import static makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleMemb
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.member.QMemberEntity.memberEntity;
 
 @RequiredArgsConstructor
-public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
+public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
@@ -23,7 +26,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
     public Optional<LoadMemberPort.MemberResponseRepositoryDto> findMemberDetailsById(Long memberId) {
         LoadMemberPort.MemberResponseRepositoryDto dto = queryFactory
                 .select(Projections.constructor(LoadMemberPort.MemberResponseRepositoryDto.class,
-                        memberEntity.memberStateJpa.stringValue(),
+                        memberEntity.memberState.stringValue(),
                         coupleEntity.startLoveDate.coalesce(memberEntity.startLoveDate),
                         memberEntity.loveTypeCategory,
                         memberEntity.avoidanceRate,
@@ -44,7 +47,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
     public Optional<LoadPartnerPort.PartnerMemberRepositoryDto> findPartnerMember(Long memberId) {
         LoadPartnerPort.PartnerMemberRepositoryDto dto = queryFactory
                 .select(Projections.constructor(LoadPartnerPort.PartnerMemberRepositoryDto.class,
-                        memberEntity.memberStateJpa.stringValue(),
+                        memberEntity.memberState.stringValue(),
                         memberEntity.loveTypeCategory,
                         memberEntity.avoidanceRate,
                         memberEntity.anxietyRate,
@@ -67,7 +70,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
                 .selectOne()
                 .from(coupleMemberEntity)
                 .where(coupleMemberEntity.memberEntityId.value.eq(memberId)
-                        .and(coupleMemberEntity.coupleMemberStateJpa.eq(CoupleMemberStateJpa.ALIVE)))
+                        .and(coupleMemberEntity.coupleMemberState.eq(CoupleMemberState.ALIVE)))
                 .fetchFirst() != null;
     }
 
@@ -86,7 +89,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
                 .from(coupleMemberEntity)
                 .join(memberEntity).on(memberEntity.id.eq(coupleMemberEntity.memberEntityId.value))
                 .where(memberEntity.inviteCodeEntityValue.value.eq(inviteCode)
-                        .and(coupleMemberEntity.coupleMemberStateJpa.eq(CoupleMemberStateJpa.ALIVE)))
+                        .and(coupleMemberEntity.coupleMemberState.eq(CoupleMemberState.ALIVE)))
                 .fetchFirst() != null;
     }
 
@@ -102,20 +105,24 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
     }
 
     @Override
-    public Optional<LoadPartnerPort.PartnerLoveTypeRepositoryDto> findPartnerLoveTypeCategory(Long memberId) {
-        LoadPartnerPort.PartnerLoveTypeRepositoryDto dto = queryFactory
-                .select(Projections.constructor(LoadPartnerPort.PartnerLoveTypeRepositoryDto.class,
+    public Optional<LoadChatRoomMetadataPort.ChatRoomMetadataDto> loadChatRoomMetadata(Long memberId) {
+        QMemberEntity partnerMemberEntity = new QMemberEntity("partnerMemberEntity");
+        QCoupleMemberEntity partnerCoupleMemberEntity = new QCoupleMemberEntity("partnerCoupleMemberEntity");
+
+        LoadChatRoomMetadataPort.ChatRoomMetadataDto dto = queryFactory
+                .select(Projections.constructor(
+                        LoadChatRoomMetadataPort.ChatRoomMetadataDto.class,
                         memberEntity.loveTypeCategory,
-                        memberEntity.avoidanceRate,
-                        memberEntity.anxietyRate
+                        partnerMemberEntity.loveTypeCategory
                 ))
-                .from(coupleEntity)
-                .join(coupleEntity.coupleMembers, coupleMemberEntity)
-                .join(memberEntity).on(memberEntity.id.eq(coupleMemberEntity.memberEntityId.value))
-                .where(
-                        coupleEntity.coupleMembers.any().memberEntityId.value.eq(memberId)
-                                .and(coupleMemberEntity.memberEntityId.value.ne(memberId))
-                )
+                .from(memberEntity)
+                .leftJoin(coupleMemberEntity).on(coupleMemberEntity.memberEntityId.value.eq(memberEntity.id))
+                .leftJoin(coupleEntity).on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value))
+                .leftJoin(partnerCoupleMemberEntity)
+                    .on(partnerCoupleMemberEntity.coupleEntityId.value.eq(coupleEntity.id)
+                            .and(partnerCoupleMemberEntity.memberEntityId.value.ne(memberId)))
+                .leftJoin(partnerMemberEntity).on(partnerMemberEntity.id.eq(partnerCoupleMemberEntity.memberEntityId.value))
+                .where(memberEntity.id.eq(memberId))
                 .fetchOne();
 
         return Optional.ofNullable(dto);

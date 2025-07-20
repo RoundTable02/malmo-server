@@ -2,10 +2,10 @@ package makeus.cmc.malmo.application.port.out;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import makeus.cmc.malmo.domain.model.love_type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.model.member.Member;
-import makeus.cmc.malmo.domain.model.member.Provider;
-import makeus.cmc.malmo.domain.model.value.InviteCodeValue;
+import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
+import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
+import makeus.cmc.malmo.domain.value.type.Provider;
 
 import java.time.LocalDate;
 import java.util.Optional;

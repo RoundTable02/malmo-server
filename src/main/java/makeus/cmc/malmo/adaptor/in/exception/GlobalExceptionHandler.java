@@ -6,6 +6,7 @@ import makeus.cmc.malmo.adaptor.out.oidc.exception.OidcIdTokenException;
 import makeus.cmc.malmo.adaptor.out.oidc.exception.RestApiException;
 import makeus.cmc.malmo.application.exception.InvalidRefreshTokenException;
 import makeus.cmc.malmo.application.exception.MemberNotTestedException;
+import makeus.cmc.malmo.domain.NotCoupleMemberException;
 import makeus.cmc.malmo.domain.exception.*;
 import org.hibernate.TypeMismatchException;
 import org.springframework.http.ResponseEntity;
@@ -103,6 +104,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleMemberNotTestedException(MemberNotTestedException e) {
         log.error("[GlobalExceptionHandler: handleMemberNotTestedException 호출]", e);
         return ErrorResponse.of(ErrorCode.MEMBER_NOT_TESTED);
+    }
+
+    @ExceptionHandler({ChatRoomNotFoundException.class})
+    public ResponseEntity<ErrorResponse> handleChatRoomNotFoundException(ChatRoomNotFoundException e) {
+        log.error("[GlobalExceptionHandler: handleChatRoomNotFoundException 호출]", e);
+        return ErrorResponse.of(ErrorCode.NO_SUCH_CHAT_ROOM);
+    }
+
+    @ExceptionHandler({NotValidChatRoomException.class})
+    public ResponseEntity<ErrorResponse> handleNotValidChatRoomException(NotValidChatRoomException e) {
+        log.error("[GlobalExceptionHandler: handleNotValidChatRoomException 호출]", e);
+        return ErrorResponse.of(ErrorCode.NOT_VALID_CHAT_ROOM);
     }
 
 

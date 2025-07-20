@@ -13,10 +13,9 @@ spring:
     show-sql: true
     database-platform: org.hibernate.dialect.H2Dialect
     defer-datasource-initialization: true
-
-sql:
-  init:
-    mode: never
+  sql:
+    init:
+      mode: never
 
 logging:
   level:
@@ -45,3 +44,7 @@ swagger:
   server:
     production:
       url: sample.url.com
+
+openai:
+  api:
+    key: sk-test-openai-api-key-for-testing-only
