@@ -2,6 +2,7 @@ package makeus.cmc.malmo.domain.service;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.domain.model.couple.Couple;
+import makeus.cmc.malmo.domain.value.id.CoupleId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.state.CoupleState;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,10 @@ public class CoupleDomainService {
                 startLoveDate,
                 CoupleState.ALIVE
         );
+    }
+
+    public CoupleId getCoupleIdByMemberId(MemberId memberId) {
+        return null;
     }
 
 }

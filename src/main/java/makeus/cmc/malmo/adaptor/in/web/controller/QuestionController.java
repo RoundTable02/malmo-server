@@ -15,6 +15,7 @@ import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseListResponse;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
+import makeus.cmc.malmo.application.port.in.GetQuestionUseCase;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class QuestionController {
 
+    private final GetQuestionUseCase getQuestionUseCase;
+
     @Operation(
             summary = "오늘의 질문 조회",
             description = "커플 오늘의 질문을 조회합니다. JWT 토큰이 필요합니다.",
@@ -39,13 +42,16 @@ public class QuestionController {
             description = "오늘의 질문 조회 성공",
             content = @Content(schema = @Schema(implementation = SwaggerResponses.QuestionSuccessResponse.class))
     )
-    @ApiCommonResponses.OnlyCouple
     @ApiCommonResponses.RequireAuth
     @GetMapping("/today")
-    public BaseResponse<QuestionResponseDto> getTodayQuestion(
+    public BaseResponse<GetQuestionUseCase.GetQuestionResponse> getTodayQuestion(
             @AuthenticationPrincipal User user
     ) {
-        return BaseResponse.success(QuestionResponseDto.builder().build());
+        GetQuestionUseCase.GetTodayQuestionCommand command = GetQuestionUseCase.GetTodayQuestionCommand.builder()
+                .userId(Long.valueOf(user.getUsername()))
+                .build();
+
+        return BaseResponse.success(getQuestionUseCase.getTodayQuestion(command));
     }
 
     @Operation(
@@ -129,14 +135,6 @@ public class QuestionController {
             @AuthenticationPrincipal User user,
             @PathVariable String coupleQuestionId) {
         return BaseResponse.success(PastAnswerResponseDto.builder().build());
-    }
-
-    @Data
-    @Builder
-    public static class QuestionResponseDto {
-        private Long coupleQuestionId;
-        private String title;
-        private String content;
     }
 
     @Data

@@ -12,6 +12,7 @@ public class Question {
     private Long id;
     private String title;
     private String content;
+    private int level;
 
     // BaseTimeEntity fields
     private LocalDateTime createdAt;

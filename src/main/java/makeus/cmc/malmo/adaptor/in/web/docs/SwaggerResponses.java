@@ -327,6 +327,9 @@ public class SwaggerResponses {
         @Schema(description = "커플 질문 ID", example = "1")
         private Long coupleQuestionId;
 
+        @Schema(description = "질문 단계", example = "3")
+        private int level;
+
         @Schema(description = "질문 제목", example = "오늘 하루 어땠나요?")
         private String title;
 
@@ -371,6 +374,9 @@ public class SwaggerResponses {
     public static class PastQuestionData {
         @Schema(description = "커플 질문 ID", example = "1")
         private Long coupleQuestionId;
+
+        @Schema(description = "질문 단계", example = "3")
+        private int level;
 
         @Schema(description = "질문 제목", example = "오늘 하루 어땠나요?")
         private String title;

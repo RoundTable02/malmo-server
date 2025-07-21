@@ -1,0 +1,76 @@
+package makeus.cmc.malmo.application.service;
+
+import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.application.port.in.GetQuestionUseCase;
+import makeus.cmc.malmo.application.port.out.ValidateMemberPort;
+import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
+import makeus.cmc.malmo.domain.model.question.TempCoupleQuestion;
+import makeus.cmc.malmo.domain.service.CoupleDomainService;
+import makeus.cmc.malmo.domain.service.CoupleQuestionDomainService;
+import makeus.cmc.malmo.domain.value.id.CoupleId;
+import makeus.cmc.malmo.domain.value.id.MemberId;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
+public class CoupleQuestionService implements GetQuestionUseCase {
+
+    private final ValidateMemberPort validateMemberPort;
+    private final CoupleQuestionDomainService coupleQuestionDomainService;
+    private final CoupleDomainService coupleDomainService;
+
+    @Override
+    public GetQuestionResponse getTodayQuestion(GetTodayQuestionCommand command) {
+        boolean isCouple = validateMemberPort.isCoupleMember(MemberId.of(command.getUserId()));
+
+        if (isCouple) {
+            // 커플 사용자에게는 오늘의 커플 질문을 제공
+            // 멤버가 속한 Couple의 가장 레벨이 높은 CoupleQuestion을 조회
+            CoupleId coupleId = coupleDomainService.getCoupleIdByMemberId(MemberId.of(command.getUserId()));
+            CoupleQuestionDomainService.QuestionRepositoryDto maxLevelQuestion =
+                    coupleQuestionDomainService.getMaxLevelQuestion(coupleId);
+
+            // CoupleQuestion의 bothAnsweredAt이 now()의 전날인 경우 (날짜만 비교), 다음 단계의 CoupleQuestion을 생성
+            if (coupleQuestionDomainService.needsNextQuestion(maxLevelQuestion.getBothAnsweredAt())) {
+                CoupleQuestion newQuestion = coupleQuestionDomainService.createNextCoupleQuestion(coupleId, maxLevelQuestion.getLevel());
+
+                return GetQuestionResponse.builder()
+                        .coupleQuestionId(newQuestion.getId())
+                        .title(newQuestion.getQuestion().getTitle())
+                        .content(newQuestion.getQuestion().getContent())
+                        .meAnswered(false)
+                        .partnerAnswered(false)
+                        .createdAt(newQuestion.getCreatedAt())
+                        .build();
+            }
+
+            return GetQuestionResponse.builder()
+                    .coupleQuestionId(maxLevelQuestion.getId())
+                    .title(maxLevelQuestion.getTitle())
+                    .content(maxLevelQuestion.getContent())
+                    .meAnswered(maxLevelQuestion.isMeAnswered())
+                    .partnerAnswered(maxLevelQuestion.isPartnerAnswered())
+                    .createdAt(maxLevelQuestion.getCreatedAt())
+                    .build();
+        }
+        else {
+            // 커플이 아닌 사용자는 1단계의 질문만 제공
+            // TempCoupleQuestion을 조회, 없으면 생성
+            TempCoupleQuestion tempCoupleQuestion = coupleQuestionDomainService.getTempCoupleQuestion(MemberId.of(command.getUserId()));
+
+            // TODO : 커플이 생성되면 TempCoupleQuestion을 CoupleQuestion으로 변환,
+            //  TempCoupleQuestion 없으면 1단계의 CoupleQustion을 생성
+
+            return GetQuestionResponse.builder()
+                    .coupleQuestionId(tempCoupleQuestion.getId())
+                    .title(tempCoupleQuestion.getQuestion().getTitle())
+                    .content(tempCoupleQuestion.getQuestion().getContent())
+                    .meAnswered(tempCoupleQuestion.isAnswered())
+                    .partnerAnswered(false)
+                    .createdAt(tempCoupleQuestion.getCreatedAt())
+                    .build();
+        }
+    }
+}

@@ -3,26 +3,28 @@ package makeus.cmc.malmo.domain.model.question;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
-import makeus.cmc.malmo.domain.model.couple.Couple;
 import makeus.cmc.malmo.domain.value.id.CoupleId;
+import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.id.QuestionId;
 import makeus.cmc.malmo.domain.value.state.CoupleQuestionState;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
 @Builder(access = AccessLevel.PRIVATE)
-public class CoupleQuestion {
+public class TempCoupleQuestion {
     private Long id;
     private Question question;
-    private CoupleId coupleId;
+    private MemberId memberId;
     private CoupleQuestionState coupleQuestionState;
-    private LocalDateTime bothAnsweredAt;
+    private String answer;
 
     // BaseTimeEntity fields
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
 
+    public boolean isAnswered() {
+        return answer != null && !answer.isEmpty();
+    }
 }
