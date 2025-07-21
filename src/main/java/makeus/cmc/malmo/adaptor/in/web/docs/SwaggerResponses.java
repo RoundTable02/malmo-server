@@ -124,11 +124,6 @@ public class SwaggerResponses {
     }
 
     @Getter
-    @Schema(description = "질문 리스트 조회 성공 응답")
-    public static class QuestionListSuccessResponse extends BaseSwaggerResponse<BaseListSwaggerResponse<QuestionListData>> {
-    }
-
-    @Getter
     @Schema(description = "질문 답변 등록 성공 응답")
     public static class AnswerSuccessResponse extends BaseSwaggerResponse<AnswerData> {
     }
@@ -365,8 +360,8 @@ public class SwaggerResponses {
     @Getter
     @Schema(description = "답변 등록 응답 데이터")
     public static class AnswerData {
-        @Schema(description = "멤버 답변 ID", example = "1")
-        private Long memberAnswerId;
+        @Schema(description = "답변이 달린 질문의 ID", example = "1")
+        private Long coupleQuestionId;
     }
 
     @Getter
