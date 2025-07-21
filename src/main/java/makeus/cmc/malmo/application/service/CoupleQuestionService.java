@@ -37,11 +37,13 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
             // 멤버가 속한 Couple의 가장 레벨이 높은 CoupleQuestion을 조회
             CoupleId coupleId = coupleDomainService.getCoupleIdByMemberId(MemberId.of(command.getUserId()));
             // TODO : DTO 매핑 필요
-            CoupleQuestionDomainService.QuestionRepositoryDto maxLevelQuestion =
+            CoupleQuestionDomainService.CoupleQuestionDto maxLevelQuestion =
                     coupleQuestionDomainService.getMaxLevelQuestionDto(coupleId);
 
             // CoupleQuestion의 bothAnsweredAt이 now()의 전날인 경우 (날짜만 비교), 다음 단계의 CoupleQuestion을 생성
             if (coupleQuestionDomainService.needsNextQuestion(maxLevelQuestion.getBothAnsweredAt())) {
+                // TODO : 이전 단계의 답변을 바탕으로 MemberMemory 생성 로직 필요
+
                 CoupleQuestion newQuestion = coupleQuestionDomainService.createNextCoupleQuestion(coupleId, maxLevelQuestion.getLevel());
 
                 return GetQuestionResponse.builder()
@@ -87,8 +89,8 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
     public GetQuestionResponse getQuestion(GetQuestionCommand command) {
         CoupleId coupleId = coupleDomainService.getCoupleIdByMemberId(MemberId.of(command.getUserId()));
         // TODO : DTO 매핑 필요
-        CoupleQuestionDomainService.QuestionRepositoryDto question =
-                coupleQuestionDomainService.getCoupleQuestionByLevelDto(coupleId, command.getLevel());
+        CoupleQuestionDomainService.CoupleQuestionDto question =
+                coupleQuestionDomainService.getCoupleQuestionDtoByLevel(coupleId, command.getLevel());
 
         return GetQuestionResponse.builder()
                 .coupleQuestionId(question.getId())
@@ -107,12 +109,13 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
         if (isCouple) {
             // 커플 사용자에게는 커플 질문 답변을 조회
             // 커플 질문에 접근 권한이 있는지 확인
+            CoupleId coupleId = coupleDomainService.getCoupleIdByMemberId(MemberId.of(command.getUserId()));
             coupleQuestionDomainService.validateQuestionOwnership(
                     CoupleQuestionId.of(command.getCoupleQuestionId()),
-                    MemberId.of(command.getUserId())
+                    coupleId
             );
             // TODO : DTO 매핑 필요
-            CoupleQuestionDomainService.AnswersRepositoryDto answers =
+            CoupleQuestionDomainService.MemberAnswersDto answers =
                     coupleQuestionDomainService.getQuestionAnswers(CoupleQuestionId.of(command.getCoupleQuestionId()));
 
 
@@ -162,7 +165,7 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
             CoupleId coupleId = coupleDomainService.getCoupleIdByMemberId(MemberId.of(command.getUserId()));
             CoupleQuestion coupleQuestion = coupleQuestionDomainService.getMaxLevelQuestion(coupleId);
 
-            // 답변을 저장 TODO : 답변 중복 여부 체크 필요
+            // 답변을 저장
             coupleQuestionDomainService.answerQuestion(coupleQuestion, MemberId.of(command.getUserId()), command.getAnswer());
 
             // 커플 질문 개수 체크
@@ -178,8 +181,8 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
             // 커플이 아닌 사용자는 TempCoupleQuestion에 답변
             TempCoupleQuestion tempCoupleQuestion = coupleQuestionDomainService.getTempCoupleQuestion(MemberId.of(command.getUserId()));
 
-            // 답변을 저장 TODO : 답변 중복 여부 체크 필요
-            coupleQuestionDomainService.answerQuestion(tempCoupleQuestion, MemberId.of(command.getUserId()), command.getAnswer());
+            // 답변을 저장
+            coupleQuestionDomainService.answerQuestion(tempCoupleQuestion, command.getAnswer());
         }
     }
 
@@ -200,7 +203,7 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
             TempCoupleQuestion tempCoupleQuestion = coupleQuestionDomainService.getTempCoupleQuestion(MemberId.of(request.getUserId()));
 
             // 답변을 수정 TODO : 답변 존재 여부 체크 필요
-            coupleQuestionDomainService.updateAnswer(tempCoupleQuestion, MemberId.of(request.getUserId()), request.getAnswer());
+            coupleQuestionDomainService.updateAnswer(tempCoupleQuestion, request.getAnswer());
         }
     }
 }

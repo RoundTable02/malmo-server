@@ -16,7 +16,6 @@ public class TempCoupleQuestion {
     private Long id;
     private Question question;
     private MemberId memberId;
-    private CoupleQuestionState coupleQuestionState;
     private String answer;
 
     // BaseTimeEntity fields
@@ -24,7 +23,18 @@ public class TempCoupleQuestion {
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
 
+    public static TempCoupleQuestion create(MemberId memberId, Question question) {
+        return TempCoupleQuestion.builder()
+                .question(question)
+                .memberId(memberId)
+                .build();
+    }
+
     public boolean isAnswered() {
         return answer != null && !answer.isEmpty();
+    }
+
+    public void answerQuestion(String answer) {
+        this.answer = answer;
     }
 }

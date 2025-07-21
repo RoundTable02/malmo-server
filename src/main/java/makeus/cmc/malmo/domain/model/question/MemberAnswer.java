@@ -11,7 +11,7 @@ import makeus.cmc.malmo.domain.value.state.MemberAnswerState;
 import java.time.LocalDateTime;
 
 @Getter
-@Builder(access = AccessLevel.PRIVATE)
+@Builder(access = AccessLevel.PACKAGE)
 public class MemberAnswer {
     private Long id;
     private CoupleQuestionId coupleQuestionId;
@@ -23,4 +23,8 @@ public class MemberAnswer {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
+
+    public void updateAnswer(String answer) {
+        this.answer = answer;
+    }
 }
