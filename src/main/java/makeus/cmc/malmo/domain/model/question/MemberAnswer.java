@@ -27,4 +27,17 @@ public class MemberAnswer {
     public void updateAnswer(String answer) {
         this.answer = answer;
     }
+
+    public static MemberAnswer from(Long id, CoupleQuestionId coupleQuestionId, CoupleMemberId coupleMemberId, String answer, MemberAnswerState memberAnswerState, LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
+        return MemberAnswer.builder()
+                .id(id)
+                .coupleQuestionId(coupleQuestionId)
+                .coupleMemberId(coupleMemberId)
+                .answer(answer)
+                .memberAnswerState(memberAnswerState)
+                .createdAt(createdAt)
+                .modifiedAt(modifiedAt)
+                .deletedAt(deletedAt)
+                .build();
+    }
 }

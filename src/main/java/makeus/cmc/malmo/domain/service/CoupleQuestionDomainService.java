@@ -82,9 +82,9 @@ public class CoupleQuestionDomainService {
         }
     }
 
-    public MemberAnswersDto getQuestionAnswers(CoupleQuestionId coupleQuestionId) {
-        return loadMemberAnswerPort.getQuestionAnswers(coupleQuestionId)
-                .orElse(new MemberAnswersDto());
+    public MemberAnswersDto getQuestionAnswers(MemberId memberId, CoupleQuestionId coupleQuestionId) {
+        return loadMemberAnswerPort.getQuestionAnswers(memberId, coupleQuestionId)
+                .orElse(new MemberAnswersDto(null, null));
     }
 
     @Transactional
@@ -157,13 +157,15 @@ public class CoupleQuestionDomainService {
     }
 
     @Data
-    public class MemberAnswersDto {
+    @Builder
+    public static class MemberAnswersDto {
         private AnswerDto me;
         private AnswerDto partner;
     }
 
     @Data
-    public class AnswerDto {
+    @Builder
+    public static class AnswerDto {
         private String nickname;
         private String answer;
         private boolean updatable;

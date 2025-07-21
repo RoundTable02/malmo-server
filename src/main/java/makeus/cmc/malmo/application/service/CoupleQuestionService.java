@@ -116,7 +116,7 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
             );
             // TODO : DTO 매핑 필요
             CoupleQuestionDomainService.MemberAnswersDto answers =
-                    coupleQuestionDomainService.getQuestionAnswers(CoupleQuestionId.of(command.getCoupleQuestionId()));
+                    coupleQuestionDomainService.getQuestionAnswers(MemberId.of(command.getUserId()), CoupleQuestionId.of(command.getCoupleQuestionId()));
 
 
             return AnswerResponseDto.builder()

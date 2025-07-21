@@ -101,21 +101,6 @@ public class CoupleQuestionPersistenceAdapter
         private boolean partnerAnswered;
         private LocalDateTime createdAt;
 
-        public static CoupleQuestionRepositoryDto from(CoupleQuestionDomainService.CoupleQuestionDto dto) {
-            return CoupleQuestionRepositoryDto.builder()
-                    .id(dto.getId())
-                    .title(dto.getTitle())
-                    .content(dto.getContent())
-                    .level(dto.getLevel())
-                    .coupleId(dto.getCoupleId().getValue())
-                    .coupleQuestionState(dto.getCoupleQuestionState())
-                    .bothAnsweredAt(dto.getBothAnsweredAt())
-                    .meAnswered(dto.isMeAnswered())
-                    .partnerAnswered(dto.isPartnerAnswered())
-                    .createdAt(dto.getCreatedAt())
-                    .build();
-        }
-
         public CoupleQuestionDomainService.CoupleQuestionDto toDto() {
             return CoupleQuestionDomainService.CoupleQuestionDto.builder()
                     .id(this.id)

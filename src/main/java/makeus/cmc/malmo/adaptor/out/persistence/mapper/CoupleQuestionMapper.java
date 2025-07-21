@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.question.CoupleQuestionEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.question.TempCoupleQuestionEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleEntityId;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
 import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
 import makeus.cmc.malmo.domain.model.question.TempCoupleQuestion;
 import makeus.cmc.malmo.domain.value.id.CoupleId;
@@ -74,7 +75,7 @@ public class CoupleQuestionMapper {
                 .id(tempCoupleQuestion.getId())
                 .question(questionMapper.toEntity(tempCoupleQuestion.getQuestion()))
                 .memberId(tempCoupleQuestion.getMemberId() == null ? null
-                        : MemberId.of(tempCoupleQuestion.getMemberId().getValue()))
+                        : MemberEntityId.of(tempCoupleQuestion.getMemberId().getValue()))
                 .answer(tempCoupleQuestion.getAnswer())
                 .createdAt(tempCoupleQuestion.getCreatedAt())
                 .modifiedAt(tempCoupleQuestion.getModifiedAt())

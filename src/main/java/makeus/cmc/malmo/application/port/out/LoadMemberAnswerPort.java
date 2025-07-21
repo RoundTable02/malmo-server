@@ -8,7 +8,7 @@ import makeus.cmc.malmo.domain.value.id.MemberId;
 import java.util.Optional;
 
 public interface LoadMemberAnswerPort {
-    Optional<CoupleQuestionDomainService.MemberAnswersDto> getQuestionAnswers(CoupleQuestionId coupleQuestionId);
+    Optional<CoupleQuestionDomainService.MemberAnswersDto> getQuestionAnswers(MemberId memberId, CoupleQuestionId coupleQuestionId);
     Optional<MemberAnswer> getMemberAnswer(CoupleQuestionId coupleQuestionId, MemberId memberId);
 
     boolean isMemberAnswered(CoupleQuestionId coupleQuestionId, MemberId memberId);

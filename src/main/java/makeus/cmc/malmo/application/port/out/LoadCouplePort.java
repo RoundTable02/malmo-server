@@ -5,6 +5,5 @@ import makeus.cmc.malmo.domain.value.id.CoupleMemberId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 
 public interface LoadCouplePort {
-    CoupleId loadCoupleIdByMemberId(MemberId memberId);
     CoupleMemberId loadCoupleMemberIdByMemberId(MemberId memberId);
 }
