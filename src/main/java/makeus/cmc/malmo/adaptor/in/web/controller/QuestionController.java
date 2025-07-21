@@ -30,7 +30,7 @@ import java.util.List;
 public class QuestionController {
 
     @Operation(
-            summary = "🚧 [개발 전] 오늘의 질문 조회",
+            summary = "오늘의 질문 조회",
             description = "커플 오늘의 질문을 조회합니다. JWT 토큰이 필요합니다.",
             security = @SecurityRequirement(name = "Bearer Authentication")
     )

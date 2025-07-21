@@ -332,6 +332,15 @@ public class SwaggerResponses {
 
         @Schema(description = "질문 내용", example = "오늘 하루 중 가장 기억에 남는 순간은 무엇인가요?")
         private String content;
+
+        @Schema(description = "나의 답변 여부", example = "true")
+        private boolean meAnswered;
+
+        @Schema(description = "상대방 답변 여부", example = "false")
+        private boolean partnerAnswered;
+
+        @Schema(description = "생성일시", example = "2023-07-03T10:00:00")
+        private LocalDateTime createdAt;
     }
 
     @Getter
@@ -368,6 +377,12 @@ public class SwaggerResponses {
 
         @Schema(description = "질문 내용", example = "오늘 하루 중 가장 기억에 남는 순간은 무엇인가요?")
         private String content;
+
+        @Schema(description = "나의 답변 여부", example = "true")
+        private boolean meAnswered;
+
+        @Schema(description = "상대방 답변 여부", example = "false")
+        private boolean partnerAnswered;
 
         @Schema(description = "생성일시", example = "2023-07-03T10:00:00")
         private LocalDateTime createdAt;
