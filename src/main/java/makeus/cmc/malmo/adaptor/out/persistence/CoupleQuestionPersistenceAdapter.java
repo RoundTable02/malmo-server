@@ -3,10 +3,17 @@ package makeus.cmc.malmo.adaptor.out.persistence;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.question.CoupleQuestionEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.question.TempCoupleQuestionEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.CoupleQuestionMapper;
+import makeus.cmc.malmo.adaptor.out.persistence.mapper.QuestionMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.CoupleQuestionRepository;
-import makeus.cmc.malmo.application.port.out.LoadCoupleQuestionPort;
+import makeus.cmc.malmo.adaptor.out.persistence.repository.QuestionRepository;
+import makeus.cmc.malmo.adaptor.out.persistence.repository.TempCoupleQuestionRepository;
+import makeus.cmc.malmo.application.port.out.*;
 import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
+import makeus.cmc.malmo.domain.model.question.Question;
+import makeus.cmc.malmo.domain.model.question.TempCoupleQuestion;
 import makeus.cmc.malmo.domain.service.CoupleQuestionDomainService;
 import makeus.cmc.malmo.domain.value.id.CoupleId;
 import makeus.cmc.malmo.domain.value.id.CoupleQuestionId;
@@ -19,10 +26,16 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class CoupleQuestionPersistenceAdapter implements LoadCoupleQuestionPort {
+public class CoupleQuestionPersistenceAdapter
+        implements LoadCoupleQuestionPort, LoadTempCoupleQuestionPort, LoadQuestionPort,
+        SaveCoupleQuestionPort, SaveTempCoupleQuestionPort {
 
     private final CoupleQuestionRepository coupleQuestionRepository;
+    private final TempCoupleQuestionRepository tempCoupleQuestionRepository;
+    private final QuestionRepository questionRepository;
+
     private final CoupleQuestionMapper coupleQuestionMapper;
+    private final QuestionMapper questionMapper;
 
     @Override
     public Optional<CoupleQuestion> loadMaxLevelCoupleQuestion(CoupleId coupleId) {
@@ -46,6 +59,32 @@ public class CoupleQuestionPersistenceAdapter implements LoadCoupleQuestionPort 
     public Optional<CoupleQuestion> loadCoupleQuestionById(CoupleQuestionId coupleQuestionId) {
         return coupleQuestionRepository.findById(coupleQuestionId.getValue())
                 .map(coupleQuestionMapper::toDomain);
+    }
+
+    @Override
+    public Optional<TempCoupleQuestion> loadTempCoupleQuestionByMemberId(MemberId memberId) {
+        return tempCoupleQuestionRepository.findByMemberId_Value(memberId.getValue())
+                .map(coupleQuestionMapper::toDomain);
+    }
+
+    @Override
+    public CoupleQuestion saveCoupleQuestion(CoupleQuestion coupleQuestion) {
+        CoupleQuestionEntity entity = coupleQuestionMapper.toEntity(coupleQuestion);
+        CoupleQuestionEntity savedEntity = coupleQuestionRepository.save(entity);
+        return coupleQuestionMapper.toDomain(savedEntity);
+    }
+
+    @Override
+    public TempCoupleQuestion saveTempCoupleQuestion(TempCoupleQuestion tempCoupleQuestion) {
+        TempCoupleQuestionEntity entity = coupleQuestionMapper.toEntity(tempCoupleQuestion);
+        TempCoupleQuestionEntity savedEntity = tempCoupleQuestionRepository.save(entity);
+        return coupleQuestionMapper.toDomain(savedEntity);
+    }
+
+    @Override
+    public Optional<Question> loadQuestionByLevel(int level) {
+        return questionRepository.findByLevel(level)
+                .map(questionMapper::toDomain);
     }
 
     @Data

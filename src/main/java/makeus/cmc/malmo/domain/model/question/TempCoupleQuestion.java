@@ -37,4 +37,16 @@ public class TempCoupleQuestion {
     public void answerQuestion(String answer) {
         this.answer = answer;
     }
+
+    public static TempCoupleQuestion from(Long id, Question question, MemberId memberId, String answer, LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
+        return TempCoupleQuestion.builder()
+                .id(id)
+                .question(question)
+                .memberId(memberId)
+                .answer(answer)
+                .createdAt(createdAt)
+                .modifiedAt(modifiedAt)
+                .deletedAt(deletedAt)
+                .build();
+    }
 }

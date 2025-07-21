@@ -34,6 +34,7 @@ public class CoupleQuestionDomainService {
 
     private final SaveCoupleQuestionPort saveCoupleQuestionPort;
     private final SaveTempCoupleQuestionPort saveTempCoupleQuestionPort;
+    private final SaveMemberAnswerPort saveMemberAnswerPort;
 
     public static final int FIRST_QUESTION_LEVEL = 1;
 
@@ -95,7 +96,7 @@ public class CoupleQuestionDomainService {
             throw new MemberAccessDeniedException("이미 답변한 질문입니다.");
         }
         MemberAnswer memberAnswer = coupleQuestion.createMemberAnswer(coupleMemberId, answer);
-        saveCoupleQuestionPort.saveMemberAnswer(memberAnswer);
+        saveMemberAnswerPort.saveMemberAnswer(memberAnswer);
     }
 
     @Transactional
@@ -127,7 +128,7 @@ public class CoupleQuestionDomainService {
                 .orElseThrow(() -> new MemberAccessDeniedException("답변이 존재하지 않습니다."));
 
         memberAnswer.updateAnswer(answer);
-        saveCoupleQuestionPort.saveMemberAnswer(memberAnswer);
+        saveMemberAnswerPort.saveMemberAnswer(memberAnswer);
     }
 
     @Transactional
