@@ -2,24 +2,32 @@ package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.in.aop.CheckCoupleMember;
-import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
+import makeus.cmc.malmo.application.port.in.GetQuestionAnswerUseCase;
 import makeus.cmc.malmo.application.port.in.GetQuestionUseCase;
 import makeus.cmc.malmo.application.port.out.ValidateMemberPort;
+import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
+import makeus.cmc.malmo.domain.model.question.MemberAnswer;
 import makeus.cmc.malmo.domain.model.question.TempCoupleQuestion;
 import makeus.cmc.malmo.domain.service.CoupleDomainService;
 import makeus.cmc.malmo.domain.service.CoupleQuestionDomainService;
+import makeus.cmc.malmo.domain.service.MemberDomainService;
 import makeus.cmc.malmo.domain.value.id.CoupleId;
+import makeus.cmc.malmo.domain.value.id.CoupleMemberId;
+import makeus.cmc.malmo.domain.value.id.CoupleQuestionId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class CoupleQuestionService implements GetQuestionUseCase {
+public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAnswerUseCase {
 
     private final ValidateMemberPort validateMemberPort;
+    private final MemberDomainService memberDomainService;
     private final CoupleQuestionDomainService coupleQuestionDomainService;
     private final CoupleDomainService coupleDomainService;
 
@@ -91,5 +99,57 @@ public class CoupleQuestionService implements GetQuestionUseCase {
                 .partnerAnswered(question.isPartnerAnswered())
                 .createdAt(question.getCreatedAt())
                 .build();
+    }
+
+    @Override
+    public AnswerResponseDto getQuestionAnswers(GetQuestionAnswerCommand command) {
+        // 커플 질문에 접근 권한이 있는지 확인
+        coupleQuestionDomainService.validateQuestionOwnership(
+                CoupleQuestionId.of(command.getCoupleQuestionId()),
+                MemberId.of(command.getUserId())
+        );
+        boolean isCouple = validateMemberPort.isCoupleMember(MemberId.of(command.getUserId()));
+
+        if (isCouple) {
+            // 커플 사용자에게는 커플 질문 답변을 조회
+            CoupleQuestionDomainService.AnswersRepositoryDto answers =
+                    coupleQuestionDomainService.getQuestionAnswers(CoupleQuestionId.of(command.getCoupleQuestionId()));
+
+
+            return AnswerResponseDto.builder()
+                    .me(
+                            answers.getMe() == null ? null :
+                            AnswerDto.builder()
+                                    .nickname(answers.getMe().getNickname())
+                                    .answer(answers.getMe().getAnswer())
+                                    .updatable(answers.getMe().isUpdatable())
+                                    .build()
+                    )
+                    .partner(
+                            answers.getPartner() == null ? null :
+                            AnswerDto.builder()
+                                    .nickname(answers.getPartner().getNickname())
+                                    .answer(answers.getPartner().getAnswer())
+                                    .updatable(answers.getPartner().isUpdatable())
+                                    .build()
+                    )
+                    .build();
+        }
+        else {
+            // 커플이 아닌 사용자는 TempCoupleQuestion의 답변을 조회
+            Member member = memberDomainService.getMemberById(MemberId.of(command.getUserId()));
+            TempCoupleQuestion tempCoupleQuestion = coupleQuestionDomainService.getTempCoupleQuestion(MemberId.of(command.getUserId()));
+
+            return AnswerResponseDto.builder()
+                    .me(
+                            AnswerDto.builder()
+                                    .nickname(member.getNickname())
+                                    .answer(tempCoupleQuestion.getAnswer())
+                                    .updatable(true)
+                                    .build()
+                    )
+                    .partner(null) // 커플이 아닌 경우 파트너 답변은 없음
+                    .build();
+        }
     }
 }

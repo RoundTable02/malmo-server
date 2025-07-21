@@ -1,11 +1,14 @@
 package makeus.cmc.malmo.domain.service;
 
+import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
+import makeus.cmc.malmo.application.port.in.GetQuestionAnswerUseCase;
 import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
 import makeus.cmc.malmo.domain.model.question.Question;
 import makeus.cmc.malmo.domain.model.question.TempCoupleQuestion;
 import makeus.cmc.malmo.domain.value.id.CoupleId;
+import makeus.cmc.malmo.domain.value.id.CoupleQuestionId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.state.CoupleQuestionState;
 import org.springframework.stereotype.Service;
@@ -34,6 +37,13 @@ public class CoupleQuestionDomainService {
         return null;
     }
 
+    public void validateQuestionOwnership(CoupleQuestionId coupleQuestionId, MemberId memberId) {
+    }
+
+    public AnswersRepositoryDto getQuestionAnswers(CoupleQuestionId coupleQuestionId) {
+        return null;
+    }
+
     @Data
     public class QuestionRepositoryDto {
         private Long id;
@@ -46,6 +56,19 @@ public class CoupleQuestionDomainService {
         private boolean meAnswered;
         private boolean partnerAnswered;
         private LocalDateTime createdAt;
+    }
+
+    @Data
+    public class AnswersRepositoryDto {
+        private AnswerRepositoryDto me;
+        private AnswerRepositoryDto partner;
+    }
+
+    @Data
+    public class AnswerRepositoryDto {
+        private String nickname;
+        private String answer;
+        private boolean updatable;
     }
 
 

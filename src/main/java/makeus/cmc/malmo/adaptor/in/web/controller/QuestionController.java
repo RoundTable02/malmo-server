@@ -14,12 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
+import makeus.cmc.malmo.application.port.in.GetQuestionAnswerUseCase;
 import makeus.cmc.malmo.application.port.in.GetQuestionUseCase;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
 
 @Tag(name = "오늘의 질문 API", description = "커플 오늘의 질문 API")
 @Slf4j
@@ -29,6 +28,7 @@ import java.time.LocalDateTime;
 public class QuestionController {
 
     private final GetQuestionUseCase getQuestionUseCase;
+    private final GetQuestionAnswerUseCase getQuestionAnswerUseCase;
 
     @Operation(
             summary = "오늘의 질문 조회",
@@ -86,7 +86,7 @@ public class QuestionController {
             description = "질문 답변 등록 성공",
             content = @Content(schema = @Schema(implementation = SwaggerResponses.AnswerSuccessResponse.class))
     )
-    @ApiCommonResponses.OnlyCouple
+    @ApiCommonResponses.OnlyOwner
     @ApiCommonResponses.RequireAuth
     @PostMapping("/{coupleQuestionId}/answers")
     public BaseResponse<AnswerResponseDto> postAnswer(
@@ -107,13 +107,18 @@ public class QuestionController {
             description = "질문 답변 조회 성공",
             content = @Content(schema = @Schema(implementation = SwaggerResponses.PastAnswerSuccessResponse.class))
     )
-    @ApiCommonResponses.OnlyCouple
+    @ApiCommonResponses.OnlyOwner
     @ApiCommonResponses.RequireAuth
     @GetMapping("/{coupleQuestionId}/answers")
-    public BaseResponse<PastAnswerResponseDto> getAnswers(
+    public BaseResponse<GetQuestionAnswerUseCase.AnswerResponseDto> getAnswers(
             @AuthenticationPrincipal User user,
             @PathVariable String coupleQuestionId) {
-        return BaseResponse.success(PastAnswerResponseDto.builder().build());
+        GetQuestionAnswerUseCase.GetQuestionAnswerCommand command = GetQuestionAnswerUseCase.GetQuestionAnswerCommand.builder()
+                .userId(Long.valueOf(user.getUsername()))
+                .coupleQuestionId(Long.valueOf(coupleQuestionId))
+                .build();
+
+        return BaseResponse.success(getQuestionAnswerUseCase.getQuestionAnswers(command));
     }
 
     @Data
@@ -126,20 +131,5 @@ public class QuestionController {
     @Builder
     public static class AnswerResponseDto {
         private Long coupleQuestionId;
-    }
-
-    @Data
-    @Builder
-    public static class PastAnswerResponseDto {
-        private PastAnswerDto me;
-        private PastAnswerDto partner;
-    }
-
-    @Data
-    @Builder
-    public static class PastAnswerDto {
-        private String nickname;
-        private String answer;
-        private boolean updatable;
     }
 }
