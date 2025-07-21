@@ -8,12 +8,20 @@ import java.time.LocalDateTime;
 public interface GetQuestionUseCase {
 
     GetQuestionResponse getTodayQuestion(GetTodayQuestionCommand command);
+    GetQuestionResponse getQuestion(GetQuestionCommand command);
 
 
     @Data
     @Builder
     class GetTodayQuestionCommand {
         private Long userId;
+    }
+
+    @Data
+    @Builder
+    class GetQuestionCommand {
+        private Long userId;
+        private int level;
     }
 
 

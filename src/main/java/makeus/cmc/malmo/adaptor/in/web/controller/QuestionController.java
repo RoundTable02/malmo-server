@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
-import makeus.cmc.malmo.adaptor.in.web.dto.BaseListResponse;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
 import makeus.cmc.malmo.application.port.in.GetQuestionUseCase;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,7 +20,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Tag(name = "오늘의 질문 API", description = "커플 오늘의 질문 API")
 @Slf4j
@@ -67,10 +65,15 @@ public class QuestionController {
     @ApiCommonResponses.OnlyCouple
     @ApiCommonResponses.RequireAuth
     @GetMapping("/{level}")
-    public BaseResponse<PastQuestionResponseDto> getQuestion(
+    public BaseResponse<GetQuestionUseCase.GetQuestionResponse> getQuestion(
             @AuthenticationPrincipal User user,
             @PathVariable int level) {
-        return BaseResponse.success(PastQuestionResponseDto.builder().build());
+        GetQuestionUseCase.GetQuestionCommand command = GetQuestionUseCase.GetQuestionCommand.builder()
+                .userId(Long.valueOf(user.getUsername()))
+                .level(level)
+                .build();
+
+        return BaseResponse.success(getQuestionUseCase.getQuestion(command));
     }
 
     @Operation(
@@ -123,16 +126,6 @@ public class QuestionController {
     @Builder
     public static class AnswerResponseDto {
         private Long coupleQuestionId;
-    }
-
-
-    @Data
-    @Builder
-    public static class PastQuestionResponseDto {
-        private Long coupleQuestionId;
-        private String title;
-        private String content;
-        private LocalDateTime createdAt;
     }
 
     @Data

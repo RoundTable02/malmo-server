@@ -30,6 +30,10 @@ public class CoupleQuestionDomainService {
         return null;
     }
 
+    public QuestionRepositoryDto getCoupleQuestionByLevel(CoupleId coupleId, int level) {
+        return null;
+    }
+
     @Data
     public class QuestionRepositoryDto {
         private Long id;

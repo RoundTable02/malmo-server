@@ -1,6 +1,8 @@
 package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.adaptor.in.aop.CheckCoupleMember;
+import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.application.port.in.GetQuestionUseCase;
 import makeus.cmc.malmo.application.port.out.ValidateMemberPort;
 import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
@@ -72,5 +74,22 @@ public class CoupleQuestionService implements GetQuestionUseCase {
                     .createdAt(tempCoupleQuestion.getCreatedAt())
                     .build();
         }
+    }
+
+    @Override
+    @CheckCoupleMember
+    public GetQuestionResponse getQuestion(GetQuestionCommand command) {
+        CoupleId coupleId = coupleDomainService.getCoupleIdByMemberId(MemberId.of(command.getUserId()));
+        CoupleQuestionDomainService.QuestionRepositoryDto question =
+                coupleQuestionDomainService.getCoupleQuestionByLevel(coupleId, command.getLevel());
+
+        return GetQuestionResponse.builder()
+                .coupleQuestionId(question.getId())
+                .title(question.getTitle())
+                .content(question.getContent())
+                .meAnswered(question.isMeAnswered())
+                .partnerAnswered(question.isPartnerAnswered())
+                .createdAt(question.getCreatedAt())
+                .build();
     }
 }
