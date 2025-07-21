@@ -1,5 +1,6 @@
 package makeus.cmc.malmo.domain.service;
 
+import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.application.port.out.*;
@@ -41,13 +42,13 @@ public class CoupleQuestionDomainService {
                 .orElseThrow(CoupleQuestionNotFoundException::new);
     }
 
-    public CoupleQuestionDto getMaxLevelQuestionDto(CoupleId coupleId) {
-        return loadCoupleQuestionPort.getMaxLevelQuestionDto(coupleId)
+    public CoupleQuestionDto getMaxLevelQuestionDto(MemberId memberId, CoupleId coupleId) {
+        return loadCoupleQuestionPort.getMaxLevelQuestionDto(memberId, coupleId)
                 .orElseThrow(CoupleQuestionNotFoundException::new);
     }
 
-    public CoupleQuestionDto getCoupleQuestionDtoByLevel(CoupleId coupleId, int level) {
-        return loadCoupleQuestionPort.getCoupleQuestionDtoByLevel(coupleId, level)
+    public CoupleQuestionDto getCoupleQuestionDtoByLevel(MemberId memberId, CoupleId coupleId, int level) {
+        return loadCoupleQuestionPort.getCoupleQuestionDtoByLevel(memberId, coupleId, level)
                 .orElseThrow(CoupleQuestionNotFoundException::new);
     }
 
@@ -140,7 +141,8 @@ public class CoupleQuestionDomainService {
     }
 
     @Data
-    public class CoupleQuestionDto {
+    @Builder
+    public static class CoupleQuestionDto {
         private Long id;
         private String title;
         private String content;

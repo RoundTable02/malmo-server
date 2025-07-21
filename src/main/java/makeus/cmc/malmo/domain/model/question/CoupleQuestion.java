@@ -55,4 +55,17 @@ public class CoupleQuestion {
         return this.coupleQuestionState != CoupleQuestionState.COMPLETED;
     }
 
+    public static CoupleQuestion from(Long id, Question question, CoupleId coupleId, CoupleQuestionState coupleQuestionState, LocalDateTime bothAnsweredAt, LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
+        return CoupleQuestion.builder()
+                .id(id)
+                .question(question)
+                .coupleId(coupleId)
+                .coupleQuestionState(coupleQuestionState)
+                .bothAnsweredAt(bothAnsweredAt)
+                .createdAt(createdAt)
+                .modifiedAt(modifiedAt)
+                .deletedAt(deletedAt)
+                .build();
+    }
+
 }

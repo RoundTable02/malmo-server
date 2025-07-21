@@ -38,7 +38,7 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
             CoupleId coupleId = coupleDomainService.getCoupleIdByMemberId(MemberId.of(command.getUserId()));
             // TODO : DTO 매핑 필요
             CoupleQuestionDomainService.CoupleQuestionDto maxLevelQuestion =
-                    coupleQuestionDomainService.getMaxLevelQuestionDto(coupleId);
+                    coupleQuestionDomainService.getMaxLevelQuestionDto(MemberId.of(command.getUserId()), coupleId);
 
             // CoupleQuestion의 bothAnsweredAt이 now()의 전날인 경우 (날짜만 비교), 다음 단계의 CoupleQuestion을 생성
             if (coupleQuestionDomainService.needsNextQuestion(maxLevelQuestion.getBothAnsweredAt())) {
@@ -90,7 +90,7 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
         CoupleId coupleId = coupleDomainService.getCoupleIdByMemberId(MemberId.of(command.getUserId()));
         // TODO : DTO 매핑 필요
         CoupleQuestionDomainService.CoupleQuestionDto question =
-                coupleQuestionDomainService.getCoupleQuestionDtoByLevel(coupleId, command.getLevel());
+                coupleQuestionDomainService.getCoupleQuestionDtoByLevel(MemberId.of(command.getUserId()), coupleId, command.getLevel());
 
         return GetQuestionResponse.builder()
                 .coupleQuestionId(question.getId())

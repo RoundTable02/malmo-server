@@ -21,4 +21,6 @@ public class QuestionEntity extends BaseTimeEntity {
     private String title;
 
     private String content;
+
+    private int level;
 }

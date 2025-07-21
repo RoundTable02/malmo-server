@@ -18,4 +18,16 @@ public class Question {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
+
+    public static Question from(Long id, String title, String content, int level, LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
+        return Question.builder()
+                .id(id)
+                .title(title)
+                .content(content)
+                .level(level)
+                .createdAt(createdAt)
+                .modifiedAt(modifiedAt)
+                .deletedAt(deletedAt)
+                .build();
+    }
 }
