@@ -10,4 +10,7 @@ public interface CoupleMemberRepository extends JpaRepository<CoupleMemberEntity
 
     @Query("SELECT cm.id FROM CoupleMemberEntity cm WHERE cm.memberEntityId.value = :memberId AND cm.coupleMemberState = 'ALIVE'")
     Long findCoupleMemberIdByMemberId(Long memberId);
+
+    @Query("SELECT cm.coupleEntityId.value FROM CoupleMemberEntity cm WHERE cm.memberEntityId.value = :memberId AND cm.coupleMemberState = 'ALIVE'")
+    Long findCoupleIdByMemberId(Long memberId);
 }

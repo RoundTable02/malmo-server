@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
 public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAnswerUseCase, AnswerQuestionUseCase {
 
@@ -36,7 +36,6 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
             // 커플 사용자에게는 오늘의 커플 질문을 제공
             // 멤버가 속한 Couple의 가장 레벨이 높은 CoupleQuestion을 조회
             CoupleId coupleId = coupleDomainService.getCoupleIdByMemberId(MemberId.of(command.getUserId()));
-            // TODO : DTO 매핑 필요
             CoupleQuestionDomainService.CoupleQuestionDto maxLevelQuestion =
                     coupleQuestionDomainService.getMaxLevelQuestionDto(MemberId.of(command.getUserId()), coupleId);
 
@@ -52,6 +51,7 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
                         .content(newQuestion.getQuestion().getContent())
                         .meAnswered(false)
                         .partnerAnswered(false)
+                        .level(newQuestion.getQuestion().getLevel())
                         .createdAt(newQuestion.getCreatedAt())
                         .build();
             }
@@ -62,6 +62,7 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
                     .content(maxLevelQuestion.getContent())
                     .meAnswered(maxLevelQuestion.isMeAnswered())
                     .partnerAnswered(maxLevelQuestion.isPartnerAnswered())
+                    .level(maxLevelQuestion.getLevel())
                     .createdAt(maxLevelQuestion.getCreatedAt())
                     .build();
         }
@@ -78,6 +79,7 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
                     .title(tempCoupleQuestion.getQuestion().getTitle())
                     .content(tempCoupleQuestion.getQuestion().getContent())
                     .meAnswered(tempCoupleQuestion.isAnswered())
+                    .level(CoupleQuestionDomainService.FIRST_QUESTION_LEVEL)
                     .partnerAnswered(false)
                     .createdAt(tempCoupleQuestion.getCreatedAt())
                     .build();
@@ -88,7 +90,6 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
     @CheckCoupleMember
     public GetQuestionResponse getQuestion(GetQuestionCommand command) {
         CoupleId coupleId = coupleDomainService.getCoupleIdByMemberId(MemberId.of(command.getUserId()));
-        // TODO : DTO 매핑 필요
         CoupleQuestionDomainService.CoupleQuestionDto question =
                 coupleQuestionDomainService.getCoupleQuestionDtoByLevel(MemberId.of(command.getUserId()), coupleId, command.getLevel());
 
@@ -114,7 +115,6 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
                     CoupleQuestionId.of(command.getCoupleQuestionId()),
                     coupleId
             );
-            // TODO : DTO 매핑 필요
             CoupleQuestionDomainService.MemberAnswersDto answers =
                     coupleQuestionDomainService.getQuestionAnswers(MemberId.of(command.getUserId()), CoupleQuestionId.of(command.getCoupleQuestionId()));
 
@@ -195,14 +195,14 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
             CoupleId coupleId = coupleDomainService.getCoupleIdByMemberId(MemberId.of(request.getUserId()));
             CoupleQuestion coupleQuestion = coupleQuestionDomainService.getMaxLevelQuestion(coupleId);
 
-            // 답변을 수정 TODO : 답변 존재 여부 체크 필요
+            // 답변을 수정
             coupleQuestionDomainService.updateAnswer(coupleQuestion, MemberId.of(request.getUserId()), request.getAnswer());
         }
         else {
             // 커플이 아닌 사용자는 TempCoupleQuestion 답변 수정
             TempCoupleQuestion tempCoupleQuestion = coupleQuestionDomainService.getTempCoupleQuestion(MemberId.of(request.getUserId()));
 
-            // 답변을 수정 TODO : 답변 존재 여부 체크 필요
+            // 답변을 수정
             coupleQuestionDomainService.updateAnswer(tempCoupleQuestion, request.getAnswer());
         }
     }

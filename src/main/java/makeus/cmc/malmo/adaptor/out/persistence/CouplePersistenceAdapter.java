@@ -8,6 +8,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.repository.CoupleRepository;
 import makeus.cmc.malmo.application.port.out.LoadCouplePort;
 import makeus.cmc.malmo.application.port.out.SaveCouplePort;
 import makeus.cmc.malmo.domain.model.couple.Couple;
+import makeus.cmc.malmo.domain.value.id.CoupleId;
 import makeus.cmc.malmo.domain.value.id.CoupleMemberId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Component;
@@ -25,6 +26,11 @@ public class CouplePersistenceAdapter implements SaveCouplePort, LoadCouplePort 
         CoupleEntity entity = coupleAggregateMapper.toEntity(couple);
         CoupleEntity savedCoupleEntity = coupleRepository.save(entity);
         return coupleAggregateMapper.toDomain(savedCoupleEntity);
+    }
+
+    @Override
+    public CoupleId loadCoupleIdByMemberId(MemberId memberId) {
+        return CoupleId.of(coupleMemberRepository.findCoupleIdByMemberId(memberId.getValue()));
     }
 
     @Override
