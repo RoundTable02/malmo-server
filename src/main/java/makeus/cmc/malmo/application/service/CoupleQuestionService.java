@@ -2,29 +2,26 @@ package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.in.aop.CheckCoupleMember;
+import makeus.cmc.malmo.application.port.in.AnswerQuestionUseCase;
 import makeus.cmc.malmo.application.port.in.GetQuestionAnswerUseCase;
 import makeus.cmc.malmo.application.port.in.GetQuestionUseCase;
 import makeus.cmc.malmo.application.port.out.ValidateMemberPort;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
-import makeus.cmc.malmo.domain.model.question.MemberAnswer;
 import makeus.cmc.malmo.domain.model.question.TempCoupleQuestion;
 import makeus.cmc.malmo.domain.service.CoupleDomainService;
 import makeus.cmc.malmo.domain.service.CoupleQuestionDomainService;
 import makeus.cmc.malmo.domain.service.MemberDomainService;
 import makeus.cmc.malmo.domain.value.id.CoupleId;
-import makeus.cmc.malmo.domain.value.id.CoupleMemberId;
 import makeus.cmc.malmo.domain.value.id.CoupleQuestionId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAnswerUseCase {
+public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAnswerUseCase, AnswerQuestionUseCase {
 
     private final ValidateMemberPort validateMemberPort;
     private final MemberDomainService memberDomainService;
@@ -39,8 +36,9 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
             // 커플 사용자에게는 오늘의 커플 질문을 제공
             // 멤버가 속한 Couple의 가장 레벨이 높은 CoupleQuestion을 조회
             CoupleId coupleId = coupleDomainService.getCoupleIdByMemberId(MemberId.of(command.getUserId()));
+            // TODO : DTO 매핑 필요
             CoupleQuestionDomainService.QuestionRepositoryDto maxLevelQuestion =
-                    coupleQuestionDomainService.getMaxLevelQuestion(coupleId);
+                    coupleQuestionDomainService.getMaxLevelQuestionDto(coupleId);
 
             // CoupleQuestion의 bothAnsweredAt이 now()의 전날인 경우 (날짜만 비교), 다음 단계의 CoupleQuestion을 생성
             if (coupleQuestionDomainService.needsNextQuestion(maxLevelQuestion.getBothAnsweredAt())) {
@@ -88,8 +86,9 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
     @CheckCoupleMember
     public GetQuestionResponse getQuestion(GetQuestionCommand command) {
         CoupleId coupleId = coupleDomainService.getCoupleIdByMemberId(MemberId.of(command.getUserId()));
+        // TODO : DTO 매핑 필요
         CoupleQuestionDomainService.QuestionRepositoryDto question =
-                coupleQuestionDomainService.getCoupleQuestionByLevel(coupleId, command.getLevel());
+                coupleQuestionDomainService.getCoupleQuestionByLevelDto(coupleId, command.getLevel());
 
         return GetQuestionResponse.builder()
                 .coupleQuestionId(question.getId())
@@ -103,15 +102,16 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
 
     @Override
     public AnswerResponseDto getQuestionAnswers(GetQuestionAnswerCommand command) {
-        // 커플 질문에 접근 권한이 있는지 확인
-        coupleQuestionDomainService.validateQuestionOwnership(
-                CoupleQuestionId.of(command.getCoupleQuestionId()),
-                MemberId.of(command.getUserId())
-        );
         boolean isCouple = validateMemberPort.isCoupleMember(MemberId.of(command.getUserId()));
 
         if (isCouple) {
             // 커플 사용자에게는 커플 질문 답변을 조회
+            // 커플 질문에 접근 권한이 있는지 확인
+            coupleQuestionDomainService.validateQuestionOwnership(
+                    CoupleQuestionId.of(command.getCoupleQuestionId()),
+                    MemberId.of(command.getUserId())
+            );
+            // TODO : DTO 매핑 필요
             CoupleQuestionDomainService.AnswersRepositoryDto answers =
                     coupleQuestionDomainService.getQuestionAnswers(CoupleQuestionId.of(command.getCoupleQuestionId()));
 
@@ -150,6 +150,57 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
                     )
                     .partner(null) // 커플이 아닌 경우 파트너 답변은 없음
                     .build();
+        }
+    }
+
+    @Override
+    public void answerQuestion(AnswerQuestionCommand command) {
+        boolean isCouple = validateMemberPort.isCoupleMember(MemberId.of(command.getUserId()));
+
+        if (isCouple) {
+            // 커플 사용자에게는 커플 질문에 답변
+            CoupleId coupleId = coupleDomainService.getCoupleIdByMemberId(MemberId.of(command.getUserId()));
+            CoupleQuestion coupleQuestion = coupleQuestionDomainService.getMaxLevelQuestion(coupleId);
+
+            // 답변을 저장 TODO : 답변 중복 여부 체크 필요
+            coupleQuestionDomainService.answerQuestion(coupleQuestion, MemberId.of(command.getUserId()), command.getAnswer());
+
+            // 커플 질문 개수 체크
+            long count = coupleQuestionDomainService.countAnswers(CoupleQuestionId.of(coupleQuestion.getId()));
+
+            // 커플 질문 저장
+            if (count == 2) {
+                // 두 명이 모두 답변한 경우, 상태를 업데이트
+                coupleQuestionDomainService.updateQuestionComplete(coupleQuestion);
+            }
+        }
+        else {
+            // 커플이 아닌 사용자는 TempCoupleQuestion에 답변
+            TempCoupleQuestion tempCoupleQuestion = coupleQuestionDomainService.getTempCoupleQuestion(MemberId.of(command.getUserId()));
+
+            // 답변을 저장 TODO : 답변 중복 여부 체크 필요
+            coupleQuestionDomainService.answerQuestion(tempCoupleQuestion, MemberId.of(command.getUserId()), command.getAnswer());
+        }
+    }
+
+    @Override
+    public void updateAnswer(AnswerQuestionCommand request) {
+        boolean isCouple = validateMemberPort.isCoupleMember(MemberId.of(request.getUserId()));
+
+        if (isCouple) {
+            // 커플 사용자에게는 커플 질문 답변 수정
+            CoupleId coupleId = coupleDomainService.getCoupleIdByMemberId(MemberId.of(request.getUserId()));
+            CoupleQuestion coupleQuestion = coupleQuestionDomainService.getMaxLevelQuestion(coupleId);
+
+            // 답변을 수정 TODO : 답변 존재 여부 체크 필요
+            coupleQuestionDomainService.updateAnswer(coupleQuestion, MemberId.of(request.getUserId()), request.getAnswer());
+        }
+        else {
+            // 커플이 아닌 사용자는 TempCoupleQuestion 답변 수정
+            TempCoupleQuestion tempCoupleQuestion = coupleQuestionDomainService.getTempCoupleQuestion(MemberId.of(request.getUserId()));
+
+            // 답변을 수정 TODO : 답변 존재 여부 체크 필요
+            coupleQuestionDomainService.updateAnswer(tempCoupleQuestion, MemberId.of(request.getUserId()), request.getAnswer());
         }
     }
 }

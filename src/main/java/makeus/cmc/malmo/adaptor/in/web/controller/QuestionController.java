@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
+import makeus.cmc.malmo.application.port.in.AnswerQuestionUseCase;
 import makeus.cmc.malmo.application.port.in.GetQuestionAnswerUseCase;
 import makeus.cmc.malmo.application.port.in.GetQuestionUseCase;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -29,6 +30,7 @@ public class QuestionController {
 
     private final GetQuestionUseCase getQuestionUseCase;
     private final GetQuestionAnswerUseCase getQuestionAnswerUseCase;
+    private final AnswerQuestionUseCase answerQuestionUseCase;
 
     @Operation(
             summary = "오늘의 질문 조회",
@@ -77,27 +79,6 @@ public class QuestionController {
     }
 
     @Operation(
-            summary = "오늘의 질문 답변 등록",
-            description = "커플 오늘의 질문에 답변을 등록합니다. JWT 토큰이 필요합니다.",
-            security = @SecurityRequirement(name = "Bearer Authentication")
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "질문 답변 등록 성공",
-            content = @Content(schema = @Schema(implementation = SwaggerResponses.AnswerSuccessResponse.class))
-    )
-    @ApiCommonResponses.OnlyOwner
-    @ApiCommonResponses.RequireAuth
-    @PostMapping("/{coupleQuestionId}/answers")
-    public BaseResponse<AnswerResponseDto> postAnswer(
-            @AuthenticationPrincipal User user,
-            @PathVariable Long coupleQuestionId,
-            @Valid @RequestBody AnswerRequestDto requestDto
-    ) {
-        return BaseResponse.success(AnswerResponseDto.builder().build());
-    }
-
-    @Operation(
             summary = "질문 답변 조회",
             description = "커플 질문 답변을 조회합니다. JWT 토큰이 필요합니다.",
             security = @SecurityRequirement(name = "Bearer Authentication")
@@ -121,15 +102,60 @@ public class QuestionController {
         return BaseResponse.success(getQuestionAnswerUseCase.getQuestionAnswers(command));
     }
 
-    @Data
-    public static class AnswerRequestDto {
-        private Long coupleQuestionId;
-        private String answer;
+    @Operation(
+            summary = "오늘의 질문 답변 등록",
+            description = "커플 오늘의 질문에 답변을 등록합니다. JWT 토큰이 필요합니다.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "질문 답변 등록 성공",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.AnswerSuccessResponse.class))
+    )
+    @ApiCommonResponses.RequireAuth
+    @PostMapping("/today/answers")
+    public BaseResponse postAnswer(
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody AnswerRequestDto requestDto
+    ) {
+        AnswerQuestionUseCase.AnswerQuestionCommand command = AnswerQuestionUseCase.AnswerQuestionCommand.builder()
+                .userId(Long.valueOf(user.getUsername()))
+                .answer(requestDto.getAnswer())
+                .build();
+
+        answerQuestionUseCase.answerQuestion(command);
+
+        return BaseResponse.success(null);
+    }
+
+    @Operation(
+            summary = "오늘의 질문 답변 수정",
+            description = "커플 오늘의 질문에 답변을 수정합니다. JWT 토큰이 필요합니다.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "질문 답변 수정 성공",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.AnswerSuccessResponse.class))
+    )
+    @ApiCommonResponses.RequireAuth
+    @PatchMapping("/today/answers")
+    public BaseResponse updateAnswer(
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody AnswerRequestDto requestDto
+    ) {
+        AnswerQuestionUseCase.AnswerQuestionCommand command = AnswerQuestionUseCase.AnswerQuestionCommand.builder()
+                .userId(Long.valueOf(user.getUsername()))
+                .answer(requestDto.getAnswer())
+                .build();
+
+        answerQuestionUseCase.updateAnswer(command);
+
+        return BaseResponse.success(null);
     }
 
     @Data
-    @Builder
-    public static class AnswerResponseDto {
-        private Long coupleQuestionId;
+    public static class AnswerRequestDto {
+        private String answer;
     }
 }

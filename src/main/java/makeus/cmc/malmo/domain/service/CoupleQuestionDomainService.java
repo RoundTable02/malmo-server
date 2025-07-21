@@ -1,11 +1,7 @@
 package makeus.cmc.malmo.domain.service;
 
-import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
-import makeus.cmc.malmo.application.port.in.GetQuestionAnswerUseCase;
 import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
-import makeus.cmc.malmo.domain.model.question.Question;
 import makeus.cmc.malmo.domain.model.question.TempCoupleQuestion;
 import makeus.cmc.malmo.domain.value.id.CoupleId;
 import makeus.cmc.malmo.domain.value.id.CoupleQuestionId;
@@ -20,7 +16,11 @@ import java.time.LocalDateTime;
 @Service
 public class CoupleQuestionDomainService {
 
-    public QuestionRepositoryDto getMaxLevelQuestion(CoupleId coupleId) {
+    public CoupleQuestion getMaxLevelQuestion(CoupleId coupleId) {
+        return null;
+    }
+
+    public QuestionRepositoryDto getMaxLevelQuestionDto(CoupleId coupleId) {
         return null;
     }
 
@@ -33,7 +33,7 @@ public class CoupleQuestionDomainService {
         return null;
     }
 
-    public QuestionRepositoryDto getCoupleQuestionByLevel(CoupleId coupleId, int level) {
+    public QuestionRepositoryDto getCoupleQuestionByLevelDto(CoupleId coupleId, int level) {
         return null;
     }
 
@@ -42,6 +42,35 @@ public class CoupleQuestionDomainService {
 
     public AnswersRepositoryDto getQuestionAnswers(CoupleQuestionId coupleQuestionId) {
         return null;
+    }
+
+    @Transactional
+    public void answerQuestion(CoupleQuestion coupleQuestion, MemberId memberId, String answer) {
+
+    }
+
+    @Transactional
+    public void answerQuestion(TempCoupleQuestion coupleQuestion, MemberId memberId, String answer) {
+
+    }
+
+    public long countAnswers(CoupleQuestionId coupleQuestionId) {
+        return 0;
+    }
+
+    @Transactional
+    public void updateQuestionComplete(CoupleQuestion coupleQuestion) {
+
+    }
+
+    @Transactional
+    public void updateAnswer(CoupleQuestion coupleQuestion, MemberId memberId, String answer) {
+
+    }
+
+    @Transactional
+    public void updateAnswer(TempCoupleQuestion coupleQuestion, MemberId memberId, String answer) {
+
     }
 
     @Data
