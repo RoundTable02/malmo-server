@@ -42,6 +42,7 @@ public class ChatRoomService
 
         return GetChatRoomSummaryResponse.builder()
                 .chatRoomId(chatRoom.getId())
+                .createdAt(chatRoom.getCreatedAt())
                 .totalSummary(totalSummary)
                 .firstSummary(firstSummary)
                 .secondSummary(secondSummary)
