@@ -107,12 +107,14 @@ public class OpenAiApiClient implements RequestChatApiPort {
         // OpenAI API에 요청할 때 응답 형식을 JSON으로 지정
         Map<String, Object> body = createBodyForJsonResponse(messages);
         Request request = createRequest(body);
+        log.info("Requesting OpenAI API with body: {}", body);
 
         try (Response response = client.newCall(request).execute()) {
             log.info("OpenAI API response code: {}", response.code());
 
             if (!response.isSuccessful()) {
                 log.error("OpenAI API request failed with code: {}", response.code());
+                log.info("Failed Body: {}", response.body().string());
                 throw new OpenAiRequestException("OpenAI API request failed with code: " + response.code());
             }
 
