@@ -51,7 +51,7 @@ public class CoupleService implements CoupleLinkUseCase {
         Couple savedCouple = saveCouplePort.saveCouple(couple);
 
         // 커플이 생성되면 TempCoupleQuestion을 CoupleQuestion으로 변환,
-        //  TempCoupleQuestion 없으면 1단계의 CoupleQustion을 생성
+        //  TempCoupleQuestion 없으면 1단계의 CoupleQuestion을 생성
         coupleQuestionDomainService.createFirstCoupleQuestion(
                 CoupleId.of(savedCouple.getId()),
                 MemberId.of(command.getUserId()),
