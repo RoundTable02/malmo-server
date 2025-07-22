@@ -93,10 +93,10 @@ public class QuestionController {
     @GetMapping("/{coupleQuestionId}/answers")
     public BaseResponse<GetQuestionAnswerUseCase.AnswerResponseDto> getAnswers(
             @AuthenticationPrincipal User user,
-            @PathVariable String coupleQuestionId) {
+            @PathVariable Long coupleQuestionId) {
         GetQuestionAnswerUseCase.GetQuestionAnswerCommand command = GetQuestionAnswerUseCase.GetQuestionAnswerCommand.builder()
                 .userId(Long.valueOf(user.getUsername()))
-                .coupleQuestionId(Long.valueOf(coupleQuestionId))
+                .coupleQuestionId(coupleQuestionId)
                 .build();
 
         return BaseResponse.success(getQuestionAnswerUseCase.getQuestionAnswers(command));
