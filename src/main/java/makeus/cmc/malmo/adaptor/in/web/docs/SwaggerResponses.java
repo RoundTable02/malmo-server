@@ -40,6 +40,9 @@ public class SwaggerResponses {
 
         @Schema(description = "응답 데이터 리스트")
         private List<T> list;
+
+        @Schema(description = "전체 데이터 개수", example = "100")
+        private Long totalCount;
     }
 
     // 로그인 관련 응답
