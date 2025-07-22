@@ -18,6 +18,8 @@ public class TempCoupleQuestion {
     private MemberId memberId;
     private String answer;
 
+    private CoupleQuestionState coupleQuestionState;
+
     // BaseTimeEntity fields
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
@@ -27,6 +29,7 @@ public class TempCoupleQuestion {
         return TempCoupleQuestion.builder()
                 .question(question)
                 .memberId(memberId)
+                .coupleQuestionState(CoupleQuestionState.ALIVE)
                 .build();
     }
 
@@ -38,12 +41,17 @@ public class TempCoupleQuestion {
         this.answer = answer;
     }
 
-    public static TempCoupleQuestion from(Long id, Question question, MemberId memberId, String answer, LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
+    public void usedForCoupleQuestion() {
+        this.coupleQuestionState = CoupleQuestionState.DELETED;
+    }
+
+    public static TempCoupleQuestion from(Long id, Question question, MemberId memberId, String answer, CoupleQuestionState coupleQuestionState, LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
         return TempCoupleQuestion.builder()
                 .id(id)
                 .question(question)
                 .memberId(memberId)
                 .answer(answer)
+                .coupleQuestionState(coupleQuestionState)
                 .createdAt(createdAt)
                 .modifiedAt(modifiedAt)
                 .deletedAt(deletedAt)

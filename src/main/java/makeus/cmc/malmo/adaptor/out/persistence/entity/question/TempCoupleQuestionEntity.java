@@ -10,6 +10,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
 import makeus.cmc.malmo.domain.model.question.Question;
 import makeus.cmc.malmo.domain.value.id.MemberId;
+import makeus.cmc.malmo.domain.value.state.CoupleQuestionState;
 
 import java.time.LocalDateTime;
 
@@ -32,5 +33,8 @@ public class TempCoupleQuestionEntity extends BaseTimeEntity {
 
     @Column(columnDefinition = "TEXT")
     private String answer;
+
+    @Enumerated(EnumType.STRING)
+    private CoupleQuestionState coupleQuestionState;
 
 }

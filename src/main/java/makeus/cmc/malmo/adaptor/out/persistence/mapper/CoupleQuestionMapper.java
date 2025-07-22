@@ -61,6 +61,7 @@ public class CoupleQuestionMapper {
                 entity.getMemberId() == null ? null
                         : MemberId.of(entity.getMemberId().getValue()),
                 entity.getAnswer(),
+                entity.getCoupleQuestionState(),
                 entity.getCreatedAt(),
                 entity.getModifiedAt(),
                 entity.getDeletedAt()
@@ -77,6 +78,7 @@ public class CoupleQuestionMapper {
                 .memberId(tempCoupleQuestion.getMemberId() == null ? null
                         : MemberEntityId.of(tempCoupleQuestion.getMemberId().getValue()))
                 .answer(tempCoupleQuestion.getAnswer())
+                .coupleQuestionState(tempCoupleQuestion.getCoupleQuestionState())
                 .createdAt(tempCoupleQuestion.getCreatedAt())
                 .modifiedAt(tempCoupleQuestion.getModifiedAt())
                 .deletedAt(tempCoupleQuestion.getDeletedAt())

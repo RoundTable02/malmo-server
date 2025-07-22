@@ -161,6 +161,8 @@ public class CoupleQuestionDomainService {
         boolean memberAnswered = loadTempCoupleQuestionPort.loadTempCoupleQuestionByMemberId(memberId)
                 .filter(TempCoupleQuestion::isAnswered)
                 .map(tempCoupleQuestion -> {
+                    tempCoupleQuestion.usedForCoupleQuestion();
+                    saveTempCoupleQuestionPort.saveTempCoupleQuestion(tempCoupleQuestion);
                     MemberAnswer memberAnswer = savedCoupleQuestion.createMemberAnswer(coupleMemberId, tempCoupleQuestion.getAnswer());
                     saveMemberAnswerPort.saveMemberAnswer(memberAnswer);
                     return true;
@@ -170,6 +172,8 @@ public class CoupleQuestionDomainService {
         boolean partnerAnswered = loadTempCoupleQuestionPort.loadTempCoupleQuestionByMemberId(partnerId)
                 .filter(TempCoupleQuestion::isAnswered)
                 .map(tempCoupleQuestion -> {
+                    tempCoupleQuestion.usedForCoupleQuestion();
+                    saveTempCoupleQuestionPort.saveTempCoupleQuestion(tempCoupleQuestion);
                     MemberAnswer memberAnswer = savedCoupleQuestion.createMemberAnswer(couplePartnerId, tempCoupleQuestion.getAnswer());
                     saveMemberAnswerPort.saveMemberAnswer(memberAnswer);
                     return true;
