@@ -17,6 +17,8 @@ import makeus.cmc.malmo.application.port.in.DeleteChatRoomUseCase;
 import makeus.cmc.malmo.application.port.in.GetChatRoomListUseCase;
 import makeus.cmc.malmo.application.port.in.GetChatRoomMessagesUseCase;
 import makeus.cmc.malmo.application.port.in.GetChatRoomSummaryUseCase;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
@@ -70,18 +72,18 @@ public class ChatRoomController {
     @ApiCommonResponses.RequireAuth
     @GetMapping
     public BaseResponse<BaseListResponse<GetChatRoomListUseCase.GetChatRoomResponse>> getChatRoomList(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size,
+            @PageableDefault(page = 0, size = 10) Pageable pageable,
             @RequestParam(value = "keyword", defaultValue = "") String keyword,
             @AuthenticationPrincipal User user) {
         GetChatRoomListUseCase.GetChatRoomListCommand command = GetChatRoomListUseCase.GetChatRoomListCommand.builder()
                 .userId(Long.valueOf(user.getUsername()))
                 .keyword(keyword)
-                .page(page)
-                .size(size)
+                .pageable(pageable)
                 .build();
 
-        return BaseListResponse.success(getChatRoomListUseCase.getChatRoomList(command).getChatRoomList());
+        GetChatRoomListUseCase.GetChatRoomListResponse response = getChatRoomListUseCase.getChatRoomList(command);
+
+        return BaseListResponse.success(response.getChatRoomList(), response.getTotalCount());
     }
 
     @Operation(

@@ -9,6 +9,7 @@ import makeus.cmc.malmo.domain.service.ChatMessagesDomainService;
 import makeus.cmc.malmo.domain.service.ChatRoomDomainService;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -50,11 +51,11 @@ public class ChatRoomService
 
     @Override
     public GetChatRoomListResponse getChatRoomList(GetChatRoomListCommand command) {
-        List<ChatRoom> chatRoomList = chatRoomDomainService.getCompletedChatRoomsByMemberId(
-                MemberId.of(command.getUserId()), command.getKeyword(), command.getPage(), command.getSize()
+        Page<ChatRoom> chatRoomList = chatRoomDomainService.getCompletedChatRoomsByMemberId(
+                MemberId.of(command.getUserId()), command.getKeyword(), command.getPageable()
         );
 
-        List<GetChatRoomResponse> response = chatRoomList.stream()
+        List<GetChatRoomResponse> response = chatRoomList.getContent().stream()
                 .map(chatRoom -> GetChatRoomResponse.builder()
                         .chatRoomId(chatRoom.getId())
                         .totalSummary(chatRoom.getTotalSummary())
@@ -66,6 +67,7 @@ public class ChatRoomService
 
         return GetChatRoomListResponse.builder()
                 .chatRoomList(response)
+                .totalCount(chatRoomList.getTotalElements())
                 .build();
     }
 

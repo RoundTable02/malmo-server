@@ -12,6 +12,9 @@ import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -78,11 +81,11 @@ public class ChatRoomPersistenceAdapter
     }
 
     @Override
-    public List<ChatRoom> loadAliveChatRoomsByMemberId(MemberId memberId, String keyword, int page, int size) {
-        return chatRoomRepository.loadChatRoomListByMemberId(memberId.getValue(), keyword, page, size)
-                .stream()
-                .map(chatRoomMapper::toDomain)
-                .toList();
+    public Page<ChatRoom> loadAliveChatRoomsByMemberId(MemberId memberId, String keyword, Pageable pageable) {
+        Page<ChatRoomEntity> chatRoomEntities = chatRoomRepository.loadChatRoomListByMemberId(memberId.getValue(), keyword, pageable);
+        return new PageImpl<>(chatRoomEntities.stream().map(chatRoomMapper::toDomain).toList(),
+                pageable,
+                chatRoomEntities.getTotalElements());
     }
 
     @Override
