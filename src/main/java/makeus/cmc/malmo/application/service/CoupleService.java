@@ -8,7 +8,9 @@ import makeus.cmc.malmo.domain.model.couple.Couple;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.service.ChatRoomDomainService;
 import makeus.cmc.malmo.domain.service.CoupleDomainService;
+import makeus.cmc.malmo.domain.service.CoupleQuestionDomainService;
 import makeus.cmc.malmo.domain.service.InviteCodeDomainService;
+import makeus.cmc.malmo.domain.value.id.CoupleId;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,8 @@ public class CoupleService implements CoupleLinkUseCase {
     private final InviteCodeDomainService inviteCodeDomainService;
     private final CoupleDomainService coupleDomainService;
     private final ChatRoomDomainService chatRoomDomainService;
+
+    private final CoupleQuestionDomainService coupleQuestionDomainService;
 
     private final SendSseEventPort sendSseEventPort;
 
@@ -45,6 +49,14 @@ public class CoupleService implements CoupleLinkUseCase {
         );
 
         Couple savedCouple = saveCouplePort.saveCouple(couple);
+
+        // 커플이 생성되면 TempCoupleQuestion을 CoupleQuestion으로 변환,
+        //  TempCoupleQuestion 없으면 1단계의 CoupleQuestion을 생성
+        coupleQuestionDomainService.createFirstCoupleQuestion(
+                CoupleId.of(savedCouple.getId()),
+                MemberId.of(command.getUserId()),
+                MemberId.of(partner.getId())
+        );
 
         // 커플 연결 전 일시 정지 상태의 채팅방을 활성화 (나 & 상대방)
         chatRoomDomainService.updateMemberPausedChatRoomStateToAlive(MemberId.of(command.getUserId()));

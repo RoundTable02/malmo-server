@@ -13,6 +13,7 @@ public interface GetLoveTypeQuestionsUseCase {
     @Builder
     class LoveTypeQuestionsResponseDto {
         private List<LoveTypeQuestionDto> list;
+        private Long totalCount;
     }
 
     @Data

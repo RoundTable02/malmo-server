@@ -40,6 +40,9 @@ public class SwaggerResponses {
 
         @Schema(description = "응답 데이터 리스트")
         private List<T> list;
+
+        @Schema(description = "전체 데이터 개수", example = "100")
+        private Long totalCount;
     }
 
     // 로그인 관련 응답
@@ -121,11 +124,6 @@ public class SwaggerResponses {
     @Getter
     @Schema(description = "오늘의 질문 조회 성공 응답")
     public static class QuestionSuccessResponse extends BaseSwaggerResponse<QuestionData> {
-    }
-
-    @Getter
-    @Schema(description = "질문 리스트 조회 성공 응답")
-    public static class QuestionListSuccessResponse extends BaseSwaggerResponse<BaseListSwaggerResponse<QuestionListData>> {
     }
 
     @Getter
@@ -327,11 +325,23 @@ public class SwaggerResponses {
         @Schema(description = "커플 질문 ID", example = "1")
         private Long coupleQuestionId;
 
+        @Schema(description = "질문 단계", example = "3")
+        private int level;
+
         @Schema(description = "질문 제목", example = "오늘 하루 어땠나요?")
         private String title;
 
         @Schema(description = "질문 내용", example = "오늘 하루 중 가장 기억에 남는 순간은 무엇인가요?")
         private String content;
+
+        @Schema(description = "나의 답변 여부", example = "true")
+        private boolean meAnswered;
+
+        @Schema(description = "상대방 답변 여부", example = "false")
+        private boolean partnerAnswered;
+
+        @Schema(description = "생성일시", example = "2023-07-03T10:00:00")
+        private LocalDateTime createdAt;
     }
 
     @Getter
@@ -353,8 +363,8 @@ public class SwaggerResponses {
     @Getter
     @Schema(description = "답변 등록 응답 데이터")
     public static class AnswerData {
-        @Schema(description = "멤버 답변 ID", example = "1")
-        private Long memberAnswerId;
+        @Schema(description = "답변이 달린 질문의 ID", example = "1")
+        private Long coupleQuestionId;
     }
 
     @Getter
@@ -363,11 +373,20 @@ public class SwaggerResponses {
         @Schema(description = "커플 질문 ID", example = "1")
         private Long coupleQuestionId;
 
+        @Schema(description = "질문 단계", example = "3")
+        private int level;
+
         @Schema(description = "질문 제목", example = "오늘 하루 어땠나요?")
         private String title;
 
         @Schema(description = "질문 내용", example = "오늘 하루 중 가장 기억에 남는 순간은 무엇인가요?")
         private String content;
+
+        @Schema(description = "나의 답변 여부", example = "true")
+        private boolean meAnswered;
+
+        @Schema(description = "상대방 답변 여부", example = "false")
+        private boolean partnerAnswered;
 
         @Schema(description = "생성일시", example = "2023-07-03T10:00:00")
         private LocalDateTime createdAt;
@@ -474,6 +493,8 @@ public class SwaggerResponses {
     public static class GetChatRoomSummaryData {
         @Schema(description = "채팅방의 ID", example = "1")
         private Long chatRoomId;
+        @Schema(description = "채팅방 생성 시간", example = "2025-07-20T10:15:30")
+        private LocalDateTime createdAt;
         @Schema(description = "채팅방 전체 요약", example = "회피형 남자친구의 연락두절 문제")
         private String totalSummary;
         @Schema(description = "채팅방 상황 요약", example = "남자친구는 여사친과 몰래 밥을 먹은 일에 대해 사과하길 회피했다. 이전에도 비슷한 상황이 반복되었고, 베리는 자신의 감정을 과한 것으로 여기며 소통에 어려움을 경험했다.")

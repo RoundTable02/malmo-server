@@ -2,6 +2,7 @@ package makeus.cmc.malmo.application.port.in;
 
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,14 +16,14 @@ public interface GetChatRoomListUseCase {
     class GetChatRoomListCommand {
         private Long userId;
         private String keyword;
-        private Integer page;
-        private Integer size;
+        private Pageable pageable;
     }
 
     @Data
     @Builder
     class GetChatRoomListResponse {
         private List<GetChatRoomResponse> chatRoomList;
+        private Long totalCount;
     }
 
     @Data

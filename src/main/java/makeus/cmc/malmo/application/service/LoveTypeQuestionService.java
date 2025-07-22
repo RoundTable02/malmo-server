@@ -34,6 +34,7 @@ public class LoveTypeQuestionService implements GetLoveTypeQuestionsUseCase {
 
         return LoveTypeQuestionsResponseDto.builder()
                 .list(loveTypeQuestionDtoList)
+                .totalCount((long) loveTypeQuestionDtoList.size())
                 .build();
     }
 }

@@ -11,6 +11,8 @@ import makeus.cmc.malmo.domain.model.chat.ChatRoom;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -88,8 +90,8 @@ public class ChatRoomDomainService {
         return loadChatRoomPort.loadChatRoomById(chatRoomId).orElseThrow(ChatRoomNotFoundException::new);
     }
 
-    public List<ChatRoom> getCompletedChatRoomsByMemberId(MemberId memberId, String keyword, int page, int size) {
-        return loadChatRoomPort.loadAliveChatRoomsByMemberId(memberId, keyword, page, size);
+    public Page<ChatRoom> getCompletedChatRoomsByMemberId(MemberId memberId, String keyword, Pageable pageable) {
+        return loadChatRoomPort.loadAliveChatRoomsByMemberId(memberId, keyword, pageable);
     }
 
     @Transactional

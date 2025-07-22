@@ -9,7 +9,9 @@ import makeus.cmc.malmo.domain.model.couple.Couple;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.service.ChatRoomDomainService;
 import makeus.cmc.malmo.domain.service.CoupleDomainService;
+import makeus.cmc.malmo.domain.service.CoupleQuestionDomainService;
 import makeus.cmc.malmo.domain.service.InviteCodeDomainService;
+import makeus.cmc.malmo.domain.value.id.CoupleId;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.junit.jupiter.api.DisplayName;
@@ -45,6 +47,9 @@ class CoupleServiceTest {
 
     @Mock
     private ChatRoomDomainService chatRoomDomainService;
+
+    @Mock
+    private CoupleQuestionDomainService coupleQuestionDomainService;
 
     @InjectMocks
     private CoupleService coupleService;
@@ -96,6 +101,7 @@ class CoupleServiceTest {
             then(saveCouplePort).should().saveCouple(createdCouple);
             then(chatRoomDomainService).should().updateMemberPausedChatRoomStateToAlive(MemberId.of(userId));
             then(chatRoomDomainService).should().updateMemberPausedChatRoomStateToAlive(MemberId.of(partnerId));
+            then(coupleQuestionDomainService).should().createFirstCoupleQuestion(CoupleId.of(coupleId), MemberId.of(userId), MemberId.of(partnerId));
         }
 
         @Test

@@ -7,6 +7,8 @@ import makeus.cmc.malmo.application.port.out.SaveChatMessagePort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,12 +23,12 @@ public class ChatMessagesDomainService {
     private final SaveChatMessagePort saveChatMessagePort;
     private final LoadSummarizedMessages loadSummarizedMessages;
 
-    public List<LoadMessagesPort.ChatRoomMessageRepositoryDto> getChatMessagesDto(ChatRoomId chatRoomId, int page, int size) {
-        return loadMessagesPort.loadMessagesDto(chatRoomId, page, size);
+    public Page<LoadMessagesPort.ChatRoomMessageRepositoryDto> getChatMessagesDto(ChatRoomId chatRoomId, Pageable pageable) {
+        return loadMessagesPort.loadMessagesDto(chatRoomId, pageable);
     }
 
-    public List<LoadMessagesPort.ChatRoomMessageRepositoryDto> getChatMessagesDtoAsc(ChatRoomId chatRoomId, int page, int size) {
-        return loadMessagesPort.loadMessagesDtoAsc(chatRoomId, page, size);
+    public Page<LoadMessagesPort.ChatRoomMessageRepositoryDto> getChatMessagesDtoAsc(ChatRoomId chatRoomId, Pageable pageable) {
+        return loadMessagesPort.loadMessagesDtoAsc(chatRoomId, pageable);
     }
 
     @Transactional

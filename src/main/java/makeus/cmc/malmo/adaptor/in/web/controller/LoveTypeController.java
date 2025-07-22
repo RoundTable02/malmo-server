@@ -42,6 +42,6 @@ public class LoveTypeController {
         GetLoveTypeQuestionsUseCase.LoveTypeQuestionsResponseDto loveTypeQuestions
                 = getLoveTypeQuestionsUseCase.getLoveTypeQuestions();
 
-        return BaseListResponse.success(loveTypeQuestions.getList());
+        return BaseListResponse.success(loveTypeQuestions.getList(), loveTypeQuestions.getTotalCount());
     }
 }

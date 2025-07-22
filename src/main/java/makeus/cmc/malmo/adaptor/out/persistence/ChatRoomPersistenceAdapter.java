@@ -12,6 +12,9 @@ import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -28,13 +31,13 @@ public class ChatRoomPersistenceAdapter
     private final ChatMessageMapper chatMessageMapper;
 
     @Override
-    public List<ChatRoomMessageRepositoryDto> loadMessagesDto(ChatRoomId chatRoomId, int page, int size) {
-        return chatMessageRepository.loadCurrentMessagesDto(chatRoomId.getValue(), page, size);
+    public Page<ChatRoomMessageRepositoryDto> loadMessagesDto(ChatRoomId chatRoomId, Pageable pageable) {
+        return chatMessageRepository.loadCurrentMessagesDto(chatRoomId.getValue(), pageable);
     }
 
     @Override
-    public List<ChatRoomMessageRepositoryDto> loadMessagesDtoAsc(ChatRoomId chatRoomId, int page, int size) {
-        return chatMessageRepository.loadCurrentMessagesDtoAsc(chatRoomId.getValue(), page, size);
+    public Page<ChatRoomMessageRepositoryDto> loadMessagesDtoAsc(ChatRoomId chatRoomId, Pageable pageable) {
+        return chatMessageRepository.loadCurrentMessagesDtoAsc(chatRoomId.getValue(), pageable);
     }
 
     @Override
@@ -78,11 +81,11 @@ public class ChatRoomPersistenceAdapter
     }
 
     @Override
-    public List<ChatRoom> loadAliveChatRoomsByMemberId(MemberId memberId, String keyword, int page, int size) {
-        return chatRoomRepository.loadChatRoomListByMemberId(memberId.getValue(), keyword, page, size)
-                .stream()
-                .map(chatRoomMapper::toDomain)
-                .toList();
+    public Page<ChatRoom> loadAliveChatRoomsByMemberId(MemberId memberId, String keyword, Pageable pageable) {
+        Page<ChatRoomEntity> chatRoomEntities = chatRoomRepository.loadChatRoomListByMemberId(memberId.getValue(), keyword, pageable);
+        return new PageImpl<>(chatRoomEntities.stream().map(chatRoomMapper::toDomain).toList(),
+                pageable,
+                chatRoomEntities.getTotalElements());
     }
 
     @Override

@@ -5,6 +5,9 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.application.port.out.LoadMessagesPort;
 import makeus.cmc.malmo.domain.value.state.SavedChatMessageState;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -17,8 +20,8 @@ public class ChatMessageRepositoryCustomImpl implements ChatMessageRepositoryCus
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<LoadMessagesPort.ChatRoomMessageRepositoryDto> loadCurrentMessagesDto(Long chatRoomId, int page, int size) {
-        return queryFactory.select(Projections.constructor(LoadMessagesPort.ChatRoomMessageRepositoryDto.class,
+    public Page<LoadMessagesPort.ChatRoomMessageRepositoryDto> loadCurrentMessagesDto(Long chatRoomId, Pageable pageable) {
+        List<LoadMessagesPort.ChatRoomMessageRepositoryDto> content = queryFactory.select(Projections.constructor(LoadMessagesPort.ChatRoomMessageRepositoryDto.class,
                         chatMessageEntity.id,
                         chatMessageEntity.senderType,
                         chatMessageEntity.content,
@@ -31,14 +34,24 @@ public class ChatMessageRepositoryCustomImpl implements ChatMessageRepositoryCus
                         .and(savedChatMessageEntity.savedChatMessageState.eq(SavedChatMessageState.ALIVE)))
                 .where(chatMessageEntity.chatRoomEntityId.value.eq(chatRoomId))
                 .orderBy(chatMessageEntity.createdAt.desc())
-                .offset((long) page * size)
-                .limit(size)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
+
+        long total = queryFactory.select(chatMessageEntity.count())
+                .from(chatMessageEntity)
+                .leftJoin(savedChatMessageEntity)
+                .on(savedChatMessageEntity.chatMessageEntityId.value.eq(chatMessageEntity.id)
+                        .and(savedChatMessageEntity.savedChatMessageState.eq(SavedChatMessageState.ALIVE)))
+                .where(chatMessageEntity.chatRoomEntityId.value.eq(chatRoomId))
+                .fetchOne();
+
+        return new PageImpl<>(content, pageable, total);
     }
 
     @Override
-    public List<LoadMessagesPort.ChatRoomMessageRepositoryDto> loadCurrentMessagesDtoAsc(Long chatRoomId, int page, int size) {
-        return queryFactory.select(Projections.constructor(LoadMessagesPort.ChatRoomMessageRepositoryDto.class,
+    public Page<LoadMessagesPort.ChatRoomMessageRepositoryDto> loadCurrentMessagesDtoAsc(Long chatRoomId, Pageable pageable) {
+        List<LoadMessagesPort.ChatRoomMessageRepositoryDto> content = queryFactory.select(Projections.constructor(LoadMessagesPort.ChatRoomMessageRepositoryDto.class,
                         chatMessageEntity.id,
                         chatMessageEntity.senderType,
                         chatMessageEntity.content,
@@ -51,8 +64,18 @@ public class ChatMessageRepositoryCustomImpl implements ChatMessageRepositoryCus
                         .and(savedChatMessageEntity.savedChatMessageState.eq(SavedChatMessageState.ALIVE)))
                 .where(chatMessageEntity.chatRoomEntityId.value.eq(chatRoomId))
                 .orderBy(chatMessageEntity.createdAt.asc())
-                .offset((long) page * size)
-                .limit(size)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
+
+        long total = queryFactory.select(chatMessageEntity.count())
+                .from(chatMessageEntity)
+                .leftJoin(savedChatMessageEntity)
+                .on(savedChatMessageEntity.chatMessageEntityId.value.eq(chatMessageEntity.id)
+                        .and(savedChatMessageEntity.savedChatMessageState.eq(SavedChatMessageState.ALIVE)))
+                .where(chatMessageEntity.chatRoomEntityId.value.eq(chatRoomId))
+                .fetchOne();
+
+        return new PageImpl<>(content, pageable, total);
     }
 }

@@ -1,7 +1,9 @@
 package makeus.cmc.malmo.domain.service;
 
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.application.port.out.LoadCouplePort;
 import makeus.cmc.malmo.domain.model.couple.Couple;
+import makeus.cmc.malmo.domain.value.id.CoupleId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.state.CoupleState;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,8 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class CoupleDomainService {
 
+    private final LoadCouplePort loadCouplePort;
+
     public Couple createCoupleByInviteCode(MemberId memberId, MemberId partnerId, LocalDate startLoveDate) {
         return Couple.createCouple(
                 memberId.getValue(),
@@ -21,6 +25,10 @@ public class CoupleDomainService {
                 startLoveDate,
                 CoupleState.ALIVE
         );
+    }
+
+    public CoupleId getCoupleIdByMemberId(MemberId memberId) {
+        return loadCouplePort.loadCoupleIdByMemberId(memberId);
     }
 
 }

@@ -36,6 +36,6 @@ public class TermsController {
     @GetMapping("/terms")
     public BaseResponse<BaseListResponse<TermsUseCase.TermsDto>> getTerms() {
         List<TermsUseCase.TermsDto> termsList = termsUseCase.getTerms().getTermsList();
-        return BaseListResponse.success(termsList);
+        return BaseListResponse.success(termsList, (long) termsList.size());
     }
 }

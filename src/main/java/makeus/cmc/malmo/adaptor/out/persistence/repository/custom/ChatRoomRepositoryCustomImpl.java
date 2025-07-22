@@ -5,6 +5,9 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatRoomEntity;
 import makeus.cmc.malmo.domain.value.state.ChatRoomState;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -15,20 +18,28 @@ public class ChatRoomRepositoryCustomImpl implements ChatRoomRepositoryCustom{
 
     private final JPAQueryFactory queryFactory;
 
-    @Override
-    public List<ChatRoomEntity> loadChatRoomListByMemberId(Long memberId, String keyword, int page, int size) {
+    public Page<ChatRoomEntity> loadChatRoomListByMemberId(Long memberId, String keyword, Pageable pageable) {
         BooleanExpression keywordCondition = keyword == null || keyword.isEmpty()
                 ? null
                 : chatRoomEntity.totalSummary.containsIgnoreCase(keyword);
 
-        return queryFactory.selectFrom(chatRoomEntity)
+        List<ChatRoomEntity> content = queryFactory.selectFrom(chatRoomEntity)
                 .where(chatRoomEntity.memberEntityId.value.eq(memberId)
                         .and(chatRoomEntity.chatRoomState.eq(ChatRoomState.COMPLETED))
                         .and(keywordCondition))
                 .orderBy(chatRoomEntity.createdAt.desc())
-                .offset((long) page * size)
-                .limit(size)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
+
+        long total = queryFactory.select(chatRoomEntity.count())
+                .from(chatRoomEntity)
+                .where(chatRoomEntity.memberEntityId.value.eq(memberId)
+                        .and(chatRoomEntity.chatRoomState.eq(ChatRoomState.COMPLETED))
+                        .and(keywordCondition))
+                .fetchOne();
+
+        return new PageImpl<>(content, pageable, total);
     }
 
     @Override

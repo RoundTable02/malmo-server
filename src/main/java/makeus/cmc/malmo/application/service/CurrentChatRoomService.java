@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.application.port.in.CompleteChatRoomUseCase;
 import makeus.cmc.malmo.application.port.in.GetCurrentChatRoomMessagesUseCase;
 import makeus.cmc.malmo.application.port.in.GetCurrentChatRoomUseCase;
+import makeus.cmc.malmo.application.port.out.LoadMessagesPort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
@@ -15,6 +16,7 @@ import makeus.cmc.malmo.domain.service.PromptDomainService;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.type.SenderType;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,10 +52,9 @@ public class CurrentChatRoomService
         // 현재 채팅방 가져오기
         ChatRoom currentChatRoom = chatRoomDomainService.getCurrentChatRoomByMemberId(MemberId.of(command.getUserId()));
 
-        List<ChatRoomMessageDto> list = chatMessagesDomainService.getChatMessagesDto(
-                        ChatRoomId.of(currentChatRoom.getId()), command.getPage(), command.getSize())
-                .stream()
-                .map(cm ->
+        Page<LoadMessagesPort.ChatRoomMessageRepositoryDto> result = chatMessagesDomainService.getChatMessagesDto(
+                ChatRoomId.of(currentChatRoom.getId()), command.getPageable());
+        List<ChatRoomMessageDto> list = result.stream().map(cm ->
                         ChatRoomMessageDto.builder()
                                 .messageId(cm.getMessageId())
                                 .senderType(cm.getSenderType())
@@ -65,6 +66,7 @@ public class CurrentChatRoomService
 
         return GetCurrentChatRoomMessagesResponse.builder()
                 .messages(list)
+                .totalCount(result.getTotalElements())
                 .build();
     }
 

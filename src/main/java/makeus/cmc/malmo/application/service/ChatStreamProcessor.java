@@ -62,6 +62,9 @@ public class ChatStreamProcessor {
                     if(chunk.contains("OK") && !prompt.isLastPrompt()) {
                         isOkDetected.set(true);
                     } else {
+                        if (chunk.startsWith(" ")) {
+                            chunk = " " + chunk;  // 공백 한 칸을 앞에 추가 (html event stream에서 공백이 제거되는 문제 해결)
+                        }
                         sendSseMessage(memberId, chunk);
                     }
                 },
