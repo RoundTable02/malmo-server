@@ -109,17 +109,20 @@ public class OpenAiApiClient implements RequestChatApiPort {
         Request request = createRequest(body);
 
         try (Response response = client.newCall(request).execute()) {
-            log.info("OpenAI API response code: {}, body: {}", response.code(), response.body().string());
+            log.info("OpenAI API response code: {}", response.code());
 
             if (!response.isSuccessful()) {
+                log.error("OpenAI API request failed with code: {}", response.code());
                 throw new OpenAiRequestException("OpenAI API request failed with code: " + response.code());
             }
 
             String data = response.body().string();
+            log.info("OpenAI API response data: {}", extractContent(data));
             return extractContent(data);
         } catch (IOException e) {
             throw new OpenAiRequestException("Failed to connect to OpenAI API");
         } catch (Exception e) {
+            e.printStackTrace();
             throw new OpenAiRequestException("Error processing OpenAI API response");
         }
     }
