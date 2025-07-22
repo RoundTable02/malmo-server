@@ -40,6 +40,9 @@ public class SwaggerResponses {
 
         @Schema(description = "응답 데이터 리스트")
         private List<T> list;
+
+        @Schema(description = "전체 데이터 개수", example = "100")
+        private Long totalCount;
     }
 
     // 로그인 관련 응답
@@ -490,6 +493,8 @@ public class SwaggerResponses {
     public static class GetChatRoomSummaryData {
         @Schema(description = "채팅방의 ID", example = "1")
         private Long chatRoomId;
+        @Schema(description = "채팅방 생성 시간", example = "2025-07-20T10:15:30")
+        private LocalDateTime createdAt;
         @Schema(description = "채팅방 전체 요약", example = "회피형 남자친구의 연락두절 문제")
         private String totalSummary;
         @Schema(description = "채팅방 상황 요약", example = "남자친구는 여사친과 몰래 밥을 먹은 일에 대해 사과하길 회피했다. 이전에도 비슷한 상황이 반복되었고, 베리는 자신의 감정을 과한 것으로 여기며 소통에 어려움을 경험했다.")

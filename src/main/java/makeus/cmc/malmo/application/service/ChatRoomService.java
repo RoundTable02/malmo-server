@@ -9,6 +9,7 @@ import makeus.cmc.malmo.domain.service.ChatMessagesDomainService;
 import makeus.cmc.malmo.domain.service.ChatRoomDomainService;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +42,7 @@ public class ChatRoomService
 
         return GetChatRoomSummaryResponse.builder()
                 .chatRoomId(chatRoom.getId())
+                .createdAt(chatRoom.getCreatedAt())
                 .totalSummary(totalSummary)
                 .firstSummary(firstSummary)
                 .secondSummary(secondSummary)
@@ -50,11 +52,11 @@ public class ChatRoomService
 
     @Override
     public GetChatRoomListResponse getChatRoomList(GetChatRoomListCommand command) {
-        List<ChatRoom> chatRoomList = chatRoomDomainService.getCompletedChatRoomsByMemberId(
-                MemberId.of(command.getUserId()), command.getKeyword(), command.getPage(), command.getSize()
+        Page<ChatRoom> chatRoomList = chatRoomDomainService.getCompletedChatRoomsByMemberId(
+                MemberId.of(command.getUserId()), command.getKeyword(), command.getPageable()
         );
 
-        List<GetChatRoomResponse> response = chatRoomList.stream()
+        List<GetChatRoomResponse> response = chatRoomList.getContent().stream()
                 .map(chatRoom -> GetChatRoomResponse.builder()
                         .chatRoomId(chatRoom.getId())
                         .totalSummary(chatRoom.getTotalSummary())
@@ -66,6 +68,7 @@ public class ChatRoomService
 
         return GetChatRoomListResponse.builder()
                 .chatRoomList(response)
+                .totalCount(chatRoomList.getTotalElements())
                 .build();
     }
 
@@ -73,12 +76,10 @@ public class ChatRoomService
     public GetCurrentChatRoomMessagesResponse getChatRoomMessages(GetChatRoomMessagesCommand command) {
         chatRoomDomainService.validateChatRoomOwnership(MemberId.of(command.getUserId()), ChatRoomId.of(command.getChatRoomId()));
 
-        List<LoadMessagesPort.ChatRoomMessageRepositoryDto> chatMessagesDto = chatMessagesDomainService.getChatMessagesDtoAsc(
-                ChatRoomId.of(command.getChatRoomId()), command.getPage(), command.getSize());
+        Page<LoadMessagesPort.ChatRoomMessageRepositoryDto> result =
+                chatMessagesDomainService.getChatMessagesDtoAsc(ChatRoomId.of(command.getChatRoomId()), command.getPageable());
 
-        List<GetChatRoomMessagesUseCase.ChatRoomMessageDto> list = chatMessagesDto
-                .stream()
-                .map(cm ->
+        List<GetChatRoomMessagesUseCase.ChatRoomMessageDto> list = result.stream().map(cm ->
                         GetChatRoomMessagesUseCase.ChatRoomMessageDto.builder()
                                 .messageId(cm.getMessageId())
                                 .senderType(cm.getSenderType())
@@ -90,6 +91,7 @@ public class ChatRoomService
 
         return GetCurrentChatRoomMessagesResponse.builder()
                 .messages(list)
+                .totalCount(result.getTotalElements())
                 .build();
     }
 

@@ -134,7 +134,7 @@ public class MemberController {
                 .memberId(Long.valueOf(user.getUsername()))
                 .terms(termsCommands)
                 .build();
-        return BaseListResponse.success(updateTermsAgreementUseCase.updateTermsAgreement(command).getTerms());
+        return BaseListResponse.success(updateTermsAgreementUseCase.updateTermsAgreement(command).getTerms(), (long) termsCommands.size());
     }
 
     @Operation(
