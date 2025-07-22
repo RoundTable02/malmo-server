@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleMemberEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleMemberEntityId;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleQuestionEntityId;
 import makeus.cmc.malmo.domain.value.state.MemberAnswerState;
 
 @Getter
@@ -20,13 +22,11 @@ public class MemberAnswerEntity extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "couple_question_id")
-    private CoupleQuestionEntity coupleQuestion;
+    @Embedded
+    private CoupleQuestionEntityId coupleQuestionEntityId;
 
-    @ManyToOne
-    @JoinColumn(name = "couple_member_id")
-    private CoupleMemberEntity coupleMember;
+    @Embedded
+    private CoupleMemberEntityId coupleMemberEntityId;
 
     private String answer;
 

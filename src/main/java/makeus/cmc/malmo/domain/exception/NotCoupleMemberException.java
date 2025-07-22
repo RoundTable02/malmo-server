@@ -1,4 +1,4 @@
-package makeus.cmc.malmo.domain;
+package makeus.cmc.malmo.domain.exception;
 
 public class NotCoupleMemberException extends RuntimeException {
     public NotCoupleMemberException() {

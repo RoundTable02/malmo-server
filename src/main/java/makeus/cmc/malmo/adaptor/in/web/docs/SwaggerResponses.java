@@ -124,11 +124,6 @@ public class SwaggerResponses {
     }
 
     @Getter
-    @Schema(description = "질문 리스트 조회 성공 응답")
-    public static class QuestionListSuccessResponse extends BaseSwaggerResponse<BaseListSwaggerResponse<QuestionListData>> {
-    }
-
-    @Getter
     @Schema(description = "질문 답변 등록 성공 응답")
     public static class AnswerSuccessResponse extends BaseSwaggerResponse<AnswerData> {
     }
@@ -327,11 +322,23 @@ public class SwaggerResponses {
         @Schema(description = "커플 질문 ID", example = "1")
         private Long coupleQuestionId;
 
+        @Schema(description = "질문 단계", example = "3")
+        private int level;
+
         @Schema(description = "질문 제목", example = "오늘 하루 어땠나요?")
         private String title;
 
         @Schema(description = "질문 내용", example = "오늘 하루 중 가장 기억에 남는 순간은 무엇인가요?")
         private String content;
+
+        @Schema(description = "나의 답변 여부", example = "true")
+        private boolean meAnswered;
+
+        @Schema(description = "상대방 답변 여부", example = "false")
+        private boolean partnerAnswered;
+
+        @Schema(description = "생성일시", example = "2023-07-03T10:00:00")
+        private LocalDateTime createdAt;
     }
 
     @Getter
@@ -353,8 +360,8 @@ public class SwaggerResponses {
     @Getter
     @Schema(description = "답변 등록 응답 데이터")
     public static class AnswerData {
-        @Schema(description = "멤버 답변 ID", example = "1")
-        private Long memberAnswerId;
+        @Schema(description = "답변이 달린 질문의 ID", example = "1")
+        private Long coupleQuestionId;
     }
 
     @Getter
@@ -363,11 +370,20 @@ public class SwaggerResponses {
         @Schema(description = "커플 질문 ID", example = "1")
         private Long coupleQuestionId;
 
+        @Schema(description = "질문 단계", example = "3")
+        private int level;
+
         @Schema(description = "질문 제목", example = "오늘 하루 어땠나요?")
         private String title;
 
         @Schema(description = "질문 내용", example = "오늘 하루 중 가장 기억에 남는 순간은 무엇인가요?")
         private String content;
+
+        @Schema(description = "나의 답변 여부", example = "true")
+        private boolean meAnswered;
+
+        @Schema(description = "상대방 답변 여부", example = "false")
+        private boolean partnerAnswered;
 
         @Schema(description = "생성일시", example = "2023-07-03T10:00:00")
         private LocalDateTime createdAt;

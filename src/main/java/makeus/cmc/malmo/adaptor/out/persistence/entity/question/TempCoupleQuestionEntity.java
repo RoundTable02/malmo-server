@@ -2,14 +2,14 @@ package makeus.cmc.malmo.adaptor.out.persistence.entity.question;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntity;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleEntity;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleEntityId;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
 import makeus.cmc.malmo.domain.model.question.Question;
-import makeus.cmc.malmo.domain.value.id.CoupleId;
+import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.state.CoupleQuestionState;
 
 import java.time.LocalDateTime;
@@ -18,9 +18,8 @@ import java.time.LocalDateTime;
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class CoupleQuestionEntity extends BaseTimeEntity {
-
-    @Column(name = "coupleQuestionId")
+public class TempCoupleQuestionEntity extends BaseTimeEntity {
+    @Column(name = "TempCoupleQuestionId")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,10 +29,12 @@ public class CoupleQuestionEntity extends BaseTimeEntity {
     private QuestionEntity question;
 
     @Embedded
-    private CoupleEntityId coupleEntityId;
+    private MemberEntityId memberId;
+
+    @Column(columnDefinition = "TEXT")
+    private String answer;
 
     @Enumerated(EnumType.STRING)
     private CoupleQuestionState coupleQuestionState;
 
-    private LocalDateTime bothAnsweredAt;
 }
