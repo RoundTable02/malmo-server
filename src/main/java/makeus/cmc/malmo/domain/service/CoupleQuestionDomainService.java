@@ -223,6 +223,6 @@ public class CoupleQuestionDomainService {
             return false;
         }
 
-        return bothAnsweredAt.toLocalDate().isBefore(LocalDateTime.now().toLocalDate());
+        return bothAnsweredAt.toLocalDate().isBefore(LocalDate.now());
     }
 }
