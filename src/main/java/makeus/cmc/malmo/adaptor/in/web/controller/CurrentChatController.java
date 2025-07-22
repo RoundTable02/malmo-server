@@ -20,6 +20,8 @@ import makeus.cmc.malmo.application.port.in.CompleteChatRoomUseCase;
 import makeus.cmc.malmo.application.port.in.GetCurrentChatRoomMessagesUseCase;
 import makeus.cmc.malmo.application.port.in.GetCurrentChatRoomUseCase;
 import makeus.cmc.malmo.application.port.in.SendChatMessageUseCase;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
@@ -68,17 +70,15 @@ public class CurrentChatController {
     @ApiCommonResponses.RequireAuth
     @GetMapping("/messages")
     public BaseResponse<BaseListResponse<GetCurrentChatRoomMessagesUseCase.ChatRoomMessageDto>> getCurrentChatRoomMessages(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size,
+            @PageableDefault(page = 0, size = 10) Pageable pageable,
             @AuthenticationPrincipal User user) {
         GetCurrentChatRoomMessagesUseCase.GetCurrentChatRoomMessagesCommand command = GetCurrentChatRoomMessagesUseCase.GetCurrentChatRoomMessagesCommand.builder()
                 .userId(Long.valueOf(user.getUsername()))
-                .page(page) // 기본 페이지 0
-                .size(size) // 기본 페이지 크기 20
+                .pageable(pageable)
                 .build();
         GetCurrentChatRoomMessagesUseCase.GetCurrentChatRoomMessagesResponse currentChatRoomMessages = getCurrentChatRoomMessagesUseCase.getCurrentChatRoomMessages(command);
 
-        return BaseListResponse.success(currentChatRoomMessages.getMessages());
+        return BaseListResponse.success(currentChatRoomMessages.getMessages(), currentChatRoomMessages.getTotalCount());
     }
 
     @Operation(

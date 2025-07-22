@@ -75,12 +75,10 @@ public class ChatRoomService
     public GetCurrentChatRoomMessagesResponse getChatRoomMessages(GetChatRoomMessagesCommand command) {
         chatRoomDomainService.validateChatRoomOwnership(MemberId.of(command.getUserId()), ChatRoomId.of(command.getChatRoomId()));
 
-        List<LoadMessagesPort.ChatRoomMessageRepositoryDto> chatMessagesDto = chatMessagesDomainService.getChatMessagesDtoAsc(
-                ChatRoomId.of(command.getChatRoomId()), command.getPage(), command.getSize());
+        Page<LoadMessagesPort.ChatRoomMessageRepositoryDto> result =
+                chatMessagesDomainService.getChatMessagesDtoAsc(ChatRoomId.of(command.getChatRoomId()), command.getPageable());
 
-        List<GetChatRoomMessagesUseCase.ChatRoomMessageDto> list = chatMessagesDto
-                .stream()
-                .map(cm ->
+        List<GetChatRoomMessagesUseCase.ChatRoomMessageDto> list = result.stream().map(cm ->
                         GetChatRoomMessagesUseCase.ChatRoomMessageDto.builder()
                                 .messageId(cm.getMessageId())
                                 .senderType(cm.getSenderType())
@@ -92,6 +90,7 @@ public class ChatRoomService
 
         return GetCurrentChatRoomMessagesResponse.builder()
                 .messages(list)
+                .totalCount(result.getTotalElements())
                 .build();
     }
 

@@ -31,13 +31,13 @@ public class ChatRoomPersistenceAdapter
     private final ChatMessageMapper chatMessageMapper;
 
     @Override
-    public List<ChatRoomMessageRepositoryDto> loadMessagesDto(ChatRoomId chatRoomId, int page, int size) {
-        return chatMessageRepository.loadCurrentMessagesDto(chatRoomId.getValue(), page, size);
+    public Page<ChatRoomMessageRepositoryDto> loadMessagesDto(ChatRoomId chatRoomId, Pageable pageable) {
+        return chatMessageRepository.loadCurrentMessagesDto(chatRoomId.getValue(), pageable);
     }
 
     @Override
-    public List<ChatRoomMessageRepositoryDto> loadMessagesDtoAsc(ChatRoomId chatRoomId, int page, int size) {
-        return chatMessageRepository.loadCurrentMessagesDtoAsc(chatRoomId.getValue(), page, size);
+    public Page<ChatRoomMessageRepositoryDto> loadMessagesDtoAsc(ChatRoomId chatRoomId, Pageable pageable) {
+        return chatMessageRepository.loadCurrentMessagesDtoAsc(chatRoomId.getValue(), pageable);
     }
 
     @Override

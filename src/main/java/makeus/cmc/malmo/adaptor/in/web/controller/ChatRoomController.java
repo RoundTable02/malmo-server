@@ -100,17 +100,16 @@ public class ChatRoomController {
     @ApiCommonResponses.OnlyOwner
     @GetMapping("/{chatRoomId}/messages")
     public BaseResponse<BaseListResponse<GetChatRoomMessagesUseCase.ChatRoomMessageDto>> getChatRoomMessages(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size,
+            @PageableDefault(page = 0, size = 10) Pageable pageable,
             @AuthenticationPrincipal User user, @PathVariable Long chatRoomId) {
         GetChatRoomMessagesUseCase.GetChatRoomMessagesCommand command = GetChatRoomMessagesUseCase.GetChatRoomMessagesCommand.builder()
                 .userId(Long.valueOf(user.getUsername()))
                 .chatRoomId(chatRoomId)
-                .page(page)
-                .size(size)
+                .pageable(pageable)
                 .build();
 
-        return BaseListResponse.success(getChatRoomMessagesUseCase.getChatRoomMessages(command).getMessages());
+        GetChatRoomMessagesUseCase.GetCurrentChatRoomMessagesResponse response = getChatRoomMessagesUseCase.getChatRoomMessages(command);
+        return BaseListResponse.success(response.getMessages(), response.getTotalCount());
     }
 
     @Operation(
