@@ -66,6 +66,12 @@ public class CoupleQuestionDomainService {
 
     @Transactional
     public CoupleQuestion createNextCoupleQuestion(CoupleId coupleId, int nowLevel) {
+        CoupleQuestion couplePreviousQuestion = loadCoupleQuestionPort.loadMaxLevelCoupleQuestion(coupleId)
+                .orElseThrow(CoupleQuestionNotFoundException::new);
+
+        couplePreviousQuestion.expire();
+        saveCoupleQuestionPort.saveCoupleQuestion(couplePreviousQuestion);
+
         Question nextQuestion = loadQuestionPort.loadQuestionByLevel(nowLevel + 1)
                 .orElseThrow(QuestionNotFoundException::new);
         CoupleQuestion coupleQuestion = CoupleQuestion.createCoupleQuestion(nextQuestion, coupleId);
@@ -141,6 +147,42 @@ public class CoupleQuestionDomainService {
         saveTempCoupleQuestionPort.saveTempCoupleQuestion(coupleQuestion);
     }
 
+    @Transactional
+    public void createFirstCoupleQuestion(CoupleId coupleId, MemberId memberId, MemberId partnerId) {
+        Question question = loadQuestionPort.loadQuestionByLevel(FIRST_QUESTION_LEVEL)
+                .orElseThrow(QuestionNotFoundException::new);
+
+        CoupleMemberId coupleMemberId = loadCouplePort.loadCoupleMemberIdByMemberId(memberId);
+        CoupleMemberId couplePartnerId = loadCouplePort.loadCoupleMemberIdByMemberId(partnerId);
+
+        CoupleQuestion coupleQuestion = CoupleQuestion.createCoupleQuestion(question, coupleId);
+        CoupleQuestion savedCoupleQuestion = saveCoupleQuestionPort.saveCoupleQuestion(coupleQuestion);
+
+        boolean memberAnswered = loadTempCoupleQuestionPort.loadTempCoupleQuestionByMemberId(memberId)
+                .filter(TempCoupleQuestion::isAnswered)
+                .map(tempCoupleQuestion -> {
+                    MemberAnswer memberAnswer = savedCoupleQuestion.createMemberAnswer(coupleMemberId, tempCoupleQuestion.getAnswer());
+                    saveMemberAnswerPort.saveMemberAnswer(memberAnswer);
+                    return true;
+                })
+                .orElse(false);
+
+        boolean partnerAnswered = loadTempCoupleQuestionPort.loadTempCoupleQuestionByMemberId(partnerId)
+                .filter(TempCoupleQuestion::isAnswered)
+                .map(tempCoupleQuestion -> {
+                    MemberAnswer memberAnswer = savedCoupleQuestion.createMemberAnswer(couplePartnerId, tempCoupleQuestion.getAnswer());
+                    saveMemberAnswerPort.saveMemberAnswer(memberAnswer);
+                    return true;
+                })
+                .orElse(false);
+
+        if (memberAnswered && partnerAnswered) {
+            savedCoupleQuestion.complete();
+        }
+
+        saveCoupleQuestionPort.saveCoupleQuestion(savedCoupleQuestion);
+    }
+
     @Data
     @Builder
     public static class CoupleQuestionDto {
@@ -177,8 +219,6 @@ public class CoupleQuestionDomainService {
             return false;
         }
 
-        LocalDate yesterday = LocalDateTime.now().minusDays(1).toLocalDate();
-
-        return bothAnsweredAt.toLocalDate().equals(yesterday);
+        return bothAnsweredAt.toLocalDate().isBefore(LocalDateTime.now().toLocalDate());
     }
 }

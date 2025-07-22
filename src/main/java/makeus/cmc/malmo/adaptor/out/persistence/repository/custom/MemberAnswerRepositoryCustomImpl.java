@@ -33,10 +33,10 @@ public class MemberAnswerRepositoryCustomImpl implements MemberAnswerRepositoryC
                 .select(Projections.constructor(MemberAnswerPersistenceAdapter.AnswerRepositoryDto.class,
                         memberEntity.nickname,
                         memberAnswerEntity.answer,
-                        coupleQuestionEntity.coupleQuestionState.ne(CoupleQuestionState.COMPLETED),
+                        coupleQuestionEntity.coupleQuestionState.ne(CoupleQuestionState.OUTDATED),
                         partnerMemberEntity.nickname,
                         partnerAnswerEntity.answer,
-                        coupleQuestionEntity.coupleQuestionState.ne(CoupleQuestionState.COMPLETED)))
+                        coupleQuestionEntity.coupleQuestionState.ne(CoupleQuestionState.OUTDATED)))
                 .from(memberAnswerEntity)
                 .join(coupleMemberEntity).on(coupleMemberEntity.id.eq(memberAnswerEntity.coupleMemberEntityId.value))
                 .join(memberEntity)
@@ -59,7 +59,7 @@ public class MemberAnswerRepositoryCustomImpl implements MemberAnswerRepositoryC
         MemberAnswerEntity result = queryFactory.selectFrom(memberAnswerEntity)
                 .join(coupleMemberEntity)
                 .on(memberAnswerEntity.coupleMemberEntityId.value.eq(coupleMemberEntity.coupleEntityId.value))
-                .where(coupleQuestionEntity.id.eq(coupleQuestionEntityId)
+                .where(memberAnswerEntity.coupleMemberEntityId.value.eq(coupleQuestionEntityId)
                         .and(coupleMemberEntity.memberEntityId.value.eq(memberId)))
                 .fetchOne();
 

@@ -51,8 +51,12 @@ public class CoupleQuestion {
         this.bothAnsweredAt = LocalDateTime.now();
     }
 
+    public void expire() {
+        this.coupleQuestionState = CoupleQuestionState.OUTDATED;
+    }
+
     public boolean isUpdatable() {
-        return this.coupleQuestionState != CoupleQuestionState.COMPLETED;
+        return this.coupleQuestionState != CoupleQuestionState.OUTDATED;
     }
 
     public static CoupleQuestion from(Long id, Question question, CoupleId coupleId, CoupleQuestionState coupleQuestionState, LocalDateTime bothAnsweredAt, LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {

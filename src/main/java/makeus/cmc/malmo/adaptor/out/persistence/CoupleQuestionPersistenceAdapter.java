@@ -1,5 +1,6 @@
 package makeus.cmc.malmo.adaptor.out.persistence;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -89,6 +90,7 @@ public class CoupleQuestionPersistenceAdapter
 
     @Data
     @Builder
+    @AllArgsConstructor
     public static class CoupleQuestionRepositoryDto {
         private Long id;
         private String title;

@@ -1,5 +1,6 @@
 package makeus.cmc.malmo.adaptor.out.persistence;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +55,7 @@ public class MemberAnswerPersistenceAdapter implements LoadMemberAnswerPort, Sav
 
     @Data
     @Builder
+    @AllArgsConstructor
     public static class AnswerRepositoryDto {
         private String nickname;
         private String answer;

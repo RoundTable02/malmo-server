@@ -1,6 +1,7 @@
 package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.in.aop.CheckCoupleMember;
 import makeus.cmc.malmo.application.port.in.AnswerQuestionUseCase;
 import makeus.cmc.malmo.application.port.in.GetQuestionAnswerUseCase;
@@ -18,6 +19,7 @@ import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -71,9 +73,6 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
             // TempCoupleQuestion을 조회, 없으면 생성
             TempCoupleQuestion tempCoupleQuestion = coupleQuestionDomainService.getTempCoupleQuestion(MemberId.of(command.getUserId()));
 
-            // TODO : 커플이 생성되면 TempCoupleQuestion을 CoupleQuestion으로 변환,
-            //  TempCoupleQuestion 없으면 1단계의 CoupleQustion을 생성
-
             return GetQuestionResponse.builder()
                     .coupleQuestionId(tempCoupleQuestion.getId())
                     .title(tempCoupleQuestion.getQuestion().getTitle())
@@ -97,6 +96,7 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
                 .coupleQuestionId(question.getId())
                 .title(question.getTitle())
                 .content(question.getContent())
+                .level(question.getLevel())
                 .meAnswered(question.isMeAnswered())
                 .partnerAnswered(question.isPartnerAnswered())
                 .createdAt(question.getCreatedAt())
