@@ -225,6 +225,12 @@ public class SwaggerResponses {
         @Schema(description = "애착 유형", example = "STABLE_TYPE")
         private LoveTypeCategory loveTypeCategory;
 
+        @Schema(description = "완료된 채팅방 개수", example = "5")
+        private int totalChatRoomCount;
+
+        @Schema(description = "총 할당된 오늘의 질문 개수", example = "10")
+        private int totalCoupleQuestionCount;
+
         @Schema(description = "회피 비율", example = "0.3")
         private float avoidanceRate;
 
