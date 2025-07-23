@@ -1,6 +1,7 @@
 package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.application.port.in.DeleteMemberUseCase;
 import makeus.cmc.malmo.application.port.in.UpdateMemberUseCase;
 import makeus.cmc.malmo.application.port.in.UpdateStartLoveDateUseCase;
@@ -24,6 +25,7 @@ public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLov
     private final SaveMemberPort saveMemberPort;
 
     @Override
+    @CheckValidMember
     public UpdateMemberResponseDto updateMember(UpdateMemberCommand command) {
         Member member = memberDomainService.getMemberById(MemberId.of(command.getMemberId()));
 
@@ -37,6 +39,7 @@ public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLov
     }
 
     @Override
+    @CheckValidMember
     public UpdateStartLoveDateResponse updateStartLoveDate(UpdateStartLoveDateCommand command) {
         Member member = memberDomainService.getMemberById(MemberId.of(command.getMemberId()));
         Member updatedMember = memberDomainService.updateMemberStartLoveDate(member, command.getStartLoveDate());
@@ -46,6 +49,7 @@ public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLov
     }
 
     @Override
+    @CheckValidMember
     public void deleteMember(DeleteMemberCommand command) {
         // 멤버 soft delete
         Member member = memberDomainService.getMemberById(MemberId.of(command.getMemberId()));

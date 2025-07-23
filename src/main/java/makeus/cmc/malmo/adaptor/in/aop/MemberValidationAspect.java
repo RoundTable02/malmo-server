@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 @RequiredArgsConstructor
-public class CoupleMemberValidationAspect {
+public class MemberValidationAspect {
 
     private final MemberDomainValidationService memberValidationService;
 
@@ -27,7 +27,21 @@ public class CoupleMemberValidationAspect {
         }
 
         Long memberId = Long.valueOf(user.getUsername());
+        // ALIVE 상태의 커플, ALIVE 상태의 멤버인지 확인
         memberValidationService.isMemberCouple(MemberId.of(memberId));
+    }
+
+    @Before("@annotation(CheckValidMember)")
+    public void checkValidMember() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !(authentication.getPrincipal() instanceof User user)) {
+            throw new AuthenticationCredentialsNotFoundException("인증된 사용자를 찾을 수 없습니다.");
+        }
+
+        Long memberId = Long.valueOf(user.getUsername());
+        // ALIVE 상태의 멤버인지 확인
+        memberValidationService.isMemberValid(MemberId.of(memberId));
     }
 }
 

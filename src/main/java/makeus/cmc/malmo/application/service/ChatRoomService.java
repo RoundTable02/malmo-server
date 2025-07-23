@@ -1,6 +1,7 @@
 package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.application.port.in.*;
 import makeus.cmc.malmo.application.port.out.LoadMessagesPort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
@@ -26,13 +27,11 @@ public class ChatRoomService
     private final ChatMessagesDomainService chatMessagesDomainService;
 
     @Override
+    @CheckValidMember
     public GetChatRoomSummaryResponse getChatRoomSummary(GetChatRoomSummaryCommand command) {
         chatRoomDomainService.validateChatRoomOwnership(MemberId.of(command.getUserId()), ChatRoomId.of(command.getChatRoomId()));
 
         ChatRoom chatRoom = chatRoomDomainService.getChatRoomById(ChatRoomId.of(command.getChatRoomId()));
-        if (!Objects.equals(chatRoom.getMemberId().getValue(), command.getUserId())) {
-            throw new AccessDeniedException("User does not have access to this chat room");
-        }
 
         String totalSummary = chatRoom.getTotalSummary();
         List<ChatMessageSummary> summarizedMessages = chatMessagesDomainService.getSummarizedMessages(ChatRoomId.of(chatRoom.getId()));
@@ -51,6 +50,7 @@ public class ChatRoomService
     }
 
     @Override
+    @CheckValidMember
     public GetChatRoomListResponse getChatRoomList(GetChatRoomListCommand command) {
         Page<ChatRoom> chatRoomList = chatRoomDomainService.getCompletedChatRoomsByMemberId(
                 MemberId.of(command.getUserId()), command.getKeyword(), command.getPageable()
@@ -73,6 +73,7 @@ public class ChatRoomService
     }
 
     @Override
+    @CheckValidMember
     public GetCurrentChatRoomMessagesResponse getChatRoomMessages(GetChatRoomMessagesCommand command) {
         chatRoomDomainService.validateChatRoomOwnership(MemberId.of(command.getUserId()), ChatRoomId.of(command.getChatRoomId()));
 
@@ -96,6 +97,7 @@ public class ChatRoomService
     }
 
     @Override
+    @CheckValidMember
     public void deleteChatRooms(DeleteChatRoomsCommand command) {
         // 모든 채팅방이 멤버 소유인지 검증
         chatRoomDomainService.validateChatRoomsOwnership(

@@ -22,4 +22,6 @@ public interface MemberRepositoryCustom {
 
     Optional<LoadChatRoomMetadataPort.ChatRoomMetadataDto> loadChatRoomMetadata(Long memberId);
 
+    boolean isMemberStateAlive(Long memberId);
+
 }

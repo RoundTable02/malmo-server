@@ -1,6 +1,7 @@
 package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.application.port.in.UpdateMemberLoveTypeUseCase;
 import makeus.cmc.malmo.application.port.out.SaveMemberPort;
 import makeus.cmc.malmo.domain.model.member.Member;
@@ -25,6 +26,7 @@ public class LoveTypeService implements UpdateMemberLoveTypeUseCase {
 
     @Override
     @Transactional
+    @CheckValidMember
     public void updateMemberLoveType(UpdateMemberLoveTypeCommand command) {
         Member member = memberDomainService.getMemberById(MemberId.of(command.getMemberId()));
 

@@ -11,6 +11,8 @@ import makeus.cmc.malmo.application.port.out.LoadChatRoomMetadataPort;
 import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.LoadPartnerPort;
 import makeus.cmc.malmo.domain.value.state.CoupleMemberState;
+import makeus.cmc.malmo.domain.value.state.CoupleState;
+import makeus.cmc.malmo.domain.value.state.MemberState;
 
 import java.util.Optional;
 
@@ -67,12 +69,16 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
 
     @Override
     public boolean isCoupleMember(Long memberId) {
-        return queryFactory
-                .selectOne()
+        Long count = queryFactory.select(coupleMemberEntity.count())
                 .from(coupleMemberEntity)
+                .join(memberEntity).on(memberEntity.id.eq(coupleMemberEntity.memberEntityId.value))
+                .join(coupleEntity).on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value))
                 .where(coupleMemberEntity.memberEntityId.value.eq(memberId)
-                        .and(coupleMemberEntity.coupleMemberState.eq(CoupleMemberState.ALIVE)))
-                .fetchFirst() != null;
+                        .and(memberEntity.memberState.ne(MemberState.DELETED))
+                        .and(coupleEntity.coupleState.ne(CoupleState.DELETED)))
+                .fetchOne();
+
+        return count != null && count > 0;
     }
 
     @Override
@@ -127,5 +133,16 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .fetchOne();
 
         return Optional.ofNullable(dto);
+    }
+
+    @Override
+    public boolean isMemberStateAlive(Long memberId) {
+        Long count = queryFactory.select(memberEntity.count())
+            .from(memberEntity)
+            .where(memberEntity.id.eq(memberId)
+                    .and(memberEntity.memberState.ne(MemberState.DELETED)))
+            .fetchOne();
+
+        return count != null && count > 0;
     }
 }

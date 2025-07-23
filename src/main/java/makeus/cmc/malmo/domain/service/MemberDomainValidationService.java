@@ -2,6 +2,7 @@ package makeus.cmc.malmo.domain.service;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.application.port.out.ValidateMemberPort;
+import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
 import makeus.cmc.malmo.domain.exception.NotCoupleMemberException;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Component;
@@ -20,11 +21,11 @@ public class MemberDomainValidationService {
         }
     }
 
-    public void isMemberTested(MemberId memberId) {
-        boolean testedMember = validateMemberPort.isTestedMember(memberId);
+    public void isMemberValid(MemberId memberId) {
+        boolean validMember = validateMemberPort.isValidMember(memberId);
 
-        if (!testedMember) {
-            throw new NotCoupleMemberException("테스트를 완료하지 않은 사용자입니다. 테스트 후 이용해주세요.");
+        if (!validMember) {
+            throw new MemberNotFoundException("존재하지 않는 사용자입니다. 회원가입 후 이용해주세요.");
         }
     }
 }

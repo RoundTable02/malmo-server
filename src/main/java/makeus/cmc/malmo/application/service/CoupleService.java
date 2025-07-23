@@ -1,6 +1,7 @@
 package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.application.port.in.CoupleLinkUseCase;
 import makeus.cmc.malmo.application.port.out.SaveCouplePort;
 import makeus.cmc.malmo.application.port.out.SendSseEventPort;
@@ -35,6 +36,7 @@ public class CoupleService implements CoupleLinkUseCase {
 
     @Override
     @Transactional
+    @CheckValidMember
     public CoupleLinkResponse coupleLink(CoupleLinkCommand command) {
         InviteCodeValue inviteCode = InviteCodeValue.of(command.getCoupleCode());
         inviteCodeDomainService.validateUsedInviteCode(inviteCode);

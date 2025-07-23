@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.in.aop.CheckCoupleMember;
+import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.adaptor.out.persistence.MemberPersistenceAdapter;
 import makeus.cmc.malmo.application.port.in.GetMemberUseCase;
 import makeus.cmc.malmo.application.port.in.GetPartnerUseCase;
@@ -28,6 +29,7 @@ public class MemberInfoService implements GetMemberUseCase, GetPartnerUseCase {
     private final LoadPartnerPort loadPartnerPort;
 
     @Override
+    @CheckValidMember
     public MemberResponseDto getMemberInfo(MemberInfoCommand command) {
         MemberInfoDto member = loadMemberPort.loadMemberDetailsById(MemberId.of(command.getUserId()))
                 .orElseThrow(MemberNotFoundException::new);

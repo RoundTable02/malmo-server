@@ -2,6 +2,7 @@ package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.application.port.in.SendChatMessageUseCase;
 import makeus.cmc.malmo.application.port.out.LoadChatRoomMetadataPort;
 import makeus.cmc.malmo.application.port.out.ValidateMemberPort;
@@ -39,6 +40,7 @@ public class ChatService implements SendChatMessageUseCase {
 
     @Override
     @Transactional
+    @CheckValidMember
     public SendChatMessageResponse processUserMessage(SendChatMessageCommand command) {
         chatRoomDomainService.validateChatRoomAlive(MemberId.of(command.getUserId()));
 
@@ -109,6 +111,7 @@ public class ChatService implements SendChatMessageUseCase {
 
     @Override
     @Transactional
+    @CheckValidMember
     public void upgradeChatRoom(SendChatMessageCommand command) {
         // 이전 LEVEL이 종료, 현재 레벨에 처음 진입한 경우
         //  이전 레벨의 ChatMessageSummary와 summarized = false인 ChatMessage를 비동기 요약 처리
