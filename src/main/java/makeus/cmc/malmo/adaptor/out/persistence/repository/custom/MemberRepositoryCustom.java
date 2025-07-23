@@ -1,5 +1,6 @@
 package makeus.cmc.malmo.adaptor.out.persistence.repository.custom;
 
+import makeus.cmc.malmo.adaptor.out.persistence.MemberPersistenceAdapter;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.application.port.out.LoadChatRoomMetadataPort;
 import makeus.cmc.malmo.application.port.out.LoadMemberPort;
@@ -8,7 +9,7 @@ import makeus.cmc.malmo.application.port.out.LoadPartnerPort;
 import java.util.Optional;
 
 public interface MemberRepositoryCustom {
-    Optional<LoadMemberPort.MemberResponseRepositoryDto> findMemberDetailsById(Long memberId);
+    Optional<MemberPersistenceAdapter.MemberResponseRepositoryDto> findMemberDetailsById(Long memberId);
     Optional<LoadPartnerPort.PartnerMemberRepositoryDto> findPartnerMember(Long memberId);
 
     boolean isCoupleMember(Long memberId);

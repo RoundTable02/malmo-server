@@ -6,6 +6,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.CoupleQuestionPersistenceAdapter;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.question.CoupleQuestionEntity;
+import makeus.cmc.malmo.domain.value.state.CoupleMemberState;
 
 import java.util.Optional;
 
@@ -100,5 +101,17 @@ public class CoupleQuestionRepositoryCustomImpl implements CoupleQuestionReposit
                 .fetchOne();
 
         return Optional.ofNullable(dto);
+    }
+
+
+    @Override
+    public int countCoupleQuestionsByMemberId(Long memberId) {
+        return queryFactory
+                .select(coupleQuestionEntity.count().intValue())
+                .from(coupleQuestionEntity)
+                .join(coupleMemberEntity).on(coupleMemberEntity.coupleEntityId.value.eq(coupleQuestionEntity.coupleEntityId.value))
+                .where(coupleMemberEntity.memberEntityId.value.eq(memberId)
+                        .and(coupleMemberEntity.coupleMemberState.eq(CoupleMemberState.ALIVE)))
+                .fetchOne();
     }
 }

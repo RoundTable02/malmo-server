@@ -14,4 +14,6 @@ public interface ChatRoomRepositoryCustom {
     boolean isMemberOwnerOfChatRooms(Long memberId, List<Long> chatRoomIds);
 
     void deleteChatRooms(List<Long> chatRoomIds);
+
+    int countChatRoomsByMemberId(Long memberId);
 }

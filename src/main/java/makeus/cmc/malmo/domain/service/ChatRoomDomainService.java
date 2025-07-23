@@ -56,7 +56,7 @@ public class ChatRoomDomainService {
         // 현재 채팅방이 존재하는지 확인하고, 없으면 초기 메시지와 함께 새로 생성
         return loadChatRoomPort.loadCurrentChatRoomByMemberId(memberId)
                 .orElseGet(() -> {
-                    Member member = loadMemberPort.loadMemberById(memberId.getValue())
+                    Member member = loadMemberPort.loadMemberById(MemberId.of(memberId.getValue()))
                             .orElseThrow(MemberNotFoundException::new);
                     ChatRoom chatRoom = saveChatRoomPort.saveChatRoom(ChatRoom.createChatRoom(memberId));
                     ChatMessage initMessage = ChatMessage.createAssistantTextMessage(

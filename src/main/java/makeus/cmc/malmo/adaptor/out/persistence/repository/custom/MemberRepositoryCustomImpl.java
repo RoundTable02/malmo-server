@@ -3,6 +3,7 @@ package makeus.cmc.malmo.adaptor.out.persistence.repository.custom;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.adaptor.out.persistence.MemberPersistenceAdapter;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleMemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.QMemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
@@ -23,9 +24,9 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Optional<LoadMemberPort.MemberResponseRepositoryDto> findMemberDetailsById(Long memberId) {
-        LoadMemberPort.MemberResponseRepositoryDto dto = queryFactory
-                .select(Projections.constructor(LoadMemberPort.MemberResponseRepositoryDto.class,
+    public Optional<MemberPersistenceAdapter.MemberResponseRepositoryDto> findMemberDetailsById(Long memberId) {
+        MemberPersistenceAdapter.MemberResponseRepositoryDto dto = queryFactory
+                .select(Projections.constructor(MemberPersistenceAdapter.MemberResponseRepositoryDto.class,
                         memberEntity.memberState.stringValue(),
                         coupleEntity.startLoveDate.coalesce(memberEntity.startLoveDate),
                         memberEntity.loveTypeCategory,

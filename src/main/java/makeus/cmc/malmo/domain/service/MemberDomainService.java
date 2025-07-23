@@ -24,7 +24,7 @@ public class MemberDomainService {
     private final LoadMemberPort loadMemberPort;
 
     public Member getMemberById(MemberId memberId) {
-        return loadMemberPort.loadMemberById(memberId.getValue())
+        return loadMemberPort.loadMemberById(MemberId.of(memberId.getValue()))
                 .orElseThrow(MemberNotFoundException::new);
     }
 
