@@ -61,4 +61,10 @@ public class Couple {
     public void updateStartLoveDate(LocalDate startLoveDate) {
         this.startLoveDate = startLoveDate;
     }
+
+    public void delete() {
+        this.coupleState = CoupleState.DELETED;
+        this.deletedAt = LocalDateTime.now();
+        this.coupleMembers.forEach(CoupleMember::coupleDeleted);
+    }
 }

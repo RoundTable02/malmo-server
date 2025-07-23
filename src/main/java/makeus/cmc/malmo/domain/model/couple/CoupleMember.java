@@ -34,4 +34,9 @@ public class CoupleMember {
                 .deletedAt(deletedAt)
                 .build();
     }
+
+    public void coupleDeleted() {
+        this.coupleMemberState = CoupleMemberState.DELETED;
+        this.deletedAt = LocalDateTime.now();
+    }
 }

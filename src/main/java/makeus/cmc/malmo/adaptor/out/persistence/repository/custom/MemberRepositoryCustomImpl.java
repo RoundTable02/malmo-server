@@ -38,7 +38,8 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                         memberEntity.email
                 ))
                 .from(memberEntity)
-                .leftJoin(coupleMemberEntity).on(coupleMemberEntity.memberEntityId.value.eq(memberEntity.id))
+                .leftJoin(coupleMemberEntity).on(coupleMemberEntity.memberEntityId.value.eq(memberEntity.id)
+                        .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
                 .leftJoin(coupleEntity).on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value))
                 .where(memberEntity.id.eq(memberId))
                 .fetchOne();
@@ -59,10 +60,9 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .from(coupleEntity)
                 .join(coupleEntity.coupleMembers, coupleMemberEntity)
                 .join(memberEntity).on(memberEntity.id.eq(coupleMemberEntity.memberEntityId.value))
-                .where(
-                        coupleEntity.coupleMembers.any().memberEntityId.value.eq(memberId)
-                                .and(coupleMemberEntity.memberEntityId.value.ne(memberId))
-                )
+                .where(coupleEntity.coupleState.ne(CoupleState.DELETED)
+                                .and(coupleEntity.coupleMembers.any().memberEntityId.value.eq(memberId)
+                                                .and(coupleMemberEntity.memberEntityId.value.ne(memberId))))
                 .fetchOne();
         return Optional.ofNullable(dto);
     }
@@ -95,6 +95,8 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .selectOne()
                 .from(coupleMemberEntity)
                 .join(memberEntity).on(memberEntity.id.eq(coupleMemberEntity.memberEntityId.value))
+                .join(coupleEntity).on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value)
+                        .and(coupleEntity.coupleState.ne(CoupleState.DELETED)))
                 .where(memberEntity.inviteCodeEntityValue.value.eq(inviteCode)
                         .and(coupleMemberEntity.coupleMemberState.eq(CoupleMemberState.ALIVE)))
                 .fetchFirst() != null;
@@ -123,11 +125,13 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                         partnerMemberEntity.loveTypeCategory
                 ))
                 .from(memberEntity)
-                .leftJoin(coupleMemberEntity).on(coupleMemberEntity.memberEntityId.value.eq(memberEntity.id))
+                .leftJoin(coupleMemberEntity).on(coupleMemberEntity.memberEntityId.value.eq(memberEntity.id)
+                        .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
                 .leftJoin(coupleEntity).on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value))
                 .leftJoin(partnerCoupleMemberEntity)
-                    .on(partnerCoupleMemberEntity.coupleEntityId.value.eq(coupleEntity.id)
-                            .and(partnerCoupleMemberEntity.memberEntityId.value.ne(memberId)))
+                .on(partnerCoupleMemberEntity.coupleEntityId.value.eq(coupleEntity.id)
+                        .and(partnerCoupleMemberEntity.memberEntityId.value.ne(memberId))
+                        .and(partnerCoupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
                 .leftJoin(partnerMemberEntity).on(partnerMemberEntity.id.eq(partnerCoupleMemberEntity.memberEntityId.value))
                 .where(memberEntity.id.eq(memberId))
                 .fetchOne();

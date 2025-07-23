@@ -109,9 +109,10 @@ public class CoupleQuestionRepositoryCustomImpl implements CoupleQuestionReposit
         return queryFactory
                 .select(coupleQuestionEntity.count().intValue())
                 .from(coupleQuestionEntity)
-                .join(coupleMemberEntity).on(coupleMemberEntity.coupleEntityId.value.eq(coupleQuestionEntity.coupleEntityId.value))
+                .join(coupleMemberEntity)
+                .on(coupleMemberEntity.coupleEntityId.value.eq(coupleQuestionEntity.coupleEntityId.value))
                 .where(coupleMemberEntity.memberEntityId.value.eq(memberId)
-                        .and(coupleMemberEntity.coupleMemberState.eq(CoupleMemberState.ALIVE)))
+                        .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
                 .fetchOne();
     }
 }

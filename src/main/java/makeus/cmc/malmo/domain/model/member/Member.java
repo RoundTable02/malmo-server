@@ -119,4 +119,15 @@ public class Member {
         this.memberState = MemberState.DELETED;
         this.deletedAt = LocalDateTime.now();
     }
+
+    public boolean isRevivable() {
+        return this.memberState == MemberState.DELETED
+                && this.deletedAt != null
+                && java.time.Duration.between(this.deletedAt, LocalDateTime.now()).toDays() < 30;
+    }
+
+    public void revive() {
+        this.memberState = MemberState.ALIVE;
+        this.deletedAt = null;
+    }
 }

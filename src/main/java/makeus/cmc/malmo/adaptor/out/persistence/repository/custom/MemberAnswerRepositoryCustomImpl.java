@@ -8,10 +8,13 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleMemberEntit
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.QMemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.question.MemberAnswerEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.question.QMemberAnswerEntity;
+import makeus.cmc.malmo.domain.value.state.CoupleMemberState;
 import makeus.cmc.malmo.domain.value.state.CoupleQuestionState;
+import makeus.cmc.malmo.domain.value.state.CoupleState;
 
 import java.util.Optional;
 
+import static makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleEntity.coupleEntity;
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleMemberEntity.coupleMemberEntity;
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.member.QMemberEntity.memberEntity;
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.question.QCoupleQuestionEntity.coupleQuestionEntity;
@@ -42,11 +45,14 @@ public class MemberAnswerRepositoryCustomImpl implements MemberAnswerRepositoryC
                 .join(memberEntity)
                 .on(coupleMemberEntity.memberEntityId.value.eq(memberEntity.id))
                 .join(coupleQuestionEntity).on(coupleQuestionEntity.id.eq(memberAnswerEntity.coupleQuestionEntityId.value))
-                .leftJoin(partnerAnswerEntity).on(partnerAnswerEntity.coupleQuestionEntityId.eq(memberAnswerEntity.coupleQuestionEntityId)
-                        .and(partnerAnswerEntity.coupleMemberEntityId.ne(memberAnswerEntity.coupleMemberEntityId)))
-                .leftJoin(partnerCoupleMemberEntity).on(partnerCoupleMemberEntity.id.eq(partnerAnswerEntity.coupleMemberEntityId.value))
+                .join(coupleEntity).on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value))
+                .leftJoin(partnerCoupleMemberEntity).on(partnerCoupleMemberEntity.coupleEntityId.value.eq(coupleEntity.id)
+                        .and(partnerCoupleMemberEntity.id.ne(coupleMemberEntity.id))
+                        .and(partnerCoupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
                 .leftJoin(partnerMemberEntity)
                 .on(partnerCoupleMemberEntity.memberEntityId.value.eq(partnerMemberEntity.id))
+                .leftJoin(partnerAnswerEntity).on(partnerAnswerEntity.coupleQuestionEntityId.eq(memberAnswerEntity.coupleQuestionEntityId)
+                        .and(partnerAnswerEntity.coupleMemberEntityId.value.eq(partnerCoupleMemberEntity.id)))
                 .where(coupleQuestionEntity.id.eq(coupleQuestionId)
                         .and(memberEntity.id.eq(memberId)))
                 .fetchOne();
@@ -73,7 +79,8 @@ public class MemberAnswerRepositoryCustomImpl implements MemberAnswerRepositoryC
                 .join(coupleMemberEntity)
                 .on(memberAnswerEntity.coupleMemberEntityId.value.eq(coupleMemberEntity.id))
                 .where(memberAnswerEntity.coupleQuestionEntityId.value.eq(coupleQuestionEntityId)
-                        .and(coupleMemberEntity.memberEntityId.value.eq(memberId)))
+                        .and(coupleMemberEntity.memberEntityId.value.eq(memberId))
+                        .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
                 .fetchOne();
 
         return count != null && count > 0;
