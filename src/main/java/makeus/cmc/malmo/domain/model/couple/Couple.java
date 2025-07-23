@@ -67,4 +67,10 @@ public class Couple {
         this.deletedAt = LocalDateTime.now();
         this.coupleMembers.forEach(CoupleMember::coupleDeleted);
     }
+
+    public void recover() {
+        this.coupleState = CoupleState.ALIVE;
+        this.deletedAt = null;
+        this.coupleMembers.forEach(CoupleMember::recover);
+    }
 }

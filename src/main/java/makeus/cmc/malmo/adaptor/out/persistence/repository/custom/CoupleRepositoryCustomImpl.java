@@ -27,4 +27,16 @@ public class CoupleRepositoryCustomImpl implements CoupleRepositoryCustom{
 
         return Optional.ofNullable(result);
     }
+
+    @Override
+    public Optional<CoupleEntity> findCoupleByMemberIdAndPartnerId(Long memberId, Long partnerId) {
+        CoupleEntity result = queryFactory.selectFrom(coupleEntity)
+                .join(coupleMemberEntity)
+                .on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value))
+                .where(coupleEntity.coupleMembers.any().memberEntityId.value.eq(memberId)
+                        .and(coupleEntity.coupleMembers.any().memberEntityId.value.eq(partnerId)))
+                .fetchOne();
+
+        return Optional.ofNullable(result);
+    }
 }

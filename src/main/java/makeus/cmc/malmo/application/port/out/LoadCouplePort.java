@@ -11,4 +11,5 @@ public interface LoadCouplePort {
     CoupleId loadCoupleIdByMemberId(MemberId memberId);
     CoupleMemberId loadCoupleMemberIdByMemberId(MemberId memberId);
     Optional<Couple> loadCoupleByMemberId(MemberId memberId);
+    Optional<Couple> loadCoupleByMemberIdAndPartnerId(MemberId memberId, MemberId partnerId);
 }

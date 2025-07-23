@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -40,5 +41,9 @@ public class CoupleDomainService {
                     couple.delete();
                     saveCouplePort.saveCouple(couple);
                 });
+    }
+
+    public Optional<Couple> getBrokenCouple(MemberId memberId, MemberId partnerId) {
+        return loadCouplePort.loadCoupleByMemberIdAndPartnerId(memberId, partnerId);
     }
 }

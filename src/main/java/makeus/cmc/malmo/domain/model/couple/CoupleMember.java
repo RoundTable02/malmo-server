@@ -39,4 +39,9 @@ public class CoupleMember {
         this.coupleMemberState = CoupleMemberState.DELETED;
         this.deletedAt = LocalDateTime.now();
     }
+
+    public void recover() {
+        this.coupleMemberState = CoupleMemberState.ALIVE;
+        this.deletedAt = null;
+    }
 }

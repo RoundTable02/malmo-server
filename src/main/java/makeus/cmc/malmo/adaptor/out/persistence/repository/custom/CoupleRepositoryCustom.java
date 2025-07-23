@@ -6,4 +6,6 @@ import java.util.Optional;
 
 public interface CoupleRepositoryCustom {
     Optional<CoupleEntity> findCoupleByMemberId(Long memberId);
+
+    Optional<CoupleEntity> findCoupleByMemberIdAndPartnerId(Long memberId, Long partnerId);
 }
