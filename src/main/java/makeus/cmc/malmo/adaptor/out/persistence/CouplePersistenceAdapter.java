@@ -5,6 +5,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.CoupleAggregateMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.CoupleMemberRepository;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.CoupleRepository;
+import makeus.cmc.malmo.application.port.out.DeleteCouplePort;
 import makeus.cmc.malmo.application.port.out.LoadCouplePort;
 import makeus.cmc.malmo.application.port.out.SaveCouplePort;
 import makeus.cmc.malmo.domain.model.couple.Couple;
@@ -17,7 +18,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class CouplePersistenceAdapter implements SaveCouplePort, LoadCouplePort {
+public class CouplePersistenceAdapter implements SaveCouplePort, LoadCouplePort, DeleteCouplePort {
 
     private final CoupleRepository coupleRepository;
     private final CoupleMemberRepository coupleMemberRepository;
@@ -44,5 +45,10 @@ public class CouplePersistenceAdapter implements SaveCouplePort, LoadCouplePort 
     public Optional<Couple> loadCoupleByMemberId(MemberId memberId) {
         return coupleRepository.findCoupleByMemberId(memberId.getValue())
                 .map(coupleAggregateMapper::toDomain);
+    }
+
+    @Override
+    public void deleteCoupleByMemberId(MemberId memberId) {
+        coupleRepository.deleteCoupleByMemberId(memberId.getValue());
     }
 }

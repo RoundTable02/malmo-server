@@ -276,8 +276,6 @@ public class SwaggerResponses {
     @Getter
     @Schema(description = "멤버 탈퇴 응답 데이터")
     public static class DeleteMemberData {
-        @Schema(description = "탈퇴한 멤버 ID", example = "1")
-        private Long memberId;
     }
 
     @Getter

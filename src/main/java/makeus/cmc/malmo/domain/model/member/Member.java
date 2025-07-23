@@ -114,4 +114,9 @@ public class Member {
     public void updateStartLoveDate(LocalDate startLoveDate) {
         this.startLoveDate = startLoveDate;
     }
+
+    public void delete() {
+        this.memberState = MemberState.DELETED;
+        this.deletedAt = LocalDateTime.now();
+    }
 }

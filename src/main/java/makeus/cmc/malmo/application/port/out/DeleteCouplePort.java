@@ -1,0 +1,7 @@
+package makeus.cmc.malmo.application.port.out;
+
+import makeus.cmc.malmo.domain.value.id.MemberId;
+
+public interface DeleteCouplePort {
+    void deleteCoupleByMemberId(MemberId memberId);
+}

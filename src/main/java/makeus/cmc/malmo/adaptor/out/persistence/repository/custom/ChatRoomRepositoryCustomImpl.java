@@ -72,4 +72,12 @@ public class ChatRoomRepositoryCustomImpl implements ChatRoomRepositoryCustom{
                         .and(chatRoomEntity.chatRoomState.eq(ChatRoomState.COMPLETED)))
                 .fetchOne();
     }
+
+    @Override
+    public void deleteChatRoomsByMemberId(Long memberId) {
+        queryFactory.update(chatRoomEntity)
+                .set(chatRoomEntity.chatRoomState, ChatRoomState.DELETED)
+                .where(chatRoomEntity.memberEntityId.value.eq(memberId))
+                .execute();
+    }
 }

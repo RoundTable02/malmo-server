@@ -1,6 +1,7 @@
 package makeus.cmc.malmo.domain.service;
 
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.application.port.out.DeleteCouplePort;
 import makeus.cmc.malmo.application.port.out.LoadCouplePort;
 import makeus.cmc.malmo.domain.model.couple.Couple;
 import makeus.cmc.malmo.domain.value.id.CoupleId;
@@ -17,6 +18,7 @@ import java.time.LocalDate;
 public class CoupleDomainService {
 
     private final LoadCouplePort loadCouplePort;
+    public final DeleteCouplePort deleteCouplePort;
 
     public Couple createCoupleByInviteCode(MemberId memberId, MemberId partnerId, LocalDate startLoveDate) {
         return Couple.createCouple(
@@ -31,4 +33,8 @@ public class CoupleDomainService {
         return loadCouplePort.loadCoupleIdByMemberId(memberId);
     }
 
+    @Transactional
+    public void deleteCoupleByMemberId(MemberId memberId) {
+        deleteCouplePort.deleteCoupleByMemberId(memberId);
+    }
 }

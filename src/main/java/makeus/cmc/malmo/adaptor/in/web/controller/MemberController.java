@@ -40,6 +40,7 @@ public class MemberController {
     private final UpdateTermsAgreementUseCase updateTermsAgreementUseCase;
     private final UpdateMemberLoveTypeUseCase updateMemberLoveTypeUseCase;
     private final UpdateStartLoveDateUseCase updateStartLoveDateUseCase;
+    private final DeleteMemberUseCase deleteMemberUseCase;
 
     @Operation(
             summary = "멤버 정보 조회",
@@ -160,7 +161,7 @@ public class MemberController {
     }
 
     @Operation(
-            summary = "🚧 [개발 전] 사용자 탈퇴",
+            summary = "사용자 탈퇴",
             description = "현재 로그인된 사용자의 탈퇴를 처리합니다. JWT 토큰이 필요합니다.",
             security = @SecurityRequirement(name = "Bearer Authentication")
     )
@@ -171,10 +172,16 @@ public class MemberController {
     )
     @ApiCommonResponses.RequireAuth
     @DeleteMapping
-    public BaseResponse<DeleteMemberResponseDto> deleteMember(
+    public BaseResponse deleteMember(
             @AuthenticationPrincipal User user
     ) {
-        return BaseResponse.success(DeleteMemberResponseDto.builder().build());
+        DeleteMemberUseCase.DeleteMemberCommand command = DeleteMemberUseCase.DeleteMemberCommand.builder()
+                .memberId(Long.valueOf(user.getUsername()))
+                .build();
+
+        deleteMemberUseCase.deleteMember(command);
+
+        return BaseResponse.success(null);
     }
 
     @Operation(
@@ -233,12 +240,6 @@ public class MemberController {
                 .build();
 
         return BaseResponse.success(updateStartLoveDateUseCase.updateStartLoveDate(command));
-    }
-
-    @Data
-    @Builder
-    public static class DeleteMemberResponseDto {
-        private Long memberId;
     }
 
     @Data

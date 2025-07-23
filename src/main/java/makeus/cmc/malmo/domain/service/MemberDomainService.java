@@ -69,4 +69,9 @@ public class MemberDomainService {
         return saveMemberPort.saveMember(member);
     }
 
+    public void deleteMember(Member member) {
+        member.delete();
+        saveMemberPort.saveMember(member);
+    }
+
 }

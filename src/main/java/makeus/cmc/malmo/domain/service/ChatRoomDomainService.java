@@ -153,4 +153,9 @@ public class ChatRoomDomainService {
     public void deleteChatRooms(List<ChatRoomId> chatRoomIds) {
         deleteChatRoomPort.deleteChatRooms(chatRoomIds);
     }
+
+    @Transactional
+    public void deleteAllMemberChatRooms(MemberId memberId) {
+        deleteChatRoomPort.deleteChatRoomsByMemberId(memberId);
+    }
 }

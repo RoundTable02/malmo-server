@@ -4,6 +4,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleEntity;
 import makeus.cmc.malmo.domain.value.state.CoupleMemberState;
+import makeus.cmc.malmo.domain.value.state.CoupleState;
 
 import java.util.Optional;
 
@@ -25,5 +26,17 @@ public class CoupleRepositoryCustomImpl implements CoupleRepositoryCustom{
                 .fetchOne();
 
         return Optional.ofNullable(result);
+    }
+
+    @Override
+    public void deleteCoupleByMemberId(Long memberId) {
+        queryFactory.update(coupleEntity)
+                .set(coupleEntity.coupleState, CoupleState.DELETED)
+                .where(coupleEntity.id.in(
+                        queryFactory.select(coupleMemberEntity.coupleEntityId.value)
+                                .from(coupleMemberEntity)
+                                .where(coupleMemberEntity.memberEntityId.value.eq(memberId)))
+                        .and(coupleEntity.coupleState.eq(CoupleState.ALIVE)))
+                .execute();
     }
 }
