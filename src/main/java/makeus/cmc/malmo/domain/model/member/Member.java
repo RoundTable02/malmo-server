@@ -110,4 +110,8 @@ public class Member {
     public void refreshMemberToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
+
+    public void updateStartLoveDate(LocalDate startLoveDate) {
+        this.startLoveDate = startLoveDate;
+    }
 }

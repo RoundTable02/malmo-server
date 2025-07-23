@@ -23,6 +23,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Tag(name = "멤버 관리 API", description = "Member 조회, 갱신 관련 API")
@@ -38,6 +39,7 @@ public class MemberController {
     private final UpdateMemberUseCase updateMemberUseCase;
     private final UpdateTermsAgreementUseCase updateTermsAgreementUseCase;
     private final UpdateMemberLoveTypeUseCase updateMemberLoveTypeUseCase;
+    private final UpdateStartLoveDateUseCase updateStartLoveDateUseCase;
 
     @Operation(
             summary = "멤버 정보 조회",
@@ -209,6 +211,30 @@ public class MemberController {
         return BaseResponse.success(null);
     }
 
+    @Operation(
+            summary = "연애 시작일 변경",
+            description = "연애 시작일을 변경합니다. JWT 토큰이 필요합니다.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "연애 시작일 갱신 성공",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.UpdateStartLoveDateSuccessResponse.class))
+    )
+    @ApiCommonResponses.RequireAuth
+    @PatchMapping("/start-love-date")
+    public BaseResponse<UpdateStartLoveDateUseCase.UpdateStartLoveDateResponse> updateStartLoveDate(
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody UpdateStartLoveDateRequestDto requestDto
+    ) {
+        UpdateStartLoveDateUseCase.UpdateStartLoveDateCommand command = UpdateStartLoveDateUseCase.UpdateStartLoveDateCommand.builder()
+                .memberId(Long.valueOf(user.getUsername()))
+                .startLoveDate(requestDto.getStartLoveDate())
+                .build();
+
+        return BaseResponse.success(updateStartLoveDateUseCase.updateStartLoveDate(command));
+    }
+
     @Data
     @Builder
     public static class DeleteMemberResponseDto {
@@ -223,6 +249,11 @@ public class MemberController {
     @Data
     public static class UpdateMemberTermsRequestDto {
         private List<TermsDto> terms;
+    }
+
+    @Data
+    public static class UpdateStartLoveDateRequestDto {
+        private LocalDate startLoveDate;
     }
 
     @Data

@@ -13,6 +13,8 @@ import makeus.cmc.malmo.domain.value.id.CoupleMemberId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 @RequiredArgsConstructor
 public class CouplePersistenceAdapter implements SaveCouplePort, LoadCouplePort {
@@ -36,5 +38,11 @@ public class CouplePersistenceAdapter implements SaveCouplePort, LoadCouplePort 
     @Override
     public CoupleMemberId loadCoupleMemberIdByMemberId(MemberId memberId) {
         return CoupleMemberId.of(coupleMemberRepository.findCoupleMemberIdByMemberId(memberId.getValue()));
+    }
+
+    @Override
+    public Optional<Couple> loadCoupleByMemberId(MemberId memberId) {
+        return coupleRepository.findCoupleByMemberId(memberId.getValue())
+                .map(coupleAggregateMapper::toDomain);
     }
 }

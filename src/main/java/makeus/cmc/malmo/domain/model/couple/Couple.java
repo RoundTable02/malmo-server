@@ -57,4 +57,8 @@ public class Couple {
                 .deletedAt(deletedAt)
                 .build();
     }
+
+    public void updateStartLoveDate(LocalDate startLoveDate) {
+        this.startLoveDate = startLoveDate;
+    }
 }

@@ -116,8 +116,8 @@ public class SwaggerResponses {
     }
 
     @Getter
-    @Schema(description = "애착유형 조회 성공 응답")
-    public static class GetLoveTypeSuccessResponse extends BaseSwaggerResponse<GetLoveTypeData> {
+    @Schema(description = "연애 시작일 갱신 성공 응답")
+    public static class UpdateStartLoveDateSuccessResponse extends BaseSwaggerResponse<UpdateStartLoveDateData> {
     }
 
     // 질문 관련 응답
@@ -314,15 +314,10 @@ public class SwaggerResponses {
     }
 
     @Getter
-    @Schema(description = "애착유형 조회 응답 데이터")
-    public static class GetLoveTypeData {
-        @Schema(description = "사용자 불안형 점수", example = "0.3")
-        private Float memberAnxietyScore;
-        @Schema(description = "사용자 회피형 점수", example = "0.4")
-        private Float memberAvoidanceScore;
-
-        @Schema(description = "사용자 애착유형", example = "STABLE_TYPE")
-        private LoveTypeCategory loveTypeCategory;
+    @Schema(description = "연애 시작일 갱신 응답 데이터")
+    public static class UpdateStartLoveDateData {
+        @Schema(description = "변경된 연애 시작일", example = "2023-01-15")
+        private LocalDate startLoveDate;
     }
 
     @Getter
