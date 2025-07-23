@@ -97,9 +97,8 @@ public class Member {
         this.memberState = MemberState.ALIVE;
     }
 
-    public void updateMemberProfile(String nickname, String email) {
+    public void updateMemberProfile(String nickname) {
         this.nickname = nickname;
-        this.email = email;
     }
 
     public void updateLoveTypeId(LoveTypeCategory loveTypeCategory, float avoidanceRate, float anxietyRate) {

@@ -22,13 +22,12 @@ public class MemberCommandService implements UpdateMemberUseCase {
     public UpdateMemberResponseDto updateMember(UpdateMemberCommand command) {
         Member member = memberDomainService.getMemberById(MemberId.of(command.getMemberId()));
 
-        member.updateMemberProfile(command.getNickname(), command.getEmail());
+        member.updateMemberProfile(command.getNickname());
 
         Member savedMember = saveMemberPort.saveMember(member);
 
         return UpdateMemberResponseDto.builder()
                 .nickname(savedMember.getNickname())
-                .email(savedMember.getEmail())
                 .build();
     }
 }

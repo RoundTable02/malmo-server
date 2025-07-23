@@ -101,7 +101,6 @@ public class MemberController {
         UpdateMemberUseCase.UpdateMemberCommand command = UpdateMemberUseCase.UpdateMemberCommand.builder()
                 .memberId(Long.valueOf(user.getUsername()))
                 .nickname(requestDto.getNickname())
-                .email(requestDto.getEmail())
                 .build();
         return BaseResponse.success(updateMemberUseCase.updateMember(command));
     }
@@ -219,7 +218,6 @@ public class MemberController {
     @Data
     public static class UpdateMemberRequestDto {
         private String nickname;
-        private String email;
     }
 
     @Data
