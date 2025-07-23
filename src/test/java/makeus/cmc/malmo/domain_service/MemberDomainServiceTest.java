@@ -45,14 +45,14 @@ class MemberDomainServiceTest {
             MemberId memberId = MemberId.of(1L);
             Member member = mock(Member.class);
 
-            given(loadMemberPort.loadMemberById(1L)).willReturn(Optional.of(member));
+            given(loadMemberPort.loadMemberById(MemberId.of(1L))).willReturn(Optional.of(member));
 
             // When
             Member result = memberDomainService.getMemberById(memberId);
 
             // Then
             assertThat(result).isEqualTo(member);
-            then(loadMemberPort).should().loadMemberById(1L);
+            then(loadMemberPort).should().loadMemberById(MemberId.of(1L));
         }
 
         @Test
@@ -61,13 +61,13 @@ class MemberDomainServiceTest {
             // Given
             MemberId memberId = MemberId.of(999L);
 
-            given(loadMemberPort.loadMemberById(999L)).willReturn(Optional.empty());
+            given(loadMemberPort.loadMemberById(MemberId.of(999L))).willReturn(Optional.empty());
 
             // When & Then
             assertThatThrownBy(() -> memberDomainService.getMemberById(memberId))
                     .isInstanceOf(MemberNotFoundException.class);
 
-            then(loadMemberPort).should().loadMemberById(999L);
+            then(loadMemberPort).should().loadMemberById(MemberId.of(999L));
         }
 
         @Test
@@ -77,14 +77,14 @@ class MemberDomainServiceTest {
             MemberId memberId = MemberId.of(1L);
             Member member = mock(Member.class);
 
-            given(loadMemberPort.loadMemberById(1L)).willReturn(Optional.of(member));
+            given(loadMemberPort.loadMemberById(MemberId.of(1L))).willReturn(Optional.of(member));
 
             // When
             Member result = memberDomainService.getMemberById(memberId);
 
             // Then
             assertThat(result).isEqualTo(member);
-            then(loadMemberPort).should().loadMemberById(1L);
+            then(loadMemberPort).should().loadMemberById(MemberId.of(1L));
         }
 
         @Test
@@ -94,14 +94,14 @@ class MemberDomainServiceTest {
             MemberId memberId = MemberId.of(Long.MAX_VALUE);
             Member member = mock(Member.class);
 
-            given(loadMemberPort.loadMemberById(Long.MAX_VALUE)).willReturn(Optional.of(member));
+            given(loadMemberPort.loadMemberById(MemberId.of(Long.MAX_VALUE))).willReturn(Optional.of(member));
 
             // When
             Member result = memberDomainService.getMemberById(memberId);
 
             // Then
             assertThat(result).isEqualTo(member);
-            then(loadMemberPort).should().loadMemberById(Long.MAX_VALUE);
+            then(loadMemberPort).should().loadMemberById(MemberId.of(Long.MAX_VALUE));
         }
     }
 
