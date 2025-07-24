@@ -19,11 +19,14 @@ public class TermsService implements TermsUseCase {
     public TermsListResponse getTerms() {
         List<TermsDto> termsDtos = loadTermsPort.loadLatestTerms().stream()
                 .map(term -> TermsDto.builder()
-                        .termsId(term.getId())
-                        .title(term.getTitle())
-                        .content(term.getContent())
-                        .version(term.getVersion())
-                        .isRequired(term.isRequired())
+                        .termsType(term.getTermsType())
+                        .content(TermsUseCase.TermsContentDto.builder()
+                                .termsId(term.getId())
+                                .title(term.getTitle())
+                                .content(term.getContent())
+                                .version(term.getVersion())
+                                .isRequired(term.isRequired())
+                                .build())
                         .build())
                 .toList();
 

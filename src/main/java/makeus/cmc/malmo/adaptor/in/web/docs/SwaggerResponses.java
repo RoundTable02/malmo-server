@@ -6,6 +6,7 @@ import makeus.cmc.malmo.domain.value.state.ChatRoomState;
 import makeus.cmc.malmo.domain.value.state.MemberState;
 import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.value.type.SenderType;
+import makeus.cmc.malmo.domain.value.type.TermsType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -429,6 +430,15 @@ public class SwaggerResponses {
     @Getter
     @Schema(description = "약관 응답 데이터")
     public static class TermsResponseData {
+        @Schema(description = "약관 타입", example = "AGE_VERIFICATION")
+        private TermsType termsType;
+        @Schema(description = "약관 내용 데이터")
+        private TermsContentResponseData content;
+    }
+
+    @Getter
+    @Schema(description = "약관 내용 응답 데이터")
+    public static class TermsContentResponseData {
         @Schema(description = "약관 ID", example = "1")
         private Long termsId;
 
