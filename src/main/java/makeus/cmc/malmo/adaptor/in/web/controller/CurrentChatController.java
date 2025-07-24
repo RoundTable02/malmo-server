@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "채팅 API", description = "사용자 채팅 전송 및 현재 채팅방을 위한 API")
 @RestController
-@RequestMapping("/chatroom/current")
+@RequestMapping("/chatrooms/current")
 @RequiredArgsConstructor
 public class CurrentChatController {
 
