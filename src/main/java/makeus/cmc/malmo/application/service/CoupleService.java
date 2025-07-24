@@ -1,8 +1,10 @@
 package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.adaptor.in.aop.CheckCoupleMember;
 import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.application.port.in.CoupleLinkUseCase;
+import makeus.cmc.malmo.application.port.in.CoupleUnlinkUseCase;
 import makeus.cmc.malmo.application.port.out.SaveCouplePort;
 import makeus.cmc.malmo.application.port.out.SendSseEventPort;
 import makeus.cmc.malmo.domain.model.couple.Couple;
@@ -24,7 +26,7 @@ import static makeus.cmc.malmo.application.port.out.SendSseEventPort.SseEventTyp
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class CoupleService implements CoupleLinkUseCase {
+public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
 
     private final InviteCodeDomainService inviteCodeDomainService;
     private final CoupleDomainService coupleDomainService;
@@ -83,5 +85,12 @@ public class CoupleService implements CoupleLinkUseCase {
         return CoupleLinkResponse.builder()
                 .coupleId(couple.getId())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    @CheckCoupleMember
+    public void coupleUnlink(CoupleUnlinkCommand command) {
+        coupleDomainService.deleteCoupleByMemberId(MemberId.of(command.getUserId()));
     }
 }
