@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLoveDateUseCase, DeleteMemberUseCase {
 
     private final MemberDomainService memberDomainService;
-    private final ChatRoomDomainService chatRoomDomainService;
     private final CoupleDomainService coupleDomainService;
     private final SaveMemberPort saveMemberPort;
 
@@ -56,7 +55,6 @@ public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLov
         memberDomainService.deleteMember(member);
 
         // 멤버 채팅방, 커플 soft delete
-        chatRoomDomainService.deleteAllMemberChatRooms(MemberId.of(member.getId()));
         coupleDomainService.deleteCoupleByMemberId(MemberId.of(member.getId()));
 
         // TODO : 모든 커플 관련 엔티티 조회 로직을 커플의 STATE 조건을 걸도록 변경

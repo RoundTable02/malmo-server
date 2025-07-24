@@ -7,6 +7,4 @@ import java.util.List;
 
 public interface DeleteChatRoomPort {
     void deleteChatRooms(List<ChatRoomId> chatRoomIds);
-
-    void deleteChatRoomsByMemberId(MemberId memberId);
 }

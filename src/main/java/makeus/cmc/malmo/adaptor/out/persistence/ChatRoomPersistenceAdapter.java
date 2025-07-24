@@ -101,9 +101,4 @@ public class ChatRoomPersistenceAdapter
                 chatRoomIds.stream().map(ChatRoomId::getValue).toList()
         );
     }
-
-    @Override
-    public void deleteChatRoomsByMemberId(MemberId memberId) {
-        chatRoomRepository.deleteChatRoomsByMemberId(memberId.getValue());
-    }
 }

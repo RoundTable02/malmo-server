@@ -16,6 +16,4 @@ public interface ChatRoomRepositoryCustom {
     void deleteChatRooms(List<Long> chatRoomIds);
 
     int countChatRoomsByMemberId(Long memberId);
-
-    void deleteChatRoomsByMemberId(Long memberId);
 }
