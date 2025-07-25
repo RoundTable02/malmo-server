@@ -6,11 +6,11 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.CoupleQuestionPersistenceAdapter;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.question.CoupleQuestionEntity;
+import makeus.cmc.malmo.domain.value.state.CoupleMemberState;
 
 import java.util.Optional;
 
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleMemberEntity.coupleMemberEntity;
-import static makeus.cmc.malmo.adaptor.out.persistence.entity.member.QMemberEntity.memberEntity;
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.question.QCoupleQuestionEntity.coupleQuestionEntity;
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.question.QMemberAnswerEntity.memberAnswerEntity;
 
@@ -100,5 +100,18 @@ public class CoupleQuestionRepositoryCustomImpl implements CoupleQuestionReposit
                 .fetchOne();
 
         return Optional.ofNullable(dto);
+    }
+
+
+    @Override
+    public int countCoupleQuestionsByMemberId(Long memberId) {
+        return queryFactory
+                .select(coupleQuestionEntity.count().intValue())
+                .from(coupleQuestionEntity)
+                .join(coupleMemberEntity)
+                .on(coupleMemberEntity.coupleEntityId.value.eq(coupleQuestionEntity.coupleEntityId.value))
+                .where(coupleMemberEntity.memberEntityId.value.eq(memberId)
+                        .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
+                .fetchOne();
     }
 }

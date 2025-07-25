@@ -3,6 +3,7 @@ package makeus.cmc.malmo.application.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.in.aop.CheckCoupleMember;
+import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.application.port.in.AnswerQuestionUseCase;
 import makeus.cmc.malmo.application.port.in.GetQuestionAnswerUseCase;
 import makeus.cmc.malmo.application.port.in.GetQuestionUseCase;
@@ -31,6 +32,7 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
     private final CoupleDomainService coupleDomainService;
 
     @Override
+    @CheckValidMember
     public GetQuestionResponse getTodayQuestion(GetTodayQuestionCommand command) {
         boolean isCouple = validateMemberPort.isCoupleMember(MemberId.of(command.getUserId()));
 
@@ -104,6 +106,7 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
     }
 
     @Override
+    @CheckValidMember
     public AnswerResponseDto getQuestionAnswers(GetQuestionAnswerCommand command) {
         boolean isCouple = validateMemberPort.isCoupleMember(MemberId.of(command.getUserId()));
 
@@ -157,6 +160,7 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
     }
 
     @Override
+    @CheckValidMember
     public void answerQuestion(AnswerQuestionCommand command) {
         boolean isCouple = validateMemberPort.isCoupleMember(MemberId.of(command.getUserId()));
 
@@ -187,6 +191,7 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
     }
 
     @Override
+    @CheckValidMember
     public void updateAnswer(AnswerQuestionCommand request) {
         boolean isCouple = validateMemberPort.isCoupleMember(MemberId.of(request.getUserId()));
 

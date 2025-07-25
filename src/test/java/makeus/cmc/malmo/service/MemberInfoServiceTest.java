@@ -6,6 +6,7 @@ import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.LoadPartnerPort;
 import makeus.cmc.malmo.application.service.MemberInfoService;
 import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
+import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.state.MemberState;
 import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 import org.junit.jupiter.api.DisplayName;
@@ -55,7 +56,7 @@ class MemberInfoServiceTest {
                     .userId(userId)
                     .build();
 
-            LoadMemberPort.MemberResponseRepositoryDto member = mock(LoadMemberPort.MemberResponseRepositoryDto.class);
+            MemberInfoService.MemberInfoDto member = mock(MemberInfoService.MemberInfoDto.class);
             given(member.getNickname()).willReturn(nickname);
             given(member.getEmail()).willReturn(email);
             given(member.getMemberState()).willReturn(memberState.name());
@@ -63,7 +64,7 @@ class MemberInfoServiceTest {
             given(member.getAnxietyRate()).willReturn(anxietyRate);
             given(member.getLoveTypeCategory()).willReturn(loveTypeCategory);
 
-            given(loadMemberPort.loadMemberDetailsById(userId)).willReturn(Optional.of(member));
+            given(loadMemberPort.loadMemberDetailsById(MemberId.of(userId))).willReturn(Optional.of(member));
 
             // When
             GetMemberUseCase.MemberResponseDto response = memberInfoService.getMemberInfo(command);
@@ -76,7 +77,7 @@ class MemberInfoServiceTest {
             assertThat(response.getAvoidanceRate()).isEqualTo(avoidanceRate);
             assertThat(response.getAnxietyRate()).isEqualTo(anxietyRate);
 
-            then(loadMemberPort).should().loadMemberDetailsById(userId);
+            then(loadMemberPort).should().loadMemberDetailsById(MemberId.of(userId));
         }
 
         @Test
@@ -94,7 +95,7 @@ class MemberInfoServiceTest {
                     .userId(userId)
                     .build();
 
-            LoadMemberPort.MemberResponseRepositoryDto member = mock(LoadMemberPort.MemberResponseRepositoryDto.class);
+            MemberInfoService.MemberInfoDto member = mock(MemberInfoService.MemberInfoDto.class);
             given(member.getNickname()).willReturn(nickname);
             given(member.getEmail()).willReturn(email);
             given(member.getMemberState()).willReturn(memberState.name());
@@ -102,7 +103,7 @@ class MemberInfoServiceTest {
             given(member.getAnxietyRate()).willReturn(anxietyRate);
             given(member.getLoveTypeCategory()).willReturn(null); // 애착유형 카테고리가 null
 
-            given(loadMemberPort.loadMemberDetailsById(userId)).willReturn(Optional.of(member));
+            given(loadMemberPort.loadMemberDetailsById(MemberId.of(userId))).willReturn(Optional.of(member));
 
             // When
             GetMemberUseCase.MemberResponseDto response = memberInfoService.getMemberInfo(command);
@@ -115,7 +116,7 @@ class MemberInfoServiceTest {
             assertThat(response.getAvoidanceRate()).isEqualTo(avoidanceRate);
             assertThat(response.getAnxietyRate()).isEqualTo(anxietyRate);
 
-            then(loadMemberPort).should().loadMemberDetailsById(userId);
+            then(loadMemberPort).should().loadMemberDetailsById(MemberId.of(userId));
         }
 
         @Test
@@ -128,13 +129,13 @@ class MemberInfoServiceTest {
                     .userId(userId)
                     .build();
 
-            given(loadMemberPort.loadMemberDetailsById(userId)).willReturn(Optional.empty());
+            given(loadMemberPort.loadMemberDetailsById(MemberId.of(userId))).willReturn(Optional.empty());
 
             // When & Then
             assertThatThrownBy(() -> memberInfoService.getMemberInfo(command))
                     .isInstanceOf(MemberNotFoundException.class);
 
-            then(loadMemberPort).should().loadMemberDetailsById(userId);
+            then(loadMemberPort).should().loadMemberDetailsById(MemberId.of(userId));
         }
     }
 

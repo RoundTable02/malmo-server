@@ -1,6 +1,7 @@
 package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.application.port.in.GetInviteCodeUseCase;
 import makeus.cmc.malmo.domain.service.InviteCodeDomainService;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
@@ -16,6 +17,7 @@ public class InviteCodeService implements GetInviteCodeUseCase {
     private final InviteCodeDomainService inviteCodeDomainService;
 
     @Override
+    @CheckValidMember
     public InviteCodeResponseDto getInviteCode(InviteCodeCommand command) {
         InviteCodeValue inviteCode = inviteCodeDomainService.getInviteCodeByMemberId(MemberId.of(command.getUserId()));
         return InviteCodeResponseDto.builder()

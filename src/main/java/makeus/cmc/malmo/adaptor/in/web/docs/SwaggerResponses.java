@@ -6,6 +6,7 @@ import makeus.cmc.malmo.domain.value.state.ChatRoomState;
 import makeus.cmc.malmo.domain.value.state.MemberState;
 import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.value.type.SenderType;
+import makeus.cmc.malmo.domain.value.type.TermsType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -116,8 +117,8 @@ public class SwaggerResponses {
     }
 
     @Getter
-    @Schema(description = "애착유형 조회 성공 응답")
-    public static class GetLoveTypeSuccessResponse extends BaseSwaggerResponse<GetLoveTypeData> {
+    @Schema(description = "연애 시작일 갱신 성공 응답")
+    public static class UpdateStartLoveDateSuccessResponse extends BaseSwaggerResponse<UpdateStartLoveDateData> {
     }
 
     // 질문 관련 응답
@@ -225,6 +226,12 @@ public class SwaggerResponses {
         @Schema(description = "애착 유형", example = "STABLE_TYPE")
         private LoveTypeCategory loveTypeCategory;
 
+        @Schema(description = "완료된 채팅방 개수", example = "5")
+        private int totalChatRoomCount;
+
+        @Schema(description = "총 할당된 오늘의 질문 개수", example = "10")
+        private int totalCoupleQuestionCount;
+
         @Schema(description = "회피 비율", example = "0.3")
         private float avoidanceRate;
 
@@ -270,8 +277,6 @@ public class SwaggerResponses {
     @Getter
     @Schema(description = "멤버 탈퇴 응답 데이터")
     public static class DeleteMemberData {
-        @Schema(description = "탈퇴한 멤버 ID", example = "1")
-        private Long memberId;
     }
 
     @Getter
@@ -308,15 +313,10 @@ public class SwaggerResponses {
     }
 
     @Getter
-    @Schema(description = "애착유형 조회 응답 데이터")
-    public static class GetLoveTypeData {
-        @Schema(description = "사용자 불안형 점수", example = "0.3")
-        private Float memberAnxietyScore;
-        @Schema(description = "사용자 회피형 점수", example = "0.4")
-        private Float memberAvoidanceScore;
-
-        @Schema(description = "사용자 애착유형", example = "STABLE_TYPE")
-        private LoveTypeCategory loveTypeCategory;
+    @Schema(description = "연애 시작일 갱신 응답 데이터")
+    public static class UpdateStartLoveDateData {
+        @Schema(description = "변경된 연애 시작일", example = "2023-01-15")
+        private LocalDate startLoveDate;
     }
 
     @Getter
@@ -430,6 +430,15 @@ public class SwaggerResponses {
     @Getter
     @Schema(description = "약관 응답 데이터")
     public static class TermsResponseData {
+        @Schema(description = "약관 타입", example = "AGE_VERIFICATION")
+        private TermsType termsType;
+        @Schema(description = "약관 내용 데이터")
+        private TermsContentResponseData content;
+    }
+
+    @Getter
+    @Schema(description = "약관 내용 응답 데이터")
+    public static class TermsContentResponseData {
         @Schema(description = "약관 ID", example = "1")
         private Long termsId;
 

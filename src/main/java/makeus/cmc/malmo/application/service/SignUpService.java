@@ -1,6 +1,7 @@
 package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.application.port.in.SignUpUseCase;
 import makeus.cmc.malmo.application.port.out.SaveMemberPort;
 import makeus.cmc.malmo.domain.model.member.Member;
@@ -23,6 +24,7 @@ public class SignUpService implements SignUpUseCase {
 
     @Override
     @Transactional
+    @CheckValidMember
     public void signUp(SignUpCommand command) {
         Member member = memberDomainService.getMemberById(MemberId.of(command.getMemberId()));
         member.signUp(command.getNickname(), command.getLoveStartDate());
