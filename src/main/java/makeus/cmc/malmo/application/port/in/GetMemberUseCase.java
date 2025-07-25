@@ -25,6 +25,9 @@ public interface GetMemberUseCase {
 
         private LoveTypeCategory loveTypeCategory;
 
+        private int totalChatRoomCount;
+        private int totalCoupleQuestionCount;
+
         private float avoidanceRate;
         private float anxietyRate;
         private String nickname;

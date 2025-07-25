@@ -12,13 +12,11 @@ public interface UpdateMemberUseCase {
     class UpdateMemberCommand {
         private Long memberId;
         private String nickname;
-        private String email;
     }
 
     @Data
     @Builder
     class UpdateMemberResponseDto {
         private String nickname;
-        private String email;
     }
 }

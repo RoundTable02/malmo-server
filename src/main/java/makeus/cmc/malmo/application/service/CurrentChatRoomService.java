@@ -2,6 +2,7 @@ package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.application.port.in.CompleteChatRoomUseCase;
 import makeus.cmc.malmo.application.port.in.GetCurrentChatRoomMessagesUseCase;
 import makeus.cmc.malmo.application.port.in.GetCurrentChatRoomUseCase;
@@ -38,6 +39,7 @@ public class CurrentChatRoomService
 
     @Override
     @Transactional
+    @CheckValidMember
     public GetCurrentChatRoomResponse getCurrentChatRoom(GetCurrentChatRoomCommand command) {
         // 현재 채팅방 가져오기
         ChatRoom currentChatRoom = chatRoomDomainService.getCurrentChatRoomByMemberId(MemberId.of(command.getUserId()));
@@ -48,6 +50,7 @@ public class CurrentChatRoomService
     }
 
     @Override
+    @CheckValidMember
     public GetCurrentChatRoomMessagesResponse getCurrentChatRoomMessages(GetCurrentChatRoomMessagesCommand command) {
         // 현재 채팅방 가져오기
         ChatRoom currentChatRoom = chatRoomDomainService.getCurrentChatRoomByMemberId(MemberId.of(command.getUserId()));
@@ -72,6 +75,7 @@ public class CurrentChatRoomService
 
     @Override
     @Transactional
+    @CheckValidMember
     public CompleteChatRoomResponse completeChatRoom(CompleteChatRoomCommand command) {
         ChatRoom chatRoom = chatRoomDomainService.getCurrentChatRoomByMemberId(MemberId.of(command.getUserId()));
         chatRoomDomainService.completeChatRoom(chatRoom);

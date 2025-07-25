@@ -44,6 +44,10 @@ public class SignInService implements SignInUseCase {
                     return saveMemberPort.saveMember(newMember);
                 });
 
+        if (member.isRevivable()) {
+            member.revive();
+        }
+
         // 4. JWT 토큰 발급
         TokenInfo tokenInfo = generateTokenPort.generateToken(member.getId(), member.getMemberRole());
 
@@ -75,6 +79,10 @@ public class SignInService implements SignInUseCase {
                     Member newMember = memberDomainService.createMember(Provider.APPLE, providerId, email, inviteCodeValue);
                     return saveMemberPort.saveMember(newMember);
                 });
+
+        if (member.isRevivable()) {
+            member.revive();
+        }
 
         // 4. JWT 토큰 발급
         TokenInfo tokenInfo = generateTokenPort.generateToken(member.getId(), member.getMemberRole());

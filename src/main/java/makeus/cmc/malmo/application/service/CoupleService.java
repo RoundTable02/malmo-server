@@ -1,7 +1,10 @@
 package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.adaptor.in.aop.CheckCoupleMember;
+import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.application.port.in.CoupleLinkUseCase;
+import makeus.cmc.malmo.application.port.in.CoupleUnlinkUseCase;
 import makeus.cmc.malmo.application.port.out.SaveCouplePort;
 import makeus.cmc.malmo.application.port.out.SendSseEventPort;
 import makeus.cmc.malmo.domain.model.couple.Couple;
@@ -16,12 +19,14 @@ import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 import static makeus.cmc.malmo.application.port.out.SendSseEventPort.SseEventType.COUPLE_CONNECTED;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class CoupleService implements CoupleLinkUseCase {
+public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
 
     private final InviteCodeDomainService inviteCodeDomainService;
     private final CoupleDomainService coupleDomainService;
@@ -35,6 +40,7 @@ public class CoupleService implements CoupleLinkUseCase {
 
     @Override
     @Transactional
+    @CheckValidMember
     public CoupleLinkResponse coupleLink(CoupleLinkCommand command) {
         InviteCodeValue inviteCode = InviteCodeValue.of(command.getCoupleCode());
         inviteCodeDomainService.validateUsedInviteCode(inviteCode);
@@ -42,21 +48,29 @@ public class CoupleService implements CoupleLinkUseCase {
 
         Member partner = inviteCodeDomainService.getMemberByInviteCode(inviteCode);
 
-        Couple couple = coupleDomainService.createCoupleByInviteCode(
-                MemberId.of(command.getUserId()),
-                MemberId.of(partner.getId()),
-                partner.getStartLoveDate()
-        );
+        Optional<Couple> brokenCouple = coupleDomainService.getBrokenCouple(MemberId.of(command.getUserId()), MemberId.of(partner.getId()));
 
-        Couple savedCouple = saveCouplePort.saveCouple(couple);
+        Couple couple;
+        if (brokenCouple.isPresent()) {
+            couple = brokenCouple.map(bc ->{
+                bc.recover();
+                return saveCouplePort.saveCouple(bc);
+            }).get();
+        }
+        else {
+            Couple initCouple = coupleDomainService.createCoupleByInviteCode(
+                    MemberId.of(command.getUserId()),
+                    MemberId.of(partner.getId()),
+                    partner.getStartLoveDate());
 
-        // 커플이 생성되면 TempCoupleQuestion을 CoupleQuestion으로 변환,
-        //  TempCoupleQuestion 없으면 1단계의 CoupleQuestion을 생성
-        coupleQuestionDomainService.createFirstCoupleQuestion(
-                CoupleId.of(savedCouple.getId()),
-                MemberId.of(command.getUserId()),
-                MemberId.of(partner.getId())
-        );
+            couple = saveCouplePort.saveCouple(initCouple);
+
+            coupleQuestionDomainService.createFirstCoupleQuestion(
+                    CoupleId.of(couple.getId()),
+                    MemberId.of(command.getUserId()),
+                    MemberId.of(partner.getId())
+            );
+        }
 
         // 커플 연결 전 일시 정지 상태의 채팅방을 활성화 (나 & 상대방)
         chatRoomDomainService.updateMemberPausedChatRoomStateToAlive(MemberId.of(command.getUserId()));
@@ -65,11 +79,18 @@ public class CoupleService implements CoupleLinkUseCase {
         sendSseEventPort.sendToMember(
                 MemberId.of(partner.getId()),
                 new SendSseEventPort.NotificationEvent(
-                        COUPLE_CONNECTED, savedCouple.getId())
+                        COUPLE_CONNECTED, couple.getId())
         );
 
         return CoupleLinkResponse.builder()
-                .coupleId(savedCouple.getId())
+                .coupleId(couple.getId())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    @CheckCoupleMember
+    public void coupleUnlink(CoupleUnlinkCommand command) {
+        coupleDomainService.deleteCoupleByMemberId(MemberId.of(command.getUserId()));
     }
 }

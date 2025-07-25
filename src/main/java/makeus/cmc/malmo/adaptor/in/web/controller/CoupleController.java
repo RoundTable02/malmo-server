@@ -9,13 +9,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
 import makeus.cmc.malmo.application.port.in.CoupleLinkUseCase;
+import makeus.cmc.malmo.application.port.in.CoupleUnlinkUseCase;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 public class CoupleController {
 
     private final CoupleLinkUseCase coupleLinkUseCase;
+    private final CoupleUnlinkUseCase coupleUnlinkUseCase;
 
     @Operation(
             summary = "커플 연결",
@@ -53,7 +54,7 @@ public class CoupleController {
     }
 
     @Operation(
-            summary = "🚧 [개발 전] 커플 연결 끊기",
+            summary = "커플 연결 끊기",
             description = "연결된 커플을 끊습니다. JWT 토큰이 필요합니다.",
             security = @SecurityRequirement(name = "Bearer Authentication")
     )
@@ -65,10 +66,16 @@ public class CoupleController {
     @ApiCommonResponses.RequireAuth
     @ApiCommonResponses.OnlyCouple
     @DeleteMapping
-    public BaseResponse<CoupleUnlinkResponseDto> unlinkCouple(
+    public BaseResponse unlinkCouple(
             @AuthenticationPrincipal User user
     ) {
-        return BaseResponse.success(CoupleUnlinkResponseDto.builder().build());
+        CoupleUnlinkUseCase.CoupleUnlinkCommand command = CoupleUnlinkUseCase.CoupleUnlinkCommand.builder()
+                .userId(Long.valueOf(user.getUsername()))
+                .build();
+
+        coupleUnlinkUseCase.coupleUnlink(command);
+
+        return BaseResponse.success(null);
     }
 
 
@@ -77,11 +84,5 @@ public class CoupleController {
         @NotBlank(message = "초대코드는 필수 입력값입니다.")
         @Size(min = 6, max = 8, message = "커플 코드는 6 ~ 8자리여야 합니다.")
         private String coupleCode;
-    }
-
-    @Data
-    @Builder
-    public static class CoupleUnlinkResponseDto {
-        private Long coupleId;
     }
 }

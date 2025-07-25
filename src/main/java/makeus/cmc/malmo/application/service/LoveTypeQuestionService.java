@@ -1,6 +1,7 @@
 package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.application.port.in.GetLoveTypeQuestionsUseCase;
 import makeus.cmc.malmo.application.port.out.LoadLoveTypeQuestionDataPort;
 import makeus.cmc.malmo.domain.model.love_type.LoveTypeQuestionData;
@@ -19,6 +20,7 @@ public class LoveTypeQuestionService implements GetLoveTypeQuestionsUseCase {
     private final LoadLoveTypeQuestionDataPort loadLoveTypeQuestionDataPort;
 
     @Override
+    @CheckValidMember
     public LoveTypeQuestionsResponseDto getLoveTypeQuestions() {
         Map<Long, LoveTypeQuestionData> map = loadLoveTypeQuestionDataPort.loadLoveTypeData();
         List<LoveTypeQuestionData> loveTypeQuestions = map.values().stream()

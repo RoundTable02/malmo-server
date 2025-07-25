@@ -12,4 +12,6 @@ public interface CoupleQuestionRepositoryCustom {
     Optional<CoupleQuestionPersistenceAdapter.CoupleQuestionRepositoryDto> findTopLevelQuestionDto(Long memberId, Long coupleId);
 
     Optional<CoupleQuestionPersistenceAdapter.CoupleQuestionRepositoryDto> findQuestionDtoByLevel(Long memberId, Long coupleId, int level);
+
+    int countCoupleQuestionsByMemberId(Long memberId);
 }

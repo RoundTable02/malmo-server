@@ -69,21 +69,21 @@ class TermsServiceTest {
             assertThat(response).isNotNull();
             assertThat(response).hasSize(3);
 
-            TermsUseCase.TermsDto response1 = response.get(0);
+            TermsUseCase.TermsContentDto response1 = response.get(0).getContent();
             assertThat(response1.getTermsId()).isEqualTo(1L);
             assertThat(response1.getTitle()).isEqualTo("서비스 이용약관");
             assertThat(response1.getContent()).isEqualTo("서비스 이용약관 내용입니다.");
             assertThat(response1.getVersion()).isEqualTo(1.0f);
             assertThat(response1.isRequired()).isTrue();
 
-            TermsUseCase.TermsDto response2 = response.get(1);
+            TermsUseCase.TermsContentDto response2 = response.get(1).getContent();
             assertThat(response2.getTermsId()).isEqualTo(2L);
             assertThat(response2.getTitle()).isEqualTo("개인정보 처리방침");
             assertThat(response2.getContent()).isEqualTo("개인정보 처리방침 내용입니다.");
             assertThat(response2.getVersion()).isEqualTo(1.1f);
             assertThat(response2.isRequired()).isTrue();
 
-            TermsUseCase.TermsDto response3 = response.get(2);
+            TermsUseCase.TermsContentDto response3 = response.get(2).getContent();
             assertThat(response3.getTermsId()).isEqualTo(3L);
             assertThat(response3.getTitle()).isEqualTo("마케팅 정보 수신동의");
             assertThat(response3.getContent()).isEqualTo("마케팅 정보 수신동의 내용입니다.");
@@ -131,7 +131,7 @@ class TermsServiceTest {
             assertThat(response).isNotNull();
             assertThat(response).hasSize(1);
 
-            TermsUseCase.TermsDto termsDto = response.get(0);
+            TermsUseCase.TermsContentDto termsDto = response.get(0).getContent();
             assertThat(termsDto.getTermsId()).isEqualTo(1L);
             assertThat(termsDto.getTitle()).isEqualTo("서비스 이용약관");
             assertThat(termsDto.getContent()).isEqualTo("서비스 이용약관 내용입니다.");
@@ -172,21 +172,21 @@ class TermsServiceTest {
 
             // 필수 약관 검증
             TermsUseCase.TermsDto requiredResponse = response.stream()
-                    .filter(TermsUseCase.TermsDto::isRequired)
+                    .filter(termsDto -> termsDto.getContent().isRequired())
                     .findFirst()
                     .orElseThrow();
-            assertThat(requiredResponse.getTermsId()).isEqualTo(1L);
-            assertThat(requiredResponse.getTitle()).isEqualTo("필수 약관");
-            assertThat(requiredResponse.isRequired()).isTrue();
+            assertThat(requiredResponse.getContent().getTermsId()).isEqualTo(1L);
+            assertThat(requiredResponse.getContent().getTitle()).isEqualTo("필수 약관");
+            assertThat(requiredResponse.getContent().isRequired()).isTrue();
 
             // 선택 약관 검증
             TermsUseCase.TermsDto optionalResponse = response.stream()
-                    .filter(termsDto -> !termsDto.isRequired())
+                    .filter(termsDto -> !termsDto.getContent().isRequired())
                     .findFirst()
                     .orElseThrow();
-            assertThat(optionalResponse.getTermsId()).isEqualTo(2L);
-            assertThat(optionalResponse.getTitle()).isEqualTo("선택 약관");
-            assertThat(optionalResponse.isRequired()).isFalse();
+            assertThat(optionalResponse.getContent().getTermsId()).isEqualTo(2L);
+            assertThat(optionalResponse.getContent().getTitle()).isEqualTo("선택 약관");
+            assertThat(optionalResponse.getContent().isRequired()).isFalse();
 
             then(loadTermsPort).should().loadLatestTerms();
         }

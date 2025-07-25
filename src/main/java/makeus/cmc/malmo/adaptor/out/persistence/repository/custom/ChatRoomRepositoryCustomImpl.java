@@ -61,4 +61,15 @@ public class ChatRoomRepositoryCustomImpl implements ChatRoomRepositoryCustom{
                 .where(chatRoomEntity.id.in(chatRoomIds))
                 .execute();
     }
+
+
+    @Override
+    public int countChatRoomsByMemberId(Long memberId) {
+        return queryFactory
+                .select(chatRoomEntity.count().intValue())
+                .from(chatRoomEntity)
+                .where(chatRoomEntity.memberEntityId.value.eq(memberId)
+                        .and(chatRoomEntity.chatRoomState.eq(ChatRoomState.COMPLETED)))
+                .fetchOne();
+    }
 }

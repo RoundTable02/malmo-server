@@ -20,9 +20,8 @@ public class ValidateMemberAdapter implements ValidateMemberPort, ValidateInvite
     }
 
     @Override
-    public boolean isTestedMember(MemberId memberId) {
-        return memberRepository.findLoveTypeCategoryByMemberId(memberId.getValue())
-                .isPresent();
+    public boolean isValidMember(MemberId memberId) {
+        return memberRepository.isMemberStateAlive(memberId.getValue());
     }
 
     @Override

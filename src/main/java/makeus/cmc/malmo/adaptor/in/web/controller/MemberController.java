@@ -10,7 +10,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +22,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Tag(name = "멤버 관리 API", description = "Member 조회, 갱신 관련 API")
@@ -38,6 +38,8 @@ public class MemberController {
     private final UpdateMemberUseCase updateMemberUseCase;
     private final UpdateTermsAgreementUseCase updateTermsAgreementUseCase;
     private final UpdateMemberLoveTypeUseCase updateMemberLoveTypeUseCase;
+    private final UpdateStartLoveDateUseCase updateStartLoveDateUseCase;
+    private final DeleteMemberUseCase deleteMemberUseCase;
 
     @Operation(
             summary = "멤버 정보 조회",
@@ -101,7 +103,6 @@ public class MemberController {
         UpdateMemberUseCase.UpdateMemberCommand command = UpdateMemberUseCase.UpdateMemberCommand.builder()
                 .memberId(Long.valueOf(user.getUsername()))
                 .nickname(requestDto.getNickname())
-                .email(requestDto.getEmail())
                 .build();
         return BaseResponse.success(updateMemberUseCase.updateMember(command));
     }
@@ -159,7 +160,7 @@ public class MemberController {
     }
 
     @Operation(
-            summary = "🚧 [개발 전] 사용자 탈퇴",
+            summary = "사용자 탈퇴",
             description = "현재 로그인된 사용자의 탈퇴를 처리합니다. JWT 토큰이 필요합니다.",
             security = @SecurityRequirement(name = "Bearer Authentication")
     )
@@ -170,10 +171,16 @@ public class MemberController {
     )
     @ApiCommonResponses.RequireAuth
     @DeleteMapping
-    public BaseResponse<DeleteMemberResponseDto> deleteMember(
+    public BaseResponse deleteMember(
             @AuthenticationPrincipal User user
     ) {
-        return BaseResponse.success(DeleteMemberResponseDto.builder().build());
+        DeleteMemberUseCase.DeleteMemberCommand command = DeleteMemberUseCase.DeleteMemberCommand.builder()
+                .memberId(Long.valueOf(user.getUsername()))
+                .build();
+
+        deleteMemberUseCase.deleteMember(command);
+
+        return BaseResponse.success(null);
     }
 
     @Operation(
@@ -210,21 +217,43 @@ public class MemberController {
         return BaseResponse.success(null);
     }
 
-    @Data
-    @Builder
-    public static class DeleteMemberResponseDto {
-        private Long memberId;
+    @Operation(
+            summary = "연애 시작일 변경",
+            description = "연애 시작일을 변경합니다. JWT 토큰이 필요합니다.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "연애 시작일 갱신 성공",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.UpdateStartLoveDateSuccessResponse.class))
+    )
+    @ApiCommonResponses.RequireAuth
+    @PatchMapping("/start-love-date")
+    public BaseResponse<UpdateStartLoveDateUseCase.UpdateStartLoveDateResponse> updateStartLoveDate(
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody UpdateStartLoveDateRequestDto requestDto
+    ) {
+        UpdateStartLoveDateUseCase.UpdateStartLoveDateCommand command = UpdateStartLoveDateUseCase.UpdateStartLoveDateCommand.builder()
+                .memberId(Long.valueOf(user.getUsername()))
+                .startLoveDate(requestDto.getStartLoveDate())
+                .build();
+
+        return BaseResponse.success(updateStartLoveDateUseCase.updateStartLoveDate(command));
     }
 
     @Data
     public static class UpdateMemberRequestDto {
         private String nickname;
-        private String email;
     }
 
     @Data
     public static class UpdateMemberTermsRequestDto {
         private List<TermsDto> terms;
+    }
+
+    @Data
+    public static class UpdateStartLoveDateRequestDto {
+        private LocalDate startLoveDate;
     }
 
     @Data

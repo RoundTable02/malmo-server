@@ -43,18 +43,15 @@ class MemberCommandServiceTest {
             // Given
             Long memberId = 1L;
             String nickname = "수정된닉네임";
-            String email = "updated@example.com";
 
             UpdateMemberUseCase.UpdateMemberCommand command = UpdateMemberUseCase.UpdateMemberCommand.builder()
                     .memberId(memberId)
                     .nickname(nickname)
-                    .email(email)
                     .build();
 
             Member member = mock(Member.class);
             Member savedMember = mock(Member.class);
             given(savedMember.getNickname()).willReturn(nickname);
-            given(savedMember.getEmail()).willReturn(email);
 
             given(memberDomainService.getMemberById(MemberId.of(memberId))).willReturn(member);
             given(saveMemberPort.saveMember(member)).willReturn(savedMember);
@@ -65,10 +62,9 @@ class MemberCommandServiceTest {
             // Then
             assertThat(response).isNotNull();
             assertThat(response.getNickname()).isEqualTo(nickname);
-            assertThat(response.getEmail()).isEqualTo(email);
 
             then(memberDomainService).should().getMemberById(MemberId.of(memberId));
-            then(member).should().updateMemberProfile(nickname, email);
+            then(member).should().updateMemberProfile(nickname);
             then(saveMemberPort).should().saveMember(member);
         }
 
@@ -78,12 +74,10 @@ class MemberCommandServiceTest {
             // Given
             Long memberId = 999L;
             String nickname = "수정된닉네임";
-            String email = "updated@example.com";
 
             UpdateMemberUseCase.UpdateMemberCommand command = UpdateMemberUseCase.UpdateMemberCommand.builder()
                     .memberId(memberId)
                     .nickname(nickname)
-                    .email(email)
                     .build();
 
             given(memberDomainService.getMemberById(MemberId.of(memberId)))

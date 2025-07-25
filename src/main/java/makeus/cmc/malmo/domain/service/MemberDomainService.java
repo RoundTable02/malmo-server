@@ -1,7 +1,10 @@
 package makeus.cmc.malmo.domain.service;
 
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.application.port.out.LoadCouplePort;
 import makeus.cmc.malmo.application.port.out.LoadMemberPort;
+import makeus.cmc.malmo.application.port.out.SaveCouplePort;
+import makeus.cmc.malmo.application.port.out.SaveMemberPort;
 import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
@@ -22,9 +25,12 @@ import static java.time.temporal.ChronoUnit.DAYS;
 public class MemberDomainService {
 
     private final LoadMemberPort loadMemberPort;
+    private final SaveMemberPort saveMemberPort;
+    private final LoadCouplePort loadCouplePort;
+    private final SaveCouplePort saveCouplePort;
 
     public Member getMemberById(MemberId memberId) {
-        return loadMemberPort.loadMemberById(memberId.getValue())
+        return loadMemberPort.loadMemberById(MemberId.of(memberId.getValue()))
                 .orElseThrow(MemberNotFoundException::new);
     }
 
@@ -53,6 +59,22 @@ public class MemberDomainService {
         } else {
             return "장기연애";
         }
+    }
+
+    public Member updateMemberStartLoveDate(Member member, LocalDate startLoveDate) {
+        member.updateStartLoveDate(startLoveDate);
+        loadCouplePort.loadCoupleByMemberId(MemberId.of(member.getId()))
+                .ifPresent(couple -> {
+                            couple.updateStartLoveDate(startLoveDate);
+                            saveCouplePort.saveCouple(couple);
+                        }
+                );
+        return saveMemberPort.saveMember(member);
+    }
+
+    public void deleteMember(Member member) {
+        member.delete();
+        saveMemberPort.saveMember(member);
     }
 
 }
