@@ -8,7 +8,6 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleMemberEntit
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.QMemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.application.port.out.LoadChatRoomMetadataPort;
-import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.LoadPartnerPort;
 import makeus.cmc.malmo.domain.value.state.CoupleMemberState;
 import makeus.cmc.malmo.domain.value.state.CoupleState;

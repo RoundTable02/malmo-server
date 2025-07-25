@@ -1,7 +1,10 @@
 package makeus.cmc.malmo.domain.service;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.application.port.out.*;
+import makeus.cmc.malmo.application.port.out.LoadCouplePort;
+import makeus.cmc.malmo.application.port.out.LoadMemberPort;
+import makeus.cmc.malmo.application.port.out.SaveCouplePort;
+import makeus.cmc.malmo.application.port.out.SaveMemberPort;
 import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;

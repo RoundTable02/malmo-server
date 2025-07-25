@@ -6,7 +6,6 @@ import makeus.cmc.malmo.adaptor.out.oidc.exception.OidcIdTokenException;
 import makeus.cmc.malmo.adaptor.out.oidc.exception.RestApiException;
 import makeus.cmc.malmo.application.exception.InvalidRefreshTokenException;
 import makeus.cmc.malmo.application.exception.MemberNotTestedException;
-import makeus.cmc.malmo.domain.exception.NotCoupleMemberException;
 import makeus.cmc.malmo.domain.exception.*;
 import org.hibernate.TypeMismatchException;
 import org.springframework.http.ResponseEntity;

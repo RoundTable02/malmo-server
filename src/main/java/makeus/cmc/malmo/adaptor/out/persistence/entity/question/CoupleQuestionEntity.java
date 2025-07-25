@@ -6,10 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntity;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleEntityId;
-import makeus.cmc.malmo.domain.model.question.Question;
-import makeus.cmc.malmo.domain.value.id.CoupleId;
 import makeus.cmc.malmo.domain.value.state.CoupleQuestionState;
 
 import java.time.LocalDateTime;

@@ -7,7 +7,6 @@ import makeus.cmc.malmo.application.port.in.UpdateMemberUseCase;
 import makeus.cmc.malmo.application.port.in.UpdateStartLoveDateUseCase;
 import makeus.cmc.malmo.application.port.out.SaveMemberPort;
 import makeus.cmc.malmo.domain.model.member.Member;
-import makeus.cmc.malmo.domain.service.ChatRoomDomainService;
 import makeus.cmc.malmo.domain.service.CoupleDomainService;
 import makeus.cmc.malmo.domain.service.MemberDomainService;
 import makeus.cmc.malmo.domain.value.id.MemberId;

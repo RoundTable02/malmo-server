@@ -1,12 +1,10 @@
 package makeus.cmc.malmo.application.service;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.in.aop.CheckCoupleMember;
 import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
-import makeus.cmc.malmo.adaptor.out.persistence.MemberPersistenceAdapter;
 import makeus.cmc.malmo.application.port.in.GetMemberUseCase;
 import makeus.cmc.malmo.application.port.in.GetPartnerUseCase;
 import makeus.cmc.malmo.application.port.out.LoadMemberPort;

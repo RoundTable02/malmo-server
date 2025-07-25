@@ -3,9 +3,7 @@ package makeus.cmc.malmo.domain.model.question;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
-import makeus.cmc.malmo.domain.value.id.CoupleId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
-import makeus.cmc.malmo.domain.value.id.QuestionId;
 import makeus.cmc.malmo.domain.value.state.CoupleQuestionState;
 
 import java.time.LocalDateTime;

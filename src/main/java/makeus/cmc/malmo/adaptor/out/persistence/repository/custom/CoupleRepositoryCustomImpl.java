@@ -3,7 +3,6 @@ package makeus.cmc.malmo.adaptor.out.persistence.repository.custom;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleEntity;
-import makeus.cmc.malmo.domain.value.state.CoupleMemberState;
 import makeus.cmc.malmo.domain.value.state.CoupleState;
 
 import java.util.Optional;

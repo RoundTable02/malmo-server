@@ -10,7 +10,6 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.question.MemberAnswerEnti
 import makeus.cmc.malmo.adaptor.out.persistence.entity.question.QMemberAnswerEntity;
 import makeus.cmc.malmo.domain.value.state.CoupleMemberState;
 import makeus.cmc.malmo.domain.value.state.CoupleQuestionState;
-import makeus.cmc.malmo.domain.value.state.CoupleState;
 
 import java.util.Optional;
 

@@ -2,7 +2,10 @@ package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
-import makeus.cmc.malmo.application.port.in.*;
+import makeus.cmc.malmo.application.port.in.DeleteChatRoomUseCase;
+import makeus.cmc.malmo.application.port.in.GetChatRoomListUseCase;
+import makeus.cmc.malmo.application.port.in.GetChatRoomMessagesUseCase;
+import makeus.cmc.malmo.application.port.in.GetChatRoomSummaryUseCase;
 import makeus.cmc.malmo.application.port.out.LoadMessagesPort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
@@ -11,11 +14,9 @@ import makeus.cmc.malmo.domain.service.ChatRoomDomainService;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.data.domain.Page;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 
 @RequiredArgsConstructor
 @Service
