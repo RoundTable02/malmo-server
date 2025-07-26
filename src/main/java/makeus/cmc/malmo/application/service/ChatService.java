@@ -23,6 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.FINAL_MESSAGE;
+import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.LAST_PROMPT_LEVEL;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -57,6 +60,18 @@ public class ChatService implements SendChatMessageUseCase {
 
         //  현재 ChatRoom의 LEVEL 불러오기
         ChatRoom chatRoom = chatRoomDomainService.getCurrentChatRoomByMemberId(MemberId.of(member.getId()));
+
+        if (chatRoom.getLevel() == LAST_PROMPT_LEVEL) {
+            ChatMessage savedUserTextMessage = chatMessagesDomainService.createUserTextMessage(ChatRoomId.of(chatRoom.getId()), chatRoom.getLevel(), command.getMessage());
+            // 마지막 프롬프트 단계에서는 AI 응답을 고정 값으로 두고, 사용자 메시지만 저장
+            chatStreamProcessor.responseLastLevel(MemberId.of(member.getId()),
+                    ChatRoomId.of(chatRoom.getId()),
+                    LAST_PROMPT_LEVEL,
+                    FINAL_MESSAGE);
+            return SendChatMessageResponse.builder()
+                    .messageId(savedUserTextMessage.getId())
+                    .build();
+        }
 
         if (chatRoom.getChatRoomState() == ChatRoomState.BEFORE_INIT) {
             chatRoomDomainService.updateChatRoomStateToAlive(ChatRoomId.of(chatRoom.getId()));
