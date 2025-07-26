@@ -73,6 +73,8 @@ public class ChatStreamProcessor {
                     if (!isOkDetected.get()) {
                         saveAiMessage(memberId, chatRoomId, prompt.getLevel(), fullAnswer);
                     } else {
+                        fullAnswer = fullAnswer.replace("OK", "").trim();
+                        saveAiMessage(memberId, chatRoomId, prompt.getLevel(), fullAnswer);
                         // 현재 단계가 종료된 경우 && 커플 연동이 되지 않은 멤버의 마지막 프롬프트인 경우
                         if (prompt.isLastPromptForNotCoupleMember() && !isMemberCoupled) {
                             // 채팅방 상태를 PAUSED로 변경하고, SSE 이벤트 전송
