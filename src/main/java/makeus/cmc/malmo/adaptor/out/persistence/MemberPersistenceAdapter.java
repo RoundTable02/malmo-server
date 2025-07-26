@@ -84,6 +84,7 @@ public class MemberPersistenceAdapter implements
     @AllArgsConstructor
     public static class MemberResponseRepositoryDto {
         private String memberState;
+        private Provider provider;
         private LocalDate startLoveDate;
         private LoveTypeCategory loveTypeCategory;
         private float avoidanceRate;
@@ -94,6 +95,7 @@ public class MemberPersistenceAdapter implements
         public MemberInfoService.MemberInfoDto toDto(int totalChatRoomCount, int totalCoupleQuestionCount) {
             return MemberInfoService.MemberInfoDto.builder()
                     .memberState(memberState)
+                    .provider(provider)
                     .startLoveDate(startLoveDate)
                     .loveTypeCategory(loveTypeCategory)
                     .avoidanceRate(avoidanceRate)

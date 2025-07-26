@@ -5,6 +5,7 @@ import lombok.Getter;
 import makeus.cmc.malmo.domain.value.state.ChatRoomState;
 import makeus.cmc.malmo.domain.value.state.MemberState;
 import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
+import makeus.cmc.malmo.domain.value.type.Provider;
 import makeus.cmc.malmo.domain.value.type.SenderType;
 import makeus.cmc.malmo.domain.value.type.TermsType;
 
@@ -219,6 +220,9 @@ public class SwaggerResponses {
     public static class MemberData {
         @Schema(description = "멤버 상태", example = "ALIVE")
         private MemberState memberState;
+
+        @Schema(description = "로그인한 Provider", example = "KAKAO")
+        private Provider provider;
 
         @Schema(description = "연애 시작일", example = "2023-01-15")
         private LocalDate startLoveDate;

@@ -13,6 +13,7 @@ import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.state.MemberState;
 import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
+import makeus.cmc.malmo.domain.value.type.Provider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +35,7 @@ public class MemberInfoService implements GetMemberUseCase, GetPartnerUseCase {
 
         return MemberResponseDto.builder()
                 .memberState(MemberState.valueOf(member.getMemberState()))
+                .provider(member.getProvider())
                 .startLoveDate(member.getStartLoveDate())
                 .avoidanceRate(member.getAvoidanceRate())
                 .anxietyRate(member.getAnxietyRate())
@@ -67,6 +69,7 @@ public class MemberInfoService implements GetMemberUseCase, GetPartnerUseCase {
     @Builder
     public static class MemberInfoDto {
         private String memberState;
+        private Provider provider;
         private LocalDate startLoveDate;
         private LoveTypeCategory loveTypeCategory;
         private float avoidanceRate;
