@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 @Service
 public class MemberMemoryDomainService {
 
@@ -30,7 +29,6 @@ public class MemberMemoryDomainService {
         return sb.toString();
     }
 
-    @Transactional
     public void saveMemberMemory(MemberId memberId, String content) {
         MemberMemory memberMemory = MemberMemory.createMemberMemory(memberId, content);
         saveMemberMemoryPort.saveMemberMemory(memberMemory);
