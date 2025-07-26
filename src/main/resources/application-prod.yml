@@ -4,11 +4,15 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 30
+      connection-timeout: 5000
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: false
     database-platform: org.hibernate.dialect.MySQL8Dialect
+    open-in-view: false
 
 jwt:
   secret: ${JWT_SECRET}
@@ -17,6 +21,8 @@ jwt:
 
 logging:
   level:
+    com.zaxxer.hikari.HikariConfig: DEBUG
+    org.hibernate.SQL: TRACE
     makeus.cmc.malmo: DEBUG
 
 kakao:
