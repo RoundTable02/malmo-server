@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.FINAL_MESSAGE;
+
 @Slf4j
 @RequiredArgsConstructor
 @Component
@@ -148,6 +150,16 @@ public class ChatStreamProcessor {
             // TODO: 에러 처리 로직 추가
             log.error("Failed to parse summary JSON: {}", summary, e);
         }
+    }
+
+    public void responseLastLevel(MemberId memberId, ChatRoomId chatRoomId, int level, String message) {
+        sendSseEventPort.sendToMember(
+                memberId,
+                new SendSseEventPort.NotificationEvent(
+                        SendSseEventPort.SseEventType.CHAT_RESPONSE,
+                        message
+                ));
+        saveAiMessage(memberId, chatRoomId, level, message);
     }
 
     @Data
