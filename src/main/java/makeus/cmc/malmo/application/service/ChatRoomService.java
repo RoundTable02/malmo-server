@@ -15,6 +15,7 @@ import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -99,6 +100,7 @@ public class ChatRoomService
 
     @Override
     @CheckValidMember
+    @Transactional
     public void deleteChatRooms(DeleteChatRoomsCommand command) {
         // 모든 채팅방이 멤버 소유인지 검증
         chatRoomDomainService.validateChatRoomsOwnership(

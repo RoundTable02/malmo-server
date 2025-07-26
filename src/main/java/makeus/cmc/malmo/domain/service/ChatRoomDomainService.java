@@ -22,7 +22,6 @@ import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.INIT_CHATROOM_
 import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.INIT_CHAT_MESSAGE;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ChatRoomDomainService {
 
@@ -94,12 +93,10 @@ public class ChatRoomDomainService {
         return loadChatRoomPort.loadAliveChatRoomsByMemberId(memberId, keyword, pageable);
     }
 
-    @Transactional
     public void saveChatRoom(ChatRoom chatRoom) {
         saveChatRoomPort.saveChatRoom(chatRoom);
     }
 
-    @Transactional
     public void updateChatRoomStateToPaused(ChatRoomId chatRoomId) {
         ChatRoom chatRoom = loadChatRoomPort.loadChatRoomById(chatRoomId)
                 .orElseThrow(ChatRoomNotFoundException::new);
@@ -108,7 +105,6 @@ public class ChatRoomDomainService {
         saveChatRoom(chatRoom);
     }
 
-    @Transactional
     public void updateChatRoomStateToNeedNextQuestion(ChatRoomId chatRoomId) {
         ChatRoom chatRoom = loadChatRoomPort.loadChatRoomById(chatRoomId)
                 .orElseThrow(ChatRoomNotFoundException::new);
@@ -117,7 +113,6 @@ public class ChatRoomDomainService {
         saveChatRoom(chatRoom);
     }
 
-    @Transactional
     public void updateChatRoomStateToAlive(ChatRoomId chatRoomId) {
         ChatRoom chatRoom = loadChatRoomPort.loadChatRoomById(chatRoomId)
                 .orElseThrow(ChatRoomNotFoundException::new);
@@ -126,19 +121,16 @@ public class ChatRoomDomainService {
         saveChatRoom(chatRoom);
     }
 
-    @Transactional
     public void completeChatRoom(ChatRoom chatRoom) {
         chatRoom.complete();
         saveChatRoom(chatRoom);
     }
 
-    @Transactional
     public void updateChatRoomSummary(ChatRoom chatRoom, String totalSummary, String situationKeyword, String solutionKeyword) {
         chatRoom.updateChatRoomSummary(totalSummary, situationKeyword, solutionKeyword);
         saveChatRoom(chatRoom);
     }
 
-    @Transactional
     public void updateMemberPausedChatRoomStateToAlive(MemberId memberId) {
         loadChatRoomPort.loadPausedChatRoomByMemberId(memberId)
                         .ifPresent(
@@ -149,7 +141,6 @@ public class ChatRoomDomainService {
                         );
     }
 
-    @Transactional
     public void deleteChatRooms(List<ChatRoomId> chatRoomIds) {
         deleteChatRoomPort.deleteChatRooms(chatRoomIds);
     }

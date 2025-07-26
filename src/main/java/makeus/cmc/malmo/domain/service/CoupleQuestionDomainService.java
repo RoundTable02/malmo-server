@@ -64,7 +64,6 @@ public class CoupleQuestionDomainService {
                 );
     }
 
-    @Transactional
     public CoupleQuestion createNextCoupleQuestion(CoupleId coupleId, int nowLevel) {
         CoupleQuestion couplePreviousQuestion = loadCoupleQuestionPort.loadMaxLevelCoupleQuestion(coupleId)
                 .orElseThrow(CoupleQuestionNotFoundException::new);
@@ -93,7 +92,6 @@ public class CoupleQuestionDomainService {
                 .orElse(new MemberAnswersDto(null, null));
     }
 
-    @Transactional
     public void answerQuestion(CoupleQuestion coupleQuestion, MemberId memberId, String answer) {
         CoupleMemberId coupleMemberId = loadCouplePort.loadCoupleMemberIdByMemberId(memberId);
         // 이미 답변한 질문인지 확인
@@ -105,7 +103,6 @@ public class CoupleQuestionDomainService {
         saveMemberAnswerPort.saveMemberAnswer(memberAnswer);
     }
 
-    @Transactional
     public void answerQuestion(TempCoupleQuestion coupleQuestion, String answer) {
         if (coupleQuestion.isAnswered()) {
             throw new MemberAccessDeniedException("이미 답변한 질문입니다.");
@@ -119,13 +116,11 @@ public class CoupleQuestionDomainService {
         return loadMemberAnswerPort.countAnswers(coupleQuestionId);
     }
 
-    @Transactional
     public void updateQuestionComplete(CoupleQuestion coupleQuestion) {
         coupleQuestion.complete();
         saveCoupleQuestionPort.saveCoupleQuestion(coupleQuestion);
     }
 
-    @Transactional
     public void updateAnswer(CoupleQuestion coupleQuestion, MemberId memberId, String answer) {
         if (!coupleQuestion.isUpdatable()) {
             throw new MemberAccessDeniedException("이미 답변이 완료된 질문입니다.");
@@ -137,7 +132,6 @@ public class CoupleQuestionDomainService {
         saveMemberAnswerPort.saveMemberAnswer(memberAnswer);
     }
 
-    @Transactional
     public void updateAnswer(TempCoupleQuestion coupleQuestion, String answer) {
         if (!coupleQuestion.isAnswered()) {
             throw new MemberAccessDeniedException("답변이 완료되지 않은 질문입니다.");
@@ -147,7 +141,6 @@ public class CoupleQuestionDomainService {
         saveTempCoupleQuestionPort.saveTempCoupleQuestion(coupleQuestion);
     }
 
-    @Transactional
     public void createFirstCoupleQuestion(CoupleId coupleId, MemberId memberId, MemberId partnerId) {
         Question question = loadQuestionPort.loadQuestionByLevel(FIRST_QUESTION_LEVEL)
                 .orElseThrow(QuestionNotFoundException::new);

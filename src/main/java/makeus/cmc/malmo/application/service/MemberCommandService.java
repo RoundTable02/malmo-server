@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLoveDateUseCase, DeleteMemberUseCase {
 
@@ -24,6 +23,7 @@ public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLov
 
     @Override
     @CheckValidMember
+    @Transactional
     public UpdateMemberResponseDto updateMember(UpdateMemberCommand command) {
         Member member = memberDomainService.getMemberById(MemberId.of(command.getMemberId()));
 
@@ -38,6 +38,7 @@ public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLov
 
     @Override
     @CheckValidMember
+    @Transactional
     public UpdateStartLoveDateResponse updateStartLoveDate(UpdateStartLoveDateCommand command) {
         Member member = memberDomainService.getMemberById(MemberId.of(command.getMemberId()));
         Member updatedMember = memberDomainService.updateMemberStartLoveDate(member, command.getStartLoveDate());
@@ -48,6 +49,7 @@ public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLov
 
     @Override
     @CheckValidMember
+    @Transactional
     public void deleteMember(DeleteMemberCommand command) {
         // 멤버 soft delete
         Member member = memberDomainService.getMemberById(MemberId.of(command.getMemberId()));
