@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class MemberInfoService implements GetMemberUseCase, GetPartnerUseCase {
 

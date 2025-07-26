@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Objects;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class RefreshTokenService implements RefreshTokenUseCase {
 

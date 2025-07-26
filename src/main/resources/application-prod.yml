@@ -5,7 +5,7 @@ spring:
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
-      maximum-pool-size: 30
+      maximum-pool-size: 10
       connection-timeout: 5000
   jpa:
     hibernate:

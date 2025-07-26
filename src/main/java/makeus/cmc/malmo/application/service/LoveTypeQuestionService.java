@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class LoveTypeQuestionService implements GetLoveTypeQuestionsUseCase {
 

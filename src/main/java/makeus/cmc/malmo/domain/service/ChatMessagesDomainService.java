@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ChatMessagesDomainService {
 
@@ -31,13 +30,11 @@ public class ChatMessagesDomainService {
         return loadMessagesPort.loadMessagesDtoAsc(chatRoomId, pageable);
     }
 
-    @Transactional
     public ChatMessage createUserTextMessage(ChatRoomId chatRoomId, int level, String content) {
         ChatMessage chatMessage = ChatMessage.createUserTextMessage(chatRoomId, level, content);
         return saveChatMessagePort.saveChatMessage(chatMessage);
     }
 
-    @Transactional
     public ChatMessage createAiTextMessage(ChatRoomId chatRoomId, int level, String content) {
         ChatMessage chatMessage = ChatMessage.createAssistantTextMessage(chatRoomId, level, content);
         return saveChatMessagePort.saveChatMessage(chatMessage);
