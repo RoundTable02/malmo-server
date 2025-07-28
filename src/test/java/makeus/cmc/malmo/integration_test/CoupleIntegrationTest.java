@@ -8,6 +8,7 @@ import jakarta.persistence.EntityManager;
 import makeus.cmc.malmo.adaptor.out.jwt.TokenInfo;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatRoomEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleMemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.question.CoupleQuestionEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
@@ -125,7 +126,6 @@ public class CoupleIntegrationTest {
                     .andReturn();
 
             String responseContent = mvcResult.getResponse().getContentAsString();
-            System.out.println("Response Content: " + responseContent);
             Integer coupleId = JsonPath.read(responseContent, "$.data.coupleId");
 
             // then
@@ -252,8 +252,9 @@ public class CoupleIntegrationTest {
 
             Assertions.assertThat(couple).isNotNull();
             Assertions.assertThat(couple.getCoupleState()).isEqualTo(CoupleState.ALIVE);
-            Assertions.assertThat(couple.getCoupleMembers().stream()
-                    .allMatch(cm -> cm.getCoupleMemberState().equals(CoupleMemberState.ALIVE))).isTrue();
+            Assertions.assertThat(couple.getCoupleMembers())
+                    .extracting(CoupleMemberEntity::getCoupleMemberState)
+                    .containsExactlyInAnyOrder(CoupleMemberState.ALIVE, CoupleMemberState.ALIVE);
         }
 
         @Test
@@ -405,8 +406,9 @@ public class CoupleIntegrationTest {
                     .setParameter("coupleId", coupleId)
                     .getSingleResult();
             Assertions.assertThat(couple.getCoupleState()).isEqualTo(CoupleState.DELETED);
-            Assertions.assertThat(couple.getCoupleMembers().stream()
-                    .allMatch(cm -> cm.getCoupleMemberState().equals(CoupleMemberState.DELETED))).isTrue();
+            Assertions.assertThat(couple.getCoupleMembers())
+                    .extracting(CoupleMemberEntity::getCoupleMemberState)
+                    .containsExactlyInAnyOrder(CoupleMemberState.DELETED, CoupleMemberState.DELETED);
 
             // 커플 전용 API 접근 시 실패
             mockMvc.perform(get("/members/partner")

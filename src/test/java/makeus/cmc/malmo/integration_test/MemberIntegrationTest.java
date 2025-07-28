@@ -1,16 +1,22 @@
 package makeus.cmc.malmo.integration_test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import jakarta.persistence.EntityManager;
 import makeus.cmc.malmo.adaptor.in.web.controller.SignUpController;
 import makeus.cmc.malmo.adaptor.out.jwt.TokenInfo;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleMemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.terms.MemberTermsAgreementEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.application.port.out.GenerateTokenPort;
+import makeus.cmc.malmo.domain.value.state.CoupleMemberState;
+import makeus.cmc.malmo.domain.value.state.CoupleState;
 import makeus.cmc.malmo.domain.value.state.MemberState;
 import makeus.cmc.malmo.domain.value.type.MemberRole;
 import makeus.cmc.malmo.domain.value.type.Provider;
+import makeus.cmc.malmo.integration_test.dto_factory.CoupleRequestDtoFactory;
 import makeus.cmc.malmo.integration_test.dto_factory.MemberRequestDtoFactory;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,12 +28,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -224,6 +231,105 @@ public class MemberIntegrationTest {
                             )))
                     .andExpect(status().isBadRequest());
         }
+    }
+
+    @Nested
+    @DisplayName("멤버 탈퇴 검증")
+    class MemberDeleteFeature {
+        @Test
+        @DisplayName("정상적인 요청의 경우 멤버 탈퇴가 성공한다")
+        void 멤버_탈퇴_성공() throws Exception {
+            // when
+            mockMvc.perform(delete("/members")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk());
+
+            // then
+            MemberEntity deletedMember = em.find(MemberEntity.class, member.getId());
+            Assertions.assertThat(deletedMember.getMemberState()).isEqualTo(MemberState.DELETED);
+        }
+
+        @Test
+        @DisplayName("커플인 멤버의 경우 멤버 탈퇴 시 커플 상태가 DELETED로 변경된다")
+        void 멤버_탈퇴_커플_상태_변경() throws Exception {
+            // given
+            MemberEntity partner = MemberEntity.builder()
+                    .provider(Provider.KAKAO)
+                    .providerId("partnerProviderId")
+                    .memberRole(MemberRole.MEMBER)
+                    .memberState(MemberState.ALIVE)
+                    .email("testEmail2@test.com")
+                    .inviteCodeEntityValue(InviteCodeEntityValue.of("invite2"))
+                    .build();
+
+            em.persist(partner);
+            em.flush();
+
+            MvcResult mvcResult = mockMvc.perform(post("/couples")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    CoupleRequestDtoFactory.createCoupleLinkRequestDto(partner.getInviteCodeEntityValue().getValue())
+                            )))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            String responseContent = mvcResult.getResponse().getContentAsString();
+            Integer coupleId = JsonPath.read(responseContent, "$.data.coupleId");
+
+            // when
+            mockMvc.perform(delete("/members")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk());
+
+            // then
+            MemberEntity deletedMember = em.find(MemberEntity.class, member.getId());
+            Assertions.assertThat(deletedMember.getMemberState()).isEqualTo(MemberState.DELETED);
+
+            CoupleEntity couple = em.createQuery("SELECT c FROM CoupleEntity c WHERE c.id = :coupleId", CoupleEntity.class)
+                    .setParameter("coupleId", coupleId)
+                    .getSingleResult();
+            Assertions.assertThat(couple.getCoupleState()).isEqualTo(CoupleState.DELETED);
+            Assertions.assertThat(couple.getCoupleMembers())
+                    .extracting(CoupleMemberEntity::getCoupleMemberState)
+                    .containsExactlyInAnyOrder(CoupleMemberState.DELETED, CoupleMemberState.DELETED);
+        }
+    }
+
+    @Nested
+    @DisplayName("멤버 정보 조회 검증")
+    class MemberInfoFeature {
+        // TODO : 멤버 정보 조회 성공
+        // TODO : 탈퇴한 멤버 정보 조회 실패
+
+        // TODO : 파트너 멤버 정보 조회 성공
+        // TODO : 파트너 멤버 정보 조회 실패 (커플이 아닌 경우)
+        // TODO : 파트너 멤버 정보 조회 실패 (탈퇴한 멤버인 경우)
+
+        // TODO : 초대코드 조회 성공
+        // TODO : 초대코드 조회 실패 (탈퇴한 멤버인 경우)
+    }
+
+    @Nested
+    @DisplayName("멤버 정보 수정 검증")
+    class MemberInfoUpdateFeature {
+        // TODO : 멤버 정보 수정 성공
+        // TODO : 멤버 정보 수정 실패 (탈퇴한 멤버인 경우)
+        // TODO : 멤버 정보 수정 실패 (닉네임 규격에 맞지 않는 경우)
+
+        // TODO : 디데이 수정 성공
+        // TODO : 디데이 수정 실패 (탈퇴한 멤버인 경우)
+        // TODO : 디데이 수정 실패 (디데이가 오늘보다 이전인 경우)
+
+        // TODO : 애착 유형 등록 성공 (안정형)
+        // TODO : 애착 유형 등록 성공 (회피형)
+        // TODO : 애착 유형 등록 성공 (불안형)
+        // TODO : 애착 유형 등록 성공 (혼란형)
+        // TODO : 애착 유형 등록 실패 (탈퇴한 멤버인 경우)
+        // TODO : 애착 유형 등록 실패 (점수가 0점인 경우)
+        // TODO : 애착 유형 등록 실패 (점수가 6점인 경우)
     }
 
 }
