@@ -11,6 +11,7 @@ import makeus.cmc.malmo.application.port.out.GenerateTokenPort;
 import makeus.cmc.malmo.domain.value.state.MemberState;
 import makeus.cmc.malmo.domain.value.type.MemberRole;
 import makeus.cmc.malmo.domain.value.type.Provider;
+import makeus.cmc.malmo.integration_test.dto_factory.MemberRequestDtoFactory;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

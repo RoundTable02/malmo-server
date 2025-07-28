@@ -1,4 +1,4 @@
-package makeus.cmc.malmo.integration_test;
+package makeus.cmc.malmo.integration_test.dto_factory;
 
 import makeus.cmc.malmo.adaptor.in.web.controller.SignUpController;
 
