@@ -6,11 +6,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import jakarta.persistence.EntityManager;
 import makeus.cmc.malmo.adaptor.out.jwt.TokenInfo;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatRoomEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.question.CoupleQuestionEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
 import makeus.cmc.malmo.application.port.out.GenerateTokenPort;
+import makeus.cmc.malmo.domain.value.state.ChatRoomState;
 import makeus.cmc.malmo.domain.value.state.CoupleQuestionState;
 import makeus.cmc.malmo.domain.value.state.CoupleState;
 import makeus.cmc.malmo.domain.value.state.MemberState;
@@ -33,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
+import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.INIT_CHATROOM_LEVEL;
 import static makeus.cmc.malmo.domain.service.CoupleQuestionDomainService.FIRST_QUESTION_LEVEL;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -107,6 +111,7 @@ public class CoupleIntegrationTest {
         @Test
         @DisplayName("정상적인 요청의 경우 커플 연결이 성공한다.")
         void 커플_연결_성공() throws Exception {
+            // when
             MvcResult mvcResult = mockMvc.perform(post("/couples")
                             .header("Authorization", "Bearer " + accessToken)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -120,6 +125,7 @@ public class CoupleIntegrationTest {
             System.out.println("Response Content: " + responseContent);
             Integer coupleId = JsonPath.read(responseContent, "$.data.coupleId");
 
+            // then
             // 커플 생성 여부 확인
             Assertions.assertThat(coupleId).isNotNull();
             CoupleEntity couple = em.createQuery("SELECT c FROM CoupleEntity c WHERE c.id = :coupleId", CoupleEntity.class)
@@ -149,10 +155,73 @@ public class CoupleIntegrationTest {
             Assertions.assertThat(coupleQuestion.getCoupleQuestionState()).isEqualTo(CoupleQuestionState.ALIVE);
         }
 
-        // TODO : 정지된 채팅방이 있는 경우 활성화
-        // TODO : 재결합 커플인 경우 데이터 복구
+        @Test
+        @DisplayName("정지된 채팅방이 있는 경우 커플 연결이 성공 후 채팅방이 활성화된다.")
+        void 커플_연결_성공_채팅방_활성화() throws Exception {
+            // given
+            ChatRoomEntity memberChatRoom = ChatRoomEntity.builder()
+                    .memberEntityId(MemberEntityId.of(member.getId()))
+                    .chatRoomState(ChatRoomState.PAUSED)
+                    .level(INIT_CHATROOM_LEVEL)
+                    .build();
 
-        // TODO : 탈퇴한 사용자의 경우 연결 실패
+            ChatRoomEntity partnerChatRoom = ChatRoomEntity.builder()
+                    .memberEntityId(MemberEntityId.of(partner.getId()))
+                    .chatRoomState(ChatRoomState.PAUSED)
+                    .level(INIT_CHATROOM_LEVEL)
+                    .build();
+
+            em.persist(memberChatRoom);
+            em.persist(partnerChatRoom);
+            em.flush();
+
+            // when
+            MvcResult mvcResult = mockMvc.perform(post("/couples")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    CoupleRequestDtoFactory.createCoupleLinkRequestDto("invite2")
+                            )))
+                    .andExpect(status().isOk())
+                    .andReturn();
+            String responseContent = mvcResult.getResponse().getContentAsString();
+            Integer coupleId = JsonPath.read(responseContent, "$.data.coupleId");
+
+            // then
+            // 커플 생성 여부 확인
+            Assertions.assertThat(coupleId).isNotNull();
+            CoupleEntity couple = em.createQuery("SELECT c FROM CoupleEntity c WHERE c.id = :coupleId", CoupleEntity.class)
+                    .setParameter("coupleId", coupleId)
+                    .getSingleResult();
+            Assertions.assertThat(couple).isNotNull();
+            Assertions.assertThat(couple.getCoupleState()).isEqualTo(CoupleState.ALIVE);
+            Assertions.assertThat(couple.getStartLoveDate()).isEqualTo(partner.getStartLoveDate());
+            Assertions.assertThat(couple.getCoupleMembers()).hasSize(2);
+            Assertions.assertThat(couple.getCoupleMembers().stream()
+                    .anyMatch(cm -> cm.getMemberEntityId().getValue().equals(member.getId()))).isTrue();
+            Assertions.assertThat(couple.getCoupleMembers().stream()
+                    .anyMatch(cm -> cm.getMemberEntityId().getValue().equals(partner.getId()))).isTrue();
+
+            // 커플 멤버의 채팅방 상태가 활성화 되었는지 확인
+            ChatRoomEntity memberChatRoomAfter = em.createQuery("SELECT cr FROM ChatRoomEntity cr WHERE cr.memberEntityId.value = :memberId", ChatRoomEntity.class)
+                    .setParameter("memberId", member.getId())
+                    .getSingleResult();
+            ChatRoomEntity partnerChatRoomAfter = em.createQuery("SELECT cr FROM ChatRoomEntity cr WHERE cr.memberEntityId.value = :partnerId", ChatRoomEntity.class)
+                    .setParameter("partnerId", partner.getId())
+                    .getSingleResult();
+            Assertions.assertThat(memberChatRoomAfter.getChatRoomState()).isEqualTo(ChatRoomState.NEED_NEXT_QUESTION);
+            Assertions.assertThat(partnerChatRoomAfter.getChatRoomState()).isEqualTo(ChatRoomState.NEED_NEXT_QUESTION);
+        }
+
+        // TODO : 재결합 커플인 경우 데이터 복구
+        @Test
+        @DisplayName("재결합 커플인 경우 커플 연결이 성공 후 데이터가 복구된다.")
+        void 재결합_커플_연결_성공_데이터_복구() throws Exception {
+            // given
+        }
+
+        
+
         // TODO : 사용자가 이미 커플인 경우 연결 실패
         // TODO : 초대 코드가 이미 사용된 경우 연결 실패
         // TODO : 초대 코드가 없는 경우 연결 실패
