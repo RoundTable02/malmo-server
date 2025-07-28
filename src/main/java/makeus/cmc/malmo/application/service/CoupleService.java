@@ -45,6 +45,7 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
         InviteCodeValue inviteCode = InviteCodeValue.of(command.getCoupleCode());
         inviteCodeDomainService.validateUsedInviteCode(inviteCode);
         inviteCodeDomainService.validateMemberNotCoupled(MemberId.of(command.getUserId()));
+        inviteCodeDomainService.validateOwnInviteCode(MemberId.of(command.getUserId()), inviteCode);
 
         Member partner = inviteCodeDomainService.getMemberByInviteCode(inviteCode);
 
