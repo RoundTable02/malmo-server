@@ -1,8 +1,6 @@
 package makeus.cmc.malmo.domain.service;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import makeus.cmc.malmo.application.port.out.*;
 import makeus.cmc.malmo.domain.exception.CoupleQuestionNotFoundException;
 import makeus.cmc.malmo.domain.exception.MemberAccessDeniedException;
@@ -89,7 +87,7 @@ public class CoupleQuestionDomainService {
 
     public MemberAnswersDto getQuestionAnswers(MemberId memberId, CoupleQuestionId coupleQuestionId) {
         return loadMemberAnswerPort.getQuestionAnswers(memberId, coupleQuestionId)
-                .orElse(new MemberAnswersDto(null, null));
+                .orElse(new MemberAnswersDto());
     }
 
     public void answerQuestion(CoupleQuestion coupleQuestion, MemberId memberId, String answer) {
@@ -197,7 +195,13 @@ public class CoupleQuestionDomainService {
 
     @Data
     @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class MemberAnswersDto {
+        private String title;
+        private String content;
+        private Integer level;
+        private LocalDateTime createdAt;
         private AnswerDto me;
         private AnswerDto partner;
     }

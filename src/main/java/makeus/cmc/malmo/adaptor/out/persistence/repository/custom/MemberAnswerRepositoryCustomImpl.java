@@ -4,10 +4,13 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.MemberAnswerPersistenceAdapter;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleMemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.QMemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.question.MemberAnswerEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.question.QCoupleQuestionEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.question.QMemberAnswerEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.question.QQuestionEntity;
 import makeus.cmc.malmo.domain.value.state.CoupleMemberState;
 import makeus.cmc.malmo.domain.value.state.CoupleQuestionState;
 
@@ -18,6 +21,7 @@ import static makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleMemb
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.member.QMemberEntity.memberEntity;
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.question.QCoupleQuestionEntity.coupleQuestionEntity;
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.question.QMemberAnswerEntity.memberAnswerEntity;
+import static makeus.cmc.malmo.adaptor.out.persistence.entity.question.QQuestionEntity.questionEntity;
 
 @RequiredArgsConstructor
 public class MemberAnswerRepositoryCustomImpl implements MemberAnswerRepositoryCustom{
@@ -26,35 +30,59 @@ public class MemberAnswerRepositoryCustomImpl implements MemberAnswerRepositoryC
 
     @Override
     public Optional<MemberAnswerPersistenceAdapter.AnswerRepositoryDto> findAnswersDtoByCoupleQuestionId(Long memberId, Long coupleQuestionId) {
-        QMemberEntity partnerMemberEntity = new QMemberEntity("partnerMemberEntity");
-        QMemberAnswerEntity partnerAnswerEntity = new QMemberAnswerEntity("partnerAnswerEntity");
-        QCoupleMemberEntity coupleMemberEntity = new QCoupleMemberEntity("coupleMemberEntity");
-        QCoupleMemberEntity partnerCoupleMemberEntity = new QCoupleMemberEntity("partnerCoupleMemberEntity");
+        QCoupleQuestionEntity coupleQuestion = QCoupleQuestionEntity.coupleQuestionEntity;
+        QQuestionEntity question = QQuestionEntity.questionEntity;
+        QCoupleEntity couple = QCoupleEntity.coupleEntity;
+
+        QCoupleMemberEntity myCoupleMember = QCoupleMemberEntity.coupleMemberEntity;
+        QMemberEntity me = QMemberEntity.memberEntity;
+        QMemberAnswerEntity myAnswer = QMemberAnswerEntity.memberAnswerEntity;
+
+        QCoupleMemberEntity partnerCoupleMember = new QCoupleMemberEntity("partnerCoupleMember");
+        QMemberEntity partner = new QMemberEntity("partner");
+        QMemberAnswerEntity partnerAnswer = new QMemberAnswerEntity("partnerAnswer");
 
         MemberAnswerPersistenceAdapter.AnswerRepositoryDto result = queryFactory
                 .select(Projections.constructor(MemberAnswerPersistenceAdapter.AnswerRepositoryDto.class,
-                        memberEntity.nickname,
-                        memberAnswerEntity.answer,
-                        coupleQuestionEntity.coupleQuestionState.ne(CoupleQuestionState.OUTDATED),
-                        partnerMemberEntity.nickname,
-                        partnerAnswerEntity.answer,
-                        coupleQuestionEntity.coupleQuestionState.ne(CoupleQuestionState.OUTDATED)))
-                .from(memberAnswerEntity)
-                .join(coupleMemberEntity).on(coupleMemberEntity.id.eq(memberAnswerEntity.coupleMemberEntityId.value))
-                .join(memberEntity)
-                .on(coupleMemberEntity.memberEntityId.value.eq(memberEntity.id))
-                .join(coupleQuestionEntity).on(coupleQuestionEntity.id.eq(memberAnswerEntity.coupleQuestionEntityId.value))
-                .join(coupleEntity).on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value))
-                .leftJoin(partnerCoupleMemberEntity).on(partnerCoupleMemberEntity.coupleEntityId.value.eq(coupleEntity.id)
-                        .and(partnerCoupleMemberEntity.id.ne(coupleMemberEntity.id))
-                        .and(partnerCoupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
-                .leftJoin(partnerMemberEntity)
-                .on(partnerCoupleMemberEntity.memberEntityId.value.eq(partnerMemberEntity.id))
-                .leftJoin(partnerAnswerEntity).on(partnerAnswerEntity.coupleQuestionEntityId.eq(memberAnswerEntity.coupleQuestionEntityId)
-                        .and(partnerAnswerEntity.coupleMemberEntityId.value.eq(partnerCoupleMemberEntity.id)))
-                .where(coupleQuestionEntity.id.eq(coupleQuestionId)
-                        .and(memberEntity.id.eq(memberId)))
+                        question.title,
+                        question.content,
+                        question.level,
+                        coupleQuestion.createdAt,
+                        me.nickname,
+                        myAnswer.answer,
+                        coupleQuestion.coupleQuestionState.ne(CoupleQuestionState.OUTDATED),
+                        partner.nickname,
+                        partnerAnswer.answer,
+                        coupleQuestion.coupleQuestionState.ne(CoupleQuestionState.OUTDATED)
+                ))
+                .from(coupleQuestion)
+                .join(coupleQuestion.question, question)
+                .join(couple).on(coupleQuestion.coupleEntityId.value.eq(couple.id))
+                .join(myCoupleMember).on(
+                        myCoupleMember.coupleEntityId.value.eq(couple.id)
+                                .and(myCoupleMember.memberEntityId.value.eq(memberId))
+                )
+                .join(me).on(myCoupleMember.memberEntityId.value.eq(me.id))
+                .leftJoin(myAnswer).on(
+                        myAnswer.coupleQuestionEntityId.value.eq(coupleQuestion.id)
+                                .and(myAnswer.coupleMemberEntityId.value.eq(myCoupleMember.id))
+                )
+                .leftJoin(partnerCoupleMember).on(
+                        partnerCoupleMember.coupleEntityId.value.eq(couple.id)
+                                .and(partnerCoupleMember.id.ne(myCoupleMember.id))
+                                .and(partnerCoupleMember.coupleMemberState.ne(CoupleMemberState.DELETED))
+                )
+                .leftJoin(partner).on(partnerCoupleMember.memberEntityId.value.eq(partner.id))
+                .leftJoin(partnerAnswer).on(
+                        partnerAnswer.coupleQuestionEntityId.value.eq(coupleQuestion.id)
+                                .and(partnerAnswer.coupleMemberEntityId.value.eq(partnerCoupleMember.id))
+                )
+                .where(
+                        coupleQuestion.id.eq(coupleQuestionId)
+                )
                 .fetchOne();
+
+        System.out.println("MemberAnswerRepositoryCustomImpl.findAnswersDtoByCoupleQuestionId: " + result);
 
         return Optional.ofNullable(result);
     }

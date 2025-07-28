@@ -121,8 +121,13 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
             CoupleQuestionDomainService.MemberAnswersDto answers =
                     coupleQuestionDomainService.getQuestionAnswers(MemberId.of(command.getUserId()), CoupleQuestionId.of(command.getCoupleQuestionId()));
 
+            log.info("getQuestionAnswers: answers={}", answers);
 
             return AnswerResponseDto.builder()
+                    .title(answers.getTitle())
+                    .content(answers.getContent())
+                    .level(answers.getLevel())
+                    .createdAt(answers.getCreatedAt())
                     .me(
                             answers.getMe() == null ? null :
                             AnswerDto.builder()
@@ -147,6 +152,10 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
             TempCoupleQuestion tempCoupleQuestion = coupleQuestionDomainService.getTempCoupleQuestion(MemberId.of(command.getUserId()));
 
             return AnswerResponseDto.builder()
+                    .title(tempCoupleQuestion.getQuestion().getTitle())
+                    .content(tempCoupleQuestion.getQuestion().getContent())
+                    .level(CoupleQuestionDomainService.FIRST_QUESTION_LEVEL)
+                    .createdAt(tempCoupleQuestion.getCreatedAt())
                     .me(
                             AnswerDto.builder()
                                     .nickname(member.getNickname())

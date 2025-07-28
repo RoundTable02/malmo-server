@@ -15,6 +15,7 @@ import makeus.cmc.malmo.domain.value.id.CoupleQuestionId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -57,6 +58,10 @@ public class MemberAnswerPersistenceAdapter implements LoadMemberAnswerPort, Sav
     @Builder
     @AllArgsConstructor
     public static class AnswerRepositoryDto {
+        private String title;
+        private String content;
+        private Integer level;
+        private LocalDateTime createdAt;
         private String nickname;
         private String answer;
         private boolean updatable;
@@ -66,6 +71,10 @@ public class MemberAnswerPersistenceAdapter implements LoadMemberAnswerPort, Sav
 
         public CoupleQuestionDomainService.MemberAnswersDto toDto() {
             return CoupleQuestionDomainService.MemberAnswersDto.builder()
+                    .title(title)
+                    .content(content)
+                    .level(level)
+                    .createdAt(createdAt)
                     .me(
                         CoupleQuestionDomainService.AnswerDto.builder()
                             .nickname(nickname)

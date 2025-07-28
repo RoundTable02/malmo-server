@@ -1,7 +1,10 @@
 package makeus.cmc.malmo.adaptor.in.web.docs;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
+import makeus.cmc.malmo.application.port.in.GetQuestionAnswerUseCase;
 import makeus.cmc.malmo.domain.value.state.ChatRoomState;
 import makeus.cmc.malmo.domain.value.state.MemberState;
 import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
@@ -399,36 +402,30 @@ public class SwaggerResponses {
     @Getter
     @Schema(description = "과거 답변 조회 응답 데이터")
     public static class PastAnswerData {
-        @Schema(description = "커플 질문 ID", example = "1")
-        private Long coupleQuestionId;
-
         @Schema(description = "질문 제목", example = "오늘 하루 어땠나요?")
         private String title;
-
         @Schema(description = "질문 내용", example = "오늘 하루 중 가장 기억에 남는 순간은 무엇인가요?")
         private String content;
-
-        @Schema(description = "생성일시", example = "2023-07-03T10:00:00")
+        @Schema(description = "질문 단계", example = "3")
+        private int level;
+        @Schema(description = "답변 생성일시", example = "2023-07-03T10:00:00")
         private LocalDateTime createdAt;
 
-        @Schema(description = "답변 리스트")
-        private List<PastAnswerDto> answers;
+        @Schema(description = "멤버 답변 정보")
+        private AnswerDto me;
+        @Schema(description = "상대방 답변 정보")
+        private AnswerDto partner;
     }
 
     @Getter
-    @Schema(description = "과거 답변 상세 데이터")
-    public static class PastAnswerDto {
-        @Schema(description = "멤버 답변 ID", example = "1")
-        private Long memberAnswerId;
-
+    @Schema(description = "멤버 답변 상세 데이터")
+    class AnswerDto {
+        @Schema(description = "답변한 멤버 닉네임", example = "홍길동")
+        private String nickname;
         @Schema(description = "답변 내용", example = "오늘은 정말 좋은 하루였어요!")
         private String answer;
-
-        @Schema(description = "답변한 멤버 닉네임", example = "홍길동")
-        private String memberNickname;
-
-        @Schema(description = "답변 생성일시", example = "2023-07-03T10:00:00")
-        private LocalDateTime createdAt;
+        @Schema(description = "수정 가능", example = "true")
+        private boolean updatable;
     }
 
     @Getter
