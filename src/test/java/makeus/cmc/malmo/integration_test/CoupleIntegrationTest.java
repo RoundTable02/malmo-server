@@ -13,10 +13,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.question.CoupleQuestionEn
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
 import makeus.cmc.malmo.application.port.out.GenerateTokenPort;
-import makeus.cmc.malmo.domain.value.state.ChatRoomState;
-import makeus.cmc.malmo.domain.value.state.CoupleQuestionState;
-import makeus.cmc.malmo.domain.value.state.CoupleState;
-import makeus.cmc.malmo.domain.value.state.MemberState;
+import makeus.cmc.malmo.domain.value.state.*;
 import makeus.cmc.malmo.domain.value.type.MemberRole;
 import makeus.cmc.malmo.domain.value.type.Provider;
 import makeus.cmc.malmo.integration_test.dto_factory.CoupleRequestDtoFactory;
@@ -39,7 +36,7 @@ import java.time.LocalDate;
 import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.*;
 import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.INIT_CHATROOM_LEVEL;
 import static makeus.cmc.malmo.domain.service.CoupleQuestionDomainService.FIRST_QUESTION_LEVEL;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -112,7 +109,7 @@ public class CoupleIntegrationTest {
     }
 
     @Nested
-    @DisplayName("회원가입 기능 검증")
+    @DisplayName("커플 연결 기능 검증")
     class CoupleLinkFeature {
         @Test
         @DisplayName("정상적인 요청의 경우 커플 연결이 성공한다.")
@@ -224,6 +221,39 @@ public class CoupleIntegrationTest {
         @DisplayName("재결합 커플인 경우 커플 연결이 성공 후 데이터가 복구된다.")
         void 재결합_커플_연결_성공_데이터_복구() throws Exception {
             // given
+            mockMvc.perform(post("/couples")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    CoupleRequestDtoFactory.createCoupleLinkRequestDto(partner.getInviteCodeEntityValue().getValue())
+                            )))
+                    .andExpect(status().isOk());
+
+            mockMvc.perform(delete("/couples")
+                            .header("Authorization", "Bearer " + accessToken))
+                    .andExpect(status().isOk());
+
+            // when
+            MvcResult mvcResult = mockMvc.perform(post("/couples")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    CoupleRequestDtoFactory.createCoupleLinkRequestDto(partner.getInviteCodeEntityValue().getValue())
+                            )))
+                    .andExpect(status().isOk())
+                    .andReturn();
+            String responseContent = mvcResult.getResponse().getContentAsString();
+            Integer coupleId = JsonPath.read(responseContent, "$.data.coupleId");
+
+            // then
+            CoupleEntity couple = em.createQuery("SELECT c FROM CoupleEntity c WHERE c.id = :coupleId", CoupleEntity.class)
+                    .setParameter("coupleId", coupleId)
+                    .getSingleResult();
+
+            Assertions.assertThat(couple).isNotNull();
+            Assertions.assertThat(couple.getCoupleState()).isEqualTo(CoupleState.ALIVE);
+            Assertions.assertThat(couple.getCoupleMembers().stream()
+                    .allMatch(cm -> cm.getCoupleMemberState().equals(CoupleMemberState.ALIVE))).isTrue();
         }
 
         @Test
@@ -345,6 +375,59 @@ public class CoupleIntegrationTest {
                     .andExpect(jsonPath("message").value(NOT_VALID_COUPLE_CODE.getMessage()))
                     .andExpect(jsonPath("code").value(NOT_VALID_COUPLE_CODE.getCode()));
         }
+    }
+
+    @Nested
+    @DisplayName("커플 연결 끊기 기능 검증")
+    class CoupleUnLinkFeature {
+        @Test
+        @DisplayName("정상적인 요청의 경우 커플 연결이 끊어진다.")
+        void 커플_연결_끊기_성공() throws Exception {
+            // given
+            MvcResult mvcResult = mockMvc.perform(post("/couples")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    CoupleRequestDtoFactory.createCoupleLinkRequestDto(partner.getInviteCodeEntityValue().getValue())
+                            )))
+                    .andExpect(status().isOk())
+                    .andReturn();
+            String responseContent = mvcResult.getResponse().getContentAsString();
+            Integer coupleId = JsonPath.read(responseContent, "$.data.coupleId");
+
+            // when
+            mockMvc.perform(delete("/couples")
+                            .header("Authorization", "Bearer " + accessToken))
+                    .andExpect(status().isOk());
+
+            // then
+            CoupleEntity couple = em.createQuery("SELECT c FROM CoupleEntity c WHERE c.id = :coupleId", CoupleEntity.class)
+                    .setParameter("coupleId", coupleId)
+                    .getSingleResult();
+            Assertions.assertThat(couple.getCoupleState()).isEqualTo(CoupleState.DELETED);
+            Assertions.assertThat(couple.getCoupleMembers().stream()
+                    .allMatch(cm -> cm.getCoupleMemberState().equals(CoupleMemberState.DELETED))).isTrue();
+
+            // 커플 전용 API 접근 시 실패
+            mockMvc.perform(get("/members/partner")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("message").value(NOT_COUPLE_MEMBER.getMessage()))
+                    .andExpect(jsonPath("code").value(NOT_COUPLE_MEMBER.getCode()));
+        }
+
+        @Test
+        @DisplayName("커플이 아닌 사용자가 커플 연결 끊기를 시도하면 실패한다.")
+        void 커플이_아닌_사용자_커플_연결_끊기_실패() throws Exception {
+            // when & then
+            mockMvc.perform(delete("/couples")
+                            .header("Authorization", "Bearer " + generateTokenPort.generateToken(other.getId(), other.getMemberRole()).getAccessToken()))
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("message").value(NOT_COUPLE_MEMBER.getMessage()))
+                    .andExpect(jsonPath("code").value(NOT_COUPLE_MEMBER.getCode()));
+        }
+
     }
 
 
