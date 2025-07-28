@@ -113,7 +113,7 @@ public class QuestionController {
     )
     @ApiCommonResponses.RequireAuth
     @PostMapping("/today/answers")
-    public BaseResponse postAnswer(
+    public BaseResponse<AnswerQuestionUseCase.QuestionAnswerResponse> postAnswer(
             @AuthenticationPrincipal User user,
             @Valid @RequestBody AnswerRequestDto requestDto
     ) {
@@ -122,9 +122,7 @@ public class QuestionController {
                 .answer(requestDto.getAnswer())
                 .build();
 
-        answerQuestionUseCase.answerQuestion(command);
-
-        return BaseResponse.success(null);
+        return BaseResponse.success(answerQuestionUseCase.answerQuestion(command));
     }
 
     @Operation(
@@ -139,7 +137,7 @@ public class QuestionController {
     )
     @ApiCommonResponses.RequireAuth
     @PatchMapping("/today/answers")
-    public BaseResponse updateAnswer(
+    public BaseResponse<AnswerQuestionUseCase.QuestionAnswerResponse> updateAnswer(
             @AuthenticationPrincipal User user,
             @Valid @RequestBody AnswerRequestDto requestDto
     ) {
@@ -148,9 +146,7 @@ public class QuestionController {
                 .answer(requestDto.getAnswer())
                 .build();
 
-        answerQuestionUseCase.updateAnswer(command);
-
-        return BaseResponse.success(null);
+        return BaseResponse.success(answerQuestionUseCase.updateAnswer(command));
     }
 
     @Data

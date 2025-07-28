@@ -162,7 +162,7 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
     @Override
     @CheckValidMember
     @Transactional
-    public void answerQuestion(AnswerQuestionCommand command) {
+    public QuestionAnswerResponse answerQuestion(AnswerQuestionCommand command) {
         boolean isCouple = validateMemberPort.isCoupleMember(MemberId.of(command.getUserId()));
 
         if (isCouple) {
@@ -181,6 +181,10 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
                 // 두 명이 모두 답변한 경우, 상태를 업데이트
                 coupleQuestionDomainService.updateQuestionComplete(coupleQuestion);
             }
+
+            return QuestionAnswerResponse.builder()
+                    .coupleQuestionId(coupleQuestion.getId())
+                    .build();
         }
         else {
             // 커플이 아닌 사용자는 TempCoupleQuestion에 답변
@@ -188,13 +192,17 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
 
             // 답변을 저장
             coupleQuestionDomainService.answerQuestion(tempCoupleQuestion, command.getAnswer());
+
+            return QuestionAnswerResponse.builder()
+                    .coupleQuestionId(tempCoupleQuestion.getId())
+                    .build();
         }
     }
 
     @Override
     @CheckValidMember
     @Transactional
-    public void updateAnswer(AnswerQuestionCommand request) {
+    public QuestionAnswerResponse updateAnswer(AnswerQuestionCommand request) {
         boolean isCouple = validateMemberPort.isCoupleMember(MemberId.of(request.getUserId()));
 
         if (isCouple) {
@@ -204,6 +212,10 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
 
             // 답변을 수정
             coupleQuestionDomainService.updateAnswer(coupleQuestion, MemberId.of(request.getUserId()), request.getAnswer());
+
+            return QuestionAnswerResponse.builder()
+                    .coupleQuestionId(coupleQuestion.getId())
+                    .build();
         }
         else {
             // 커플이 아닌 사용자는 TempCoupleQuestion 답변 수정
@@ -211,6 +223,10 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
 
             // 답변을 수정
             coupleQuestionDomainService.updateAnswer(tempCoupleQuestion, request.getAnswer());
+
+            return QuestionAnswerResponse.builder()
+                    .coupleQuestionId(tempCoupleQuestion.getId())
+                    .build();
         }
     }
 }
