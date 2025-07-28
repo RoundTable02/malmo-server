@@ -7,9 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -243,6 +241,9 @@ public class MemberController {
 
     @Data
     public static class UpdateMemberRequestDto {
+        @NotBlank(message = "닉네임은 필수 입력값입니다.")
+        @Size(min = 1, max = 10, message = "닉네임은 1자 이상 10자 이하여야 합니다.")
+        @Pattern(regexp = "^[가-힣a-zA-Z0-9]+$", message = "닉네임은 한글, 영문, 숫자만 사용 가능합니다.")
         private String nickname;
     }
 
@@ -253,6 +254,8 @@ public class MemberController {
 
     @Data
     public static class UpdateStartLoveDateRequestDto {
+        @NotNull(message = "시작일은 필수 입력값입니다.")
+        @PastOrPresent(message = "시작일은 오늘 또는 과거 날짜여야 합니다.")
         private LocalDate startLoveDate;
     }
 
