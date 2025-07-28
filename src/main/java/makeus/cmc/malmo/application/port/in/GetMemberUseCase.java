@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import makeus.cmc.malmo.domain.value.state.MemberState;
 import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
+import makeus.cmc.malmo.domain.value.type.Provider;
 
 import java.time.LocalDate;
 
@@ -21,6 +22,7 @@ public interface GetMemberUseCase {
     @Builder
     class MemberResponseDto {
         private MemberState memberState;
+        private Provider provider;
         private LocalDate startLoveDate;
 
         private LoveTypeCategory loveTypeCategory;

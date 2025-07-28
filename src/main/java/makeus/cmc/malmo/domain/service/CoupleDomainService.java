@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class CoupleDomainService {
 
@@ -34,7 +33,6 @@ public class CoupleDomainService {
         return loadCouplePort.loadCoupleIdByMemberId(memberId);
     }
 
-    @Transactional
     public void deleteCoupleByMemberId(MemberId memberId) {
         loadCouplePort.loadCoupleByMemberId(memberId)
                 .ifPresent(couple -> {

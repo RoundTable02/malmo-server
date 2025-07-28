@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAnswerUseCase, AnswerQuestionUseCase {
 
@@ -33,6 +32,7 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
 
     @Override
     @CheckValidMember
+    @Transactional
     public GetQuestionResponse getTodayQuestion(GetTodayQuestionCommand command) {
         boolean isCouple = validateMemberPort.isCoupleMember(MemberId.of(command.getUserId()));
 
@@ -161,6 +161,7 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
 
     @Override
     @CheckValidMember
+    @Transactional
     public void answerQuestion(AnswerQuestionCommand command) {
         boolean isCouple = validateMemberPort.isCoupleMember(MemberId.of(command.getUserId()));
 
@@ -192,6 +193,7 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
 
     @Override
     @CheckValidMember
+    @Transactional
     public void updateAnswer(AnswerQuestionCommand request) {
         boolean isCouple = validateMemberPort.isCoupleMember(MemberId.of(request.getUserId()));
 

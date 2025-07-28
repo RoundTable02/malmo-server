@@ -24,7 +24,6 @@ import java.util.Optional;
 import static makeus.cmc.malmo.application.port.out.SendSseEventPort.SseEventType.COUPLE_CONNECTED;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
 
@@ -39,8 +38,8 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
     private final SaveCouplePort saveCouplePort;
 
     @Override
-    @Transactional
     @CheckValidMember
+    @Transactional
     public CoupleLinkResponse coupleLink(CoupleLinkCommand command) {
         InviteCodeValue inviteCode = InviteCodeValue.of(command.getCoupleCode());
         inviteCodeDomainService.validateUsedInviteCode(inviteCode);
@@ -89,8 +88,8 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
     }
 
     @Override
-    @Transactional
     @CheckCoupleMember
+    @Transactional
     public void coupleUnlink(CoupleUnlinkCommand command) {
         coupleDomainService.deleteCoupleByMemberId(MemberId.of(command.getUserId()));
     }

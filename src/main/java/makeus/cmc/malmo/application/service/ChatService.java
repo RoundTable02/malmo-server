@@ -25,7 +25,6 @@ import java.util.Map;
 
 @Slf4j
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ChatService implements SendChatMessageUseCase {
 

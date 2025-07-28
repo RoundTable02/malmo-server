@@ -20,7 +20,6 @@ import java.time.LocalDate;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class MemberDomainService {
 

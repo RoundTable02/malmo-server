@@ -15,7 +15,6 @@ public class SseService implements ConnectSseUseCase {
     private final ConnectSsePort connectSsePort;
 
     @Override
-    @CheckValidMember
     public SseConnectionResponse connectSse(SseConnectionCommand command) {
         MemberId memberId = MemberId.of(command.getUserId());
         SseEmitter emitter = connectSsePort.connect(memberId);

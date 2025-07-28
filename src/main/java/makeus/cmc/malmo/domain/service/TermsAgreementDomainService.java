@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class TermsAgreementDomainService {
 
@@ -25,7 +24,6 @@ public class TermsAgreementDomainService {
 
     public record TermAgreementInput(Long termsId, boolean isAgreed) {}
 
-    @Transactional
     public void processAgreements(MemberId memberId, List<TermAgreementInput> agreementInputs) {
         agreementInputs.forEach(input -> {
             Terms terms = loadTermsPort.loadTermsById(input.termsId())
