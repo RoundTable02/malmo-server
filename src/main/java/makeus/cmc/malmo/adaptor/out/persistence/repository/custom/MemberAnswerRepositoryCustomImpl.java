@@ -91,8 +91,8 @@ public class MemberAnswerRepositoryCustomImpl implements MemberAnswerRepositoryC
     public Optional<MemberAnswerEntity> findByCoupleQuestionIdAndCoupleMemberId(Long coupleQuestionEntityId, Long memberId) {
         MemberAnswerEntity result = queryFactory.selectFrom(memberAnswerEntity)
                 .join(coupleMemberEntity)
-                .on(memberAnswerEntity.coupleMemberEntityId.value.eq(coupleMemberEntity.coupleEntityId.value))
-                .where(memberAnswerEntity.coupleMemberEntityId.value.eq(coupleQuestionEntityId)
+                .on(memberAnswerEntity.coupleMemberEntityId.value.eq(coupleMemberEntity.id))
+                .where(memberAnswerEntity.coupleQuestionEntityId.value.eq(coupleQuestionEntityId)
                         .and(coupleMemberEntity.memberEntityId.value.eq(memberId)))
                 .fetchOne();
 
