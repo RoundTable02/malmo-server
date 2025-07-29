@@ -522,7 +522,6 @@ public class MemberIntegrationTest {
                     .andExpect(jsonPath("code").value(NOT_COUPLE_MEMBER.getCode()));
         }
 
-        // 파트너 멤버 정보 조회 실패 (탈퇴한 멤버인 경우)
         @Test
         @DisplayName("파트너 멤버 정보 조회 실패 - 탈퇴한 멤버인 경우")
         void 파트너_멤버_정보_조회_실패_탈퇴한_멤버인_경우() throws Exception {
@@ -552,8 +551,40 @@ public class MemberIntegrationTest {
                     .andExpect(jsonPath("code").value(NOT_COUPLE_MEMBER.getCode()));
         }
 
-        // TODO : 초대코드 조회 성공
-        // TODO : 초대코드 조회 실패 (탈퇴한 멤버인 경우)
+        @Test
+        @DisplayName("초대코드 조회 성공")
+        void 초대코드_조회_성공() throws Exception {
+            // when
+            MvcResult mvcResult = mockMvc.perform(get("/members/invite-code")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            // then
+            String responseContent = mvcResult.getResponse().getContentAsString();
+            String coupleCode = JsonPath.read(responseContent, "$.data.coupleCode");
+
+            Assertions.assertThat(coupleCode).isEqualTo(member.getInviteCodeEntityValue().getValue());
+        }
+
+        @Test
+        @DisplayName("초대코드 조회 실패 - 탈퇴한 멤버인 경우")
+        void 초대코드_조회_실패_탈퇴한_멤버인_경우() throws Exception {
+            // given
+            mockMvc.perform(delete("/members")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk());
+
+            // when & then
+            mockMvc.perform(get("/members/invite-code")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("message").value(NO_SUCH_MEMBER.getMessage()))
+                    .andExpect(jsonPath("code").value(NO_SUCH_MEMBER.getCode()));
+        }
     }
 
     @Nested
