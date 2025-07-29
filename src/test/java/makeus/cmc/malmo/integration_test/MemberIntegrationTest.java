@@ -41,6 +41,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.BAD_REQUEST;
+import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.NO_SUCH_MEMBER;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -327,6 +329,15 @@ public class MemberIntegrationTest {
             String email;
         }
 
+        @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+        public static class PartnerResponseDto {
+            private MemberState memberState;
+            private LoveTypeCategory loveTypeCategory;
+            private float avoidanceRate;
+            private float anxietyRate;
+            private String nickname;
+        }
+
         void assertMemberInfo(MemberResponseDto memberResponse, MemberEntity member, LocalDate startLoveDate, int coupleQuestionCount, int totalChatRoomCount) {
             Assertions.assertThat(memberResponse.memberState).isEqualTo(member.getMemberState());
             Assertions.assertThat(memberResponse.provider).isEqualTo(member.getProvider());
@@ -393,7 +404,7 @@ public class MemberIntegrationTest {
             // 커플인 경우 커플의 연애 시작 날짜(초대코드 주인의 날짜)로 조회
             assertMemberInfo(responseDto.data, member, partner.getStartLoveDate(), 1, 0);
         }
-        // TODO : 완료된 채팅방 수와 커플 질문 수 조회 성공
+
         @Test
         @DisplayName("완료된 채팅방 수와 커플 질문 수 조회 성공")
         void 완료된_채팅방_수와_커플_질문_수_조회_성공() throws Exception {
@@ -445,7 +456,23 @@ public class MemberIntegrationTest {
         }
 
 
-        // TODO : 탈퇴한 멤버 정보 조회 실패
+        @Test
+        @DisplayName("탈퇴한 멤버의 경우 멤버 정보 조회 실패")
+        void 탈퇴한_멤버_정보_조회_실패() throws Exception {
+            // given
+            mockMvc.perform(delete("/members")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk());
+
+            // when & then
+            mockMvc.perform(get("/members")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("message").value(NO_SUCH_MEMBER.getMessage()))
+                    .andExpect(jsonPath("code").value(NO_SUCH_MEMBER.getCode()));
+        }
 
         // TODO : 파트너 멤버 정보 조회 성공
         // TODO : 파트너 멤버 정보 조회 실패 (커플이 아닌 경우)
