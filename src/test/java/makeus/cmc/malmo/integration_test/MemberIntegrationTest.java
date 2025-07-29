@@ -41,8 +41,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.BAD_REQUEST;
-import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.NO_SUCH_MEMBER;
+import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -474,9 +473,84 @@ public class MemberIntegrationTest {
                     .andExpect(jsonPath("code").value(NO_SUCH_MEMBER.getCode()));
         }
 
-        // TODO : 파트너 멤버 정보 조회 성공
-        // TODO : 파트너 멤버 정보 조회 실패 (커플이 아닌 경우)
-        // TODO : 파트너 멤버 정보 조회 실패 (탈퇴한 멤버인 경우)
+        @Test
+        @DisplayName("파트너 멤버 정보 조회 성공")
+        void 파트너_멤버_정보_조회_성공() throws Exception {
+            // given
+            MemberEntity partner = createAndSavePartner();
+
+            mockMvc.perform(post("/couples")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    CoupleRequestDtoFactory.createCoupleLinkRequestDto(partner.getInviteCodeEntityValue().getValue())
+                            )))
+                    .andExpect(status().isOk());
+
+            // when
+            MvcResult mvcResult = mockMvc.perform(get("/members/partner")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            // then
+            String responseContent = mvcResult.getResponse().getContentAsString();
+            ResponseDto<PartnerResponseDto> responseDto = objectMapper.readValue(
+                    responseContent,
+                    new TypeReference<>() {}
+            );
+
+            // 파트너 멤버 정보가 정상적으로 조회되었는지 검증
+            PartnerResponseDto partnerDto = responseDto.data;
+            Assertions.assertThat(partnerDto.memberState).isEqualTo(partner.getMemberState());
+            Assertions.assertThat(partnerDto.loveTypeCategory).isEqualTo(partner.getLoveTypeCategory());
+            Assertions.assertThat(partnerDto.avoidanceRate).isEqualTo(partner.getAvoidanceRate());
+            Assertions.assertThat(partnerDto.anxietyRate).isEqualTo(partner.getAnxietyRate());
+            Assertions.assertThat(partnerDto.nickname).isEqualTo(partner.getNickname());
+        }
+
+        @Test
+        @DisplayName("파트너 멤버 정보 조회 실패 - 커플이 아닌 경우")
+        void 파트너_멤버_정보_조회_실패_커플이_아닌_경우() throws Exception {
+            // when & then
+            mockMvc.perform(get("/members/partner")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("message").value(NOT_COUPLE_MEMBER.getMessage()))
+                    .andExpect(jsonPath("code").value(NOT_COUPLE_MEMBER.getCode()));
+        }
+
+        // 파트너 멤버 정보 조회 실패 (탈퇴한 멤버인 경우)
+        @Test
+        @DisplayName("파트너 멤버 정보 조회 실패 - 탈퇴한 멤버인 경우")
+        void 파트너_멤버_정보_조회_실패_탈퇴한_멤버인_경우() throws Exception {
+            // given
+            MemberEntity partner = createAndSavePartner();
+
+            mockMvc.perform(post("/couples")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    CoupleRequestDtoFactory.createCoupleLinkRequestDto(partner.getInviteCodeEntityValue().getValue())
+                            )))
+                    .andExpect(status().isOk());
+
+            // 탈퇴 처리
+            mockMvc.perform(delete("/members")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk());
+
+            // when & then
+            mockMvc.perform(get("/members/partner")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("message").value(NOT_COUPLE_MEMBER.getMessage()))
+                    .andExpect(jsonPath("code").value(NOT_COUPLE_MEMBER.getCode()));
+        }
 
         // TODO : 초대코드 조회 성공
         // TODO : 초대코드 조회 실패 (탈퇴한 멤버인 경우)
@@ -510,6 +584,9 @@ public class MemberIntegrationTest {
                 .memberRole(MemberRole.MEMBER)
                 .memberState(MemberState.ALIVE)
                 .nickname("pnickname")
+                .loveTypeCategory(LoveTypeCategory.ANXIETY_TYPE)
+                .anxietyRate(2.77f)
+                .avoidanceRate(1.66f)
                 .startLoveDate(LocalDate.of(2024, 1, 1))
                 .email("testEmail2@test.com")
                 .inviteCodeEntityValue(InviteCodeEntityValue.of("invite2"))
