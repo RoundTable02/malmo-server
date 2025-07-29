@@ -1,19 +1,25 @@
 package makeus.cmc.malmo.integration_test;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import jakarta.persistence.EntityManager;
 import makeus.cmc.malmo.adaptor.in.web.controller.SignUpController;
 import makeus.cmc.malmo.adaptor.out.jwt.TokenInfo;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatRoomEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleMemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.question.CoupleQuestionEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.question.QuestionEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.terms.MemberTermsAgreementEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
 import makeus.cmc.malmo.application.port.out.GenerateTokenPort;
-import makeus.cmc.malmo.domain.value.state.CoupleMemberState;
-import makeus.cmc.malmo.domain.value.state.CoupleState;
-import makeus.cmc.malmo.domain.value.state.MemberState;
+import makeus.cmc.malmo.domain.value.state.*;
+import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.value.type.MemberRole;
 import makeus.cmc.malmo.domain.value.type.Provider;
 import makeus.cmc.malmo.integration_test.dto_factory.CoupleRequestDtoFactory;
@@ -32,9 +38,11 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -66,6 +74,8 @@ public class MemberIntegrationTest {
                 .memberRole(MemberRole.MEMBER)
                 .memberState(MemberState.ALIVE)
                 .email("testEmail@test.com")
+                .nickname("nickname")
+                .startLoveDate(LocalDate.of(2023, 10, 1))
                 .inviteCodeEntityValue(InviteCodeEntityValue.of("testInviteCode"))
                 .build();
 
@@ -254,17 +264,7 @@ public class MemberIntegrationTest {
         @DisplayName("커플인 멤버의 경우 멤버 탈퇴 시 커플 상태가 DELETED로 변경된다")
         void 멤버_탈퇴_커플_상태_변경() throws Exception {
             // given
-            MemberEntity partner = MemberEntity.builder()
-                    .provider(Provider.KAKAO)
-                    .providerId("partnerProviderId")
-                    .memberRole(MemberRole.MEMBER)
-                    .memberState(MemberState.ALIVE)
-                    .email("testEmail2@test.com")
-                    .inviteCodeEntityValue(InviteCodeEntityValue.of("invite2"))
-                    .build();
-
-            em.persist(partner);
-            em.flush();
+            MemberEntity partner = createAndSavePartner();
 
             MvcResult mvcResult = mockMvc.perform(post("/couples")
                             .header("Authorization", "Bearer " + accessToken)
@@ -301,7 +301,150 @@ public class MemberIntegrationTest {
     @Nested
     @DisplayName("멤버 정보 조회 검증")
     class MemberInfoFeature {
-        // TODO : 멤버 정보 조회 성공
+
+        @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+        public static class ResponseDto <T> {
+            String requestId;
+            boolean success;
+            String message;
+            T data;
+        }
+
+        @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+        public static class MemberResponseDto {
+            MemberState memberState;
+            Provider provider;
+            LocalDate startLoveDate;
+
+            LoveTypeCategory loveTypeCategory;
+
+            int totalChatRoomCount;
+            int totalCoupleQuestionCount;
+
+            float avoidanceRate;
+            float anxietyRate;
+            String nickname;
+            String email;
+        }
+
+        void assertMemberInfo(MemberResponseDto memberResponse, MemberEntity member, LocalDate startLoveDate, int coupleQuestionCount, int totalChatRoomCount) {
+            Assertions.assertThat(memberResponse.memberState).isEqualTo(member.getMemberState());
+            Assertions.assertThat(memberResponse.provider).isEqualTo(member.getProvider());
+            Assertions.assertThat(memberResponse.startLoveDate).isEqualTo(startLoveDate);
+            Assertions.assertThat(memberResponse.loveTypeCategory).isEqualTo(member.getLoveTypeCategory());
+            Assertions.assertThat(memberResponse.totalCoupleQuestionCount).isEqualTo(coupleQuestionCount);
+            Assertions.assertThat(memberResponse.totalChatRoomCount).isEqualTo(totalChatRoomCount);
+            Assertions.assertThat(memberResponse.avoidanceRate).isEqualTo(member.getAvoidanceRate());
+            Assertions.assertThat(memberResponse.anxietyRate).isEqualTo(member.getAnxietyRate());
+            Assertions.assertThat(memberResponse.nickname).isEqualTo(member.getNickname());
+            Assertions.assertThat(memberResponse.email).isEqualTo(member.getEmail());
+        }
+
+        @Test
+        @DisplayName("멤버 정보 조회 성공")
+        void 멤버_정보_조회_성공() throws Exception {
+            // when
+            MvcResult mvcResult = mockMvc.perform(get("/members")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            // then
+            String responseContent = mvcResult.getResponse().getContentAsString();
+            ResponseDto<MemberResponseDto> responseDto = objectMapper.readValue(
+                    responseContent,
+                    new TypeReference<>() {}
+            );
+
+            // 멤버 정보가 정상적으로 조회되었는지 검증
+            // 커플 질문은 연동 이전 필수적으로 하나 존재, 채팅방 개수는 따로 추가 없으면 0개
+            assertMemberInfo(responseDto.data, member, member.getStartLoveDate(), 1, 0);
+        }
+
+        @Test
+        @DisplayName("커플 멤버의 경우 멤버 정보 조회 성공")
+        void 커플_멤버_정보_조회_성공() throws Exception {
+            // given
+            MemberEntity partner = createAndSavePartner();
+
+            mockMvc.perform(post("/couples")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    CoupleRequestDtoFactory.createCoupleLinkRequestDto(partner.getInviteCodeEntityValue().getValue())
+                            )))
+                    .andExpect(status().isOk());
+
+            // when
+            MvcResult mvcResult = mockMvc.perform(get("/members")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            // then
+            String responseContent = mvcResult.getResponse().getContentAsString();
+            ResponseDto<MemberResponseDto> responseDto = objectMapper.readValue(
+                    responseContent,
+                    new TypeReference<>() {}
+            );
+
+            // 커플인 경우 커플의 연애 시작 날짜(초대코드 주인의 날짜)로 조회
+            assertMemberInfo(responseDto.data, member, partner.getStartLoveDate(), 1, 0);
+        }
+        // TODO : 완료된 채팅방 수와 커플 질문 수 조회 성공
+        @Test
+        @DisplayName("완료된 채팅방 수와 커플 질문 수 조회 성공")
+        void 완료된_채팅방_수와_커플_질문_수_조회_성공() throws Exception {
+            // given
+            MemberEntity partner = createAndSavePartner();
+
+            MvcResult coupleResult = mockMvc.perform(post("/couples")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    CoupleRequestDtoFactory.createCoupleLinkRequestDto(partner.getInviteCodeEntityValue().getValue())
+                            )))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            String coupleContent = coupleResult.getResponse().getContentAsString();
+            Integer coupleId = JsonPath.read(coupleContent, "$.data.coupleId");
+
+            // 커플 완료 질문 3개 생성
+            // 현재 질문 종료
+            em.createQuery("update CoupleQuestionEntity c SET c.coupleQuestionState = 'OUTDATED' where c.coupleEntityId.value = :coupleId")
+                    .setParameter("coupleId", coupleId)
+                    .executeUpdate();
+            em.flush();
+            QuestionEntity questionEntity = em.find(QuestionEntity.class, 1L);
+            createAndSaveCoupleQuestion(questionEntity, coupleId);
+            createAndSaveCoupleQuestion(questionEntity, coupleId);
+
+            // 멤버 완료된 채팅방 3개 생성
+            createAndSaveChatRoom();
+            createAndSaveChatRoom();
+            createAndSaveChatRoom();
+
+            // when
+            MvcResult mvcResult = mockMvc.perform(get("/members")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            // then
+            String responseContent = mvcResult.getResponse().getContentAsString();
+            ResponseDto<MemberResponseDto> responseDto = objectMapper.readValue(
+                    responseContent,
+                    new TypeReference<>() {}
+            );
+
+            assertMemberInfo(responseDto.data, member, partner.getStartLoveDate(), 3, 3);
+        }
+
+
         // TODO : 탈퇴한 멤버 정보 조회 실패
 
         // TODO : 파트너 멤버 정보 조회 성공
@@ -330,6 +473,53 @@ public class MemberIntegrationTest {
         // TODO : 애착 유형 등록 실패 (탈퇴한 멤버인 경우)
         // TODO : 애착 유형 등록 실패 (점수가 0점인 경우)
         // TODO : 애착 유형 등록 실패 (점수가 6점인 경우)
+    }
+
+
+    private MemberEntity createAndSavePartner() {
+        MemberEntity partner = MemberEntity.builder()
+                .provider(Provider.KAKAO)
+                .providerId("partnerProviderId")
+                .memberRole(MemberRole.MEMBER)
+                .memberState(MemberState.ALIVE)
+                .nickname("pnickname")
+                .startLoveDate(LocalDate.of(2024, 1, 1))
+                .email("testEmail2@test.com")
+                .inviteCodeEntityValue(InviteCodeEntityValue.of("invite2"))
+                .build();
+
+        em.persist(partner);
+        em.flush();
+        return partner;
+    }
+
+    private CoupleQuestionEntity createAndSaveCoupleQuestion(QuestionEntity questionEntity, Integer coupleId) {
+        CoupleQuestionEntity coupleQuestion = CoupleQuestionEntity.builder()
+                .question(questionEntity)
+                .coupleEntityId(CoupleEntityId.of(Long.valueOf(coupleId)))
+                .coupleQuestionState(CoupleQuestionState.OUTDATED)
+                .bothAnsweredAt(LocalDateTime.now())
+                .build();
+        em.persist(coupleQuestion);
+        em.flush();
+
+        return coupleQuestion;
+    }
+
+    private ChatRoomEntity createAndSaveChatRoom() {
+        ChatRoomEntity chatRoom = ChatRoomEntity.builder()
+                .memberEntityId(MemberEntityId.of(member.getId()))
+                .chatRoomState(ChatRoomState.COMPLETED)
+                .level(1)
+                .lastMessageSentTime(LocalDateTime.now())
+                .totalSummary("테스트 요약")
+                .situationKeyword("테스트 상황 키워드")
+                .solutionKeyword("테스트 해결 키워드")
+                .build();
+
+        em.persist(chatRoom);
+        em.flush();
+        return chatRoom;
     }
 
 }
