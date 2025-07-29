@@ -269,6 +269,7 @@ public class MemberController {
 
     @Data
     public static class RegisterLoveTypeRequestDto {
+        @Valid
         private List<LoveTypeTestResult> results;
     }
 

@@ -17,6 +17,6 @@ public enum LoveTypeCategory {
     private final float anxietyOver;
     private final float anxietyUnder;
 
-    public static final float MAX_SCORE = 5.0f;
-    public static final float MIN_SCORE = 0.0f;
+    public static final float MAX_SCORE = 5.1f;
+    public static final float MIN_SCORE = 0.9f;
 }
