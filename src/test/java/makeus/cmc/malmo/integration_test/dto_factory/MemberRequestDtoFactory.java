@@ -4,6 +4,7 @@ import makeus.cmc.malmo.adaptor.in.web.controller.MemberController;
 import makeus.cmc.malmo.adaptor.in.web.controller.SignUpController;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MemberRequestDtoFactory {
@@ -35,6 +36,21 @@ public class MemberRequestDtoFactory {
     public static MemberController.UpdateStartLoveDateRequestDto createUpdateStartLoveDateRequestDto(LocalDate startLoveDate) {
         MemberController.UpdateStartLoveDateRequestDto dto = new MemberController.UpdateStartLoveDateRequestDto();
         dto.setStartLoveDate(startLoveDate);
+        return dto;
+    }
+
+    public static MemberController.RegisterLoveTypeRequestDto createRegisterLoveTypeRequestDto(int[] scores) {
+        MemberController.RegisterLoveTypeRequestDto dto = new MemberController.RegisterLoveTypeRequestDto();
+        List<MemberController.LoveTypeTestResult> results = new ArrayList<>();
+
+        for (int i = 1; i < scores.length + 1; i++) {
+            MemberController.LoveTypeTestResult loveTypeTestResult = new MemberController.LoveTypeTestResult();
+            loveTypeTestResult.setQuestionId((long) i);
+            loveTypeTestResult.setScore(scores[i - 1]);
+            results.add(loveTypeTestResult);
+        }
+
+        dto.setResults(results);
         return dto;
     }
 }

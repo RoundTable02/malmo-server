@@ -776,14 +776,175 @@ public class MemberIntegrationTest {
                     .andExpect(jsonPath("code").value(BAD_REQUEST.getCode()));
         }
 
-        // TODO : 애착 유형 등록 성공 (안정형)
-        // TODO : 애착 유형 등록 성공 (회피형)
-        // TODO : 애착 유형 등록 성공 (불안형)
-        // TODO : 애착 유형 등록 성공 (혼란형)
-        // TODO : 애착 유형 등록 실패 (탈퇴한 멤버인 경우)
-        // TODO : 애착 유형 등록 실패 (점수가 0점인 경우)
-        // TODO : 애착 유형 등록 실패 (점수가 6점인 경우)
-        // TODO : 애착 유형 등록 실패 (존재하지 않는 질문인 경우)
+        @Test
+        @DisplayName("애착 유형 등록 성공 - 회피형")
+        void 애착_유형_등록_성공_회피형() throws Exception {
+            // given
+            int[] scores = {5, 1, 1, 5, 1, 1, 1, 5, 1, 1, 5, 1, 1, 1, 1, 5, 1, 1, 5, 1, 1, 1, 5, 1, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 5, 1};
+
+            // when
+            mockMvc.perform(post("/members/love-type")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    MemberRequestDtoFactory.createRegisterLoveTypeRequestDto(scores)
+                            )))
+                    .andExpect(status().isOk());
+
+            // then
+            MemberEntity updatedMember = em.createQuery("SELECT m FROM MemberEntity m WHERE m.email = :email", MemberEntity.class)
+                    .setParameter("email", member.getEmail())
+                    .getSingleResult();
+            Assertions.assertThat(updatedMember.getLoveTypeCategory()).isEqualTo(LoveTypeCategory.AVOIDANCE_TYPE);
+            Assertions.assertThat(updatedMember.getAvoidanceRate()).isEqualTo(5.00f);
+            Assertions.assertThat(updatedMember.getAnxietyRate()).isEqualTo(1.00f);
+        }
+
+        @Test
+        @DisplayName("애착 유형 등록 성공 - 불안형")
+        void 애착_유형_등록_성공_불안형() throws Exception {
+            // given
+            int[] scores = {1, 5, 5, 1, 5, 5, 5, 1, 5, 5, 1, 5, 5, 5, 5, 1, 5, 5, 1, 5, 5, 5, 1, 5, 5, 5, 5, 1, 5, 5, 5, 5, 5, 5, 1, 5};
+
+            // when
+            mockMvc.perform(post("/members/love-type")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    MemberRequestDtoFactory.createRegisterLoveTypeRequestDto(scores)
+                            )))
+                    .andExpect(status().isOk());
+
+            // then
+            MemberEntity updatedMember = em.createQuery("SELECT m FROM MemberEntity m WHERE m.email = :email", MemberEntity.class)
+                    .setParameter("email", member.getEmail())
+                    .getSingleResult();
+            Assertions.assertThat(updatedMember.getLoveTypeCategory()).isEqualTo(LoveTypeCategory.ANXIETY_TYPE);
+            Assertions.assertThat(updatedMember.getAvoidanceRate()).isEqualTo(1.00f);
+            Assertions.assertThat(updatedMember.getAnxietyRate()).isEqualTo(5.00f);
+        }
+
+        @Test
+        @DisplayName("애착 유형 등록 성공 - 혼란형")
+        void 애착_유형_등록_성공_혼란형() throws Exception {
+            // given
+            int[] scores = {5, 5, 1, 5, 1, 5, 1, 1, 1, 5, 5, 5, 5, 5, 5, 5, 5, 1, 5, 5, 5, 5, 1, 5, 5, 5, 1, 5, 1, 1, 5, 1, 1, 1, 5, 5};
+
+            // when
+            mockMvc.perform(post("/members/love-type")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    MemberRequestDtoFactory.createRegisterLoveTypeRequestDto(scores)
+                            )))
+                    .andExpect(status().isOk());
+
+            // then
+            MemberEntity updatedMember = em.createQuery("SELECT m FROM MemberEntity m WHERE m.email = :email", MemberEntity.class)
+                    .setParameter("email", member.getEmail())
+                    .getSingleResult();
+            Assertions.assertThat(updatedMember.getLoveTypeCategory()).isEqualTo(LoveTypeCategory.CONFUSION_TYPE);
+            Assertions.assertThat(updatedMember.getAvoidanceRate()).isEqualTo(5.00f);
+            Assertions.assertThat(updatedMember.getAnxietyRate()).isEqualTo(5.00f);
+        }
+
+        @Test
+        @DisplayName("애착 유형 등록 성공 - 안정형")
+        void 애착_유형_등록_성공_안정형() throws Exception {
+            // given
+            int[] scores = {1, 1, 5, 1, 5, 1, 5, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1, 5, 5, 1, 5, 5, 5, 1, 1};
+
+            // when
+            mockMvc.perform(post("/members/love-type")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    MemberRequestDtoFactory.createRegisterLoveTypeRequestDto(scores)
+                            )))
+                    .andExpect(status().isOk());
+
+            // then
+            MemberEntity updatedMember = em.createQuery("SELECT m FROM MemberEntity m WHERE m.email = :email", MemberEntity.class)
+                    .setParameter("email", member.getEmail())
+                    .getSingleResult();
+            Assertions.assertThat(updatedMember.getLoveTypeCategory()).isEqualTo(LoveTypeCategory.STABLE_TYPE);
+            Assertions.assertThat(updatedMember.getAvoidanceRate()).isEqualTo(1.00f);
+            Assertions.assertThat(updatedMember.getAnxietyRate()).isEqualTo(1.00f);
+        }
+
+        @Test
+        @DisplayName("애착 유형 등록 실패 - 탈퇴한 멤버인 경우")
+        void 애착_유형_등록_실패_탈퇴한_멤버인_경우() throws Exception {
+            // given
+            mockMvc.perform(delete("/members")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk());
+
+            int[] scores = {1, 1, 5, 1, 5, 1, 5, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1, 5, 5, 1, 5, 5, 5, 1, 1};
+            // when & then
+            mockMvc.perform(post("/members/love-type")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    MemberRequestDtoFactory.createRegisterLoveTypeRequestDto(scores)
+                            )))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("message").value(NO_SUCH_MEMBER.getMessage()))
+                    .andExpect(jsonPath("code").value(NO_SUCH_MEMBER.getCode()));
+        }
+
+        @Test
+        @DisplayName("애착 유형 등록 실패 - 점수가 0점인 경우")
+        void 애착_유형_등록_실패_점수가_0점인_경우() throws Exception {
+            // given
+            int[] scores = {1, 1, 5, 1, 0, 1, 5, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1, 5, 5, 1, 5, 5, 5, 1, 1};
+            // when & then
+            mockMvc.perform(post("/members/love-type")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    MemberRequestDtoFactory.createRegisterLoveTypeRequestDto(scores)
+                            )))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("message").value(BAD_REQUEST.getMessage()))
+                    .andExpect(jsonPath("code").value(BAD_REQUEST.getCode()));
+        }
+
+        @Test
+        @DisplayName("애착 유형 등록 실패 - 점수가 6점인 경우")
+        void 애착_유형_등록_실패_점수가_6점인_경우() throws Exception {
+            // given
+            int[] scores = {1, 1, 5, 1, 6, 1, 5, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1, 5, 5, 1, 5, 5, 5, 1, 1};
+            // when & then
+            mockMvc.perform(post("/members/love-type")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    MemberRequestDtoFactory.createRegisterLoveTypeRequestDto(scores)
+                            )))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("message").value(BAD_REQUEST.getMessage()))
+                    .andExpect(jsonPath("code").value(BAD_REQUEST.getCode()));
+        }
+
+        @Test
+        @DisplayName("애착 유형 등록 실패 - 존재하지 않는 질문인 경우")
+        void 애착_유형_등록_실패_존재하지_않는_질문인_경우() throws Exception {
+            // given
+            // 36개의 질문에 대한 점수 배열이 필요하지만, 37번에 대한 답변을 했다고 가정
+            int[] scores = {1, 1, 5, 1, 1, 1, 5, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1, 5, 5, 1, 5, 5, 5, 1, 1, 4};
+            // when & then
+            mockMvc.perform(post("/members/love-type")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    MemberRequestDtoFactory.createRegisterLoveTypeRequestDto(scores)
+                            )))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("message").value(NO_SUCH_LOVE_TYPE_QUESTION.getMessage()))
+                    .andExpect(jsonPath("code").value(NO_SUCH_LOVE_TYPE_QUESTION.getCode()));
+        }
     }
 
 
