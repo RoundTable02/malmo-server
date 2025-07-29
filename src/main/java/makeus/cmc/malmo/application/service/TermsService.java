@@ -1,6 +1,7 @@
 package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.application.port.in.TermsUseCase;
 import makeus.cmc.malmo.application.port.out.LoadTermsPort;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ public class TermsService implements TermsUseCase {
     private final LoadTermsPort loadTermsPort;
 
     @Override
+    @CheckValidMember
     public TermsListResponse getTerms() {
         List<TermsDto> termsDtos = loadTermsPort.loadLatestTerms().stream()
                 .map(term -> TermsDto.builder()
