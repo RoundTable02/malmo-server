@@ -96,7 +96,7 @@ public class MemberController {
     @PatchMapping
     public BaseResponse<UpdateMemberUseCase.UpdateMemberResponseDto> updateMember(
             @AuthenticationPrincipal User user,
-            @RequestBody UpdateMemberRequestDto requestDto
+            @RequestBody @Valid UpdateMemberRequestDto requestDto
     ) {
         UpdateMemberUseCase.UpdateMemberCommand command = UpdateMemberUseCase.UpdateMemberCommand.builder()
                 .memberId(Long.valueOf(user.getUsername()))
