@@ -590,9 +590,89 @@ public class MemberIntegrationTest {
     @Nested
     @DisplayName("멤버 정보 수정 검증")
     class MemberInfoUpdateFeature {
-        // TODO : 멤버 정보 수정 성공
-        // TODO : 멤버 정보 수정 실패 (탈퇴한 멤버인 경우)
-        // TODO : 멤버 정보 수정 실패 (닉네임 규격에 맞지 않는 경우)
+        @Test
+        @DisplayName("멤버 정보 수정 성공")
+        void 멤버_정보_수정_성공() throws Exception {
+            // given
+            String newNickname = "newName";
+            // when
+            MvcResult mvcResult = mockMvc.perform(patch("/members")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    MemberRequestDtoFactory.createUpdateMemberRequestDto(newNickname)
+                            )))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            // then
+            String responseContent = mvcResult.getResponse().getContentAsString();
+            String response = JsonPath.read(responseContent, "$.data.nickname");
+
+            MemberEntity savedMember = em.createQuery("SELECT m FROM MemberEntity m WHERE m.email = :email", MemberEntity.class)
+                    .setParameter("email", member.getEmail())
+                    .getSingleResult();
+
+            Assertions.assertThat(response).isEqualTo(newNickname);
+            Assertions.assertThat(savedMember.getNickname()).isEqualTo(newNickname);
+        }
+
+        @Test
+        @DisplayName("멤버 정보 수정 실패 - 탈퇴한 멤버인 경우")
+        void 멤버_정보_수정_실패_탈퇴한_멤버인_경우() throws Exception {
+            // given
+            mockMvc.perform(delete("/members")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk());
+
+            // when & then
+            mockMvc.perform(patch("/members")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    MemberRequestDtoFactory.createUpdateMemberRequestDto("newName")
+                            )))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("message").value(NO_SUCH_MEMBER.getMessage()))
+                    .andExpect(jsonPath("code").value(NO_SUCH_MEMBER.getCode()));
+        }
+
+        @Test
+        @DisplayName("멤버 정보 수정 실패 - 특수 기호가 포함된 경우")
+        void 멤버_정보_수정_실패_닉네임_규격에_맞지_않는_경우() throws Exception {
+            // given
+            String invalidNickname = "invalid!@#";
+
+            // when & then
+            mockMvc.perform(patch("/members")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    MemberRequestDtoFactory.createUpdateMemberRequestDto(invalidNickname)
+                            )))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("message").value(BAD_REQUEST.getMessage()))
+                    .andExpect(jsonPath("code").value(BAD_REQUEST.getCode()));
+        }
+
+        @Test
+        @DisplayName("멤버 정보 수정 실패 - 길이가 초과된 경우")
+        void 멤버_정보_수정_실패_닉네임_길이가_초과된_경우() throws Exception {
+            // given
+            String invalidNickname = "invalid1234"; // 11자
+
+            // when & then
+            mockMvc.perform(patch("/members")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    MemberRequestDtoFactory.createUpdateMemberRequestDto(invalidNickname)
+                            )))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("message").value(BAD_REQUEST.getMessage()))
+                    .andExpect(jsonPath("code").value(BAD_REQUEST.getCode()));
+        }
 
         // TODO : 디데이 수정 성공
         // TODO : 디데이 수정 실패 (탈퇴한 멤버인 경우)
@@ -605,6 +685,7 @@ public class MemberIntegrationTest {
         // TODO : 애착 유형 등록 실패 (탈퇴한 멤버인 경우)
         // TODO : 애착 유형 등록 실패 (점수가 0점인 경우)
         // TODO : 애착 유형 등록 실패 (점수가 6점인 경우)
+        // TODO : 애착 유형 등록 실패 (존재하지 않는 질문인 경우)
     }
 
 

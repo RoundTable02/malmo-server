@@ -1,5 +1,6 @@
 package makeus.cmc.malmo.integration_test.dto_factory;
 
+import makeus.cmc.malmo.adaptor.in.web.controller.MemberController;
 import makeus.cmc.malmo.adaptor.in.web.controller.SignUpController;
 
 import java.time.LocalDate;
@@ -23,5 +24,11 @@ public class MemberRequestDtoFactory {
         termsDto.setIsAgreed(isAgreed);
 
         return termsDto;
+    }
+
+    public static MemberController.UpdateMemberRequestDto createUpdateMemberRequestDto(String nickname) {
+        MemberController.UpdateMemberRequestDto dto = new MemberController.UpdateMemberRequestDto();
+        dto.setNickname(nickname);
+        return dto;
     }
 }
