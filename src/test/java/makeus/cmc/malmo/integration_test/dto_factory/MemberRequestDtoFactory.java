@@ -31,4 +31,10 @@ public class MemberRequestDtoFactory {
         dto.setNickname(nickname);
         return dto;
     }
+
+    public static MemberController.UpdateStartLoveDateRequestDto createUpdateStartLoveDateRequestDto(LocalDate startLoveDate) {
+        MemberController.UpdateStartLoveDateRequestDto dto = new MemberController.UpdateStartLoveDateRequestDto();
+        dto.setStartLoveDate(startLoveDate);
+        return dto;
+    }
 }

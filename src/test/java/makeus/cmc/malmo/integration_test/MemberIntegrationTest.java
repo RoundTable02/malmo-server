@@ -674,9 +674,107 @@ public class MemberIntegrationTest {
                     .andExpect(jsonPath("code").value(BAD_REQUEST.getCode()));
         }
 
-        // TODO : 디데이 수정 성공
-        // TODO : 디데이 수정 실패 (탈퇴한 멤버인 경우)
-        // TODO : 디데이 수정 실패 (디데이가 오늘보다 이전인 경우)
+        @Test
+        @DisplayName("디데이 수정 성공")
+        void 디데이_수정_성공() throws Exception {
+            // given
+            LocalDate newDday = LocalDate.of(2024, 1, 1);
+
+            // when
+            mockMvc.perform(patch("/members/start-love-date")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    MemberRequestDtoFactory.createUpdateStartLoveDateRequestDto(newDday)
+                            )))
+                    .andExpect(status().isOk());
+
+            // then
+            MemberEntity savedMember = em.createQuery("SELECT m FROM MemberEntity m WHERE m.email = :email", MemberEntity.class)
+                    .setParameter("email", member.getEmail())
+                    .getSingleResult();
+
+            Assertions.assertThat(savedMember.getStartLoveDate()).isEqualTo(newDday);
+        }
+
+        @Test
+        @DisplayName("커플 멤버인 경우 디데이 수정 성공")
+        void 커플_멤버인_경우_디데이_수정_성공() throws Exception {
+            // given
+            MemberEntity partner = createAndSavePartner();
+            MvcResult mvcResult = mockMvc.perform(post("/couples")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    CoupleRequestDtoFactory.createCoupleLinkRequestDto(partner.getInviteCodeEntityValue().getValue())
+                            )))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            String responseContent = mvcResult.getResponse().getContentAsString();
+            Integer coupleId = JsonPath.read(responseContent, "$.data.coupleId");
+
+            LocalDate newDday = LocalDate.of(2025, 1, 1);
+            // when
+            mockMvc.perform(patch("/members/start-love-date")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    MemberRequestDtoFactory.createUpdateStartLoveDateRequestDto(newDday)
+                            )))
+                    .andExpect(status().isOk());
+
+            // then
+            MemberEntity savedMember = em.createQuery("SELECT m FROM MemberEntity m WHERE m.email = :email", MemberEntity.class)
+                    .setParameter("email", member.getEmail())
+                    .getSingleResult();
+            Assertions.assertThat(savedMember.getStartLoveDate()).isEqualTo(newDday);
+
+            // 커플의 디데이도 함께 수정되어야 함
+            CoupleEntity couple = em.createQuery("SELECT c FROM CoupleEntity c WHERE c.id = :coupleId", CoupleEntity.class)
+                    .setParameter("coupleId", coupleId)
+                    .getSingleResult();
+            Assertions.assertThat(couple.getStartLoveDate()).isEqualTo(newDday);
+        }
+
+        @Test
+        @DisplayName("디데이 수정 실패 - 탈퇴한 멤버인 경우")
+        void 디데이_수정_실패_탈퇴한_멤버인_경우() throws Exception {
+            // given
+            mockMvc.perform(delete("/members")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk());
+            LocalDate newDday = LocalDate.of(2024, 1, 1);
+
+            // when & then
+            mockMvc.perform(patch("/members/start-love-date")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    MemberRequestDtoFactory.createUpdateStartLoveDateRequestDto(newDday)
+                            )))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("message").value(NO_SUCH_MEMBER.getMessage()))
+                    .andExpect(jsonPath("code").value(NO_SUCH_MEMBER.getCode()));
+        }
+
+        @Test
+        @DisplayName("디데이 수정 실패 - 디데이가 오늘보다 이후인 경우")
+        void 디데이_수정_실패_디데이가_오늘보다_이후인_경우() throws Exception {
+            // given
+            LocalDate futureDday = LocalDate.now().plusDays(1);
+            // when & then
+            mockMvc.perform(patch("/members/start-love-date")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    MemberRequestDtoFactory.createUpdateStartLoveDateRequestDto(futureDday)
+                            )))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("message").value(BAD_REQUEST.getMessage()))
+                    .andExpect(jsonPath("code").value(BAD_REQUEST.getCode()));
+        }
 
         // TODO : 애착 유형 등록 성공 (안정형)
         // TODO : 애착 유형 등록 성공 (회피형)
