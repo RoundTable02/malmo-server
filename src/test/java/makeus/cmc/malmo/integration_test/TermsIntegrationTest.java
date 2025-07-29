@@ -31,7 +31,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
+import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.NOT_COUPLE_MEMBER;
+import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.NO_SUCH_MEMBER;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -176,6 +180,24 @@ public class TermsIntegrationTest {
                     .containsExactlyInAnyOrder(1.1f, 1.0f, 1.0f, 1.0f);
             Assertions.assertThat(termsList).extracting("content.isRequired")
                     .containsExactlyInAnyOrder(true, true, true, false);
+        }
+
+        // 탈퇴 멤버 약관 조회 실패
+        @Test
+        @DisplayName("탈퇴한 멤버가 약관 조회를 시도할 경우 실패한다")
+        void 탈퇴한_멤버_약관조회_실패() throws Exception {
+            // given
+            mockMvc.perform(delete("/members")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk());
+            // when
+            mockMvc.perform(get("/terms")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("message").value(NO_SUCH_MEMBER.getMessage()))
+                    .andExpect(jsonPath("code").value(NO_SUCH_MEMBER.getCode()));
         }
     }
 }
