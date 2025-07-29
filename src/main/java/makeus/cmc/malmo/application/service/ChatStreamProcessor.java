@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.FINAL_MESSAGE;
+
 @Slf4j
 @RequiredArgsConstructor
 @Component
@@ -73,6 +75,8 @@ public class ChatStreamProcessor {
                     if (!isOkDetected.get()) {
                         saveAiMessage(memberId, chatRoomId, prompt.getLevel(), fullAnswer);
                     } else {
+                        fullAnswer = fullAnswer.replace("OK", "").trim();
+                        saveAiMessage(memberId, chatRoomId, prompt.getLevel(), fullAnswer);
                         // 현재 단계가 종료된 경우 && 커플 연동이 되지 않은 멤버의 마지막 프롬프트인 경우
                         if (prompt.isLastPromptForNotCoupleMember() && !isMemberCoupled) {
                             // 채팅방 상태를 PAUSED로 변경하고, SSE 이벤트 전송
@@ -146,6 +150,16 @@ public class ChatStreamProcessor {
             // TODO: 에러 처리 로직 추가
             log.error("Failed to parse summary JSON: {}", summary, e);
         }
+    }
+
+    public void responseLastLevel(MemberId memberId, ChatRoomId chatRoomId, int level, String message) {
+        sendSseEventPort.sendToMember(
+                memberId,
+                new SendSseEventPort.NotificationEvent(
+                        SendSseEventPort.SseEventType.CHAT_RESPONSE,
+                        message
+                ));
+        saveAiMessage(memberId, chatRoomId, level, message);
     }
 
     @Data
