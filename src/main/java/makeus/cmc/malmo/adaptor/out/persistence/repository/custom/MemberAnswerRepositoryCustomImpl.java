@@ -1,6 +1,7 @@
 package makeus.cmc.malmo.adaptor.out.persistence.repository.custom;
 
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.MemberAnswerPersistenceAdapter;
@@ -50,10 +51,16 @@ public class MemberAnswerRepositoryCustomImpl implements MemberAnswerRepositoryC
                         coupleQuestion.createdAt,
                         me.nickname,
                         myAnswer.answer,
-                        coupleQuestion.coupleQuestionState.ne(CoupleQuestionState.OUTDATED),
+                        new CaseBuilder()
+                                .when(coupleQuestion.coupleQuestionState.ne(CoupleQuestionState.OUTDATED))
+                                .then(true)
+                                .otherwise(false),
                         partner.nickname,
                         partnerAnswer.answer,
-                        coupleQuestion.coupleQuestionState.ne(CoupleQuestionState.OUTDATED)
+                        new CaseBuilder()
+                                .when(coupleQuestion.coupleQuestionState.ne(CoupleQuestionState.OUTDATED))
+                                .then(true)
+                                .otherwise(false)
                 ))
                 .from(coupleQuestion)
                 .join(coupleQuestion.question, question)
