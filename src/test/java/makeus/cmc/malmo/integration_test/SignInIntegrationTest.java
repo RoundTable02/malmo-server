@@ -22,11 +22,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.INVALID_REFRESH_TOKEN;
+import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.NO_SUCH_MEMBER;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -267,9 +270,88 @@ public class SignInIntegrationTest {
     @Nested
     @DisplayName("토큰 재발급 테스트")
     class RefreshTokenTest {
-        // TODO : 리프레시 토큰을 통한 액세스 토큰 재발급에 성공한다
-        // TODO : 만료된 리프레시 토큰을 통한 액세스 토큰 재발급에 실패한다
-        // TODO : 유효하지 않은 리프레시 토큰을 통한 액세스 토큰 재발급에 실패한다
-        // TODO : 탈퇴한 사용자의 리프레시 토큰을 통한 액세스 토큰 재발급에 실패한다
+
+        @Test
+        @DisplayName("리프레시 토큰을 통한 액세스 토큰 재발급에 성공한다")
+        void 리프레시_토큰을_통한_액세스_토큰_재발급에_성공한다() throws Exception {
+            // given
+            String idToken = "valid-id-token";
+            given(appleOidcAdapter.validateToken(idToken)).willReturn(appleMember.getProviderId());
+
+            MvcResult loginResult = mockMvc.perform(post("/login/apple")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    SignInRequestDtoFactory.createAppleLoginRequestDto(idToken)
+                            )))
+                    .andExpect(status().isOk())
+                    .andReturn();
+            String responseContent = loginResult.getResponse().getContentAsString();
+            String refreshToken = objectMapper.readTree(responseContent).get("data").get("refreshToken").asText();
+
+            // when & then
+            mockMvc.perform(post("/refresh")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    SignInRequestDtoFactory.createRefreshRequestDto(refreshToken)
+                            )))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.accessToken").isNotEmpty())
+                    .andExpect(jsonPath("$.data.refreshToken").isNotEmpty())
+                    .andExpect(jsonPath("$.data.grantType").value("Bearer"));
+
+            // RTR 방식을 이용하기 때문에 Refresh Token도 변경되어야 함
+            MemberEntity savedMember = em.find(MemberEntity.class, appleMember.getId());
+            Assertions.assertThat(savedMember.getRefreshToken()).isNotNull();
+            Assertions.assertThat(savedMember.getRefreshToken()).isEqualTo(refreshToken);
+        }
+
+        @Test
+        @DisplayName("유효하지 않은 리프레시 토큰을 통한 액세스 토큰 재발급에 실패한다")
+        void 유효하지_않은_리프레시_토큰을_통한_액세스_토큰_재발급에_실패한다() throws Exception {
+            String invalidRefreshToken = "invalid-refresh-token";
+            // given
+            mockMvc.perform(post("/refresh")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    SignInRequestDtoFactory.createRefreshRequestDto(invalidRefreshToken)
+                            )))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(jsonPath("$.message").value(INVALID_REFRESH_TOKEN.getMessage()))
+                    .andExpect(jsonPath("$.code").value(INVALID_REFRESH_TOKEN.getCode()));
+        }
+
+        @Test
+        @DisplayName("탈퇴한 사용자의 리프레시 토큰을 통한 액세스 토큰 재발급에 실패한다")
+        void 탈퇴한_사용자의_리프레시_토큰을_통한_액세스_토큰_재발급에_실패한다() throws Exception {
+            // given
+            String idToken = "valid-id-token";
+            given(appleOidcAdapter.validateToken(idToken)).willReturn(appleMember.getProviderId());
+
+            MvcResult loginResult = mockMvc.perform(post("/login/apple")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    SignInRequestDtoFactory.createAppleLoginRequestDto(idToken)
+                            )))
+                    .andExpect(status().isOk())
+                    .andReturn();
+            String responseContent = loginResult.getResponse().getContentAsString();
+            String refreshToken = objectMapper.readTree(responseContent).get("data").get("refreshToken").asText();
+
+            em.createQuery("UPDATE MemberEntity m SET m.memberState = :state, m.deletedAt = :deletedAt WHERE m.id = :memberId")
+                    .setParameter("state", MemberState.DELETED)
+                    .setParameter("deletedAt", LocalDateTime.now())
+                    .setParameter("memberId", appleMember.getId())
+                    .executeUpdate();
+
+            // when & then
+            mockMvc.perform(post("/refresh")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    SignInRequestDtoFactory.createRefreshRequestDto(refreshToken)
+                            )))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.message").value(NO_SUCH_MEMBER.getMessage()))
+                    .andExpect(jsonPath("$.code").value(NO_SUCH_MEMBER.getCode()));
+        }
     }
 }
