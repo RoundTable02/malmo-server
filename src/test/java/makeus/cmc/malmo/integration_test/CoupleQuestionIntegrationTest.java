@@ -41,9 +41,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
+import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.*;
 import static makeus.cmc.malmo.domain.service.CoupleQuestionDomainService.FIRST_QUESTION_LEVEL;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -372,9 +374,136 @@ public class CoupleQuestionIntegrationTest {
     @Nested
     @DisplayName("과거 질문 조회 기능 검증")
     class CoupleBeforeQuestionFeature {
-        // TODO : 커플인 멤버가 과거 질문 조회 성공
-        // TODO : 커플이 아닌 멤버 과거 질문 조회 실패
-        // TODO : 커플인 멤버가 현재 단계 이후의 질문 조회 실패
+
+        @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+        public static class GetQuestionResponse {
+            Long coupleQuestionId;
+            String title;
+            String content;
+            int level;
+            boolean meAnswered;
+            boolean partnerAnswered;
+            LocalDateTime createdAt;
+        }
+
+        @Test
+        @DisplayName("커플인 멤버가 과거 질문 조회 성공")
+        void 커플_멤버_과거_질문_조회_성공() throws Exception {
+            // given
+            MvcResult coupleResult = mockMvc.perform(post("/couples")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    CoupleRequestDtoFactory.createCoupleLinkRequestDto(partner.getInviteCodeEntityValue().getValue())
+                            )))
+                    .andExpect(status().isOk())
+                    .andReturn();
+            String coupleContent = coupleResult.getResponse().getContentAsString();
+            Integer coupleId = JsonPath.read(coupleContent, "$.data.coupleId");
+
+            CoupleQuestionEntity coupleQuestion = em.createQuery("SELECT cq FROM CoupleQuestionEntity cq WHERE cq.coupleEntityId.value = :coupleId", CoupleQuestionEntity.class)
+                    .setParameter("coupleId", coupleId)
+                    .getSingleResult();
+            em.createQuery("UPDATE CoupleQuestionEntity cq SET cq.coupleQuestionState = :state, cq.bothAnsweredAt = :bothAnsweredAt WHERE cq.id = :id")
+                    .setParameter("state", CoupleQuestionState.OUTDATED)
+                    .setParameter("bothAnsweredAt", LocalDateTime.now().minusDays(3))
+                    .setParameter("id", coupleQuestion.getId())
+                    .executeUpdate();
+
+            QuestionEntity question1 = em.createQuery("SELECT q FROM QuestionEntity q WHERE q.level = :level", QuestionEntity.class)
+                    .setParameter("level", FIRST_QUESTION_LEVEL + 1)
+                    .getSingleResult();
+
+            QuestionEntity question2 = em.createQuery("SELECT q FROM QuestionEntity q WHERE q.level = :level", QuestionEntity.class)
+                    .setParameter("level", FIRST_QUESTION_LEVEL + 2)
+                    .getSingleResult();
+
+            CoupleQuestionEntity coupleQuestion1 = CoupleQuestionEntity.builder()
+                    .coupleEntityId(coupleQuestion.getCoupleEntityId())
+                    .question(question1)
+                    .coupleQuestionState(CoupleQuestionState.OUTDATED)
+                    .bothAnsweredAt(LocalDateTime.now().minusDays(2))
+                    .build();
+
+            CoupleQuestionEntity coupleQuestion2 = CoupleQuestionEntity.builder()
+                    .coupleEntityId(coupleQuestion.getCoupleEntityId())
+                    .question(question2)
+                    .coupleQuestionState(CoupleQuestionState.OUTDATED)
+                    .bothAnsweredAt(LocalDateTime.now().minusDays(2))
+                    .build();
+
+            CoupleMemberEntity partnerCoupleMember = em.createQuery("SELECT cm FROM CoupleMemberEntity cm WHERE cm.coupleEntityId.value = :coupleId AND cm.memberEntityId.value = :memberId", CoupleMemberEntity.class)
+                    .setParameter("coupleId", coupleId)
+                    .setParameter("memberId", partner.getId())
+                    .getSingleResult();
+
+            em.persist(coupleQuestion1);
+            em.persist(coupleQuestion2);
+
+            MemberAnswerEntity answer = MemberAnswerEntity.builder()
+                    .coupleQuestionEntityId(CoupleQuestionEntityId.of(coupleQuestion1.getId()))
+                    .coupleMemberEntityId(CoupleMemberEntityId.of(partnerCoupleMember.getId()))
+                    .answer("상대방 답변")
+                    .memberAnswerState(MemberAnswerState.ALIVE)
+                    .build();
+
+            em.persist(answer);
+            em.flush();
+            // when
+            MvcResult mvcResult = mockMvc.perform(get("/questions/" + question1.getLevel())
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            // then
+            String responseContent = mvcResult.getResponse().getContentAsString();
+            ResponseDto<GetQuestionResponse> responseDto = objectMapper.readValue(
+                    responseContent,
+                    new TypeReference<>() {}
+            );
+
+            GetQuestionResponse data = responseDto.data;
+            Assertions.assertThat(data.content).isEqualTo(question1.getContent());
+            Assertions.assertThat(data.title).isEqualTo(question1.getTitle());
+            Assertions.assertThat(data.level).isEqualTo(FIRST_QUESTION_LEVEL + 1);
+            Assertions.assertThat(data.meAnswered).isFalse();
+            Assertions.assertThat(data.partnerAnswered).isTrue();
+            Assertions.assertThat(data.createdAt).isNotNull();
+        }
+
+        @Test
+        @DisplayName("커플이 아닌 멤버 과거 질문 조회 실패")
+        void 커플_x_멤버_과거_질문_조회_실패() throws Exception {
+            // when & then
+            mockMvc.perform(get("/questions/" + 3)
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("message").value(NOT_COUPLE_MEMBER.getMessage()))
+                    .andExpect(jsonPath("code").value(NOT_COUPLE_MEMBER.getCode()));
+        }
+
+        @Test
+        @DisplayName("커플인 멤버가 현재 단계 이후의 질문 조회 실패")
+        void 커플_멤버_현재_단계_이후의_질문_조회_실패() throws Exception {
+            // given
+            mockMvc.perform(post("/couples")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    CoupleRequestDtoFactory.createCoupleLinkRequestDto(partner.getInviteCodeEntityValue().getValue())
+                            )))
+                    .andExpect(status().isOk());
+
+            // when & then
+            mockMvc.perform(get("/questions/" + 3)
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("message").value(NO_SUCH_COUPLE_QUESTION.getMessage()))
+                    .andExpect(jsonPath("code").value(NO_SUCH_COUPLE_QUESTION.getCode()));
+        }
     }
 
     @Nested
