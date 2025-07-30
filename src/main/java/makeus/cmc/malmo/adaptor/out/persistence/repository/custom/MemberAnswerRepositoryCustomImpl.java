@@ -17,12 +17,8 @@ import makeus.cmc.malmo.domain.value.state.CoupleQuestionState;
 
 import java.util.Optional;
 
-import static makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleEntity.coupleEntity;
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleMemberEntity.coupleMemberEntity;
-import static makeus.cmc.malmo.adaptor.out.persistence.entity.member.QMemberEntity.memberEntity;
-import static makeus.cmc.malmo.adaptor.out.persistence.entity.question.QCoupleQuestionEntity.coupleQuestionEntity;
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.question.QMemberAnswerEntity.memberAnswerEntity;
-import static makeus.cmc.malmo.adaptor.out.persistence.entity.question.QQuestionEntity.questionEntity;
 
 @RequiredArgsConstructor
 public class MemberAnswerRepositoryCustomImpl implements MemberAnswerRepositoryCustom{

@@ -1,7 +1,5 @@
 package makeus.cmc.malmo.integration_test;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import jakarta.persistence.EntityManager;
@@ -18,7 +16,6 @@ import makeus.cmc.malmo.domain.value.state.*;
 import makeus.cmc.malmo.domain.value.type.MemberRole;
 import makeus.cmc.malmo.domain.value.type.Provider;
 import makeus.cmc.malmo.integration_test.dto_factory.CoupleRequestDtoFactory;
-import makeus.cmc.malmo.integration_test.dto_factory.MemberRequestDtoFactory;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -31,8 +28,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
 
 import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.*;
 import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.INIT_CHATROOM_LEVEL;

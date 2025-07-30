@@ -6,7 +6,6 @@ import makeus.cmc.malmo.application.port.out.SaveMemberMemoryPort;
 import makeus.cmc.malmo.domain.model.member.MemberMemory;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 

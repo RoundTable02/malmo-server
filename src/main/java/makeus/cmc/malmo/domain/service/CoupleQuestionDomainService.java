@@ -15,7 +15,6 @@ import makeus.cmc.malmo.domain.value.id.CoupleQuestionId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.state.CoupleQuestionState;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

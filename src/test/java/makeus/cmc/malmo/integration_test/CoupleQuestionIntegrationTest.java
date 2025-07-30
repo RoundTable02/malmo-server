@@ -18,8 +18,6 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleQuestionEntit
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
 import makeus.cmc.malmo.application.port.out.GenerateTokenPort;
-import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
-import makeus.cmc.malmo.domain.model.question.TempCoupleQuestion;
 import makeus.cmc.malmo.domain.value.state.CoupleQuestionState;
 import makeus.cmc.malmo.domain.value.state.MemberAnswerState;
 import makeus.cmc.malmo.domain.value.state.MemberState;
