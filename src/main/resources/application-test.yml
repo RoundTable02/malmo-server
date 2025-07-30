@@ -18,6 +18,12 @@ spring:
       mode: always
       data-locations: classpath:data-test.sql
 
+
+server:
+  servlet:
+    encoding:
+      force-response: true
+
 logging:
   level:
     org.hibernate.SQL: DEBUG
