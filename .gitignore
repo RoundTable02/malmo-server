@@ -37,4 +37,6 @@ out/
 .vscode/
 
 /src/main/resources/application-dev.yml
-/src/main/resources/data*.sql
+/src/main/resources/data.sql
+/src/main/resources/data-ver1.sql
+/src/main/resources/data-ver2.sql

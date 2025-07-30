@@ -13,7 +13,6 @@ import makeus.cmc.malmo.domain.value.state.MemberState;
 import makeus.cmc.malmo.domain.value.type.MemberRole;
 import makeus.cmc.malmo.domain.value.type.Provider;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 

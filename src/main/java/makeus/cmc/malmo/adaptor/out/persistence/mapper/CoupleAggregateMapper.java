@@ -10,7 +10,9 @@ import makeus.cmc.malmo.domain.value.id.CoupleId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class CoupleAggregateMapper {
@@ -35,7 +37,7 @@ public class CoupleAggregateMapper {
     public CoupleEntity toEntity(Couple domain) {
         List<CoupleMemberEntity> coupleMembers = domain.getCoupleMembers().stream()
                 .map(member -> toEntity(member, domain.getId()))
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
 
         return CoupleEntity.builder()
                 .id(domain.getId())
