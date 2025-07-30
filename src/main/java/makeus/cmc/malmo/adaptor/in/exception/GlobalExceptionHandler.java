@@ -129,6 +129,12 @@ public class GlobalExceptionHandler {
         return ErrorResponse.of(ErrorCode.NOT_VALID_COUPLE_CODE);
     }
 
+    @ExceptionHandler({CoupleQuestionNotFoundException.class})
+    public ResponseEntity<ErrorResponse> handleCoupleQuestionNotFoundException(CoupleQuestionNotFoundException e) {
+        log.error("[GlobalExceptionHandler: handleCoupleQuestionNotFoundException 호출]", e);
+        return ErrorResponse.of(ErrorCode.NO_SUCH_COUPLE_QUESTION);
+    }
+
 
 
 
