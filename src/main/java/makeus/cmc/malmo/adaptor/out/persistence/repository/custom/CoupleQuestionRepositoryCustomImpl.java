@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.CoupleQuestionPersistenceAdapter;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.question.CoupleQuestionEntity;
 import makeus.cmc.malmo.domain.value.state.CoupleMemberState;
+import makeus.cmc.malmo.domain.value.state.CoupleQuestionState;
 
 import java.util.Optional;
 
@@ -60,7 +61,7 @@ public class CoupleQuestionRepositoryCustomImpl implements CoupleQuestionReposit
                 ))
                 .from(coupleQuestionEntity)
                 .where(coupleQuestionEntity.coupleEntityId.value.eq(coupleId))
-                .orderBy(coupleQuestionEntity.question.level.asc())
+                .orderBy(coupleQuestionEntity.question.level.desc())
                 .limit(1)
                 .fetchOne();
 
@@ -111,7 +112,8 @@ public class CoupleQuestionRepositoryCustomImpl implements CoupleQuestionReposit
                 .join(coupleMemberEntity)
                 .on(coupleMemberEntity.coupleEntityId.value.eq(coupleQuestionEntity.coupleEntityId.value))
                 .where(coupleMemberEntity.memberEntityId.value.eq(memberId)
-                        .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
+                        .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED))
+                        .and(coupleQuestionEntity.coupleQuestionState.eq(CoupleQuestionState.COMPLETED)))
                 .fetchOne();
     }
 }
