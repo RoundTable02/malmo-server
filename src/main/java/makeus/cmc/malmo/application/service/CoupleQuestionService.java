@@ -9,6 +9,7 @@ import makeus.cmc.malmo.application.port.in.GetQuestionAnswerUseCase;
 import makeus.cmc.malmo.application.port.in.GetQuestionUseCase;
 import makeus.cmc.malmo.application.port.out.ValidateMemberPort;
 import makeus.cmc.malmo.application.service.helper.couple.CoupleQueryHelper;
+import makeus.cmc.malmo.application.service.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.application.service.helper.question.CoupleQuestionCommandHelper;
 import makeus.cmc.malmo.application.service.helper.question.CoupleQuestionQueryHelper;
 import makeus.cmc.malmo.domain.exception.MemberAccessDeniedException;
@@ -38,6 +39,7 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
 
     private final CoupleQuestionQueryHelper coupleQuestionQueryHelper;
     private final CoupleQuestionCommandHelper coupleQuestionCommandHelper;
+    private final MemberQueryHelper memberQueryHelper;
 
     @Override
     @CheckValidMember
@@ -164,7 +166,7 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
         }
         else {
             // 커플이 아닌 사용자는 TempCoupleQuestion의 답변을 조회
-            Member member = memberDomainService.getMemberById(MemberId.of(command.getUserId()));
+            Member member = memberQueryHelper.getMemberByIdOrThrow(MemberId.of(command.getUserId()));
             TempCoupleQuestion tempCoupleQuestion = coupleQuestionQueryHelper.getTempCoupleQuestionOrThrow(MemberId.of(command.getUserId()));
 
             return AnswerResponseDto.builder()

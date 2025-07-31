@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.application.port.in.UpdateMemberLoveTypeUseCase;
 import makeus.cmc.malmo.application.port.out.SaveMemberPort;
+import makeus.cmc.malmo.application.service.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.service.LoveTypeDataService;
 import makeus.cmc.malmo.domain.service.MemberDomainService;
@@ -20,14 +21,14 @@ import java.util.stream.Collectors;
 public class LoveTypeService implements UpdateMemberLoveTypeUseCase {
 
     private final LoveTypeDataService loveTypeDataService;
-    private final MemberDomainService memberDomainService;
     private final SaveMemberPort saveMemberPort;
+    private final MemberQueryHelper memberQueryHelper;
 
     @Override
     @Transactional
     @CheckValidMember
     public void updateMemberLoveType(UpdateMemberLoveTypeCommand command) {
-        Member member = memberDomainService.getMemberById(MemberId.of(command.getMemberId()));
+        Member member = memberQueryHelper.getMemberByIdOrThrow(MemberId.of(command.getMemberId()));
 
         List<LoveTypeDataService.TestResultInput> testResultInputs = command.getResults().stream()
                 .map(result -> new LoveTypeDataService.TestResultInput(result.getQuestionId(), result.getScore()))

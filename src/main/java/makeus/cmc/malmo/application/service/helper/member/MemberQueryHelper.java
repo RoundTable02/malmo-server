@@ -20,6 +20,11 @@ public class MemberQueryHelper {
     private final ValidateInviteCodePort validateInviteCodePort;
     private final ValidateMemberPort validateMemberPort;
 
+    public Member getMemberByIdOrThrow(MemberId memberId) {
+        return loadMemberPort.loadMemberById(MemberId.of(memberId.getValue()))
+                .orElseThrow(MemberNotFoundException::new);
+    }
+
     public Member getMemberByInviteCodeOrThrow(InviteCodeValue inviteCode) {
         return loadMemberPort.loadMemberByInviteCode(inviteCode).orElseThrow(InviteCodeNotFoundException::new);
     }
