@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 public class CoupleCommandHelper {
     private final SaveCouplePort saveCouplePort;
 
-    public void saveCouple(Couple couple) {
-        saveCouplePort.saveCouple(couple);
+    public Couple saveCouple(Couple couple) {
+        return saveCouplePort.saveCouple(couple);
     }
 }

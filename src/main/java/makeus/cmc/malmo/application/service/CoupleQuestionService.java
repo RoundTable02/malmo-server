@@ -33,7 +33,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAnswerUseCase, AnswerQuestionUseCase {
 
     private final ValidateMemberPort validateMemberPort;
-    private final MemberDomainService memberDomainService;
     private final CoupleQuestionDomainService coupleQuestionDomainService;
     private final CoupleQueryHelper coupleQueryHelper;
 

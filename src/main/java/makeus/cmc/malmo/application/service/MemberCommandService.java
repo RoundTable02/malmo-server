@@ -22,13 +22,11 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLoveDateUseCase, DeleteMemberUseCase {
 
-    private final MemberDomainService memberDomainService;
-    private final SaveMemberPort saveMemberPort;
-
-    private final CoupleCommandHelper coupleCommandHelper;
     private final CoupleQueryHelper coupleQueryHelper;
-    private final MemberCommandHelper memberCommandHelper;
+    private final CoupleCommandHelper coupleCommandHelper;
+
     private final MemberQueryHelper memberQueryHelper;
+    private final MemberCommandHelper memberCommandHelper;
 
     @Override
     @CheckValidMember
@@ -38,7 +36,7 @@ public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLov
 
         member.updateMemberProfile(command.getNickname());
 
-        Member savedMember = saveMemberPort.saveMember(member);
+        Member savedMember = memberCommandHelper.saveMember(member);
 
         return UpdateMemberResponseDto.builder()
                 .nickname(savedMember.getNickname())

@@ -10,6 +10,8 @@ import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.id.TermsId;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class TermsQueryHelper {
@@ -25,5 +27,9 @@ public class TermsQueryHelper {
     public MemberTermsAgreement getTermsAgreementOrThrow(MemberId memberId, TermsId termsId) {
         return loadTermsAgreementPort.loadTermsAgreementByMemberIdAndTermsId(memberId, termsId)
                 .orElseThrow(TermsNotFoundException::new);
+    }
+
+    public List<Terms> getLatestTerms() {
+        return loadTermsPort.loadLatestTerms();
     }
 }

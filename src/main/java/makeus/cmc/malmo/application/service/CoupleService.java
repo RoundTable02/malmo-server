@@ -39,20 +39,18 @@ import static makeus.cmc.malmo.domain.service.CoupleQuestionDomainService.FIRST_
 @RequiredArgsConstructor
 public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
 
-    private final InviteCodeDomainService inviteCodeDomainService;
-    private final CoupleDomainService coupleDomainService;
-    private final CoupleCommandHelper coupleCommandHelper;
     private final CoupleQueryHelper coupleQueryHelper;
+    private final CoupleCommandHelper coupleCommandHelper;
+    private final CoupleDomainService coupleDomainService;
+
     private final ChatRoomDomainService chatRoomDomainService;
 
-    private final CoupleQuestionDomainService coupleQuestionDomainService;
-
-    private final SendSseEventPort sendSseEventPort;
-
-    private final SaveCouplePort saveCouplePort;
     private final CoupleQuestionQueryHelper coupleQuestionQueryHelper;
     private final CoupleQuestionCommandHelper coupleQuestionCommandHelper;
+
     private final MemberQueryHelper memberQueryHelper;
+
+    private final SendSseEventPort sendSseEventPort;
 
     @Override
     @CheckValidMember
@@ -71,7 +69,7 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
         if (brokenCouple.isPresent()) {
             couple = brokenCouple.map(bc ->{
                 bc.recover();
-                return saveCouplePort.saveCouple(bc);
+                return coupleCommandHelper.saveCouple(bc);
             }).get();
         }
         else {
@@ -80,7 +78,7 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
                     MemberId.of(partner.getId()),
                     partner.getStartLoveDate());
 
-            couple = saveCouplePort.saveCouple(initCouple);
+            couple = coupleCommandHelper.saveCouple(initCouple);
 
             Question question = coupleQuestionQueryHelper.getQuestionByLevelOrThrow(FIRST_QUESTION_LEVEL);
 

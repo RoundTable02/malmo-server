@@ -7,6 +7,7 @@ import makeus.cmc.malmo.application.port.in.RefreshTokenUseCase;
 import makeus.cmc.malmo.application.port.out.GenerateTokenPort;
 import makeus.cmc.malmo.application.port.out.SaveMemberPort;
 import makeus.cmc.malmo.application.port.out.ValidateTokenPort;
+import makeus.cmc.malmo.application.service.helper.member.MemberCommandHelper;
 import makeus.cmc.malmo.application.service.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.service.MemberDomainService;
@@ -20,11 +21,10 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class RefreshTokenService implements RefreshTokenUseCase {
 
-    private final MemberDomainService memberDomainService;
-    private final SaveMemberPort saveMemberPort;
     private final GenerateTokenPort generateTokenPort;
     private final ValidateTokenPort validateTokenPort;
     private final MemberQueryHelper memberQueryHelper;
+    private final MemberCommandHelper memberCommandHelper;
 
     @Override
     @Transactional
@@ -46,7 +46,7 @@ public class RefreshTokenService implements RefreshTokenUseCase {
         // 3. Refresh 토큰 갱신
         TokenInfo tokenInfo = generateTokenPort.generateToken(member.getId(), member.getMemberRole());
         member.refreshMemberToken(tokenInfo.getRefreshToken());
-        saveMemberPort.saveMember(member);
+        memberCommandHelper.saveMember(member);
 
         return RefreshTokenUseCase.TokenResponse.builder()
                 .grantType(tokenInfo.getGrantType())

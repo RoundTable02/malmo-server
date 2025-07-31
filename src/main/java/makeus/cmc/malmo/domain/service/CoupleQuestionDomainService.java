@@ -15,13 +15,13 @@ import makeus.cmc.malmo.domain.value.id.CoupleMemberId;
 import makeus.cmc.malmo.domain.value.id.CoupleQuestionId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.state.CoupleQuestionState;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@RequiredArgsConstructor
-@Service
+@Component
 public class CoupleQuestionDomainService {
 
     public static final int FIRST_QUESTION_LEVEL = 1;

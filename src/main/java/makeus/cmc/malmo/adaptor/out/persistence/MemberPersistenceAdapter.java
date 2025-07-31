@@ -10,6 +10,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.repository.CoupleQuestionReposit
 import makeus.cmc.malmo.adaptor.out.persistence.repository.MemberRepository;
 import makeus.cmc.malmo.application.port.out.*;
 import makeus.cmc.malmo.application.service.MemberInfoService;
+import makeus.cmc.malmo.application.service.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
 import makeus.cmc.malmo.domain.value.id.MemberId;
@@ -44,7 +45,7 @@ public class MemberPersistenceAdapter implements
     }
 
     @Override
-    public Optional<MemberInfoService.MemberInfoDto> loadMemberDetailsById(MemberId memberId) {
+    public Optional<MemberQueryHelper.MemberInfoDto> loadMemberDetailsById(MemberId memberId) {
         int questionCount = coupleQuestionRepository.countCoupleQuestionsByMemberId(memberId.getValue());
         int chatRoomCount = chatRoomRepository.countChatRoomsByMemberId(memberId.getValue());
         return memberRepository.findMemberDetailsById(memberId.getValue())
@@ -65,8 +66,9 @@ public class MemberPersistenceAdapter implements
     }
 
     @Override
-    public Optional<PartnerMemberRepositoryDto> loadPartnerByMemberId(Long memberId) {
-        return memberRepository.findPartnerMember(memberId);
+    public Optional<MemberQueryHelper.PartnerMemberDto> loadPartnerByMemberId(MemberId memberId) {
+        return memberRepository.findPartnerMember(memberId.getValue())
+                .map(PartnerMemberRepositoryDto::toDto);
     }
 
     @Override
@@ -92,8 +94,8 @@ public class MemberPersistenceAdapter implements
         private String nickname;
         private String email;
 
-        public MemberInfoService.MemberInfoDto toDto(int totalChatRoomCount, int totalCoupleQuestionCount) {
-            return MemberInfoService.MemberInfoDto.builder()
+        public MemberQueryHelper.MemberInfoDto toDto(int totalChatRoomCount, int totalCoupleQuestionCount) {
+            return MemberQueryHelper.MemberInfoDto.builder()
                     .memberState(memberState)
                     .provider(provider)
                     .startLoveDate(startLoveDate)
@@ -104,6 +106,26 @@ public class MemberPersistenceAdapter implements
                     .email(email)
                     .totalChatRoomCount(totalChatRoomCount)
                     .totalCoupleQuestionCount(totalCoupleQuestionCount)
+                    .build();
+        }
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class PartnerMemberRepositoryDto {
+        private String memberState;
+        private LoveTypeCategory loveTypeCategory;
+        private float avoidanceRate;
+        private float anxietyRate;
+        private String nickname;
+
+        public MemberQueryHelper.PartnerMemberDto toDto() {
+            return MemberQueryHelper.PartnerMemberDto.builder()
+                    .memberState(memberState)
+                    .loveTypeCategory(loveTypeCategory)
+                    .avoidanceRate(avoidanceRate)
+                    .anxietyRate(anxietyRate)
+                    .nickname(nickname)
                     .build();
         }
     }

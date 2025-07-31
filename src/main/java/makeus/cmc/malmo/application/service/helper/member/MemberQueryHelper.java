@@ -1,21 +1,26 @@
 package makeus.cmc.malmo.application.service.helper.member;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.application.port.out.LoadInviteCodePort;
-import makeus.cmc.malmo.application.port.out.LoadMemberPort;
-import makeus.cmc.malmo.application.port.out.ValidateInviteCodePort;
-import makeus.cmc.malmo.application.port.out.ValidateMemberPort;
+import makeus.cmc.malmo.application.port.out.*;
 import makeus.cmc.malmo.domain.exception.*;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
 import makeus.cmc.malmo.domain.value.id.MemberId;
+import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
+import makeus.cmc.malmo.domain.value.type.Provider;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
 
 @Component
 @RequiredArgsConstructor
 public class MemberQueryHelper {
 
     private final LoadMemberPort loadMemberPort;
+    private final LoadPartnerPort loadPartnerPort;
     private final LoadInviteCodePort loadInviteCodePort;
     private final ValidateInviteCodePort validateInviteCodePort;
     private final ValidateMemberPort validateMemberPort;
@@ -32,6 +37,15 @@ public class MemberQueryHelper {
     public InviteCodeValue getInviteCodeByMemberIdOrThrow(MemberId memberId) {
         return loadInviteCodePort.loadInviteCodeByMemberId(memberId)
                 .orElseThrow(InviteCodeNotFoundException::new);
+    }
+
+    public MemberInfoDto getMemberInfoOrThrow(MemberId memberId) {
+        return loadMemberPort.loadMemberDetailsById(memberId).orElseThrow(MemberNotFoundException::new);
+    }
+
+    public PartnerMemberDto getPartnerInfoOrThrow(MemberId memberId) {
+        return loadPartnerPort.loadPartnerByMemberId(memberId)
+                .orElseThrow(MemberNotFoundException::new);
     }
 
     public boolean isInviteCodeValid(InviteCodeValue inviteCode) {
@@ -76,6 +90,32 @@ public class MemberQueryHelper {
         if (!validMember) {
             throw new MemberNotFoundException("존재하지 않는 사용자입니다. 회원가입 후 이용해주세요.");
         }
+    }
+
+    @Data
+    @Builder
+    public static class MemberInfoDto {
+        private String memberState;
+        private Provider provider;
+        private LocalDate startLoveDate;
+        private LoveTypeCategory loveTypeCategory;
+        private float avoidanceRate;
+        private float anxietyRate;
+        private String nickname;
+        private String email;
+
+        private int totalChatRoomCount;
+        private int totalCoupleQuestionCount;
+    }
+
+    @Data
+    @Builder
+    public static class PartnerMemberDto {
+        private String memberState;
+        private LoveTypeCategory loveTypeCategory;
+        private float avoidanceRate;
+        private float anxietyRate;
+        private String nickname;
     }
 
 }

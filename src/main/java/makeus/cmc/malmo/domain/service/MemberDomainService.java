@@ -12,14 +12,14 @@ import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.state.MemberState;
 import makeus.cmc.malmo.domain.value.type.MemberRole;
 import makeus.cmc.malmo.domain.value.type.Provider;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
-@Service
-@RequiredArgsConstructor
+@Component
 public class MemberDomainService {
 
     public Member createMember(Provider provider, String providerId, String email, InviteCodeValue inviteCode) {
