@@ -7,7 +7,6 @@ import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
 import makeus.cmc.malmo.domain.exception.TermsNotFoundException;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.service.MemberDomainService;
-import makeus.cmc.malmo.domain.service.TermsAgreementDomainService;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

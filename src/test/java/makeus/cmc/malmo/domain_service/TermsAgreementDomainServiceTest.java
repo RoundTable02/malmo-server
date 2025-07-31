@@ -2,11 +2,10 @@ package makeus.cmc.malmo.domain_service;
 
 import makeus.cmc.malmo.application.port.out.LoadTermsAgreementPort;
 import makeus.cmc.malmo.application.port.out.LoadTermsPort;
-import makeus.cmc.malmo.application.port.out.SaveMemberTermsAgreement;
+import makeus.cmc.malmo.application.port.out.SaveMemberTermsAgreementPort;
 import makeus.cmc.malmo.domain.exception.TermsNotFoundException;
 import makeus.cmc.malmo.domain.model.terms.MemberTermsAgreement;
 import makeus.cmc.malmo.domain.model.terms.Terms;
-import makeus.cmc.malmo.domain.service.TermsAgreementDomainService;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.id.TermsId;
 import org.junit.jupiter.api.DisplayName;
@@ -38,7 +37,7 @@ class TermsAgreementDomainServiceTest {
     private LoadTermsAgreementPort loadTermsAgreementPort;
 
     @Mock
-    private SaveMemberTermsAgreement saveMemberTermsAgreement;
+    private SaveMemberTermsAgreementPort saveMemberTermsAgreementPort;
 
     @InjectMocks
     private TermsAgreementDomainService termsAgreementDomainService;
@@ -80,7 +79,7 @@ class TermsAgreementDomainServiceTest {
                         TermsId.of(1L),
                         true
                 ));
-                then(saveMemberTermsAgreement).should().saveMemberTermsAgreement(memberTermsAgreement);
+                then(saveMemberTermsAgreementPort).should().saveMemberTermsAgreement(memberTermsAgreement);
             }
         }
 
@@ -100,7 +99,7 @@ class TermsAgreementDomainServiceTest {
                     .isInstanceOf(TermsNotFoundException.class);
 
             then(loadTermsPort).should().loadTermsById(999L);
-            then(saveMemberTermsAgreement).should(never()).saveMemberTermsAgreement(any());
+            then(saveMemberTermsAgreementPort).should(never()).saveMemberTermsAgreement(any());
         }
 
         @Test
@@ -115,7 +114,7 @@ class TermsAgreementDomainServiceTest {
 
             // Then
             then(loadTermsPort).should(never()).loadTermsById(any());
-            then(saveMemberTermsAgreement).should(never()).saveMemberTermsAgreement(any());
+            then(saveMemberTermsAgreementPort).should(never()).saveMemberTermsAgreement(any());
         }
     }
 

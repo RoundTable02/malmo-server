@@ -1,11 +1,10 @@
 package makeus.cmc.malmo.service;
 
 import makeus.cmc.malmo.application.port.in.UpdateTermsAgreementUseCase;
-import makeus.cmc.malmo.application.port.out.SaveMemberTermsAgreement;
+import makeus.cmc.malmo.application.port.out.SaveMemberTermsAgreementPort;
 import makeus.cmc.malmo.application.service.TermsAgreementService;
 import makeus.cmc.malmo.domain.exception.TermsNotFoundException;
 import makeus.cmc.malmo.domain.model.terms.MemberTermsAgreement;
-import makeus.cmc.malmo.domain.service.TermsAgreementDomainService;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.id.TermsId;
 import org.junit.jupiter.api.DisplayName;
@@ -31,7 +30,7 @@ class TermsAgreementServiceTest {
     private TermsAgreementDomainService termsAgreementDomainService;
 
     @Mock
-    private SaveMemberTermsAgreement saveMemberTermsAgreement;
+    private SaveMemberTermsAgreementPort saveMemberTermsAgreementPort;
 
     @InjectMocks
     private TermsAgreementService termsAgreementService;
@@ -97,8 +96,8 @@ class TermsAgreementServiceTest {
             then(termsAgreementDomainService).should().getTermsAgreement(MemberId.of(memberId), TermsId.of(termsId2));
             then(memberTermsAgreement1).should().updateAgreement(isAgreed1);
             then(memberTermsAgreement2).should().updateAgreement(isAgreed2);
-            then(saveMemberTermsAgreement).should().saveMemberTermsAgreement(memberTermsAgreement1);
-            then(saveMemberTermsAgreement).should().saveMemberTermsAgreement(memberTermsAgreement2);
+            then(saveMemberTermsAgreementPort).should().saveMemberTermsAgreement(memberTermsAgreement1);
+            then(saveMemberTermsAgreementPort).should().saveMemberTermsAgreement(memberTermsAgreement2);
         }
 
         @Test
@@ -140,7 +139,7 @@ class TermsAgreementServiceTest {
 
             then(termsAgreementDomainService).should().getTermsAgreement(MemberId.of(memberId), TermsId.of(termsId));
             then(memberTermsAgreement).should().updateAgreement(isAgreed);
-            then(saveMemberTermsAgreement).should().saveMemberTermsAgreement(memberTermsAgreement);
+            then(saveMemberTermsAgreementPort).should().saveMemberTermsAgreement(memberTermsAgreement);
         }
 
         @Test
@@ -171,7 +170,7 @@ class TermsAgreementServiceTest {
                     .isInstanceOf(TermsNotFoundException.class);
 
             then(termsAgreementDomainService).should().getTermsAgreement(MemberId.of(memberId), TermsId.of(termsId));
-            then(saveMemberTermsAgreement).should(never()).saveMemberTermsAgreement(any());
+            then(saveMemberTermsAgreementPort).should(never()).saveMemberTermsAgreement(any());
         }
 
         @Test
@@ -215,7 +214,7 @@ class TermsAgreementServiceTest {
             then(termsAgreementDomainService).should().getTermsAgreement(MemberId.of(memberId), TermsId.of(termsId1));
             then(termsAgreementDomainService).should().getTermsAgreement(MemberId.of(memberId), TermsId.of(termsId2));
             then(memberTermsAgreement1).should().updateAgreement(isAgreed1);
-            then(saveMemberTermsAgreement).should().saveMemberTermsAgreement(memberTermsAgreement1);
+            then(saveMemberTermsAgreementPort).should().saveMemberTermsAgreement(memberTermsAgreement1);
         }
     }
 }
