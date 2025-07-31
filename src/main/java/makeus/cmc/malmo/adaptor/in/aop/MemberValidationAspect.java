@@ -1,7 +1,7 @@
 package makeus.cmc.malmo.adaptor.in.aop;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.domain.service.MemberDomainValidationService;
+import makeus.cmc.malmo.application.service.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class MemberValidationAspect {
 
-    private final MemberDomainValidationService memberValidationService;
+    private final MemberQueryHelper memberQueryHelper;
 
     @Before("@annotation(CheckCoupleMember)")
     public void checkCoupleMember() {
@@ -28,7 +28,7 @@ public class MemberValidationAspect {
 
         Long memberId = Long.valueOf(user.getUsername());
         // ALIVE 상태의 커플, ALIVE 상태의 멤버인지 확인
-        memberValidationService.isMemberCouple(MemberId.of(memberId));
+        memberQueryHelper.isMemberCouple(MemberId.of(memberId));
     }
 
     @Before("@annotation(CheckValidMember)")
@@ -41,7 +41,7 @@ public class MemberValidationAspect {
 
         Long memberId = Long.valueOf(user.getUsername());
         // ALIVE 상태의 멤버인지 확인
-        memberValidationService.isMemberValid(MemberId.of(memberId));
+        memberQueryHelper.isMemberValid(MemberId.of(memberId));
     }
 }
 
