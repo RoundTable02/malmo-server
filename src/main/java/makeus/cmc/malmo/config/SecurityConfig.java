@@ -70,7 +70,7 @@ public class SecurityConfig {
 
         // 여기에서 허용할 도메인만 설정
         config.setAllowedOrigins(List.of(PRODUCTION_CLIENT_URL, DEVELOPMENT_CLIENT_URL));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
 

@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.application.port.out.ValidateTokenPort;
 import org.slf4j.MDC;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -68,6 +69,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
+        if (HttpMethod.OPTIONS.name().equalsIgnoreCase(request.getMethod())) {
+            // OPTIONS 요청은 필터링하지 않음
+            return true;
+        }
+
         log.info("[{}] [{} {}] REQUEST_ID : {}", LocalDateTime.now(), request.getMethod(), request.getRequestURI(), MDC.get("request_id"));
 
         String path = request.getRequestURI();
