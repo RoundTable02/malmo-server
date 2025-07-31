@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.application.port.in.SignUpUseCase;
 import makeus.cmc.malmo.application.port.out.SaveMemberPort;
+import makeus.cmc.malmo.application.service.helper.member.MemberCommandHelper;
 import makeus.cmc.malmo.application.service.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.application.service.helper.terms.TermsCommandHelper;
 import makeus.cmc.malmo.application.service.helper.terms.TermsQueryHelper;
@@ -19,8 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class SignUpService implements SignUpUseCase {
 
-    private final SaveMemberPort saveMemberPort;
     private final MemberQueryHelper memberQueryHelper;
+    private final MemberCommandHelper memberCommandHelper;
+
     private final TermsQueryHelper termsQueryHelper;
     private final TermsCommandHelper termsCommandHelper;
 
@@ -30,7 +32,7 @@ public class SignUpService implements SignUpUseCase {
     public void signUp(SignUpCommand command) {
         Member member = memberQueryHelper.getMemberByIdOrThrow(MemberId.of(command.getMemberId()));
         member.signUp(command.getNickname(), command.getLoveStartDate());
-        saveMemberPort.saveMember(member);
+        memberCommandHelper.saveMember(member);
 
         command.getTerms().forEach(termsCommand -> {
             Terms terms = termsQueryHelper.getTermsByIdOrThrow(termsCommand.getTermsId());

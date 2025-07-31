@@ -14,6 +14,7 @@ import makeus.cmc.malmo.domain.value.type.Provider;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -46,6 +47,10 @@ public class MemberQueryHelper {
     public PartnerMemberDto getPartnerInfoOrThrow(MemberId memberId) {
         return loadPartnerPort.loadPartnerByMemberId(memberId)
                 .orElseThrow(MemberNotFoundException::new);
+    }
+
+    public Optional<Member> getMemberByProviderId(Provider provider, String providerId) {
+        return loadMemberPort.loadMemberByProviderId(provider, providerId);
     }
 
     public boolean isInviteCodeValid(InviteCodeValue inviteCode) {
