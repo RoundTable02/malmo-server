@@ -7,6 +7,8 @@ import makeus.cmc.malmo.application.port.in.CoupleLinkUseCase;
 import makeus.cmc.malmo.application.port.in.CoupleUnlinkUseCase;
 import makeus.cmc.malmo.application.port.out.SaveCouplePort;
 import makeus.cmc.malmo.application.port.out.SendSseEventPort;
+import makeus.cmc.malmo.application.service.helper.command.CoupleCommandHelper;
+import makeus.cmc.malmo.application.service.helper.query.CoupleQueryHelper;
 import makeus.cmc.malmo.domain.model.couple.Couple;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.service.ChatRoomDomainService;
@@ -29,6 +31,8 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
 
     private final InviteCodeDomainService inviteCodeDomainService;
     private final CoupleDomainService coupleDomainService;
+    private final CoupleCommandHelper coupleCommandHelper;
+    private final CoupleQueryHelper coupleQueryHelper;
     private final ChatRoomDomainService chatRoomDomainService;
 
     private final CoupleQuestionDomainService coupleQuestionDomainService;
@@ -48,7 +52,7 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
 
         Member partner = inviteCodeDomainService.getMemberByInviteCode(inviteCode);
 
-        Optional<Couple> brokenCouple = coupleDomainService.getBrokenCouple(MemberId.of(command.getUserId()), MemberId.of(partner.getId()));
+        Optional<Couple> brokenCouple = coupleQueryHelper.getBrokenCouple(MemberId.of(command.getUserId()), MemberId.of(partner.getId()));
 
         Couple couple;
         if (brokenCouple.isPresent()) {
@@ -91,6 +95,8 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
     @CheckCoupleMember
     @Transactional
     public void coupleUnlink(CoupleUnlinkCommand command) {
-        coupleDomainService.deleteCoupleByMemberId(MemberId.of(command.getUserId()));
+        Couple couple = coupleQueryHelper.getCoupleByMemberIdOrThrow(MemberId.of(command.getUserId()));
+        couple.delete();
+        coupleCommandHelper.saveCouple(couple);
     }
 }

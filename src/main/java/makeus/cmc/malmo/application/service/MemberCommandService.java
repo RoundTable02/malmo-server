@@ -6,6 +6,8 @@ import makeus.cmc.malmo.application.port.in.DeleteMemberUseCase;
 import makeus.cmc.malmo.application.port.in.UpdateMemberUseCase;
 import makeus.cmc.malmo.application.port.in.UpdateStartLoveDateUseCase;
 import makeus.cmc.malmo.application.port.out.SaveMemberPort;
+import makeus.cmc.malmo.application.service.helper.command.CoupleCommandHelper;
+import makeus.cmc.malmo.application.service.helper.query.CoupleQueryHelper;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.service.CoupleDomainService;
 import makeus.cmc.malmo.domain.service.MemberDomainService;
@@ -18,8 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLoveDateUseCase, DeleteMemberUseCase {
 
     private final MemberDomainService memberDomainService;
-    private final CoupleDomainService coupleDomainService;
     private final SaveMemberPort saveMemberPort;
+
+    private final CoupleCommandHelper coupleCommandHelper;
+    private final CoupleQueryHelper coupleQueryHelper;
 
     @Override
     @CheckValidMember
@@ -56,9 +60,10 @@ public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLov
         memberDomainService.deleteMember(member);
 
         // 멤버 채팅방, 커플 soft delete
-        coupleDomainService.deleteCoupleByMemberId(MemberId.of(member.getId()));
-
-        // TODO : 모든 커플 관련 엔티티 조회 로직을 커플의 STATE 조건을 걸도록 변경
-        //  실제 Hard delete 시점에 하위 어그리거트 제거
+        coupleQueryHelper.getCoupleByMemberId(MemberId.of(command.getMemberId()))
+                        .ifPresent(couple -> {
+                            couple.delete();
+                            coupleCommandHelper.saveCouple(couple);
+                        });
     }
 }

@@ -8,6 +8,7 @@ import makeus.cmc.malmo.application.port.in.AnswerQuestionUseCase;
 import makeus.cmc.malmo.application.port.in.GetQuestionAnswerUseCase;
 import makeus.cmc.malmo.application.port.in.GetQuestionUseCase;
 import makeus.cmc.malmo.application.port.out.ValidateMemberPort;
+import makeus.cmc.malmo.application.service.helper.query.CoupleQueryHelper;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
 import makeus.cmc.malmo.domain.model.question.TempCoupleQuestion;
@@ -28,7 +29,7 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
     private final ValidateMemberPort validateMemberPort;
     private final MemberDomainService memberDomainService;
     private final CoupleQuestionDomainService coupleQuestionDomainService;
-    private final CoupleDomainService coupleDomainService;
+    private final CoupleQueryHelper coupleQueryHelper;
 
     @Override
     @CheckValidMember
@@ -39,7 +40,7 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
         if (isCouple) {
             // 커플 사용자에게는 오늘의 커플 질문을 제공
             // 멤버가 속한 Couple의 가장 레벨이 높은 CoupleQuestion을 조회
-            CoupleId coupleId = coupleDomainService.getCoupleIdByMemberId(MemberId.of(command.getUserId()));
+            CoupleId coupleId = coupleQueryHelper.getCoupleIdByMemberId(MemberId.of(command.getUserId()));
             CoupleQuestionDomainService.CoupleQuestionDto maxLevelQuestion =
                     coupleQuestionDomainService.getMaxLevelQuestionDto(MemberId.of(command.getUserId()), coupleId);
 
@@ -90,7 +91,7 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
     @Override
     @CheckCoupleMember
     public GetQuestionResponse getQuestion(GetQuestionCommand command) {
-        CoupleId coupleId = coupleDomainService.getCoupleIdByMemberId(MemberId.of(command.getUserId()));
+        CoupleId coupleId = coupleQueryHelper.getCoupleIdByMemberId(MemberId.of(command.getUserId()));
         CoupleQuestionDomainService.CoupleQuestionDto question =
                 coupleQuestionDomainService.getCoupleQuestionDtoByLevel(MemberId.of(command.getUserId()), coupleId, command.getLevel());
 
@@ -113,7 +114,7 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
         if (isCouple) {
             // 커플 사용자에게는 커플 질문 답변을 조회
             // 커플 질문에 접근 권한이 있는지 확인
-            CoupleId coupleId = coupleDomainService.getCoupleIdByMemberId(MemberId.of(command.getUserId()));
+            CoupleId coupleId = coupleQueryHelper.getCoupleIdByMemberId(MemberId.of(command.getUserId()));
             coupleQuestionDomainService.validateQuestionOwnership(
                     CoupleQuestionId.of(command.getCoupleQuestionId()),
                     coupleId
@@ -176,7 +177,7 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
 
         if (isCouple) {
             // 커플 사용자에게는 커플 질문에 답변
-            CoupleId coupleId = coupleDomainService.getCoupleIdByMemberId(MemberId.of(command.getUserId()));
+            CoupleId coupleId = coupleQueryHelper.getCoupleIdByMemberId(MemberId.of(command.getUserId()));
             CoupleQuestion coupleQuestion = coupleQuestionDomainService.getMaxLevelQuestion(coupleId);
 
             // 답변을 저장
@@ -216,7 +217,7 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
 
         if (isCouple) {
             // 커플 사용자에게는 커플 질문 답변 수정
-            CoupleId coupleId = coupleDomainService.getCoupleIdByMemberId(MemberId.of(request.getUserId()));
+            CoupleId coupleId = coupleQueryHelper.getCoupleIdByMemberId(MemberId.of(request.getUserId()));
             CoupleQuestion coupleQuestion = coupleQuestionDomainService.getMaxLevelQuestion(coupleId);
 
             // 답변을 수정
