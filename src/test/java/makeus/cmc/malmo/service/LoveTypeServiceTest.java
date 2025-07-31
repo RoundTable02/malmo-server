@@ -7,7 +7,7 @@ import makeus.cmc.malmo.domain.exception.LoveTypeNotFoundException;
 import makeus.cmc.malmo.domain.exception.LoveTypeQuestionNotFoundException;
 import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
 import makeus.cmc.malmo.domain.model.member.Member;
-import makeus.cmc.malmo.domain.service.LoveTypeDataService;
+import makeus.cmc.malmo.domain.service.LoveTypeCalculator;
 import makeus.cmc.malmo.domain.service.MemberDomainService;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
@@ -33,7 +33,7 @@ class LoveTypeServiceTest {
     private MemberDomainService memberDomainService;
 
     @Mock
-    private LoveTypeDataService loveTypeDataService;
+    private LoveTypeCalculator loveTypeCalculator;
 
     @Mock
     private SaveMemberPort saveMemberPort;
@@ -58,11 +58,11 @@ class LoveTypeServiceTest {
                             .build();
 
             Member member = mock(Member.class);
-            LoveTypeDataService.LoveTypeCalculationResult calculationResult = 
-                    new LoveTypeDataService.LoveTypeCalculationResult(LoveTypeCategory.STABLE_TYPE, 2.5f, 1.8f);
+            LoveTypeCalculator.LoveTypeCalculationResult calculationResult =
+                    new LoveTypeCalculator.LoveTypeCalculationResult(LoveTypeCategory.STABLE_TYPE, 2.5f, 1.8f);
 
             given(memberDomainService.getMemberById(MemberId.of(memberId))).willReturn(member);
-            given(loveTypeDataService.findLoveTypeCategoryByTestResult(anyList())).willReturn(calculationResult);
+            given(loveTypeCalculator.findLoveTypeCategoryByTestResult(anyList())).willReturn(calculationResult);
             given(saveMemberPort.saveMember(member)).willReturn(member);
 
             // When
@@ -70,7 +70,7 @@ class LoveTypeServiceTest {
 
             // Then
             then(memberDomainService).should().getMemberById(MemberId.of(memberId));
-            then(loveTypeDataService).should().findLoveTypeCategoryByTestResult(anyList());
+            then(loveTypeCalculator).should().findLoveTypeCategoryByTestResult(anyList());
             then(member).should().updateLoveTypeId(eq(LoveTypeCategory.STABLE_TYPE), eq(2.5f), eq(1.8f));
             then(saveMemberPort).should().saveMember(member);
         }
@@ -95,7 +95,7 @@ class LoveTypeServiceTest {
                     .isInstanceOf(MemberNotFoundException.class);
 
             then(memberDomainService).should().getMemberById(MemberId.of(nonExistentMemberId));
-            then(loveTypeDataService).should(never()).findLoveTypeCategoryByTestResult(anyList());
+            then(loveTypeCalculator).should(never()).findLoveTypeCategoryByTestResult(anyList());
             then(saveMemberPort).should(never()).saveMember(any());
         }
 
@@ -114,7 +114,7 @@ class LoveTypeServiceTest {
             Member member = mock(Member.class);
 
             given(memberDomainService.getMemberById(MemberId.of(memberId))).willReturn(member);
-            given(loveTypeDataService.findLoveTypeCategoryByTestResult(anyList()))
+            given(loveTypeCalculator.findLoveTypeCategoryByTestResult(anyList()))
                     .willThrow(new LoveTypeQuestionNotFoundException());
 
             // When & Then
@@ -122,7 +122,7 @@ class LoveTypeServiceTest {
                     .isInstanceOf(LoveTypeQuestionNotFoundException.class);
 
             then(memberDomainService).should().getMemberById(MemberId.of(memberId));
-            then(loveTypeDataService).should().findLoveTypeCategoryByTestResult(anyList());
+            then(loveTypeCalculator).should().findLoveTypeCategoryByTestResult(anyList());
             then(saveMemberPort).should(never()).saveMember(any());
         }
 
@@ -141,7 +141,7 @@ class LoveTypeServiceTest {
             Member member = mock(Member.class);
 
             given(memberDomainService.getMemberById(MemberId.of(memberId))).willReturn(member);
-            given(loveTypeDataService.findLoveTypeCategoryByTestResult(anyList()))
+            given(loveTypeCalculator.findLoveTypeCategoryByTestResult(anyList()))
                     .willThrow(new LoveTypeNotFoundException());
 
             // When & Then
@@ -149,7 +149,7 @@ class LoveTypeServiceTest {
                     .isInstanceOf(LoveTypeNotFoundException.class);
 
             then(memberDomainService).should().getMemberById(MemberId.of(memberId));
-            then(loveTypeDataService).should().findLoveTypeCategoryByTestResult(anyList());
+            then(loveTypeCalculator).should().findLoveTypeCategoryByTestResult(anyList());
             then(saveMemberPort).should(never()).saveMember(any());
         }
     }
