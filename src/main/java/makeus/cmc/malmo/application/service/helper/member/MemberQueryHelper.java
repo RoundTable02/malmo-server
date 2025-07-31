@@ -57,6 +57,10 @@ public class MemberQueryHelper {
         return !validateInviteCodePort.isInviteCodeDuplicated(inviteCode);
     }
 
+    public boolean isMemberCoupled(MemberId memberId) {
+        return validateMemberPort.isCoupleMember(memberId);
+    }
+
     public void validateUsedInviteCode(InviteCodeValue inviteCodeValue) {
         boolean coupleMember = validateInviteCodePort.isAlreadyCoupleMemberByInviteCode(inviteCodeValue);
         if (coupleMember) {
