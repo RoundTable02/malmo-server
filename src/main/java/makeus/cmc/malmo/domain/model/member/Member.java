@@ -132,4 +132,8 @@ public class Member {
         this.memberState = MemberState.ALIVE;
         this.deletedAt = null;
     }
+
+    public boolean hasSameRefreshToken(String refreshToken) {
+        return this.refreshToken != null && this.refreshToken.equals(refreshToken);
+    }
 }
