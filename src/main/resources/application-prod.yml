@@ -46,3 +46,9 @@ swagger:
 openai:
   api:
     key: ${OPENAI_API_KEY}
+
+security:
+  client:
+    url:
+      production: ${SECURITY_CLIENT_URL_PRODUCTION}
+      development: ${SECURITY_CLIENT_URL_DEVELOPMENT}

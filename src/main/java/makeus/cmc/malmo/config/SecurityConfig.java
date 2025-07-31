@@ -5,6 +5,7 @@ import makeus.cmc.malmo.adaptor.in.web.security.CustomAccessDeniedHandler;
 import makeus.cmc.malmo.adaptor.in.web.security.CustomAuthenticationEntryPoint;
 import makeus.cmc.malmo.adaptor.in.web.security.JwtAuthenticationFilter;
 import makeus.cmc.malmo.adaptor.out.jwt.JwtAdaptor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -29,6 +30,12 @@ public class SecurityConfig {
     private final JwtAdaptor jwtAdaptor;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
+
+    @Value("${security.client.url.production}")
+    private String PRODUCTION_CLIENT_URL;
+
+    @Value("${security.client.url.development}")
+    private String DEVELOPMENT_CLIENT_URL;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -62,7 +69,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         // 여기에서 허용할 도메인만 설정
-        config.setAllowedOrigins(List.of("https://malmo.io.kr"));
+        config.setAllowedOrigins(List.of(PRODUCTION_CLIENT_URL, DEVELOPMENT_CLIENT_URL));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

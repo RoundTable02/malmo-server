@@ -94,6 +94,8 @@ jobs:
               -e APPLE_REST_API_KEY="${{ secrets.APPLE_REST_API_KEY }}" \
               -e OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" \
               -e SWAGGER_SERVER_PRODUCTION_URL="${{ secrets.SWAGGER_SERVER_PRODUCTION_URL }}" \
+              -e SECURITY_CLIENT_URL_PRODUCTION="${{ secrets.SECURITY_CLIENT_URL_PRODUCTION }}" \
+              -e SECURITY_CLIENT_URL_DEVELOPMENT="${{ secrets.SECURITY_CLIENT_URL_DEVELOPMENT }}" \
               ${{ secrets.DOCKERHUB_USERNAME }}/malmo-app:latest
             
             docker image prune -f

@@ -48,3 +48,9 @@ swagger:
 openai:
   api:
     key: sk-test-openai-api-key-for-testing-only
+
+security:
+  client:
+    url:
+      production: test.prod.com
+      development:  test.dev.com
