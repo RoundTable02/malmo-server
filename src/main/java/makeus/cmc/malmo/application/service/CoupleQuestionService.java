@@ -139,8 +139,6 @@ public class CoupleQuestionService implements GetQuestionUseCase, GetQuestionAns
             CoupleQuestionQueryHelper.MemberAnswersDto answers =
                     coupleQuestionQueryHelper.getQuestionAnswers(MemberId.of(command.getUserId()), CoupleQuestionId.of(command.getCoupleQuestionId()));
 
-            log.info("getQuestionAnswers: answers={}", answers);
-
             return AnswerResponseDto.builder()
                     .title(answers.getTitle())
                     .content(answers.getContent())

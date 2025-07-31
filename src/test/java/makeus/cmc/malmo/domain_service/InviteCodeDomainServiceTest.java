@@ -1,6 +1,5 @@
 package makeus.cmc.malmo.domain_service;
 
-import makeus.cmc.malmo.application.port.out.GenerateInviteCodePort;
 import makeus.cmc.malmo.application.port.out.LoadInviteCodePort;
 import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.ValidateInviteCodePort;
@@ -134,7 +133,7 @@ class InviteCodeDomainServiceTest {
             String generatedCode = "UNIQUE123";
 
             given(generateInviteCodePort.generateInviteCode()).willReturn(generatedCode);
-            given(validateInviteCodePort.validateDuplicateInviteCode(InviteCodeValue.of(generatedCode)))
+            given(validateInviteCodePort.isInviteCodeDuplicated(InviteCodeValue.of(generatedCode)))
                     .willReturn(false);
 
             // When
@@ -143,7 +142,7 @@ class InviteCodeDomainServiceTest {
             // Then
             assertThat(result.getValue()).isEqualTo(generatedCode);
             then(generateInviteCodePort).should().generateInviteCode();
-            then(validateInviteCodePort).should().validateDuplicateInviteCode(InviteCodeValue.of(generatedCode));
+            then(validateInviteCodePort).should().isInviteCodeDuplicated(InviteCodeValue.of(generatedCode));
         }
 
         @Test
@@ -156,9 +155,9 @@ class InviteCodeDomainServiceTest {
             given(generateInviteCodePort.generateInviteCode())
                     .willReturn(firstCode)
                     .willReturn(secondCode);
-            given(validateInviteCodePort.validateDuplicateInviteCode(InviteCodeValue.of(firstCode)))
+            given(validateInviteCodePort.isInviteCodeDuplicated(InviteCodeValue.of(firstCode)))
                     .willReturn(true);
-            given(validateInviteCodePort.validateDuplicateInviteCode(InviteCodeValue.of(secondCode)))
+            given(validateInviteCodePort.isInviteCodeDuplicated(InviteCodeValue.of(secondCode)))
                     .willReturn(false);
 
             // When
@@ -167,8 +166,8 @@ class InviteCodeDomainServiceTest {
             // Then
             assertThat(result.getValue()).isEqualTo(secondCode);
             then(generateInviteCodePort).should(times(2)).generateInviteCode();
-            then(validateInviteCodePort).should().validateDuplicateInviteCode(InviteCodeValue.of(firstCode));
-            then(validateInviteCodePort).should().validateDuplicateInviteCode(InviteCodeValue.of(secondCode));
+            then(validateInviteCodePort).should().isInviteCodeDuplicated(InviteCodeValue.of(firstCode));
+            then(validateInviteCodePort).should().isInviteCodeDuplicated(InviteCodeValue.of(secondCode));
         }
 
         @Test
@@ -178,7 +177,7 @@ class InviteCodeDomainServiceTest {
             String generatedCode = "DUPLICATE123";
 
             given(generateInviteCodePort.generateInviteCode()).willReturn(generatedCode);
-            given(validateInviteCodePort.validateDuplicateInviteCode(any(InviteCodeValue.class)))
+            given(validateInviteCodePort.isInviteCodeDuplicated(any(InviteCodeValue.class)))
                     .willReturn(true);
 
             // When & Then
@@ -187,7 +186,7 @@ class InviteCodeDomainServiceTest {
                     .hasMessage("초대 코드 생성에 실패했습니다. 재시도 횟수를 초과했습니다.");
 
             then(generateInviteCodePort).should(times(10)).generateInviteCode();
-            then(validateInviteCodePort).should(times(10)).validateDuplicateInviteCode(any(InviteCodeValue.class));
+            then(validateInviteCodePort).should(times(10)).isInviteCodeDuplicated(any(InviteCodeValue.class));
         }
     }
 

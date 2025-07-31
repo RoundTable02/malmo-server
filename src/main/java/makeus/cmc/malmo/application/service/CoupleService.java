@@ -9,6 +9,7 @@ import makeus.cmc.malmo.application.port.out.SaveCouplePort;
 import makeus.cmc.malmo.application.port.out.SendSseEventPort;
 import makeus.cmc.malmo.application.service.helper.couple.CoupleCommandHelper;
 import makeus.cmc.malmo.application.service.helper.couple.CoupleQueryHelper;
+import makeus.cmc.malmo.application.service.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.application.service.helper.question.CoupleQuestionCommandHelper;
 import makeus.cmc.malmo.application.service.helper.question.CoupleQuestionQueryHelper;
 import makeus.cmc.malmo.domain.exception.QuestionNotFoundException;
@@ -51,17 +52,18 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
     private final SaveCouplePort saveCouplePort;
     private final CoupleQuestionQueryHelper coupleQuestionQueryHelper;
     private final CoupleQuestionCommandHelper coupleQuestionCommandHelper;
+    private final MemberQueryHelper memberQueryHelper;
 
     @Override
     @CheckValidMember
     @Transactional
     public CoupleLinkResponse coupleLink(CoupleLinkCommand command) {
         InviteCodeValue inviteCode = InviteCodeValue.of(command.getCoupleCode());
-        inviteCodeDomainService.validateUsedInviteCode(inviteCode);
-        inviteCodeDomainService.validateMemberNotCoupled(MemberId.of(command.getUserId()));
-        inviteCodeDomainService.validateOwnInviteCode(MemberId.of(command.getUserId()), inviteCode);
+        memberQueryHelper.validateUsedInviteCode(inviteCode);
+        memberQueryHelper.validateMemberNotCoupled(MemberId.of(command.getUserId()));
+        memberQueryHelper.validateOwnInviteCode(MemberId.of(command.getUserId()), inviteCode);
 
-        Member partner = inviteCodeDomainService.getMemberByInviteCode(inviteCode);
+        Member partner = memberQueryHelper.getMemberByInviteCodeOrThrow(inviteCode);
 
         Optional<Couple> brokenCouple = coupleQueryHelper.getBrokenCouple(MemberId.of(command.getUserId()), MemberId.of(partner.getId()));
 

@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.jwt.TokenInfo;
 import makeus.cmc.malmo.application.port.in.SignInUseCase;
 import makeus.cmc.malmo.application.port.out.*;
+import makeus.cmc.malmo.application.service.helper.member.MemberCommandHelper;
+import makeus.cmc.malmo.application.service.helper.member.MemberQueryHelper;
+import makeus.cmc.malmo.domain.exception.InviteCodeGenerateFailedException;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.service.InviteCodeDomainService;
 import makeus.cmc.malmo.domain.service.MemberDomainService;
@@ -17,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class SignInService implements SignInUseCase {
 
     private final MemberDomainService memberDomainService;
+    private final MemberCommandHelper memberCommandHelper;
+    private final MemberQueryHelper memberQueryHelper;
     private final InviteCodeDomainService inviteCodeDomainService;
     private final LoadMemberPort loadMemberPort;
     private final SaveMemberPort saveMemberPort;
@@ -25,6 +30,8 @@ public class SignInService implements SignInUseCase {
     private final AppleIdTokenPort appleIdTokenPort;
 
     private final FetchFromOAuthProviderPort fetchFromOAuthProviderPort;
+
+    private static final int MAX_RETRY = 10;
 
     @Override
     @Transactional
@@ -38,8 +45,18 @@ public class SignInService implements SignInUseCase {
                 .orElseGet(() -> {
                     // 이메일 정보 가져오기
                     String email = fetchFromOAuthProviderPort.fetchMemberEmailFromKakao(command.getAccessToken());
-                    InviteCodeValue inviteCodeValue = inviteCodeDomainService.generateUniqueInviteCode();
-                    Member newMember = memberDomainService.createMember(Provider.KAKAO, providerId, email, inviteCodeValue);
+
+                    InviteCodeValue inviteCode = null;
+                    int retryCount = 0;
+                    while (retryCount < MAX_RETRY) {
+                        inviteCode = inviteCodeDomainService.generateInviteCode();
+                        if (memberQueryHelper.isInviteCodeValid(inviteCode)) {
+                            break;
+                        }
+                        retryCount++;
+                    }
+
+                    Member newMember = memberDomainService.createMember(Provider.KAKAO, providerId, email, inviteCode);
                     return saveMemberPort.saveMember(newMember);
                 });
 
@@ -74,8 +91,19 @@ public class SignInService implements SignInUseCase {
                 .orElseGet(() -> {
                     // 이메일 정보 가져오기
                     String email = appleIdTokenPort.extractEmailFromIdToken(command.getIdToken());
-                    InviteCodeValue inviteCodeValue = inviteCodeDomainService.generateUniqueInviteCode();
-                    Member newMember = memberDomainService.createMember(Provider.APPLE, providerId, email, inviteCodeValue);
+
+                    InviteCodeValue inviteCode = null;
+                    int retryCount = 0;
+                    while (retryCount < MAX_RETRY) {
+                        inviteCode = inviteCodeDomainService.generateInviteCode();
+                        if (memberQueryHelper.isInviteCodeValid(inviteCode)) {
+                            break;
+                        }
+                        retryCount++;
+                    }
+
+                    Member newMember = memberDomainService.createMember(Provider.APPLE, providerId, email, inviteCode);
+
                     return saveMemberPort.saveMember(newMember);
                 });
 
