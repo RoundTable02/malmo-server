@@ -3,11 +3,10 @@ package makeus.cmc.malmo.application.service;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.jwt.TokenInfo;
 import makeus.cmc.malmo.application.port.in.SignInUseCase;
-import makeus.cmc.malmo.application.port.out.*;
 import makeus.cmc.malmo.application.service.helper.member.AccessTokenHelper;
-import makeus.cmc.malmo.application.service.helper.member.OauthTokenHelper;
 import makeus.cmc.malmo.application.service.helper.member.MemberCommandHelper;
 import makeus.cmc.malmo.application.service.helper.member.MemberQueryHelper;
+import makeus.cmc.malmo.application.service.helper.member.OauthTokenHelper;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.service.InviteCodeDomainService;
 import makeus.cmc.malmo.domain.service.MemberDomainService;
@@ -15,6 +14,8 @@ import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
 import makeus.cmc.malmo.domain.value.type.Provider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.function.Supplier;
 
 @Service
 @RequiredArgsConstructor
@@ -34,75 +35,45 @@ public class SignInService implements SignInUseCase {
     @Override
     @Transactional
     public SignInResponse signInKakao(SignInKakaoCommand command) {
-        // OIDC ID 토큰 검증
         String providerId = oauthTokenHelper.getKakaoIdTokenOrThrow(command.getIdToken());
-
-        // ID 토큰에서 provider와 providerId 추출
-        Member member = memberQueryHelper.getMemberByProviderId(Provider.KAKAO, providerId)
-                // 없으면 새로 생성 (자동 회원가입)
-                .orElseGet(() -> {
-                    // 이메일 정보 가져오기
-                    String email = oauthTokenHelper.fetchKakaoEmailOrThrow(command.getAccessToken());
-
-                    // 초대 코드 생성
-                    InviteCodeValue inviteCode = createInviteCode();
-
-                    Member newMember = memberDomainService.createMember(Provider.KAKAO, providerId, email, inviteCode);
-                    return memberCommandHelper.saveMember(newMember);
-                });
-
-        // 복귀 멤버 상태 복구
-        if (member.isRevivable()) {
-            member.revive();
-        }
-
-        // JWT 토큰 발급
-        TokenInfo tokenInfo = accessTokenHelper.generateToken(member.getId(), member.getMemberRole());
-
-        // 멤버 정보 갱신 (리프레시 토큰 저장)
-        member.refreshMemberToken(tokenInfo.getRefreshToken());
-        memberCommandHelper.saveMember(member);
-
-        return SignInResponse.builder()
-                .memberState(member.getMemberState().name())
-                .grantType(tokenInfo.getGrantType())
-                .accessToken(tokenInfo.getAccessToken())
-                .refreshToken(tokenInfo.getRefreshToken())
-                .build();
+        Supplier<String> emailSupplier = () -> oauthTokenHelper.fetchKakaoEmailOrThrow(command.getAccessToken());
+        return processSignIn(Provider.KAKAO, providerId, emailSupplier);
     }
-
 
     @Override
     @Transactional
     public SignInResponse signInApple(SignInAppleCommand command) {
-        // OIDC ID 토큰 검증
         String providerId = oauthTokenHelper.getAppleIdTokenOrThrow(command.getIdToken());
+        Supplier<String> emailSupplier = () -> oauthTokenHelper.getAppleEmailOrThrow(command.getIdToken());
+        return processSignIn(Provider.APPLE, providerId, emailSupplier);
+    }
 
-        // ID 토큰에서 provider와 providerId 추출
-        Member member = memberQueryHelper.getMemberByProviderId(Provider.APPLE, providerId)
-                // 없으면 새로 생성 (자동 회원가입)
-                .orElseGet(() -> {
-                    // 이메일 정보 가져오기
-                    String email = oauthTokenHelper.getAppleEmailOrThrow(command.getIdToken());
+    private SignInResponse processSignIn(Provider provider, String providerId, Supplier<String> emailSupplier) {
+        // 1. provider와 providerId로 회원 조회 또는 신규 생성
+        Member member = memberQueryHelper.getMemberByProviderId(provider, providerId)
+                .orElseGet(() -> createNewMember(provider, providerId, emailSupplier.get()));
 
-                    // 초대 코드 생성
-                    InviteCodeValue inviteCode = createInviteCode();
-
-                    Member newMember = memberDomainService.createMember(Provider.APPLE, providerId, email, inviteCode);
-                    return memberCommandHelper.saveMember(newMember);
-                });
-
+        // 2. 휴면 계정 복구
         if (member.isRevivable()) {
             member.revive();
         }
 
-        // JWT 토큰 발급
+        // 3. JWT 토큰 발급 및 저장
         TokenInfo tokenInfo = accessTokenHelper.generateToken(member.getId(), member.getMemberRole());
-
-        // 멤버 정보 갱신 (리프레시 토큰 저장)
         member.refreshMemberToken(tokenInfo.getRefreshToken());
         memberCommandHelper.saveMember(member);
 
+        // 4. 최종 응답 생성
+        return buildSignInResponse(member, tokenInfo);
+    }
+
+    private Member createNewMember(Provider provider, String providerId, String email) {
+        InviteCodeValue inviteCode = createInviteCode(); // 기존 초대코드 생성 로직 재사용
+        Member newMember = memberDomainService.createMember(provider, providerId, email, inviteCode);
+        return memberCommandHelper.saveMember(newMember);
+    }
+
+    private SignInResponse buildSignInResponse(Member member, TokenInfo tokenInfo) {
         return SignInResponse.builder()
                 .memberState(member.getMemberState().name())
                 .grantType(tokenInfo.getGrantType())
