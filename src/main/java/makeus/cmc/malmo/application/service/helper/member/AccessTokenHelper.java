@@ -28,7 +28,10 @@ public class AccessTokenHelper {
         }
     }
 
-    public String getMemberIdFromToken(String token) {
-        return validateTokenPort.getMemberIdFromToken(token);
+    public String getMemberIdFromRefreshToken(String refreshToken) {
+        if (!validateTokenPort.validateToken(refreshToken)) {
+            throw new InvalidRefreshTokenException();
+        }
+        return validateTokenPort.getMemberIdFromToken(refreshToken);
     }
 }

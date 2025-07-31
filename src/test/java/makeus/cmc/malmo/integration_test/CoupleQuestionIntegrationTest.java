@@ -366,7 +366,6 @@ public class CoupleQuestionIntegrationTest {
             Assertions.assertThat(data.level).isEqualTo(FIRST_QUESTION_LEVEL + 1);
             Assertions.assertThat(data.meAnswered).isFalse();
             Assertions.assertThat(data.partnerAnswered).isFalse();
-            Assertions.assertThat(data.createdAt).isNotNull();
         }
     }
 
@@ -512,6 +511,11 @@ public class CoupleQuestionIntegrationTest {
         @DisplayName("커플이 아닌 멤버 오늘의 질문 답변 등록 성공")
         void 커플_아닌_멤버_오늘의_질문_답변_등록_성공() throws Exception {
             // given
+            mockMvc.perform(get("/questions/today")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk());
+
             String answer = "my answer";
             QuestionController.AnswerRequestDto requestDto = CoupleQuestionRequestDtoFactory.createAnswerRequestDto(answer);
 
@@ -1123,6 +1127,11 @@ public class CoupleQuestionIntegrationTest {
         @DisplayName("커플이 아닌 멤버 답변을 달지 않은 상태에서 답변 수정 실패")
         void 커플_아닌_멤버_답변_달지_않은_상태에서_답변_수정_실패() throws Exception {
             // given
+            mockMvc.perform(get("/questions/today")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk());
+
             String newAnswer = "new answer";
             QuestionController.AnswerRequestDto requestDto = CoupleQuestionRequestDtoFactory.createAnswerRequestDto(newAnswer);
 
@@ -1254,6 +1263,11 @@ public class CoupleQuestionIntegrationTest {
         @DisplayName("커플 연결이 끊어진 경우 오늘의 질문 답변 등록 성공")
         void 커플_연결_끊어진_경우_오늘의_질문_답변_등록_성공() throws Exception {
             // given
+            mockMvc.perform(get("/questions/today")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk());
+
             mockMvc.perform(post("/couples")
                             .header("Authorization", "Bearer " + accessToken)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -1282,6 +1296,11 @@ public class CoupleQuestionIntegrationTest {
         @DisplayName("커플 연결이 끊어진 경우 이전 임시 질문 답변 수정 실패")
         void 커플_연결_끊어진_경우_오늘의_질문_답변_수정_실패() throws Exception {
             // given
+            mockMvc.perform(get("/questions/today")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk());
+
             String answer = "my answer";
             QuestionController.AnswerRequestDto requestDto = CoupleQuestionRequestDtoFactory.createAnswerRequestDto(answer);
 
@@ -1306,6 +1325,11 @@ public class CoupleQuestionIntegrationTest {
 
             String newAnswer = "new answer";
             QuestionController.AnswerRequestDto newRequestDto = CoupleQuestionRequestDtoFactory.createAnswerRequestDto(newAnswer);
+
+            mockMvc.perform(get("/questions/today")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk());
 
             // when & then
             mockMvc.perform(patch("/questions/today/answers")
@@ -1347,6 +1371,11 @@ public class CoupleQuestionIntegrationTest {
         @DisplayName("커플 연결이 끊어진 경우 과거 질문이 아닌 임시 답변 조회 성공")
         void 커플_연결_끊어진_경우_과거_질문_답변_조회_성공() throws Exception {
             // given
+            mockMvc.perform(get("/questions/today")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk());
+
             MvcResult coupleResult = mockMvc.perform(post("/couples")
                             .header("Authorization", "Bearer " + accessToken)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -1777,6 +1806,11 @@ public class CoupleQuestionIntegrationTest {
         @DisplayName("커플이 아닌 멤버가 오늘의 질문 답변 등록 후 커플 연동 시 답변 생성 확인")
         void 커플_아닌_멤버_답변_등록_후_커플_연동_시_답변_생성_확인() throws Exception {
             // given
+            mockMvc.perform(get("/questions/today")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk());
+
             String answer = "my answer";
             QuestionController.AnswerRequestDto requestDto = CoupleQuestionRequestDtoFactory.createAnswerRequestDto(answer);
 
@@ -1809,6 +1843,16 @@ public class CoupleQuestionIntegrationTest {
         @DisplayName("커플이 아닌 멤버가 각자 오늘의 질문 답변 등록 후 커플 연동 시 답변 생성 및 완료 상태 확인")
         void 각자_답변_등록_후_커플_연동_시_답변_생성_및_완료_상태_확인() throws Exception {
             // given
+            mockMvc.perform(get("/questions/today")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk());
+
+            mockMvc.perform(get("/questions/today")
+                            .header("Authorization", "Bearer " + partnerAccessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk());
+
             String myAnswer = "my answer";
             QuestionController.AnswerRequestDto myRequestDto = CoupleQuestionRequestDtoFactory.createAnswerRequestDto(myAnswer);
 

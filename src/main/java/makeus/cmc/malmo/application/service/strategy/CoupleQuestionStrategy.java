@@ -42,7 +42,8 @@ public class CoupleQuestionStrategy implements QuestionHandlingStrategy{
             coupleQuestion.expire();
             coupleQuestionCommandHelper.saveCoupleQuestion(coupleQuestion);
 
-            Question nextQuestion = coupleQuestionQueryHelper.getQuestionByLevelOrThrow(maxLevelQuestion.getLevel());
+            // 다음 레벨의 질문을 생성
+            Question nextQuestion = coupleQuestionQueryHelper.getQuestionByLevelOrThrow(maxLevelQuestion.getLevel() + 1);
             CoupleQuestion nextCoupleQuestion = CoupleQuestion.createCoupleQuestion(nextQuestion, coupleId);
 
             return GetQuestionUseCase.GetQuestionResponse.builder()
@@ -146,6 +147,8 @@ public class CoupleQuestionStrategy implements QuestionHandlingStrategy{
         );
 
         memberAnswer.updateAnswer(command.getAnswer());
+
+        coupleQuestionCommandHelper.saveMemberAnswer(memberAnswer);
 
         return AnswerQuestionUseCase.QuestionAnswerResponse.builder()
                 .coupleQuestionId(coupleQuestion.getId())

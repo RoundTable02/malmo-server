@@ -2,21 +2,14 @@ package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.jwt.TokenInfo;
-import makeus.cmc.malmo.application.exception.InvalidRefreshTokenException;
 import makeus.cmc.malmo.application.port.in.RefreshTokenUseCase;
-import makeus.cmc.malmo.application.port.out.GenerateTokenPort;
-import makeus.cmc.malmo.application.port.out.SaveMemberPort;
-import makeus.cmc.malmo.application.port.out.ValidateTokenPort;
 import makeus.cmc.malmo.application.service.helper.member.AccessTokenHelper;
 import makeus.cmc.malmo.application.service.helper.member.MemberCommandHelper;
 import makeus.cmc.malmo.application.service.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.domain.model.member.Member;
-import makeus.cmc.malmo.domain.service.MemberDomainService;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +26,7 @@ public class RefreshTokenService implements RefreshTokenUseCase {
         String refreshToken = command.getRefreshToken();
 
         // Refresh 토큰 일치 및 토큰 유효성 검증
-        String memberId = accessTokenHelper.getMemberIdFromToken(refreshToken);
+        String memberId = accessTokenHelper.getMemberIdFromRefreshToken(refreshToken);
         Member member = memberQueryHelper.getMemberByIdOrThrow(MemberId.of(Long.valueOf(memberId)));
 
         accessTokenHelper.validateRefreshToken(member, refreshToken);
