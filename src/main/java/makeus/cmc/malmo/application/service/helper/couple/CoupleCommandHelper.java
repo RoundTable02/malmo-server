@@ -1,4 +1,4 @@
-package makeus.cmc.malmo.application.service.helper.command;
+package makeus.cmc.malmo.application.service.helper.couple;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.application.port.out.SaveCouplePort;
