@@ -25,7 +25,7 @@ public class CoupleQuestionRepositoryCustomImpl implements CoupleQuestionReposit
         CoupleQuestionEntity entity = queryFactory
                 .selectFrom(coupleQuestionEntity)
                 .where(coupleQuestionEntity.coupleEntityId.value.eq(coupleId))
-                .orderBy(coupleQuestionEntity.question.level.asc())
+                .orderBy(coupleQuestionEntity.question.level.desc())
                 .limit(1)
                 .fetchOne();
 
