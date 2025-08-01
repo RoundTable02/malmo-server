@@ -48,6 +48,10 @@ openai:
     key: ${OPENAI_API_KEY}
 
 security:
+  server:
+    url:
+      production: ${SECURITY_SERVER_URL_PRODUCTION}
+      development: ${SECURITY_SERVER_URL_DEVELOPMENT}
   client:
     url:
       production: ${SECURITY_CLIENT_URL_PRODUCTION}
