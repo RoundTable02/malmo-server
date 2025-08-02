@@ -20,7 +20,6 @@ public class TermsService implements TermsUseCase {
     private final TermsQueryHelper termsQueryHelper;
 
     @Override
-    @CheckValidMember
     public TermsListResponse getTerms() {
         List<TermsDto> termsDtos = termsQueryHelper.getLatestTerms().stream()
                 .map(terms -> {
