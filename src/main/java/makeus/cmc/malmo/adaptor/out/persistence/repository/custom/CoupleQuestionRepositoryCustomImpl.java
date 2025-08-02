@@ -110,10 +110,11 @@ public class CoupleQuestionRepositoryCustomImpl implements CoupleQuestionReposit
                 .select(coupleQuestionEntity.count().intValue())
                 .from(coupleQuestionEntity)
                 .join(coupleMemberEntity)
-                .on(coupleMemberEntity.coupleEntityId.value.eq(coupleQuestionEntity.coupleEntityId.value))
+                .on(coupleMemberEntity.coupleEntityId.value.eq(coupleQuestionEntity.coupleEntityId.value)
+                        .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
                 .where(coupleMemberEntity.memberEntityId.value.eq(memberId)
-                        .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED))
-                        .and(coupleQuestionEntity.coupleQuestionState.eq(CoupleQuestionState.COMPLETED)))
+                        .and(coupleQuestionEntity.coupleQuestionState.eq(CoupleQuestionState.COMPLETED)
+                                .or(coupleQuestionEntity.coupleQuestionState.eq(CoupleQuestionState.OUTDATED))))
                 .fetchOne();
     }
 }

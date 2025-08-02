@@ -400,7 +400,7 @@ public class MemberIntegrationTest {
             );
 
             // 커플인 경우 커플의 연애 시작 날짜(초대코드 주인의 날짜)로 조회
-            assertMemberInfo(responseDto.data, member, partner.getStartLoveDate(), 1, 0);
+            assertMemberInfo(responseDto.data, member, partner.getStartLoveDate(), 0, 0);
         }
 
         @Test
