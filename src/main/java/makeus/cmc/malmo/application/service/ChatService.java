@@ -6,6 +6,7 @@ import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.application.port.in.SendChatMessageUseCase;
 import makeus.cmc.malmo.application.port.out.LoadChatRoomMetadataPort;
 import makeus.cmc.malmo.application.port.out.ValidateMemberPort;
+import makeus.cmc.malmo.application.service.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
@@ -39,6 +40,7 @@ public class ChatService implements SendChatMessageUseCase {
 
     private final ValidateMemberPort validateMemberPort;
     private final PromptDomainService promptDomainService;
+    private final MemberQueryHelper memberQueryHelper;
 
     @Override
     @Transactional
@@ -48,7 +50,7 @@ public class ChatService implements SendChatMessageUseCase {
 
         List<Map<String, String>> messages = new ArrayList<>();
 
-        Member member = memberDomainService.getMemberById(MemberId.of(command.getUserId()));
+        Member member = memberQueryHelper.getMemberByIdOrThrow(MemberId.of(command.getUserId()));
 
         // Member의 닉네임, 디데이, 애착 유형, 상대방 애착 유형 정보 가져오기. (user : [사용자 메타데이터])
         //  D-day 정보는 단기, 중기, 장기로 구분하여 활용
@@ -132,7 +134,7 @@ public class ChatService implements SendChatMessageUseCase {
         //  요약 전 메시지를 바탕으로 현재 단계 지시 프롬프트로 요청 (status를 다시 ALIVE로 변경)
         List<Map<String, String>> messages = new ArrayList<>();
 
-        Member member = memberDomainService.getMemberById(MemberId.of(command.getUserId()));
+        Member member = memberQueryHelper.getMemberByIdOrThrow(MemberId.of(command.getUserId()));
         ChatRoom chatRoom = chatRoomDomainService.getCurrentChatRoomByMemberId(MemberId.of(member.getId()));
         int nowChatRoomLevel = chatRoom.getLevel();
 

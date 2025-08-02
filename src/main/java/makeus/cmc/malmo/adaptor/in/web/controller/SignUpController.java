@@ -68,6 +68,7 @@ public class SignUpController {
 
     @Data
     public static class SignUpRequestDto {
+        @Valid
         private List<TermsDto> terms;
 
         @NotBlank(message = "닉네임은 필수 입력값입니다.")
@@ -75,7 +76,7 @@ public class SignUpController {
         @Pattern(regexp = "^[가-힣a-zA-Z0-9]+$", message = "닉네임은 한글, 영문, 숫자만 사용 가능합니다.")
         private String nickname;
 
-        @NotBlank(message = "시작일은 필수 입력값입니다.")
+        @NotNull(message = "시작일은 필수 입력값입니다.")
         @PastOrPresent(message = "시작일은 오늘 또는 과거 날짜여야 합니다.")
         private LocalDate loveStartDate;
     }

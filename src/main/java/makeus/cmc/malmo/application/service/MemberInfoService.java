@@ -9,13 +9,13 @@ import makeus.cmc.malmo.application.port.in.GetMemberUseCase;
 import makeus.cmc.malmo.application.port.in.GetPartnerUseCase;
 import makeus.cmc.malmo.application.port.out.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.LoadPartnerPort;
+import makeus.cmc.malmo.application.service.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.domain.exception.MemberNotFoundException;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.state.MemberState;
 import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.value.type.Provider;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
@@ -23,14 +23,12 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class MemberInfoService implements GetMemberUseCase, GetPartnerUseCase {
 
-    private final LoadMemberPort loadMemberPort;
-    private final LoadPartnerPort loadPartnerPort;
+    private final MemberQueryHelper memberQueryHelper;
 
     @Override
     @CheckValidMember
     public MemberResponseDto getMemberInfo(MemberInfoCommand command) {
-        MemberInfoDto member = loadMemberPort.loadMemberDetailsById(MemberId.of(command.getUserId()))
-                .orElseThrow(MemberNotFoundException::new);
+        MemberQueryHelper.MemberInfoDto member = memberQueryHelper.getMemberInfoOrThrow(MemberId.of(command.getUserId()));
 
         return MemberResponseDto.builder()
                 .memberState(MemberState.valueOf(member.getMemberState()))
@@ -40,10 +38,7 @@ public class MemberInfoService implements GetMemberUseCase, GetPartnerUseCase {
                 .anxietyRate(member.getAnxietyRate())
                 .loveTypeCategory(member.getLoveTypeCategory())
                 .totalChatRoomCount(member.getTotalChatRoomCount())
-                .totalCoupleQuestionCount(
-                        // 오늘의 질문은 항상 1개 이상 존재 (임시 질문 포함)
-                        member.getTotalCoupleQuestionCount() == 0 ? 1 : member.getTotalCoupleQuestionCount()
-                )
+                .totalCoupleQuestionCount(member.getTotalCoupleQuestionCount())
                 .nickname(member.getNickname())
                 .email(member.getEmail())
                 .build();
@@ -52,8 +47,7 @@ public class MemberInfoService implements GetMemberUseCase, GetPartnerUseCase {
     @Override
     @CheckCoupleMember
     public PartnerMemberResponseDto getPartnerInfo(PartnerInfoCommand command) {
-        LoadPartnerPort.PartnerMemberRepositoryDto partner = loadPartnerPort.loadPartnerByMemberId(command.getUserId())
-                .orElseThrow(MemberNotFoundException::new);
+        MemberQueryHelper.PartnerMemberDto partner = memberQueryHelper.getPartnerInfoOrThrow(MemberId.of(command.getUserId()));
 
         return PartnerMemberResponseDto.builder()
                 .memberState(MemberState.valueOf(partner.getMemberState()))
@@ -62,21 +56,5 @@ public class MemberInfoService implements GetMemberUseCase, GetPartnerUseCase {
                 .anxietyRate(partner.getAnxietyRate())
                 .nickname(partner.getNickname())
                 .build();
-    }
-
-    @Data
-    @Builder
-    public static class MemberInfoDto {
-        private String memberState;
-        private Provider provider;
-        private LocalDate startLoveDate;
-        private LoveTypeCategory loveTypeCategory;
-        private float avoidanceRate;
-        private float anxietyRate;
-        private String nickname;
-        private String email;
-
-        private int totalChatRoomCount;
-        private int totalCoupleQuestionCount;
     }
 }

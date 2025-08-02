@@ -12,6 +12,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.repository.CoupleQuestionReposit
 import makeus.cmc.malmo.adaptor.out.persistence.repository.QuestionRepository;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.TempCoupleQuestionRepository;
 import makeus.cmc.malmo.application.port.out.*;
+import makeus.cmc.malmo.application.service.helper.question.CoupleQuestionQueryHelper;
 import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
 import makeus.cmc.malmo.domain.model.question.Question;
 import makeus.cmc.malmo.domain.model.question.TempCoupleQuestion;
@@ -45,13 +46,13 @@ public class CoupleQuestionPersistenceAdapter
     }
 
     @Override
-    public Optional<CoupleQuestionDomainService.CoupleQuestionDto> getMaxLevelQuestionDto(MemberId memberId, CoupleId coupleId) {
+    public Optional<CoupleQuestionQueryHelper.CoupleQuestionDto> getMaxLevelQuestionDto(MemberId memberId, CoupleId coupleId) {
         return coupleQuestionRepository.findTopLevelQuestionDto(memberId.getValue(), coupleId.getValue())
                 .map(CoupleQuestionRepositoryDto::toDto);
     }
 
     @Override
-    public Optional<CoupleQuestionDomainService.CoupleQuestionDto> getCoupleQuestionDtoByLevel(MemberId memberId, CoupleId coupleId, int level) {
+    public Optional<CoupleQuestionQueryHelper.CoupleQuestionDto> getCoupleQuestionDtoByLevel(MemberId memberId, CoupleId coupleId, int level) {
         return coupleQuestionRepository.findQuestionDtoByLevel(memberId.getValue(), coupleId.getValue(), level)
                 .map(CoupleQuestionRepositoryDto::toDto);
     }
@@ -103,8 +104,8 @@ public class CoupleQuestionPersistenceAdapter
         private boolean partnerAnswered;
         private LocalDateTime createdAt;
 
-        public CoupleQuestionDomainService.CoupleQuestionDto toDto() {
-            return CoupleQuestionDomainService.CoupleQuestionDto.builder()
+        public CoupleQuestionQueryHelper.CoupleQuestionDto toDto() {
+            return CoupleQuestionQueryHelper.CoupleQuestionDto.builder()
                     .id(this.id)
                     .title(this.title)
                     .content(this.content)

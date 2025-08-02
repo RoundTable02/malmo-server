@@ -10,6 +10,9 @@ import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<MemberEntity, Long>, MemberRepositoryCustom {
 
+    @Query("select m from MemberEntity m where m.id = ?1 and m.memberState != 'DELETED'")
+    Optional<MemberEntity> findById(Long memberId);
+
     Optional<MemberEntity> findByProviderAndProviderId(Provider providerJpa, String providerId);
 
     @Query("select m from MemberEntity m where m.inviteCodeEntityValue.value = ?1 and m.memberState = 'ALIVE'")

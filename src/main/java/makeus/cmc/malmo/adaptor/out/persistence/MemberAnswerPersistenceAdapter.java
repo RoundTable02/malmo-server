@@ -9,6 +9,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.mapper.MemberAnswerMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.MemberAnswerRepository;
 import makeus.cmc.malmo.application.port.out.LoadMemberAnswerPort;
 import makeus.cmc.malmo.application.port.out.SaveMemberAnswerPort;
+import makeus.cmc.malmo.application.service.helper.question.CoupleQuestionQueryHelper;
 import makeus.cmc.malmo.domain.model.question.MemberAnswer;
 import makeus.cmc.malmo.domain.service.CoupleQuestionDomainService;
 import makeus.cmc.malmo.domain.value.id.CoupleQuestionId;
@@ -26,7 +27,7 @@ public class MemberAnswerPersistenceAdapter implements LoadMemberAnswerPort, Sav
     private final MemberAnswerMapper memberAnswerMapper;
 
     @Override
-    public Optional<CoupleQuestionDomainService.MemberAnswersDto> getQuestionAnswers(MemberId memberId, CoupleQuestionId coupleQuestionId) {
+    public Optional<CoupleQuestionQueryHelper.MemberAnswersDto> getQuestionAnswers(MemberId memberId, CoupleQuestionId coupleQuestionId) {
         return memberAnswerRepository.findAnswersDtoByCoupleQuestionId(memberId.getValue(), coupleQuestionId.getValue())
                 .map(AnswerRepositoryDto::toDto);
     }
@@ -69,25 +70,25 @@ public class MemberAnswerPersistenceAdapter implements LoadMemberAnswerPort, Sav
         private String partnerAnswer;
         private boolean partnerUpdatable;
 
-        public CoupleQuestionDomainService.MemberAnswersDto toDto() {
-            return CoupleQuestionDomainService.MemberAnswersDto.builder()
+        public CoupleQuestionQueryHelper.MemberAnswersDto toDto() {
+            return CoupleQuestionQueryHelper.MemberAnswersDto.builder()
                     .title(title)
                     .content(content)
                     .level(level)
                     .createdAt(createdAt)
                     .me(
-                        CoupleQuestionDomainService.AnswerDto.builder()
-                            .nickname(nickname)
-                            .answer(answer)
-                            .updatable(updatable)
-                            .build()
+                            CoupleQuestionQueryHelper.AnswerDto.builder()
+                                    .nickname(nickname)
+                                    .answer(answer)
+                                    .updatable(updatable)
+                                    .build()
                     )
                     .partner(
-                        CoupleQuestionDomainService.AnswerDto.builder()
-                            .nickname(partnerNickname)
-                            .answer(partnerAnswer)
-                            .updatable(partnerUpdatable)
-                            .build()
+                            CoupleQuestionQueryHelper.AnswerDto.builder()
+                                    .nickname(partnerNickname)
+                                    .answer(partnerAnswer)
+                                    .updatable(partnerUpdatable)
+                                    .build()
                     )
                     .build();
         }

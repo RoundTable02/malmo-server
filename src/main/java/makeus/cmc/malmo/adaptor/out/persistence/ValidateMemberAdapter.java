@@ -31,7 +31,7 @@ public class ValidateMemberAdapter implements ValidateMemberPort, ValidateInvite
 
 
     @Override
-    public boolean validateDuplicateInviteCode(InviteCodeValue inviteCodeValue) {
+    public boolean isInviteCodeDuplicated(InviteCodeValue inviteCodeValue) {
         return memberRepository.existsByInviteCode(inviteCodeValue.getValue());
     }
 }

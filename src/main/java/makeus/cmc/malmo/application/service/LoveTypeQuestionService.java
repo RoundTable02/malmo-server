@@ -6,7 +6,6 @@ import makeus.cmc.malmo.application.port.in.GetLoveTypeQuestionsUseCase;
 import makeus.cmc.malmo.application.port.out.LoadLoveTypeQuestionDataPort;
 import makeus.cmc.malmo.domain.model.love_type.LoveTypeQuestionData;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;

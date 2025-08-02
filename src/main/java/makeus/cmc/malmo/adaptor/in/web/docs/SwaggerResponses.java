@@ -1,12 +1,10 @@
 package makeus.cmc.malmo.adaptor.in.web.docs;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
-import makeus.cmc.malmo.application.port.in.GetQuestionAnswerUseCase;
 import makeus.cmc.malmo.domain.value.state.ChatRoomState;
 import makeus.cmc.malmo.domain.value.state.MemberState;
+import makeus.cmc.malmo.domain.value.state.TermsDetailsType;
 import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.value.type.Provider;
 import makeus.cmc.malmo.domain.value.type.SenderType;
@@ -446,14 +444,24 @@ public class SwaggerResponses {
         @Schema(description = "약관 제목", example = "서비스 이용약관")
         private String title;
 
-        @Schema(description = "약관 내용", example = "본 약관은...")
-        private String content;
+        @Schema(description = "약관 내용 및 형식")
+        private List<TermsDetailsResponseData> details;
 
         @Schema(description = "필수 동의 여부", example = "true")
         private Boolean isRequired;
 
         @Schema(description = "생성일시", example = "2023-07-03T10:00:00")
         private LocalDateTime createdAt;
+    }
+
+    @Getter
+    @Schema(description = "약관 내용 및 형식 데이터")
+    public static class TermsDetailsResponseData {
+        @Schema(description = "해당 내용의 형식", example = "TITLE")
+        private TermsDetailsType type;
+
+        @Schema(description = "약관 내용", example = "서비스 이용약관에 동의합니다.")
+        private String content;
     }
 
     @Getter
