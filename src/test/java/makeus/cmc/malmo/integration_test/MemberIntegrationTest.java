@@ -368,8 +368,7 @@ public class MemberIntegrationTest {
             );
 
             // 멤버 정보가 정상적으로 조회되었는지 검증
-            // 커플 질문은 연동 이전 필수적으로 하나 존재, 채팅방 개수는 따로 추가 없으면 0개
-            assertMemberInfo(responseDto.data, member, member.getStartLoveDate(), 1, 0);
+            assertMemberInfo(responseDto.data, member, member.getStartLoveDate(), 0, 0);
         }
 
         @Test

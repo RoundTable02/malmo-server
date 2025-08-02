@@ -12,25 +12,15 @@ import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.state.MemberState;
 import makeus.cmc.malmo.domain.value.type.MemberRole;
 import makeus.cmc.malmo.domain.value.type.Provider;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
-@Service
-@RequiredArgsConstructor
+@Component
 public class MemberDomainService {
-
-    private final LoadMemberPort loadMemberPort;
-    private final SaveMemberPort saveMemberPort;
-    private final LoadCouplePort loadCouplePort;
-    private final SaveCouplePort saveCouplePort;
-
-    public Member getMemberById(MemberId memberId) {
-        return loadMemberPort.loadMemberById(MemberId.of(memberId.getValue()))
-                .orElseThrow(MemberNotFoundException::new);
-    }
 
     public Member createMember(Provider provider, String providerId, String email, InviteCodeValue inviteCode) {
         return Member.createMember(
@@ -58,21 +48,4 @@ public class MemberDomainService {
             return "장기연애";
         }
     }
-
-    public Member updateMemberStartLoveDate(Member member, LocalDate startLoveDate) {
-        member.updateStartLoveDate(startLoveDate);
-        loadCouplePort.loadCoupleByMemberId(MemberId.of(member.getId()))
-                .ifPresent(couple -> {
-                            couple.updateStartLoveDate(startLoveDate);
-                            saveCouplePort.saveCouple(couple);
-                        }
-                );
-        return saveMemberPort.saveMember(member);
-    }
-
-    public void deleteMember(Member member) {
-        member.delete();
-        saveMemberPort.saveMember(member);
-    }
-
 }

@@ -3,9 +3,9 @@ package makeus.cmc.malmo.application.service;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.application.port.in.UpdateTermsAgreementUseCase;
-import makeus.cmc.malmo.application.port.out.SaveMemberTermsAgreement;
+import makeus.cmc.malmo.application.service.helper.terms.TermsCommandHelper;
+import makeus.cmc.malmo.application.service.helper.terms.TermsQueryHelper;
 import makeus.cmc.malmo.domain.model.terms.MemberTermsAgreement;
-import makeus.cmc.malmo.domain.service.TermsAgreementDomainService;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.id.TermsId;
 import org.springframework.stereotype.Service;
@@ -19,8 +19,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TermsAgreementService implements UpdateTermsAgreementUseCase {
 
-    private final TermsAgreementDomainService termsAgreementDomainService;
-    private final SaveMemberTermsAgreement saveMemberTermsAgreement;
+    private final TermsQueryHelper termsQueryHelper;
+    private final TermsCommandHelper termsCommandHelper;
 
     @Override
     @Transactional
@@ -31,12 +31,12 @@ public class TermsAgreementService implements UpdateTermsAgreementUseCase {
 
         List<TermsDto> termsResult = new ArrayList<>();
         for (TermsDto terms : termsList) {
-            MemberTermsAgreement memberTermsAgreement = termsAgreementDomainService.getTermsAgreement(
+            MemberTermsAgreement memberTermsAgreement = termsQueryHelper.getTermsAgreementOrThrow(
                     MemberId.of(memberId),
                     TermsId.of(terms.getTermsId())
             );
             memberTermsAgreement.updateAgreement(terms.getIsAgreed());
-            saveMemberTermsAgreement.saveMemberTermsAgreement(memberTermsAgreement);
+            termsCommandHelper.saveMemberTermsAgreement(memberTermsAgreement);
 
             termsResult.add(TermsDto.builder()
                     .termsId(terms.getTermsId())

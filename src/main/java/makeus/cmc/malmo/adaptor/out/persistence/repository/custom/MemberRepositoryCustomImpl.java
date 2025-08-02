@@ -48,9 +48,9 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
     }
 
     @Override
-    public Optional<LoadPartnerPort.PartnerMemberRepositoryDto> findPartnerMember(Long memberId) {
-        LoadPartnerPort.PartnerMemberRepositoryDto dto = queryFactory
-                .select(Projections.constructor(LoadPartnerPort.PartnerMemberRepositoryDto.class,
+    public Optional<MemberPersistenceAdapter.PartnerMemberRepositoryDto> findPartnerMember(Long memberId) {
+        MemberPersistenceAdapter.PartnerMemberRepositoryDto dto = queryFactory
+                .select(Projections.constructor(MemberPersistenceAdapter.PartnerMemberRepositoryDto.class,
                         memberEntity.memberState.stringValue(),
                         memberEntity.loveTypeCategory,
                         memberEntity.avoidanceRate,

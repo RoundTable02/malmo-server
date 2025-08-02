@@ -7,7 +7,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.value.TermsEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.MemberTermsAgreementMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.MemberTermsAgreementRepository;
 import makeus.cmc.malmo.application.port.out.LoadTermsAgreementPort;
-import makeus.cmc.malmo.application.port.out.SaveMemberTermsAgreement;
+import makeus.cmc.malmo.application.port.out.SaveMemberTermsAgreementPort;
 import makeus.cmc.malmo.domain.model.terms.MemberTermsAgreement;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.id.TermsId;
@@ -17,7 +17,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class MemberTermsAgreementPersistenceAdapter implements SaveMemberTermsAgreement, LoadTermsAgreementPort {
+public class MemberTermsAgreementPortPersistenceAdapter implements SaveMemberTermsAgreementPort, LoadTermsAgreementPort {
 
     private final MemberTermsAgreementRepository memberTermsAgreementRepository;
     private final MemberTermsAgreementMapper memberTermsAgreementMapper;

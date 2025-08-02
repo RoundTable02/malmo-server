@@ -5,12 +5,13 @@ import makeus.cmc.malmo.application.port.out.LoadMemberMemoryPort;
 import makeus.cmc.malmo.application.port.out.SaveMemberMemoryPort;
 import makeus.cmc.malmo.domain.model.member.MemberMemory;
 import makeus.cmc.malmo.domain.value.id.MemberId;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Component
 @RequiredArgsConstructor
-@Service
 public class MemberMemoryDomainService {
 
     private final LoadMemberMemoryPort loadMemberMemoryPort;

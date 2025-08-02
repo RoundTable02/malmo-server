@@ -6,30 +6,37 @@ import makeus.cmc.malmo.application.port.in.DeleteMemberUseCase;
 import makeus.cmc.malmo.application.port.in.UpdateMemberUseCase;
 import makeus.cmc.malmo.application.port.in.UpdateStartLoveDateUseCase;
 import makeus.cmc.malmo.application.port.out.SaveMemberPort;
+import makeus.cmc.malmo.application.service.helper.couple.CoupleCommandHelper;
+import makeus.cmc.malmo.application.service.helper.couple.CoupleQueryHelper;
+import makeus.cmc.malmo.application.service.helper.member.MemberCommandHelper;
+import makeus.cmc.malmo.application.service.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.domain.model.member.Member;
-import makeus.cmc.malmo.domain.service.CoupleDomainService;
 import makeus.cmc.malmo.domain.service.MemberDomainService;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+
 @Service
 @RequiredArgsConstructor
 public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLoveDateUseCase, DeleteMemberUseCase {
 
-    private final MemberDomainService memberDomainService;
-    private final CoupleDomainService coupleDomainService;
-    private final SaveMemberPort saveMemberPort;
+    private final CoupleQueryHelper coupleQueryHelper;
+    private final CoupleCommandHelper coupleCommandHelper;
+
+    private final MemberQueryHelper memberQueryHelper;
+    private final MemberCommandHelper memberCommandHelper;
 
     @Override
     @CheckValidMember
     @Transactional
     public UpdateMemberResponseDto updateMember(UpdateMemberCommand command) {
-        Member member = memberDomainService.getMemberById(MemberId.of(command.getMemberId()));
+        Member member = memberQueryHelper.getMemberByIdOrThrow(MemberId.of(command.getMemberId()));
 
         member.updateMemberProfile(command.getNickname());
 
-        Member savedMember = saveMemberPort.saveMember(member);
+        Member savedMember = memberCommandHelper.saveMember(member);
 
         return UpdateMemberResponseDto.builder()
                 .nickname(savedMember.getNickname())
@@ -40,10 +47,20 @@ public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLov
     @CheckValidMember
     @Transactional
     public UpdateStartLoveDateResponse updateStartLoveDate(UpdateStartLoveDateCommand command) {
-        Member member = memberDomainService.getMemberById(MemberId.of(command.getMemberId()));
-        Member updatedMember = memberDomainService.updateMemberStartLoveDate(member, command.getStartLoveDate());
+        Member member = memberQueryHelper.getMemberByIdOrThrow(MemberId.of(command.getMemberId()));
+        LocalDate startLoveDate = command.getStartLoveDate();
+
+        member.updateStartLoveDate(startLoveDate);
+        Member savedMember = memberCommandHelper.saveMember(member);
+
+        coupleQueryHelper.getCoupleByMemberId(MemberId.of(command.getMemberId()))
+                .ifPresent(couple -> {
+                    couple.updateStartLoveDate(startLoveDate);
+                    coupleCommandHelper.saveCouple(couple);
+                });
+
         return UpdateStartLoveDateResponse.builder()
-                .startLoveDate(updatedMember.getStartLoveDate())
+                .startLoveDate(savedMember.getStartLoveDate())
                 .build();
     }
 
@@ -52,13 +69,15 @@ public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLov
     @Transactional
     public void deleteMember(DeleteMemberCommand command) {
         // 멤버 soft delete
-        Member member = memberDomainService.getMemberById(MemberId.of(command.getMemberId()));
-        memberDomainService.deleteMember(member);
+        Member member = memberQueryHelper.getMemberByIdOrThrow(MemberId.of(command.getMemberId()));
+        member.delete();
+        memberCommandHelper.saveMember(member);
 
         // 멤버 채팅방, 커플 soft delete
-        coupleDomainService.deleteCoupleByMemberId(MemberId.of(member.getId()));
-
-        // TODO : 모든 커플 관련 엔티티 조회 로직을 커플의 STATE 조건을 걸도록 변경
-        //  실제 Hard delete 시점에 하위 어그리거트 제거
+        coupleQueryHelper.getCoupleByMemberId(MemberId.of(command.getMemberId()))
+                        .ifPresent(couple -> {
+                            couple.delete();
+                            coupleCommandHelper.saveCouple(couple);
+                        });
     }
 }

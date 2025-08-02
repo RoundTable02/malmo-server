@@ -39,6 +39,10 @@ public class TempCoupleQuestion {
         this.answer = answer;
     }
 
+    public void updateAnswer(String answer) {
+        this.answer = answer;
+    }
+
     public void usedForCoupleQuestion() {
         this.coupleQuestionState = CoupleQuestionState.DELETED;
     }
