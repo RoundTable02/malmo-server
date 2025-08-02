@@ -10,11 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.application.port.out.RequestChatApiPort;
 import makeus.cmc.malmo.application.port.out.SaveChatMessageSummaryPort;
 import makeus.cmc.malmo.application.port.out.SendSseEventPort;
+import makeus.cmc.malmo.application.service.helper.chat_room.ChatRoomCommandHelper;
+import makeus.cmc.malmo.application.service.helper.chat_room.ChatRoomQueryHelper;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
 import makeus.cmc.malmo.domain.model.chat.Prompt;
-import makeus.cmc.malmo.domain.service.ChatMessagesDomainService;
 import makeus.cmc.malmo.domain.service.ChatRoomDomainService;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
@@ -31,12 +32,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ChatStreamProcessor {
 
     private final RequestChatApiPort requestChatApiPort;
-    private final ChatMessagesDomainService chatMessagesDomainService;
     private final ChatRoomDomainService chatRoomDomainService;
     private final SendSseEventPort sendSseEventPort;
     private final SaveChatMessageSummaryPort saveChatMessageSummaryPort;
 
     private final ObjectMapper objectMapper;
+    private final ChatRoomQueryHelper chatRoomQueryHelper;
+    private final ChatRoomCommandHelper chatRoomCommandHelper;
 
     public void requestApiStream(MemberId memberId,
                                  boolean isMemberCoupled,
@@ -78,7 +80,10 @@ public class ChatStreamProcessor {
                         // 현재 단계가 종료된 경우 && 커플 연동이 되지 않은 멤버의 마지막 프롬프트인 경우
                         if (prompt.isLastPromptForNotCoupleMember() && !isMemberCoupled) {
                             // 채팅방 상태를 PAUSED로 변경하고, SSE 이벤트 전송
-                            chatRoomDomainService.updateChatRoomStateToPaused(chatRoomId);
+                            ChatRoom chatRoom = chatRoomQueryHelper.getChatRoomByIdOrThrow(chatRoomId);
+                            chatRoom.updateChatRoomStatePaused();
+                            chatRoomCommandHelper.saveChatRoom(chatRoom);
+
                             sendSseEventPort.sendToMember(
                                     memberId,
                                     new SendSseEventPort.NotificationEvent(
@@ -140,10 +145,13 @@ public class ChatStreamProcessor {
         try {
             CounselingSummary counselingSummary = objectMapper.readValue(summary, CounselingSummary.class);
 
-            chatRoomDomainService.updateChatRoomSummary(chatRoom,
+            chatRoom.updateChatRoomSummary(
                     counselingSummary.totalSummary,
                     counselingSummary.situationKeyword,
-                    counselingSummary.solutionKeyword);
+                    counselingSummary.solutionKeyword
+            );
+
+            chatRoomCommandHelper.saveChatRoom(chatRoom);
         } catch (JsonProcessingException e) {
             // TODO: 에러 처리 로직 추가
             log.error("Failed to parse summary JSON: {}", summary, e);
@@ -170,7 +178,9 @@ public class ChatStreamProcessor {
     }
 
     private void saveAiMessage(MemberId memberId, ChatRoomId chatRoomId, int level, String fullAnswer) {
-        ChatMessage aiTextMessage = chatMessagesDomainService.createAiTextMessage(chatRoomId, level, fullAnswer);
+        ChatMessage aiTextMessage = chatRoomDomainService.createAiMessage(chatRoomId, level, fullAnswer);
+        chatRoomCommandHelper.saveChatMessage(aiTextMessage);
+
         sendSseEventPort.sendToMember(
                 memberId,
                 new SendSseEventPort.NotificationEvent(

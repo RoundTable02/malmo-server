@@ -6,7 +6,10 @@ import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.application.port.in.SendChatMessageUseCase;
 import makeus.cmc.malmo.application.port.out.LoadChatRoomMetadataPort;
 import makeus.cmc.malmo.application.port.out.ValidateMemberPort;
+import makeus.cmc.malmo.application.service.helper.chat_room.ChatRoomCommandHelper;
+import makeus.cmc.malmo.application.service.helper.chat_room.ChatRoomQueryHelper;
 import makeus.cmc.malmo.application.service.helper.member.MemberQueryHelper;
+import makeus.cmc.malmo.domain.exception.ChatRoomNotFoundException;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
@@ -33,7 +36,6 @@ import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.LAST_PROMPT_LE
 public class ChatService implements SendChatMessageUseCase {
 
     private final ChatRoomDomainService chatRoomDomainService;
-    private final ChatMessagesDomainService chatMessagesDomainService;
     private final MemberDomainService memberDomainService;
     private final ChatStreamProcessor chatStreamProcessor;
     private final MemberMemoryDomainService memberMemoryDomainService;
@@ -41,12 +43,14 @@ public class ChatService implements SendChatMessageUseCase {
     private final ValidateMemberPort validateMemberPort;
     private final PromptDomainService promptDomainService;
     private final MemberQueryHelper memberQueryHelper;
+    private final ChatRoomQueryHelper chatRoomQueryHelper;
+    private final ChatRoomCommandHelper chatRoomCommandHelper;
 
     @Override
     @Transactional
     @CheckValidMember
     public SendChatMessageResponse processUserMessage(SendChatMessageCommand command) {
-        chatRoomDomainService.validateChatRoomAlive(MemberId.of(command.getUserId()));
+        chatRoomQueryHelper.validateChatRoomAlive(MemberId.of(command.getUserId()));
 
         List<Map<String, String>> messages = new ArrayList<>();
 
@@ -61,22 +65,24 @@ public class ChatService implements SendChatMessageUseCase {
         );
 
         //  현재 ChatRoom의 LEVEL 불러오기
-        ChatRoom chatRoom = chatRoomDomainService.getCurrentChatRoomByMemberId(MemberId.of(member.getId()));
+        ChatRoom chatRoom = chatRoomQueryHelper.getCurrentChatRoomByMemberIdOrThrow(MemberId.of(member.getId()));
 
         if (chatRoom.getLevel() == LAST_PROMPT_LEVEL) {
-            ChatMessage savedUserTextMessage = chatMessagesDomainService.createUserTextMessage(ChatRoomId.of(chatRoom.getId()), chatRoom.getLevel(), command.getMessage());
+            ChatMessage userMessage = chatRoomDomainService.createUserMessage(ChatRoomId.of(chatRoom.getId()), chatRoom.getLevel(), command.getMessage());
+            ChatMessage saveChatMessage = chatRoomCommandHelper.saveChatMessage(userMessage);
             // 마지막 프롬프트 단계에서는 AI 응답을 고정 값으로 두고, 사용자 메시지만 저장
             chatStreamProcessor.responseLastLevel(MemberId.of(member.getId()),
                     ChatRoomId.of(chatRoom.getId()),
                     LAST_PROMPT_LEVEL,
                     FINAL_MESSAGE);
             return SendChatMessageResponse.builder()
-                    .messageId(savedUserTextMessage.getId())
+                    .messageId(saveChatMessage.getId())
                     .build();
         }
 
         if (chatRoom.getChatRoomState() == ChatRoomState.BEFORE_INIT) {
-            chatRoomDomainService.updateChatRoomStateToAlive(ChatRoomId.of(chatRoom.getId()));
+            chatRoom.updateChatRoomStateAlive();
+            chatRoomCommandHelper.saveChatRoom(chatRoom);
         }
 
         int chatRoomLevel = chatRoom.getLevel();
@@ -88,13 +94,13 @@ public class ChatService implements SendChatMessageUseCase {
         Prompt prompt = promptDomainService.getPromptByLevel(chatRoomLevel);
 
         // 이전 단계 요약본 (system : [이전 단계 요약])
-        List<ChatMessageSummary> previousLevelsSummarizedMessages = chatMessagesDomainService.getSummarizedMessages(ChatRoomId.of(chatRoom.getId()));
+        List<ChatMessageSummary> previousLevelsSummarizedMessages = chatRoomQueryHelper.getSummarizedMessages(ChatRoomId.of(chatRoom.getId()));
         String summarizedMessageContent = getSummarizedMessageContent(previousLevelsSummarizedMessages);
         messages.add(
                 createMessageMap(SenderType.SYSTEM, summarizedMessageContent)
         );
 
-        List<ChatMessage> currentChatRoomMessages = chatMessagesDomainService.getChatRoomLevelMessages(ChatRoomId.of(chatRoom.getId()), chatRoomLevel);
+        List<ChatMessage> currentChatRoomMessages = chatRoomQueryHelper.getChatRoomLevelMessages(ChatRoomId.of(chatRoom.getId()), chatRoomLevel);
 
         // 현재 단계 메시지들
         for (ChatMessage chatMessage : currentChatRoomMessages) {
@@ -107,7 +113,8 @@ public class ChatService implements SendChatMessageUseCase {
         messages.add(
                 createMessageMap(SenderType.USER, command.getMessage())
         );
-        ChatMessage savedUserTextMessage = chatMessagesDomainService.createUserTextMessage(ChatRoomId.of(chatRoom.getId()), chatRoomLevel, command.getMessage());
+        ChatMessage userMessage = chatRoomDomainService.createUserMessage(ChatRoomId.of(chatRoom.getId()), chatRoomLevel, command.getMessage());
+        ChatMessage savedUserMessage = chatRoomCommandHelper.saveChatMessage(userMessage);
 
         boolean isMemberCouple = validateMemberPort.isCoupleMember(MemberId.of(member.getId()));
         // OpenAI API 스트리밍 호출
@@ -120,7 +127,7 @@ public class ChatService implements SendChatMessageUseCase {
                 ChatRoomId.of(chatRoom.getId()));
 
         return SendChatMessageResponse.builder()
-                .messageId(savedUserTextMessage.getId())
+                .messageId(savedUserMessage.getId())
                 .build();
 
     }
@@ -135,7 +142,7 @@ public class ChatService implements SendChatMessageUseCase {
         List<Map<String, String>> messages = new ArrayList<>();
 
         Member member = memberQueryHelper.getMemberByIdOrThrow(MemberId.of(command.getUserId()));
-        ChatRoom chatRoom = chatRoomDomainService.getCurrentChatRoomByMemberId(MemberId.of(member.getId()));
+        ChatRoom chatRoom = chatRoomQueryHelper.getCurrentChatRoomByMemberIdOrThrow(MemberId.of(member.getId()));
         int nowChatRoomLevel = chatRoom.getLevel();
 
         //  시스템 프롬프트 불러오기 (system)
@@ -145,14 +152,15 @@ public class ChatService implements SendChatMessageUseCase {
 
         // 요약 요청 프롬프트 생성
         // 채팅방 상태를 NEED_NEXT_QUESTION로 변경 (다음 단계 질문이 도착하면 다시 ALIVE로 변경)
-        chatRoomDomainService.updateChatRoomStateToNeedNextQuestion(ChatRoomId.of(chatRoom.getId()));
+        chatRoom.upgradeChatRoom();
+        chatRoomCommandHelper.saveChatRoom(chatRoom);
 
         Prompt nextPrompt = promptDomainService.getPromptByLevel(nowChatRoomLevel + 1);
 
         // 현재 단계 메시지들 불러오기
-        List<ChatMessage> currentChatRoomMessages = chatMessagesDomainService.getChatRoomLevelMessages(ChatRoomId.of(chatRoom.getId()), nowChatRoomLevel);
+        List<ChatMessage> currentChatRoomMessages = chatRoomQueryHelper.getChatRoomLevelMessages(ChatRoomId.of(chatRoom.getId()), nowChatRoomLevel);
         // 요약된 이전 단계 메시지들 불러오기 (요약에서는 사용X, 비동기 간섭 방지를 위해 미리 Load)
-        List<ChatMessageSummary> summarizedMessages = chatMessagesDomainService.getSummarizedMessages(ChatRoomId.of(chatRoom.getId()));
+        List<ChatMessageSummary> summarizedMessages = chatRoomQueryHelper.getSummarizedMessages(ChatRoomId.of(chatRoom.getId()));
 
         // 현재 단계 메시지들
         for (ChatMessage chatMessage : currentChatRoomMessages) {
@@ -187,7 +195,8 @@ public class ChatService implements SendChatMessageUseCase {
                 messages,
                 ChatRoomId.of(chatRoom.getId()));
 
-        chatRoomDomainService.updateChatRoomStateToAlive(ChatRoomId.of(chatRoom.getId()));
+        chatRoom.updateChatRoomStateAlive();
+        chatRoomCommandHelper.saveChatRoom(chatRoom);
     }
 
     private String getSummarizedMessageContent(List<ChatMessageSummary> summarizedMessages) {
@@ -216,7 +225,7 @@ public class ChatService implements SendChatMessageUseCase {
         String dDayState = memberDomainService.getMemberDDayState(member.getStartLoveDate());
         metadataBuilder.append("- 연애 기간: ").append(dDayState).append("\n");
 
-        LoadChatRoomMetadataPort.ChatRoomMetadataDto chatRoomMetadataDto = chatRoomDomainService.getChatRoomMetadata(MemberId.of(member.getId()));
+        LoadChatRoomMetadataPort.ChatRoomMetadataDto chatRoomMetadataDto = chatRoomQueryHelper.getChatRoomMetadata(MemberId.of(member.getId()));
         String memberLoveTypeTitle = chatRoomMetadataDto.memberLoveType() != null ? chatRoomMetadataDto.memberLoveType().getTitle() : "알 수 없음";
         metadataBuilder.append("- 사용자 애착 유형: ").append(memberLoveTypeTitle).append("\n");
 

@@ -6,6 +6,8 @@ import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.application.port.in.CoupleLinkUseCase;
 import makeus.cmc.malmo.application.port.in.CoupleUnlinkUseCase;
 import makeus.cmc.malmo.application.port.out.SendSseEventPort;
+import makeus.cmc.malmo.application.service.helper.chat_room.ChatRoomCommandHelper;
+import makeus.cmc.malmo.application.service.helper.chat_room.ChatRoomQueryHelper;
 import makeus.cmc.malmo.application.service.helper.couple.CoupleCommandHelper;
 import makeus.cmc.malmo.application.service.helper.couple.CoupleQueryHelper;
 import makeus.cmc.malmo.application.service.helper.member.MemberQueryHelper;
@@ -39,14 +41,14 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
     private final CoupleCommandHelper coupleCommandHelper;
     private final CoupleDomainService coupleDomainService;
 
-    private final ChatRoomDomainService chatRoomDomainService;
-
     private final CoupleQuestionQueryHelper coupleQuestionQueryHelper;
     private final CoupleQuestionCommandHelper coupleQuestionCommandHelper;
 
     private final MemberQueryHelper memberQueryHelper;
 
     private final SendSseEventPort sendSseEventPort;
+    private final ChatRoomQueryHelper chatRoomQueryHelper;
+    private final ChatRoomCommandHelper chatRoomCommandHelper;
 
     @Override
     @CheckValidMember
@@ -130,9 +132,21 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
                 .orElse(false);
     }
 
-    private void activateCoupleFeatures(MemberId userId, MemberId partnerId, Couple couple) {
-        chatRoomDomainService.updateMemberPausedChatRoomStateToAlive(userId);
-        chatRoomDomainService.updateMemberPausedChatRoomStateToAlive(partnerId);
+    private void activateCoupleFeatures(MemberId memberId, MemberId partnerId, Couple couple) {
+        chatRoomQueryHelper.getPausedChatRoomByMemberId(memberId)
+                        .ifPresent(
+                                chatRoom -> {
+                                    chatRoom.updateChatRoomStateNeedNextQuestion();
+                                    chatRoomCommandHelper.saveChatRoom(chatRoom);
+                                }
+                        );
+        chatRoomQueryHelper.getPausedChatRoomByMemberId(partnerId)
+                .ifPresent(
+                        chatRoom -> {
+                            chatRoom.updateChatRoomStateNeedNextQuestion();
+                            chatRoomCommandHelper.saveChatRoom(chatRoom);
+                        }
+                );
 
         sendSseEventPort.sendToMember(
                 partnerId,
