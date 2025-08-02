@@ -5,6 +5,8 @@ import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.application.port.in.TermsUseCase;
 import makeus.cmc.malmo.application.service.helper.terms.TermsQueryHelper;
 import makeus.cmc.malmo.domain.model.terms.Terms;
+import makeus.cmc.malmo.domain.model.terms.TermsDetails;
+import makeus.cmc.malmo.domain.value.id.TermsId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +23,10 @@ public class TermsService implements TermsUseCase {
     @CheckValidMember
     public TermsListResponse getTerms() {
         List<TermsDto> termsDtos = termsQueryHelper.getLatestTerms().stream()
-                .map(this::toResponseDto)
+                .map(terms -> {
+                    List<TermsDetails> termsDetails = termsQueryHelper.getTermsDetailsByTermsId(TermsId.of(terms.getId()));
+                    return toResponseDto(terms, termsDetails);
+                })
                 .toList();
 
         return TermsListResponse.builder()
@@ -29,16 +34,27 @@ public class TermsService implements TermsUseCase {
                 .build();
     }
 
-    private TermsDto toResponseDto(Terms term) {
+    private TermsDto toResponseDto(Terms term, List<TermsDetails> termsDetails) {
+        List<TermsDetailsDto> details = termsDetails.stream()
+                .map(this::toDetailsDto)
+                .toList();
+
         return TermsDto.builder()
                 .termsType(term.getTermsType())
                 .content(TermsUseCase.TermsContentDto.builder()
                         .termsId(term.getId())
                         .title(term.getTitle())
-                        .content(term.getContent())
+                        .details(details)
                         .version(term.getVersion())
                         .isRequired(term.isRequired())
                         .build())
+                .build();
+    }
+
+    private TermsDetailsDto toDetailsDto(TermsDetails details) {
+        return TermsUseCase.TermsDetailsDto.builder()
+                .type(details.getTermsDetailsType())
+                .content(details.getContent())
                 .build();
     }
 }
