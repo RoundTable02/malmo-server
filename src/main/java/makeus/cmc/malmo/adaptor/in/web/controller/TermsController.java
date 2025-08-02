@@ -32,7 +32,6 @@ public class TermsController {
             description = "약관 목록 조회 성공",
             content = @Content(schema = @Schema(implementation = SwaggerResponses.TermsListSuccessResponse.class))
     )
-    @ApiCommonResponses.RequireAuth
     @GetMapping("/terms")
     public BaseResponse<BaseListResponse<TermsUseCase.TermsDto>> getTerms() {
         List<TermsUseCase.TermsDto> termsList = termsUseCase.getTerms().getTermsList();

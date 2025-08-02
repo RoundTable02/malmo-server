@@ -11,6 +11,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.terms.TermsEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.application.port.out.GenerateTokenPort;
 import makeus.cmc.malmo.domain.value.state.MemberState;
+import makeus.cmc.malmo.domain.value.state.TermsDetailsType;
 import makeus.cmc.malmo.domain.value.type.MemberRole;
 import makeus.cmc.malmo.domain.value.type.Provider;
 import makeus.cmc.malmo.domain.value.type.TermsType;
@@ -107,10 +108,16 @@ public class TermsIntegrationTest {
         public static class TermsContentDto {
             Long termsId;
             String title;
-            String content;
+            List<TermsDetailsDto> details;
             float version;
             @JsonProperty("isRequired")
             boolean isRequired;
+        }
+
+        @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+        public static class TermsDetailsDto {
+            private TermsDetailsType type;
+            private String content;
         }
 
         @Test
@@ -178,24 +185,6 @@ public class TermsIntegrationTest {
                     .containsExactlyInAnyOrder(1.1f, 1.0f, 1.0f, 1.0f);
             Assertions.assertThat(termsList).extracting("content.isRequired")
                     .containsExactlyInAnyOrder(true, true, true, false);
-        }
-
-        // 탈퇴 멤버 약관 조회 실패
-        @Test
-        @DisplayName("탈퇴한 멤버가 약관 조회를 시도할 경우 실패한다")
-        void 탈퇴한_멤버_약관조회_실패() throws Exception {
-            // given
-            mockMvc.perform(delete("/members")
-                            .header("Authorization", "Bearer " + accessToken)
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk());
-            // when
-            mockMvc.perform(get("/terms")
-                            .header("Authorization", "Bearer " + accessToken)
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("message").value(NO_SUCH_MEMBER.getMessage()))
-                    .andExpect(jsonPath("code").value(NO_SUCH_MEMBER.getCode()));
         }
     }
 }

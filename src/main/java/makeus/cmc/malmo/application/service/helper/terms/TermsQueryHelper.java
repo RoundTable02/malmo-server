@@ -6,6 +6,7 @@ import makeus.cmc.malmo.application.port.out.LoadTermsPort;
 import makeus.cmc.malmo.domain.exception.TermsNotFoundException;
 import makeus.cmc.malmo.domain.model.terms.MemberTermsAgreement;
 import makeus.cmc.malmo.domain.model.terms.Terms;
+import makeus.cmc.malmo.domain.model.terms.TermsDetails;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.id.TermsId;
 import org.springframework.stereotype.Component;
@@ -31,5 +32,9 @@ public class TermsQueryHelper {
 
     public List<Terms> getLatestTerms() {
         return loadTermsPort.loadLatestTerms();
+    }
+
+    public List<TermsDetails> getTermsDetailsByTermsId(TermsId termsId) {
+        return loadTermsPort.loadTermsDetailsByTermsId(termsId);
     }
 }
