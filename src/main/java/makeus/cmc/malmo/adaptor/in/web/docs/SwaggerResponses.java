@@ -444,7 +444,7 @@ public class SwaggerResponses {
         @Schema(description = "약관 제목", example = "서비스 이용약관")
         private String title;
 
-        @Schema(description = "약관 내용 및 형식", example = "TITLE, 본 약관은...")
+        @Schema(description = "약관 내용 및 형식")
         private List<TermsDetailsResponseData> details;
 
         @Schema(description = "필수 동의 여부", example = "true")
