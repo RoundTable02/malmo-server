@@ -129,7 +129,7 @@ public class Member {
     }
 
     public void revive() {
-        this.memberState = MemberState.ALIVE;
+        this.memberState = MemberState.BEFORE_ONBOARDING;
         this.deletedAt = null;
     }
 
