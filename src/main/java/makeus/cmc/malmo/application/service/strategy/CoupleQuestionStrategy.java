@@ -45,15 +45,16 @@ public class CoupleQuestionStrategy implements QuestionHandlingStrategy{
             // 다음 레벨의 질문을 생성
             Question nextQuestion = coupleQuestionQueryHelper.getQuestionByLevelOrThrow(maxLevelQuestion.getLevel() + 1);
             CoupleQuestion nextCoupleQuestion = CoupleQuestion.createCoupleQuestion(nextQuestion, coupleId);
+            CoupleQuestion savedCoupleQuestion = coupleQuestionCommandHelper.saveCoupleQuestion(nextCoupleQuestion);
 
             return GetQuestionUseCase.GetQuestionResponse.builder()
-                    .coupleQuestionId(nextCoupleQuestion.getId())
-                    .title(nextCoupleQuestion.getQuestion().getTitle())
-                    .content(nextCoupleQuestion.getQuestion().getContent())
+                    .coupleQuestionId(savedCoupleQuestion.getId())
+                    .title(savedCoupleQuestion.getQuestion().getTitle())
+                    .content(savedCoupleQuestion.getQuestion().getContent())
                     .meAnswered(false)
                     .partnerAnswered(false)
-                    .level(nextCoupleQuestion.getQuestion().getLevel())
-                    .createdAt(nextCoupleQuestion.getCreatedAt())
+                    .level(savedCoupleQuestion.getQuestion().getLevel())
+                    .createdAt(savedCoupleQuestion.getCreatedAt())
                     .build();
         }
 
