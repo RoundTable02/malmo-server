@@ -3,8 +3,6 @@ package makeus.cmc.malmo.domain.service;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.util.Random;

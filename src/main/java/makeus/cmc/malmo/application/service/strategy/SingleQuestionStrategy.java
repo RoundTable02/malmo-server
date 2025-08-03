@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.application.port.in.AnswerQuestionUseCase;
 import makeus.cmc.malmo.application.port.in.GetQuestionAnswerUseCase;
 import makeus.cmc.malmo.application.port.in.GetQuestionUseCase;
-import makeus.cmc.malmo.application.service.helper.couple.CoupleQueryHelper;
 import makeus.cmc.malmo.application.service.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.application.service.helper.question.CoupleQuestionCommandHelper;
 import makeus.cmc.malmo.application.service.helper.question.CoupleQuestionQueryHelper;

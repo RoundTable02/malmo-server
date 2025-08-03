@@ -3,14 +3,12 @@ package makeus.cmc.malmo.application.service;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.application.port.in.UpdateMemberLoveTypeUseCase;
-import makeus.cmc.malmo.application.port.out.SaveMemberPort;
 import makeus.cmc.malmo.application.service.helper.love_type.LoveTypeQueryHelper;
 import makeus.cmc.malmo.application.service.helper.member.MemberCommandHelper;
 import makeus.cmc.malmo.application.service.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.service.LoveTypeCalculator;
 import makeus.cmc.malmo.domain.value.id.MemberId;
-import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
