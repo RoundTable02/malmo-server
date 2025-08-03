@@ -2,7 +2,6 @@ package makeus.cmc.malmo.integration_test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
-import makeus.cmc.malmo.adaptor.out.jwt.TokenInfo;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatMessageEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatMessageSummaryEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatRoomEntity;

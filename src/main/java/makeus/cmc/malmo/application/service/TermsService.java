@@ -1,7 +1,6 @@
 package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.application.port.in.TermsUseCase;
 import makeus.cmc.malmo.application.service.helper.terms.TermsQueryHelper;
 import makeus.cmc.malmo.domain.model.terms.Terms;

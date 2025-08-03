@@ -1,6 +1,5 @@
 package makeus.cmc.malmo.application.service.helper.member;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;

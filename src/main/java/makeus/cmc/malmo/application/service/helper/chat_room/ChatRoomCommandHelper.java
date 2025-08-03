@@ -4,11 +4,9 @@ import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.application.port.out.DeleteChatRoomPort;
 import makeus.cmc.malmo.application.port.out.SaveChatMessagePort;
 import makeus.cmc.malmo.application.port.out.SaveChatRoomPort;
-import makeus.cmc.malmo.domain.exception.ChatRoomNotFoundException;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
-import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
