@@ -1,4 +1,4 @@
-package makeus.cmc.malmo.application.service;
+package makeus.cmc.malmo.application.service.chat;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;

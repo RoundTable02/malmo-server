@@ -8,6 +8,7 @@ import makeus.cmc.malmo.domain.exception.NotValidChatRoomException;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
+import makeus.cmc.malmo.domain.model.member.MemberMemory;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,8 @@ public class ChatRoomQueryHelper {
 
     private final LoadChatRoomPort loadChatRoomPort;
     private final LoadChatRoomMetadataPort loadChatRoomMetadataPort;
+
+    private final LoadMemberMemoryPort loadMemberMemoryPort;
 
     private final LoadMessagesPort loadMessagesPort;
     private final LoadSummarizedMessages loadSummarizedMessages;
@@ -104,5 +107,9 @@ public class ChatRoomQueryHelper {
 
     public List<ChatMessage> getChatRoomLevelMessages(ChatRoomId chatRoomId, int level) {
         return loadMessagesPort.loadChatRoomMessagesByLevel(chatRoomId, level);
+    }
+
+    public List<MemberMemory> getMemberMemoriesByMemberId(MemberId memberId) {
+        return loadMemberMemoryPort.loadMemberMemoryByMemberId(memberId);
     }
 }

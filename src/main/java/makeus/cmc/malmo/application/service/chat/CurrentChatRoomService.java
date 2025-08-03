@@ -1,4 +1,4 @@
-package makeus.cmc.malmo.application.service;
+package makeus.cmc.malmo.application.service.chat;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,20 +11,17 @@ import makeus.cmc.malmo.application.service.helper.chat_room.ChatRoomCommandHelp
 import makeus.cmc.malmo.application.service.helper.chat_room.ChatRoomQueryHelper;
 import makeus.cmc.malmo.application.service.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
-import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
 import makeus.cmc.malmo.domain.model.chat.Prompt;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.service.ChatRoomDomainService;
-import makeus.cmc.malmo.domain.service.PromptDomainService;
+import makeus.cmc.malmo.application.service.helper.chat_room.PromptQueryHelper;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
-import makeus.cmc.malmo.domain.value.type.SenderType;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -38,8 +35,9 @@ public class CurrentChatRoomService
         implements GetCurrentChatRoomUseCase, GetCurrentChatRoomMessagesUseCase, CompleteChatRoomUseCase {
 
     private final ChatRoomDomainService chatRoomDomainService;
-    private final ChatStreamProcessor chatStreamProcessor;
-    private final PromptDomainService promptDomainService;
+    private final PromptQueryHelper promptQueryHelper;
+    private final ChatPromptBuilder chatPromptBuilder;
+    private final ChatProcessor chatProcessor;
     private final ChatRoomQueryHelper chatRoomQueryHelper;
     private final MemberQueryHelper memberQueryHelper;
     private final ChatRoomCommandHelper chatRoomCommandHelper;
@@ -51,6 +49,7 @@ public class CurrentChatRoomService
         // 현재 채팅방 가져오기
         ChatRoom currentChatRoom = chatRoomQueryHelper.getCurrentChatRoomByMemberId(MemberId.of(command.getUserId()))
                 .orElseGet(() -> {
+                    // 현재 채팅방이 없으면 새로 생성
                     Member member = memberQueryHelper.getMemberByIdOrThrow(MemberId.of(command.getUserId()));
                     ChatRoom chatRoom = chatRoomDomainService.createChatRoom(MemberId.of(command.getUserId()));
                     ChatRoom savedChatRoom = chatRoomCommandHelper.saveChatRoom(chatRoom);
@@ -99,43 +98,26 @@ public class CurrentChatRoomService
     public CompleteChatRoomResponse completeChatRoom(CompleteChatRoomCommand command) {
         ChatRoom chatRoom = chatRoomQueryHelper.getCurrentChatRoomByMemberIdOrThrow(MemberId.of(command.getUserId()));
         chatRoom.complete();
+
+        // 완료된 채팅방의 요약을 요청
+        Prompt systemPrompt = promptQueryHelper.getSystemPrompt();
+        Prompt totalSummaryPrompt = promptQueryHelper.getTotalSummaryPrompt();
+
+        List<Map<String, String>> messages = chatPromptBuilder.createForTotalSummary(chatRoom);
+
+        ChatProcessor.CounselingSummary summary = chatProcessor.requestTotalSummary(messages, systemPrompt, totalSummaryPrompt);
+
+        // 채팅방의 요약을 저장
+        chatRoom.updateChatRoomSummary(
+                summary.getTotalSummary(),
+                summary.getSituationKeyword(),
+                summary.getSolutionKeyword()
+        );
         chatRoomCommandHelper.saveChatRoom(chatRoom);
-
-        Prompt systemPrompt = promptDomainService.getSystemPrompt();
-        Prompt totalSummaryPrompt = promptDomainService.getTotalSummaryPrompt();
-        List<ChatMessageSummary> summarizedMessages = chatRoomQueryHelper.getSummarizedMessages(ChatRoomId.of(chatRoom.getId()));
-
-        StringBuilder sb = new StringBuilder();
-        List<Map<String, String>> messages = new ArrayList<>();
-
-        if (summarizedMessages.isEmpty()) {
-            List<ChatMessage> lastLevelMessages = chatRoomQueryHelper.getChatRoomLevelMessages(ChatRoomId.of(chatRoom.getId()), chatRoom.getLevel());
-            for (ChatMessage lastLevelMessage : lastLevelMessages) {
-                messages.add(
-                        Map.of(
-                                "role", lastLevelMessage.getSenderType().getApiName(),
-                                "content", lastLevelMessage.getContent()
-                        )
-                );
-            }
-        }
-        else {
-            for (ChatMessageSummary summary : summarizedMessages) {
-                sb.append("[ " + summary.getLevel() + " 단계 요약]\n");
-                sb.append(summary.getContent()).append("\n");
-            }
-            messages.add(
-                    Map.of(
-                            "role", SenderType.SYSTEM.getApiName(),
-                            "content", sb.toString()
-                    )
-            );
-        }
-
-        chatStreamProcessor.requestTotalSummary(chatRoom, systemPrompt, totalSummaryPrompt, messages);
 
         return CompleteChatRoomResponse.builder()
                 .chatRoomId(chatRoom.getId())
                 .build();
     }
 }
+
