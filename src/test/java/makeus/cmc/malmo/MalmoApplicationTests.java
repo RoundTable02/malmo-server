@@ -10,17 +10,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
-@ActiveProfiles("dev")
+@ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class MalmoApplicationTests {
 
-	@Autowired
-	private GenerateTokenPort generateTokenPort;
-
 	@Test
 	void contextLoads() {
-		TokenInfo tokenInfo = generateTokenPort.generateToken(1L, MemberRole.MEMBER);
-		System.out.println("Access Token: " + tokenInfo.getAccessToken());
 	}
 
 }

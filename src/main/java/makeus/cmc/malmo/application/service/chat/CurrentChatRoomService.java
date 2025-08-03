@@ -54,7 +54,7 @@ public class CurrentChatRoomService
                     ChatRoom chatRoom = chatRoomDomainService.createChatRoom(MemberId.of(command.getUserId()));
                     ChatRoom savedChatRoom = chatRoomCommandHelper.saveChatRoom(chatRoom);
                     ChatMessage initMessage = chatRoomDomainService.createAiMessage(
-                            ChatRoomId.of(chatRoom.getId()),
+                            ChatRoomId.of(savedChatRoom.getId()),
                             INIT_CHATROOM_LEVEL,
                             member.getNickname() + INIT_CHAT_MESSAGE);
                     chatRoomCommandHelper.saveChatMessage(initMessage);
