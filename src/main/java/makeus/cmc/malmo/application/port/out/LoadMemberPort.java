@@ -1,6 +1,5 @@
 package makeus.cmc.malmo.application.port.out;
 
-import makeus.cmc.malmo.application.service.MemberInfoService;
 import makeus.cmc.malmo.application.service.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;

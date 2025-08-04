@@ -1,17 +1,16 @@
-package makeus.cmc.malmo.domain.service;
+package makeus.cmc.malmo.application.service.helper.chat_room;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.application.port.out.LoadPromptPort;
 import makeus.cmc.malmo.domain.exception.PromptNotFoundException;
 import makeus.cmc.malmo.domain.model.chat.Prompt;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.*;
 
 @Component
 @RequiredArgsConstructor
-public class PromptDomainService {
+public class PromptQueryHelper {
     private final LoadPromptPort loadPromptPort;
 
     public Prompt getPromptByLevel(int level) {

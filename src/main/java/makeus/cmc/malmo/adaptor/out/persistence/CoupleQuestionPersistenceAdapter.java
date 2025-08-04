@@ -16,7 +16,6 @@ import makeus.cmc.malmo.application.service.helper.question.CoupleQuestionQueryH
 import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
 import makeus.cmc.malmo.domain.model.question.Question;
 import makeus.cmc.malmo.domain.model.question.TempCoupleQuestion;
-import makeus.cmc.malmo.domain.service.CoupleQuestionDomainService;
 import makeus.cmc.malmo.domain.value.id.CoupleId;
 import makeus.cmc.malmo.domain.value.id.CoupleQuestionId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
