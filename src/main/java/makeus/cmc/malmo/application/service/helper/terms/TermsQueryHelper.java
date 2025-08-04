@@ -1,8 +1,8 @@
 package makeus.cmc.malmo.application.service.helper.terms;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.application.port.out.LoadTermsAgreementPort;
-import makeus.cmc.malmo.application.port.out.LoadTermsPort;
+import makeus.cmc.malmo.application.port.out.terms.LoadTermsAgreementPort;
+import makeus.cmc.malmo.application.port.out.terms.LoadTermsPort;
 import makeus.cmc.malmo.domain.exception.TermsNotFoundException;
 import makeus.cmc.malmo.domain.model.terms.MemberTermsAgreement;
 import makeus.cmc.malmo.domain.model.terms.Terms;

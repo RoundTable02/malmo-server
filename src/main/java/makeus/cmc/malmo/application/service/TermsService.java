@@ -1,7 +1,7 @@
 package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.application.port.in.TermsUseCase;
+import makeus.cmc.malmo.application.port.in.terms.TermsUseCase;
 import makeus.cmc.malmo.application.service.helper.terms.TermsQueryHelper;
 import makeus.cmc.malmo.domain.model.terms.Terms;
 import makeus.cmc.malmo.domain.model.terms.TermsDetails;

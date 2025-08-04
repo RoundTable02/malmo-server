@@ -1,7 +1,7 @@
 package makeus.cmc.malmo.application.service.chat;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.application.port.out.LoadChatRoomMetadataPort;
+import makeus.cmc.malmo.application.port.out.chat.LoadChatRoomMetadataPort;
 import makeus.cmc.malmo.application.service.helper.chat_room.ChatRoomQueryHelper;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;

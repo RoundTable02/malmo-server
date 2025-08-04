@@ -1,9 +1,9 @@
 package makeus.cmc.malmo.application.service.helper.chat_room;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.application.port.out.DeleteChatRoomPort;
-import makeus.cmc.malmo.application.port.out.SaveChatMessagePort;
-import makeus.cmc.malmo.application.port.out.SaveChatRoomPort;
+import makeus.cmc.malmo.application.port.out.chat.DeleteChatRoomPort;
+import makeus.cmc.malmo.application.port.out.chat.SaveChatMessagePort;
+import makeus.cmc.malmo.application.port.out.chat.SaveChatRoomPort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;

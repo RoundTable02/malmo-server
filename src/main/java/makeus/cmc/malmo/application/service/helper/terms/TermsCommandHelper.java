@@ -1,7 +1,7 @@
 package makeus.cmc.malmo.application.service.helper.terms;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.application.port.out.SaveMemberTermsAgreementPort;
+import makeus.cmc.malmo.application.port.out.terms.SaveMemberTermsAgreementPort;
 import makeus.cmc.malmo.domain.model.terms.MemberTermsAgreement;
 import org.springframework.stereotype.Component;
 

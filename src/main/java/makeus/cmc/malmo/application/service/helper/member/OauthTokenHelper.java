@@ -1,16 +1,16 @@
 package makeus.cmc.malmo.application.service.helper.member;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.application.port.out.AppleIdTokenPort;
-import makeus.cmc.malmo.application.port.out.FetchFromOAuthProviderPort;
-import makeus.cmc.malmo.application.port.out.kakaoIdTokenPort;
+import makeus.cmc.malmo.application.port.out.member.AppleIdTokenPort;
+import makeus.cmc.malmo.application.port.out.member.FetchFromOAuthProviderPort;
+import makeus.cmc.malmo.application.port.out.member.KakaoIdTokenPort;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class OauthTokenHelper {
 
-    private final kakaoIdTokenPort kakaoIdTokenPort;
+    private final KakaoIdTokenPort kakaoIdTokenPort;
     private final AppleIdTokenPort appleIdTokenPort;
 
     private final FetchFromOAuthProviderPort fetchFromOAuthProviderPort;

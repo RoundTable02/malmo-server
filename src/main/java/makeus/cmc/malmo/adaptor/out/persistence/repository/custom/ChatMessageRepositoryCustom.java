@@ -1,6 +1,6 @@
 package makeus.cmc.malmo.adaptor.out.persistence.repository.custom;
 
-import makeus.cmc.malmo.application.port.out.LoadMessagesPort;
+import makeus.cmc.malmo.application.port.out.chat.LoadMessagesPort;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

@@ -5,7 +5,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.terms.TermsDetailsEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.TermsMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.TermsDetailsRepository;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.TermsRepository;
-import makeus.cmc.malmo.application.port.out.LoadTermsPort;
+import makeus.cmc.malmo.application.port.out.terms.LoadTermsPort;
 import makeus.cmc.malmo.domain.model.terms.Terms;
 import makeus.cmc.malmo.domain.model.terms.TermsDetails;
 import makeus.cmc.malmo.domain.value.id.TermsId;

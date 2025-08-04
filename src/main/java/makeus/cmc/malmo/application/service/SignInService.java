@@ -2,7 +2,7 @@ package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.jwt.TokenInfo;
-import makeus.cmc.malmo.application.port.in.SignInUseCase;
+import makeus.cmc.malmo.application.port.in.member.SignInUseCase;
 import makeus.cmc.malmo.application.service.helper.member.AccessTokenHelper;
 import makeus.cmc.malmo.application.service.helper.member.MemberCommandHelper;
 import makeus.cmc.malmo.application.service.helper.member.MemberQueryHelper;

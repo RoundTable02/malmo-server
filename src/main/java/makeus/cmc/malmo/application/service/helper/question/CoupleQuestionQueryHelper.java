@@ -1,10 +1,10 @@
 package makeus.cmc.malmo.application.service.helper.question;
 
 import lombok.*;
-import makeus.cmc.malmo.application.port.out.LoadCoupleQuestionPort;
-import makeus.cmc.malmo.application.port.out.LoadMemberAnswerPort;
-import makeus.cmc.malmo.application.port.out.LoadQuestionPort;
-import makeus.cmc.malmo.application.port.out.LoadTempCoupleQuestionPort;
+import makeus.cmc.malmo.application.port.out.question.LoadCoupleQuestionPort;
+import makeus.cmc.malmo.application.port.out.question.LoadMemberAnswerPort;
+import makeus.cmc.malmo.application.port.out.question.LoadQuestionPort;
+import makeus.cmc.malmo.application.port.out.question.LoadTempCoupleQuestionPort;
 import makeus.cmc.malmo.domain.exception.CoupleQuestionNotFoundException;
 import makeus.cmc.malmo.domain.exception.MemberAccessDeniedException;
 import makeus.cmc.malmo.domain.exception.QuestionNotFoundException;

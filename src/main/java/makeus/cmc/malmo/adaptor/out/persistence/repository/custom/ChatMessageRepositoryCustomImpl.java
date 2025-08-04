@@ -3,7 +3,7 @@ package makeus.cmc.malmo.adaptor.out.persistence.repository.custom;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.application.port.out.LoadMessagesPort;
+import makeus.cmc.malmo.application.port.out.chat.LoadMessagesPort;
 import makeus.cmc.malmo.domain.value.state.SavedChatMessageState;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;

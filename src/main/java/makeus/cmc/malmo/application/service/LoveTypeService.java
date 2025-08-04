@@ -2,7 +2,7 @@ package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
-import makeus.cmc.malmo.application.port.in.UpdateMemberLoveTypeUseCase;
+import makeus.cmc.malmo.application.port.in.member.UpdateMemberLoveTypeUseCase;
 import makeus.cmc.malmo.application.service.helper.love_type.LoveTypeQueryHelper;
 import makeus.cmc.malmo.application.service.helper.member.MemberCommandHelper;
 import makeus.cmc.malmo.application.service.helper.member.MemberQueryHelper;

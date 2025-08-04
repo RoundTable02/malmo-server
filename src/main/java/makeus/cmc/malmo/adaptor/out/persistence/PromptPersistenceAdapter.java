@@ -3,7 +3,7 @@ package makeus.cmc.malmo.adaptor.out.persistence;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.PromptMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.PromptRepository;
-import makeus.cmc.malmo.application.port.out.LoadPromptPort;
+import makeus.cmc.malmo.application.port.out.chat.LoadPromptPort;
 import makeus.cmc.malmo.domain.model.chat.Prompt;
 import org.springframework.stereotype.Component;
 

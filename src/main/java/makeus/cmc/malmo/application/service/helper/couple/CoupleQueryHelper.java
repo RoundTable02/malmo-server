@@ -1,7 +1,7 @@
 package makeus.cmc.malmo.application.service.helper.couple;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.application.port.out.LoadCouplePort;
+import makeus.cmc.malmo.application.port.out.couple.LoadCouplePort;
 import makeus.cmc.malmo.domain.exception.NotCoupleMemberException;
 import makeus.cmc.malmo.domain.model.couple.Couple;
 import makeus.cmc.malmo.domain.value.id.CoupleId;

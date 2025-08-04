@@ -1,9 +1,9 @@
 package makeus.cmc.malmo.application.service.strategy;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.application.port.in.AnswerQuestionUseCase;
-import makeus.cmc.malmo.application.port.in.GetQuestionAnswerUseCase;
-import makeus.cmc.malmo.application.port.in.GetQuestionUseCase;
+import makeus.cmc.malmo.application.port.in.question.AnswerQuestionUseCase;
+import makeus.cmc.malmo.application.port.in.question.GetQuestionAnswerUseCase;
+import makeus.cmc.malmo.application.port.in.question.GetQuestionUseCase;
 import makeus.cmc.malmo.application.service.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.application.service.helper.question.CoupleQuestionCommandHelper;
 import makeus.cmc.malmo.application.service.helper.question.CoupleQuestionQueryHelper;
@@ -11,7 +11,6 @@ import makeus.cmc.malmo.domain.exception.MemberAccessDeniedException;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.question.Question;
 import makeus.cmc.malmo.domain.model.question.TempCoupleQuestion;
-import makeus.cmc.malmo.domain.service.CoupleQuestionDomainService;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.util.GlobalConstants;
 import org.springframework.stereotype.Component;

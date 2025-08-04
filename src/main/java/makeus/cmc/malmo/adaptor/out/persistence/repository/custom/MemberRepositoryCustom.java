@@ -2,7 +2,7 @@ package makeus.cmc.malmo.adaptor.out.persistence.repository.custom;
 
 import makeus.cmc.malmo.adaptor.out.persistence.MemberPersistenceAdapter;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
-import makeus.cmc.malmo.application.port.out.LoadChatRoomMetadataPort;
+import makeus.cmc.malmo.application.port.out.chat.LoadChatRoomMetadataPort;
 
 import java.util.Optional;
 

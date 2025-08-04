@@ -3,7 +3,7 @@ package makeus.cmc.malmo.application.service.helper.member;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.application.port.out.*;
+import makeus.cmc.malmo.application.port.out.member.*;
 import makeus.cmc.malmo.domain.exception.*;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;

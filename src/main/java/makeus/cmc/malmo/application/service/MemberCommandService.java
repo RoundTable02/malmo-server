@@ -2,9 +2,9 @@ package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
-import makeus.cmc.malmo.application.port.in.DeleteMemberUseCase;
-import makeus.cmc.malmo.application.port.in.UpdateMemberUseCase;
-import makeus.cmc.malmo.application.port.in.UpdateStartLoveDateUseCase;
+import makeus.cmc.malmo.application.port.in.member.DeleteMemberUseCase;
+import makeus.cmc.malmo.application.port.in.member.UpdateMemberUseCase;
+import makeus.cmc.malmo.application.port.in.member.UpdateStartLoveDateUseCase;
 import makeus.cmc.malmo.application.service.helper.couple.CoupleCommandHelper;
 import makeus.cmc.malmo.application.service.helper.couple.CoupleQueryHelper;
 import makeus.cmc.malmo.application.service.helper.member.MemberCommandHelper;
