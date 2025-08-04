@@ -9,7 +9,8 @@ import makeus.cmc.malmo.domain.value.state.ChatRoomState;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.INIT_CHATROOM_LEVEL;
+import static makeus.cmc.malmo.util.GlobalConstants.CREATING_SUMMARY_LINE;
+import static makeus.cmc.malmo.util.GlobalConstants.INIT_CHATROOM_LEVEL;
 
 @Getter
 @Builder(access = AccessLevel.PRIVATE)
@@ -86,8 +87,6 @@ public class ChatRoom {
     public boolean isChatRoomValid() {
         return this.chatRoomState == ChatRoomState.ALIVE || this.chatRoomState == ChatRoomState.BEFORE_INIT;
     }
-
-    public static final String CREATING_SUMMARY_LINE = "하루가 지나 채팅방이 만료되었습니다. 요약 생성 중...";
 
     public void expire() {
         this.chatRoomState = ChatRoomState.COMPLETED;

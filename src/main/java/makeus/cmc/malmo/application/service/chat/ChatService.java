@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.FINAL_MESSAGE;
-import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.LAST_PROMPT_LEVEL;
+import static makeus.cmc.malmo.util.GlobalConstants.FINAL_MESSAGE;
+import static makeus.cmc.malmo.util.GlobalConstants.LAST_PROMPT_LEVEL;
 
 @Slf4j
 @Service

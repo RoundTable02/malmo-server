@@ -30,7 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 
 import static makeus.cmc.malmo.application.port.out.SendSseEventPort.SseEventType.COUPLE_CONNECTED;
-import static makeus.cmc.malmo.domain.service.CoupleQuestionDomainService.FIRST_QUESTION_LEVEL;
+import static makeus.cmc.malmo.util.GlobalConstants.FIRST_QUESTION_LEVEL;
 
 @Service
 @RequiredArgsConstructor

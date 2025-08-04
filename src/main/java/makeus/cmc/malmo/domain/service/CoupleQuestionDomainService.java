@@ -8,8 +8,6 @@ import java.time.LocalDateTime;
 @Component
 public class CoupleQuestionDomainService {
 
-    public static final int FIRST_QUESTION_LEVEL = 1;
-
     public boolean needsNextQuestion(LocalDateTime bothAnsweredAt) {
         if (bothAnsweredAt == null) {
             return false;

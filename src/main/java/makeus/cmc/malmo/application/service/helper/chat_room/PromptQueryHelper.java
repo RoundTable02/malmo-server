@@ -6,7 +6,7 @@ import makeus.cmc.malmo.domain.exception.PromptNotFoundException;
 import makeus.cmc.malmo.domain.model.chat.Prompt;
 import org.springframework.stereotype.Component;
 
-import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.*;
+import static makeus.cmc.malmo.util.GlobalConstants.*;
 
 @Component
 @RequiredArgsConstructor

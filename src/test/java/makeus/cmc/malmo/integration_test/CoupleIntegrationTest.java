@@ -30,8 +30,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.*;
-import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.INIT_CHATROOM_LEVEL;
-import static makeus.cmc.malmo.domain.service.CoupleQuestionDomainService.FIRST_QUESTION_LEVEL;
+import static makeus.cmc.malmo.util.GlobalConstants.FIRST_QUESTION_LEVEL;
+import static makeus.cmc.malmo.util.GlobalConstants.INIT_CHATROOM_LEVEL;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;

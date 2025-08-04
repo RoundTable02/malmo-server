@@ -18,14 +18,13 @@ import makeus.cmc.malmo.domain.value.type.MemberRole;
 import makeus.cmc.malmo.domain.value.type.Provider;
 import makeus.cmc.malmo.domain.value.type.SenderType;
 import makeus.cmc.malmo.integration_test.dto_factory.ChatRoomRequestDtoFactory;
-import makeus.cmc.malmo.util.JosaUtils;
+import makeus.cmc.malmo.util.GlobalConstants;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -41,7 +40,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.*;
-import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.*;
+import static makeus.cmc.malmo.util.GlobalConstants.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
@@ -186,7 +185,7 @@ public class ChatRoomIntegrationTest {
                     .andExpect(jsonPath("$.data.chatRoomState").value(ChatRoomState.BEFORE_INIT.name()));
 
             Assertions.assertThat(chatRoom.getChatRoomState()).isEqualTo(ChatRoomState.COMPLETED);
-            Assertions.assertThat(chatRoom.getTotalSummary()).isEqualTo(ChatRoom.CREATING_SUMMARY_LINE);
+            Assertions.assertThat(chatRoom.getTotalSummary()).isEqualTo(GlobalConstants.CREATING_SUMMARY_LINE);
 
             ChatRoomEntity newChatRoom = em.createQuery("SELECT c FROM ChatRoomEntity c WHERE c.memberEntityId.value = :memberId " +
                             "AND c.chatRoomState = :chatRoomState", ChatRoomEntity.class)

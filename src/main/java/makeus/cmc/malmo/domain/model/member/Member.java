@@ -12,8 +12,6 @@ import makeus.cmc.malmo.domain.value.type.Provider;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import static makeus.cmc.malmo.domain.model.member.MemberConst.REVIVABLE_DAYS_LIMIT;
-
 @Getter
 @Builder(access = AccessLevel.PRIVATE)
 public class Member {
