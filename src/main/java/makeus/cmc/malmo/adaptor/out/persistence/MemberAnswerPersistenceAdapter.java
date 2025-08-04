@@ -9,7 +9,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.mapper.MemberAnswerMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.MemberAnswerRepository;
 import makeus.cmc.malmo.application.port.out.question.LoadMemberAnswerPort;
 import makeus.cmc.malmo.application.port.out.question.SaveMemberAnswerPort;
-import makeus.cmc.malmo.application.service.helper.question.CoupleQuestionQueryHelper;
+import makeus.cmc.malmo.application.helper.question.CoupleQuestionQueryHelper;
 import makeus.cmc.malmo.domain.model.question.MemberAnswer;
 import makeus.cmc.malmo.domain.value.id.CoupleQuestionId;
 import makeus.cmc.malmo.domain.value.id.MemberId;

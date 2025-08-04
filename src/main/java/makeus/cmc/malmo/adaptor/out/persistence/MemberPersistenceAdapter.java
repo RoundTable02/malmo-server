@@ -13,7 +13,7 @@ import makeus.cmc.malmo.application.port.out.member.LoadInviteCodePort;
 import makeus.cmc.malmo.application.port.out.member.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.member.LoadPartnerPort;
 import makeus.cmc.malmo.application.port.out.member.SaveMemberPort;
-import makeus.cmc.malmo.application.service.helper.member.MemberQueryHelper;
+import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
 import makeus.cmc.malmo.domain.value.id.MemberId;

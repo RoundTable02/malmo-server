@@ -12,7 +12,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.repository.CoupleQuestionReposit
 import makeus.cmc.malmo.adaptor.out.persistence.repository.QuestionRepository;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.TempCoupleQuestionRepository;
 import makeus.cmc.malmo.application.port.out.question.*;
-import makeus.cmc.malmo.application.service.helper.question.CoupleQuestionQueryHelper;
+import makeus.cmc.malmo.application.helper.question.CoupleQuestionQueryHelper;
 import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
 import makeus.cmc.malmo.domain.model.question.Question;
 import makeus.cmc.malmo.domain.model.question.TempCoupleQuestion;
