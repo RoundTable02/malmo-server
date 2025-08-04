@@ -53,17 +53,12 @@ public class SignInService implements SignInUseCase {
         Member member = memberQueryHelper.getMemberByProviderId(provider, providerId)
                 .orElseGet(() -> createNewMember(provider, providerId, emailSupplier.get()));
 
-        // 2. 휴면 계정 복구
-        if (member.isRevivable()) {
-            member.revive();
-        }
-
-        // 3. JWT 토큰 발급 및 저장
+        // 2. JWT 토큰 발급 및 저장
         TokenInfo tokenInfo = accessTokenHelper.generateToken(member.getId(), member.getMemberRole());
         member.refreshMemberToken(tokenInfo.getRefreshToken());
         memberCommandHelper.saveMember(member);
 
-        // 4. 최종 응답 생성
+        // 3. 최종 응답 생성
         return buildSignInResponse(member, tokenInfo);
     }
 

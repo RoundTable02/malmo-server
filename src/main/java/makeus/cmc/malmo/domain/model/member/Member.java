@@ -120,17 +120,7 @@ public class Member {
     public void delete() {
         this.memberState = MemberState.DELETED;
         this.deletedAt = LocalDateTime.now();
-    }
-
-    public boolean isRevivable() {
-        return this.memberState == MemberState.DELETED
-                && this.deletedAt != null
-                && java.time.Duration.between(this.deletedAt, LocalDateTime.now()).toDays() < REVIVABLE_DAYS_LIMIT;
-    }
-
-    public void revive() {
-        this.memberState = MemberState.BEFORE_ONBOARDING;
-        this.deletedAt = null;
+        this.providerId = this.providerId + "_deleted";
     }
 
     public boolean hasSameRefreshToken(String refreshToken) {

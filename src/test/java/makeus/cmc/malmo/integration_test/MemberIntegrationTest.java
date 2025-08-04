@@ -259,6 +259,7 @@ public class MemberIntegrationTest {
             // then
             MemberEntity deletedMember = em.find(MemberEntity.class, member.getId());
             Assertions.assertThat(deletedMember.getMemberState()).isEqualTo(MemberState.DELETED);
+            Assertions.assertThat(deletedMember.getProviderId()).isEqualTo("testProviderId_deleted");
         }
 
         @Test

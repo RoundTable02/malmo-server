@@ -17,6 +17,7 @@ import makeus.cmc.malmo.domain.value.type.MemberRole;
 import makeus.cmc.malmo.domain.value.type.Provider;
 import makeus.cmc.malmo.domain.value.type.SenderType;
 import makeus.cmc.malmo.integration_test.dto_factory.ChatRoomRequestDtoFactory;
+import makeus.cmc.malmo.util.JosaUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -136,7 +137,7 @@ public class ChatRoomIntegrationTest {
                     .setParameter("chatRoomId", chatRoom.getId())
                     .getResultList();
             Assertions.assertThat(messages).hasSize(1);
-            Assertions.assertThat(messages.get(0).getContent()).isEqualTo(member.getNickname() + INIT_CHAT_MESSAGE);
+            Assertions.assertThat(messages.get(0).getContent()).isEqualTo(member.getNickname() + "아" + INIT_CHAT_MESSAGE);
         }
 
         @Test
