@@ -1,13 +1,13 @@
 package makeus.cmc.malmo.application.service.strategy;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.application.port.in.AnswerQuestionUseCase;
-import makeus.cmc.malmo.application.port.in.GetQuestionAnswerUseCase;
-import makeus.cmc.malmo.application.port.in.GetQuestionUseCase;
-import makeus.cmc.malmo.application.service.helper.couple.CoupleQueryHelper;
-import makeus.cmc.malmo.application.service.helper.question.CoupleQuestionCommandHelper;
-import makeus.cmc.malmo.application.service.helper.question.CoupleQuestionQueryHelper;
-import makeus.cmc.malmo.domain.exception.MemberAccessDeniedException;
+import makeus.cmc.malmo.application.port.in.question.AnswerQuestionUseCase;
+import makeus.cmc.malmo.application.port.in.question.GetQuestionAnswerUseCase;
+import makeus.cmc.malmo.application.port.in.question.GetQuestionUseCase;
+import makeus.cmc.malmo.application.helper.couple.CoupleQueryHelper;
+import makeus.cmc.malmo.application.helper.question.CoupleQuestionCommandHelper;
+import makeus.cmc.malmo.application.helper.question.CoupleQuestionQueryHelper;
+import makeus.cmc.malmo.application.exception.MemberAccessDeniedException;
 import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
 import makeus.cmc.malmo.domain.model.question.MemberAnswer;
 import makeus.cmc.malmo.domain.model.question.Question;

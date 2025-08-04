@@ -17,7 +17,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.terms.MemberTermsAgreemen
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
-import makeus.cmc.malmo.application.port.out.GenerateTokenPort;
+import makeus.cmc.malmo.application.port.out.member.GenerateTokenPort;
 import makeus.cmc.malmo.domain.value.state.*;
 import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.value.type.MemberRole;
@@ -259,6 +259,7 @@ public class MemberIntegrationTest {
             // then
             MemberEntity deletedMember = em.find(MemberEntity.class, member.getId());
             Assertions.assertThat(deletedMember.getMemberState()).isEqualTo(MemberState.DELETED);
+            Assertions.assertThat(deletedMember.getProviderId()).isEqualTo("testProviderId_deleted");
         }
 
         @Test

@@ -1,11 +1,11 @@
 package makeus.cmc.malmo.adaptor.out.oidc;
 
-import makeus.cmc.malmo.application.port.out.kakaoIdTokenPort;
+import makeus.cmc.malmo.application.port.out.member.KakaoIdTokenPort;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class KakaoOidcAdapter extends AbstractOidcAdapter implements kakaoIdTokenPort {
+public class KakaoOidcAdapter extends AbstractOidcAdapter implements KakaoIdTokenPort {
 
     public KakaoOidcAdapter(
             @Value("${kakao.oidc.iss}") String iss,

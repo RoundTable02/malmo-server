@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
-import makeus.cmc.malmo.application.port.in.SignUpUseCase;
+import makeus.cmc.malmo.application.port.in.member.SignUpUseCase;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.PostMapping;

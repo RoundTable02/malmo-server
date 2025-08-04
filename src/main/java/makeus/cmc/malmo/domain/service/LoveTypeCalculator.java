@@ -1,6 +1,6 @@
 package makeus.cmc.malmo.domain.service;
 
-import makeus.cmc.malmo.domain.exception.LoveTypeNotFoundException;
+import makeus.cmc.malmo.application.exception.LoveTypeNotFoundException;
 import makeus.cmc.malmo.domain.model.love_type.LoveTypeQuestionData;
 import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 import org.springframework.stereotype.Component;
