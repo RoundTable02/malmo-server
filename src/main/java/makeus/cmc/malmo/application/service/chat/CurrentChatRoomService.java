@@ -18,6 +18,7 @@ import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.service.ChatRoomDomainService;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
+import makeus.cmc.malmo.util.JosaUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,7 +57,9 @@ public class CurrentChatRoomService
                     ChatMessage initMessage = chatRoomDomainService.createAiMessage(
                             ChatRoomId.of(savedChatRoom.getId()),
                             INIT_CHATROOM_LEVEL,
-                            member.getNickname() + INIT_CHAT_MESSAGE);
+                            member.getNickname()
+                                    + JosaUtils.아야(member.getNickname())
+                                    + INIT_CHAT_MESSAGE);
                     chatRoomCommandHelper.saveChatMessage(initMessage);
 
                     return savedChatRoom;
