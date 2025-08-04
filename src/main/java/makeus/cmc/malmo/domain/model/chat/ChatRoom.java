@@ -87,6 +87,13 @@ public class ChatRoom {
         return this.chatRoomState == ChatRoomState.ALIVE || this.chatRoomState == ChatRoomState.BEFORE_INIT;
     }
 
+    public static final String CREATING_SUMMARY_LINE = "하루가 지나 채팅방이 만료되었습니다. 요약 생성 중...";
+
+    public void expire() {
+        this.chatRoomState = ChatRoomState.COMPLETED;
+        this.totalSummary = CREATING_SUMMARY_LINE;
+    }
+
     public boolean isOwner(MemberId memberId) {
         return Objects.equals(this.memberId.getValue(), memberId.getValue());
     }
