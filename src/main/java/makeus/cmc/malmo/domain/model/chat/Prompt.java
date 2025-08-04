@@ -7,8 +7,8 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntity;
 
 import java.time.LocalDateTime;
 
-import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.LAST_PROMPT_LEVEL;
-import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.NOT_COUPLE_MEMBER_LAST_PROMPT_LEVEL;
+import static makeus.cmc.malmo.util.GlobalConstants.LAST_PROMPT_LEVEL;
+import static makeus.cmc.malmo.util.GlobalConstants.NOT_COUPLE_MEMBER_LAST_PROMPT_LEVEL;
 
 @Getter
 @Builder(access = AccessLevel.PRIVATE)

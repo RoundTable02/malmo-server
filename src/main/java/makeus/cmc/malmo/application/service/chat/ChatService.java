@@ -3,14 +3,14 @@ package makeus.cmc.malmo.application.service.chat;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
-import makeus.cmc.malmo.application.port.in.SendChatMessageUseCase;
-import makeus.cmc.malmo.application.port.out.SaveChatMessageSummaryPort;
+import makeus.cmc.malmo.application.port.in.chat.SendChatMessageUseCase;
+import makeus.cmc.malmo.application.port.out.chat.SaveChatMessageSummaryPort;
 import makeus.cmc.malmo.application.port.out.SendSseEventPort;
-import makeus.cmc.malmo.application.port.out.ValidateMemberPort;
-import makeus.cmc.malmo.application.service.helper.chat_room.ChatRoomCommandHelper;
-import makeus.cmc.malmo.application.service.helper.chat_room.ChatRoomQueryHelper;
-import makeus.cmc.malmo.application.service.helper.chat_room.PromptQueryHelper;
-import makeus.cmc.malmo.application.service.helper.member.MemberQueryHelper;
+import makeus.cmc.malmo.application.port.out.member.ValidateMemberPort;
+import makeus.cmc.malmo.application.helper.chat_room.ChatRoomCommandHelper;
+import makeus.cmc.malmo.application.helper.chat_room.ChatRoomQueryHelper;
+import makeus.cmc.malmo.application.helper.chat_room.PromptQueryHelper;
+import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.FINAL_MESSAGE;
-import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.LAST_PROMPT_LEVEL;
+import static makeus.cmc.malmo.util.GlobalConstants.FINAL_MESSAGE;
+import static makeus.cmc.malmo.util.GlobalConstants.LAST_PROMPT_LEVEL;
 
 @Slf4j
 @Service

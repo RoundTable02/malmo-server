@@ -12,8 +12,6 @@ import makeus.cmc.malmo.domain.value.type.Provider;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import static makeus.cmc.malmo.domain.model.member.MemberConst.REVIVABLE_DAYS_LIMIT;
-
 @Getter
 @Builder(access = AccessLevel.PRIVATE)
 public class Member {
@@ -120,17 +118,7 @@ public class Member {
     public void delete() {
         this.memberState = MemberState.DELETED;
         this.deletedAt = LocalDateTime.now();
-    }
-
-    public boolean isRevivable() {
-        return this.memberState == MemberState.DELETED
-                && this.deletedAt != null
-                && java.time.Duration.between(this.deletedAt, LocalDateTime.now()).toDays() < REVIVABLE_DAYS_LIMIT;
-    }
-
-    public void revive() {
-        this.memberState = MemberState.ALIVE;
-        this.deletedAt = null;
+        this.providerId = this.providerId + "_deleted";
     }
 
     public boolean hasSameRefreshToken(String refreshToken) {

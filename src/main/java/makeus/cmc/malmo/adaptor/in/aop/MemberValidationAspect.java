@@ -1,7 +1,7 @@
 package makeus.cmc.malmo.adaptor.in.aop;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.application.service.helper.member.MemberQueryHelper;
+import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;

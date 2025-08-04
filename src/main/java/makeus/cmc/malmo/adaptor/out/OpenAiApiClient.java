@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.out.exception.OpenAiRequestException;
-import makeus.cmc.malmo.application.port.out.RequestChatApiPort;
+import makeus.cmc.malmo.application.port.out.chat.RequestChatApiPort;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;

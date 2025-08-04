@@ -1,18 +1,18 @@
 package makeus.cmc.malmo.application.service.strategy;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.application.port.in.AnswerQuestionUseCase;
-import makeus.cmc.malmo.application.port.in.GetQuestionAnswerUseCase;
-import makeus.cmc.malmo.application.port.in.GetQuestionUseCase;
-import makeus.cmc.malmo.application.service.helper.member.MemberQueryHelper;
-import makeus.cmc.malmo.application.service.helper.question.CoupleQuestionCommandHelper;
-import makeus.cmc.malmo.application.service.helper.question.CoupleQuestionQueryHelper;
-import makeus.cmc.malmo.domain.exception.MemberAccessDeniedException;
+import makeus.cmc.malmo.application.port.in.question.AnswerQuestionUseCase;
+import makeus.cmc.malmo.application.port.in.question.GetQuestionAnswerUseCase;
+import makeus.cmc.malmo.application.port.in.question.GetQuestionUseCase;
+import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
+import makeus.cmc.malmo.application.helper.question.CoupleQuestionCommandHelper;
+import makeus.cmc.malmo.application.helper.question.CoupleQuestionQueryHelper;
+import makeus.cmc.malmo.application.exception.MemberAccessDeniedException;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.question.Question;
 import makeus.cmc.malmo.domain.model.question.TempCoupleQuestion;
-import makeus.cmc.malmo.domain.service.CoupleQuestionDomainService;
 import makeus.cmc.malmo.domain.value.id.MemberId;
+import makeus.cmc.malmo.util.GlobalConstants;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -31,7 +31,7 @@ public class SingleQuestionStrategy implements QuestionHandlingStrategy{
         TempCoupleQuestion tempCoupleQuestion = coupleQuestionQueryHelper.getTempCoupleQuestion(MemberId.of(command.getUserId()))
                 .orElseGet(() -> {
                     // TempCoupleQuestion이 없으면 생성
-                    Question firstQuestion = coupleQuestionQueryHelper.getQuestionByLevelOrThrow(CoupleQuestionDomainService.FIRST_QUESTION_LEVEL);
+                    Question firstQuestion = coupleQuestionQueryHelper.getQuestionByLevelOrThrow(GlobalConstants.FIRST_QUESTION_LEVEL);
                     TempCoupleQuestion tempQuestion = TempCoupleQuestion.create(MemberId.of(command.getUserId()), firstQuestion);
                     return coupleQuestionCommandHelper.saveTempCoupleQuestion(tempQuestion);
                 });
@@ -41,7 +41,7 @@ public class SingleQuestionStrategy implements QuestionHandlingStrategy{
                 .title(tempCoupleQuestion.getQuestion().getTitle())
                 .content(tempCoupleQuestion.getQuestion().getContent())
                 .meAnswered(tempCoupleQuestion.isAnswered())
-                .level(CoupleQuestionDomainService.FIRST_QUESTION_LEVEL)
+                .level(GlobalConstants.FIRST_QUESTION_LEVEL)
                 .partnerAnswered(false)
                 .createdAt(tempCoupleQuestion.getCreatedAt())
                 .build();
@@ -56,7 +56,7 @@ public class SingleQuestionStrategy implements QuestionHandlingStrategy{
         return GetQuestionAnswerUseCase.AnswerResponseDto.builder()
                 .title(tempCoupleQuestion.getQuestion().getTitle())
                 .content(tempCoupleQuestion.getQuestion().getContent())
-                .level(CoupleQuestionDomainService.FIRST_QUESTION_LEVEL)
+                .level(GlobalConstants.FIRST_QUESTION_LEVEL)
                 .createdAt(tempCoupleQuestion.getCreatedAt())
                 .me(
                         GetQuestionAnswerUseCase.AnswerDto.builder()

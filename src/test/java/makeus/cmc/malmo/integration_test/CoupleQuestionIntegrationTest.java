@@ -17,7 +17,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleMemberEntityI
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleQuestionEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
-import makeus.cmc.malmo.application.port.out.GenerateTokenPort;
+import makeus.cmc.malmo.application.port.out.member.GenerateTokenPort;
 import makeus.cmc.malmo.domain.value.state.CoupleQuestionState;
 import makeus.cmc.malmo.domain.value.state.MemberAnswerState;
 import makeus.cmc.malmo.domain.value.state.MemberState;
@@ -42,7 +42,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.*;
-import static makeus.cmc.malmo.domain.service.CoupleQuestionDomainService.FIRST_QUESTION_LEVEL;
+import static makeus.cmc.malmo.util.GlobalConstants.FIRST_QUESTION_LEVEL;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;

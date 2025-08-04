@@ -9,7 +9,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.ChatRoomEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
-import makeus.cmc.malmo.application.port.out.GenerateTokenPort;
+import makeus.cmc.malmo.application.port.out.member.GenerateTokenPort;
 import makeus.cmc.malmo.application.service.chat.ChatProcessor;
 import makeus.cmc.malmo.domain.value.state.ChatRoomState;
 import makeus.cmc.malmo.domain.value.state.MemberState;
@@ -17,13 +17,13 @@ import makeus.cmc.malmo.domain.value.type.MemberRole;
 import makeus.cmc.malmo.domain.value.type.Provider;
 import makeus.cmc.malmo.domain.value.type.SenderType;
 import makeus.cmc.malmo.integration_test.dto_factory.ChatRoomRequestDtoFactory;
+import makeus.cmc.malmo.util.GlobalConstants;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,9 +39,10 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.*;
-import static makeus.cmc.malmo.domain.model.chat.ChatRoomConstant.*;
+import static makeus.cmc.malmo.util.GlobalConstants.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -136,7 +137,7 @@ public class ChatRoomIntegrationTest {
                     .setParameter("chatRoomId", chatRoom.getId())
                     .getResultList();
             Assertions.assertThat(messages).hasSize(1);
-            Assertions.assertThat(messages.get(0).getContent()).isEqualTo(member.getNickname() + INIT_CHAT_MESSAGE);
+            Assertions.assertThat(messages.get(0).getContent()).isEqualTo(member.getNickname() + "아" + INIT_CHAT_MESSAGE);
         }
 
         @Test
@@ -155,6 +156,48 @@ public class ChatRoomIntegrationTest {
                             .header("Authorization", "Bearer " + accessToken))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data.chatRoomState").value(ChatRoomState.ALIVE.name()));
+        }
+
+        @Test
+        @DisplayName("마지막 채팅 시간으로부터 24시간이 지난 경우 채팅방 상태 조회에 성공하며, 새로운 채팅방이 생성된다")
+        void 마지막_채팅_시간_24시간_지난_경우_상태_조회_성공() throws Exception {
+            // given
+            ChatRoomEntity chatRoom = ChatRoomEntity.builder()
+                    .memberEntityId(MemberEntityId.of(member.getId()))
+                    .chatRoomState(ChatRoomState.ALIVE)
+                    .lastMessageSentTime(LocalDateTime.now().minusDays(1).minusHours(1)) // 25시간 전
+                    .build();
+            em.persist(chatRoom);
+            em.flush();
+
+            ChatProcessor.CounselingSummary mockSummary = new ChatProcessor.CounselingSummary(
+                    "만료된 채팅방 요약",
+                    "상황 키워드",
+                    "솔루션 키워드"
+            );
+            when(chatProcessor.requestTotalSummary(any(), any(), any())).thenReturn(mockSummary);
+
+            // when & then
+            mockMvc.perform(get("/chatrooms/current")
+                            .header("Authorization", "Bearer " + accessToken))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.chatRoomState").value(ChatRoomState.BEFORE_INIT.name()));
+
+            Assertions.assertThat(chatRoom.getChatRoomState()).isEqualTo(ChatRoomState.COMPLETED);
+            Assertions.assertThat(chatRoom.getTotalSummary()).isEqualTo(GlobalConstants.CREATING_SUMMARY_LINE);
+
+            ChatRoomEntity newChatRoom = em.createQuery("SELECT c FROM ChatRoomEntity c WHERE c.memberEntityId.value = :memberId " +
+                            "AND c.chatRoomState = :chatRoomState", ChatRoomEntity.class)
+                    .setParameter("memberId", member.getId())
+                    .setParameter("chatRoomState", ChatRoomState.BEFORE_INIT)
+                    .getSingleResult();
+            Assertions.assertThat(newChatRoom).isNotNull();
+
+            List<ChatMessageEntity> messages = em.createQuery("SELECT m FROM ChatMessageEntity m WHERE m.chatRoomEntityId.value = :chatRoomId", ChatMessageEntity.class)
+                    .setParameter("chatRoomId", newChatRoom.getId())
+                    .getResultList();
+            Assertions.assertThat(messages).hasSize(1);
+            Assertions.assertThat(messages.get(0).getContent()).isEqualTo(member.getNickname() + "아" + INIT_CHAT_MESSAGE);
         }
 
         @Test
@@ -430,7 +473,7 @@ public class ChatRoomIntegrationTest {
             em.flush();
 
             ChatProcessor.CounselingSummary summary = new ChatProcessor.CounselingSummary("최종 요약", "상황 키워드", "솔루션 키워드");
-            Mockito.when(chatProcessor.requestTotalSummary(any(), any(), any())).thenReturn(summary);
+            when(chatProcessor.requestTotalSummary(any(), any(), any())).thenReturn(summary);
 
             // when & then
             mockMvc.perform(post("/chatrooms/current/complete")

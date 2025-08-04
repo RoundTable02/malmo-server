@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.INVALID_REFRESH_TOKEN;
 import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.NO_SUCH_MEMBER;
@@ -67,7 +68,7 @@ public class SignInIntegrationTest {
     void setup() {
         kakaoMember = MemberEntity.builder()
                 .provider(Provider.KAKAO)
-                .providerId("member-provider-id")
+                .providerId("kakao-provider-id")
                 .memberRole(MemberRole.MEMBER)
                 .memberState(MemberState.ALIVE)
                 .email("testEmail@test.com")
@@ -78,7 +79,7 @@ public class SignInIntegrationTest {
 
         appleMember = MemberEntity.builder()
                 .provider(Provider.APPLE)
-                .providerId("member-provider-id")
+                .providerId("apple-provider-id")
                 .memberRole(MemberRole.MEMBER)
                 .memberState(MemberState.ALIVE)
                 .email("testEmail@test.com")
@@ -152,18 +153,24 @@ public class SignInIntegrationTest {
 
         @Test
         @DisplayName("카카오 소셜 로그인 탈퇴한 멤버의 경우 사용자 정보 복구")
-        void 카카오_소셜_로그인_탈퇴한_멤버의_경우_사용자_정보_복구() throws Exception {
+        void 카카오_소셜_로그인_탈퇴한_멤버의_경우_사용자_새로_가입() throws Exception {
             // given
             String idToken = "valid-id-token";
             String accessToken = "valid-access-token";
-            given(kakaoOidcAdapter.validateToken(idToken)).willReturn(kakaoMember.getProviderId());
+            String originalProviderId = kakaoMember.getProviderId();
+            given(kakaoOidcAdapter.validateToken(idToken)).willReturn(originalProviderId);
+            given(kakaoRestApiAdaptor.fetchMemberEmailFromKakao(accessToken)).willReturn("testEmail@test.com");
 
-            em.createQuery("UPDATE MemberEntity m SET m.memberState = :state, m.deletedAt = :deletedAt WHERE m.id = :memberId")
+            em.createQuery("UPDATE MemberEntity m SET m.memberState = :state, " +
+                            "m.deletedAt = :deletedAt, " +
+                            "m.providerId = :providerId WHERE m.id = :memberId")
                     .setParameter("state", MemberState.DELETED)
                     .setParameter("deletedAt", LocalDateTime.now())
+                    .setParameter("providerId", kakaoMember.getProviderId() + "_deleted")
                     .setParameter("memberId", kakaoMember.getId())
                     .executeUpdate();
 
+            // when & then
             mockMvc.perform(post("/login/kakao")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(
@@ -172,12 +179,16 @@ public class SignInIntegrationTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data.accessToken").isNotEmpty())
                     .andExpect(jsonPath("$.data.refreshToken").isNotEmpty())
-                    .andExpect(jsonPath("$.data.memberState").value("ALIVE"))
+                    .andExpect(jsonPath("$.data.memberState").value("BEFORE_ONBOARDING"))
                     .andExpect(jsonPath("$.data.grantType").value("Bearer"));
 
-            MemberEntity recoveredMember = em.find(MemberEntity.class, kakaoMember.getId());
-            Assertions.assertThat(recoveredMember.getMemberState()).isEqualTo(MemberState.ALIVE);
-            Assertions.assertThat(recoveredMember.getDeletedAt()).isNull();
+            MemberEntity newMember = em.createQuery("SELECT m FROM MemberEntity m WHERE m.providerId = :providerId", MemberEntity.class)
+                    .setParameter("providerId", originalProviderId)
+                    .getSingleResult();
+
+            Assertions.assertThat(newMember.getMemberState()).isEqualTo(MemberState.BEFORE_ONBOARDING);
+            Assertions.assertThat(newMember.getDeletedAt()).isNull();
+            Assertions.assertThat(newMember.getId()).isNotEqualTo(kakaoMember.getId());
         }
     }
 
@@ -242,14 +253,20 @@ public class SignInIntegrationTest {
         void 애플_소셜_로그인_탈퇴한_멤버의_경우_사용자_정보_복구() throws Exception {
             // given
             String idToken = "valid-id-token";
-            given(appleOidcAdapter.validateToken(idToken)).willReturn(appleMember.getProviderId());
+            String originalProviderId = appleMember.getProviderId();
+            given(appleOidcAdapter.validateToken(idToken)).willReturn(originalProviderId);
+            given(appleOidcAdapter.extractEmailFromIdToken(idToken)).willReturn("testEmail@test.com");
 
-            em.createQuery("UPDATE MemberEntity m SET m.memberState = :state, m.deletedAt = :deletedAt WHERE m.id = :memberId")
+            em.createQuery("UPDATE MemberEntity m SET m.memberState = :state, " +
+                            "m.deletedAt = :deletedAt, " +
+                            "m.providerId = :providerId WHERE m.id = :memberId")
                     .setParameter("state", MemberState.DELETED)
                     .setParameter("deletedAt", LocalDateTime.now())
-                    .setParameter("memberId", kakaoMember.getId())
+                    .setParameter("providerId", appleMember.getProviderId() + "_deleted")
+                    .setParameter("memberId", appleMember.getId())
                     .executeUpdate();
 
+            // when & then
             mockMvc.perform(post("/login/apple")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(
@@ -258,12 +275,16 @@ public class SignInIntegrationTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data.accessToken").isNotEmpty())
                     .andExpect(jsonPath("$.data.refreshToken").isNotEmpty())
-                    .andExpect(jsonPath("$.data.memberState").value("ALIVE"))
+                    .andExpect(jsonPath("$.data.memberState").value("BEFORE_ONBOARDING"))
                     .andExpect(jsonPath("$.data.grantType").value("Bearer"));
 
-            MemberEntity recoveredMember = em.find(MemberEntity.class, appleMember.getId());
-            Assertions.assertThat(recoveredMember.getMemberState()).isEqualTo(MemberState.ALIVE);
-            Assertions.assertThat(recoveredMember.getDeletedAt()).isNull();
+            MemberEntity newMember = em.createQuery("SELECT m FROM MemberEntity m WHERE m.providerId = :providerId", MemberEntity.class)
+                    .setParameter("providerId", originalProviderId)
+                    .getSingleResult();
+
+            Assertions.assertThat(newMember.getMemberState()).isEqualTo(MemberState.BEFORE_ONBOARDING);
+            Assertions.assertThat(newMember.getDeletedAt()).isNull();
+            Assertions.assertThat(newMember.getId()).isNotEqualTo(appleMember.getId());
         }
     }
 

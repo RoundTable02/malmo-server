@@ -1,8 +1,8 @@
 package makeus.cmc.malmo.application.service.strategy;
 
-import makeus.cmc.malmo.application.port.in.AnswerQuestionUseCase;
-import makeus.cmc.malmo.application.port.in.GetQuestionAnswerUseCase;
-import makeus.cmc.malmo.application.port.in.GetQuestionUseCase;
+import makeus.cmc.malmo.application.port.in.question.AnswerQuestionUseCase;
+import makeus.cmc.malmo.application.port.in.question.GetQuestionAnswerUseCase;
+import makeus.cmc.malmo.application.port.in.question.GetQuestionUseCase;
 
 public interface QuestionHandlingStrategy {
 

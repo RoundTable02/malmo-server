@@ -2,8 +2,8 @@ package makeus.cmc.malmo.adaptor.out.oidc;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import makeus.cmc.malmo.adaptor.out.oidc.exception.OidcIdTokenException;
-import makeus.cmc.malmo.application.port.out.AppleIdTokenPort;
+import makeus.cmc.malmo.adaptor.out.exception.OidcIdTokenException;
+import makeus.cmc.malmo.application.port.out.member.AppleIdTokenPort;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
