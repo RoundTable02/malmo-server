@@ -6,7 +6,7 @@ import com.auth0.jwk.JwkProviderBuilder;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import makeus.cmc.malmo.adaptor.out.oidc.exception.OidcIdTokenException;
+import makeus.cmc.malmo.adaptor.out.exception.OidcIdTokenException;
 
 import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
