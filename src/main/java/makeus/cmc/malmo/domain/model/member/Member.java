@@ -124,4 +124,9 @@ public class Member {
     public boolean hasSameRefreshToken(String refreshToken) {
         return this.refreshToken != null && this.refreshToken.equals(refreshToken);
     }
+
+    public void logOut() {
+        this.refreshToken = null;
+        this.firebaseToken = null;
+    }
 }
