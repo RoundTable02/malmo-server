@@ -1,7 +1,9 @@
 package makeus.cmc.malmo.application.service.member;
 
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.adaptor.out.jwt.TokenInfo;
+import makeus.cmc.malmo.application.port.in.member.LogOutUseCase;
 import makeus.cmc.malmo.application.port.in.member.SignInUseCase;
 import makeus.cmc.malmo.application.helper.member.AccessTokenHelper;
 import makeus.cmc.malmo.application.helper.member.MemberCommandHelper;
@@ -11,6 +13,7 @@ import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.service.InviteCodeDomainService;
 import makeus.cmc.malmo.domain.service.MemberDomainService;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
+import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.type.Provider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +22,7 @@ import java.util.function.Supplier;
 
 @Service
 @RequiredArgsConstructor
-public class SignInService implements SignInUseCase {
+public class SignInService implements SignInUseCase, LogOutUseCase {
 
     private final MemberQueryHelper memberQueryHelper;
     private final MemberCommandHelper memberCommandHelper;
@@ -88,5 +91,15 @@ public class SignInService implements SignInUseCase {
             retryCount++;
         }
         return inviteCode;
+    }
+
+    @Override
+    @CheckValidMember
+    public void logout(LogOutCommand command) {
+        Member member = memberQueryHelper.getMemberByIdOrThrow(MemberId.of(command.getUserId()));
+        // Refresh Token 만료 처리
+        member.logOut();
+
+        memberCommandHelper.saveMember(member);
     }
 }

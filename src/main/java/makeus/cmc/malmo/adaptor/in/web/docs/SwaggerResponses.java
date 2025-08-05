@@ -55,6 +55,11 @@ public class SwaggerResponses {
     }
 
     @Getter
+    @Schema(description = "로그아웃 성공 응답")
+    public static class LogoutSuccessResponse extends BaseSwaggerResponse<Void> {
+    }
+
+    @Getter
     @Schema(description = "토큰 갱신 성공 응답")
     public static class RefreshTokenSuccessResponse extends BaseSwaggerResponse<TokenData> {
     }
