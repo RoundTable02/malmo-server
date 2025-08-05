@@ -64,17 +64,6 @@ public class ChatPromptBuilder {
         return messages;
     }
 
-    public List<Map<String, String>> createForNextLevelOpening(ChatRoom chatRoom) {
-        List<Map<String, String>> messages = new ArrayList<>();
-
-        // 요약된 이전 단계 메시지들
-        List<ChatMessageSummary> summarizedMessages = chatRoomQueryHelper.getSummarizedMessages(ChatRoomId.of(chatRoom.getId()));
-        String summarizedMessageContent = getSummarizedMessageContent(summarizedMessages);
-        messages.add(createMessageMap(SenderType.USER, summarizedMessageContent));
-
-        return messages;
-    }
-
     public List<Map<String, String>> createForTotalSummary(ChatRoom chatRoom) {
         List<Map<String, String>> messages = new ArrayList<>();
         List<ChatMessageSummary> summarizedMessages = chatRoomQueryHelper.getSummarizedMessages(ChatRoomId.of(chatRoom.getId()));

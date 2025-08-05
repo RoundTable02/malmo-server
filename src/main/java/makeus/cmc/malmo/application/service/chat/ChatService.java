@@ -116,8 +116,12 @@ public class ChatService implements SendChatMessageUseCase {
     public void upgradeChatRoom(SendChatMessageCommand command) {
         // 채팅방의 현재 상담 단계가 완료된 상테 -> 다음 단계로 업그레이드
         MemberId memberId = MemberId.of(command.getUserId());
+        Member member = memberQueryHelper.getMemberByIdOrThrow(memberId);
         ChatRoom chatRoom = chatRoomQueryHelper.getCurrentChatRoomByMemberIdOrThrow(memberId);
         int nowChatRoomLevel = chatRoom.getLevel();
+
+        // 현재 단계의 메시지 불러오기
+        List<Map<String, String>> messages = chatPromptBuilder.createForProcessUserMessage(member, chatRoom, command.getMessage());
 
         chatRoom.upgradeChatRoom();
         chatRoomCommandHelper.saveChatRoom(chatRoom);
@@ -139,17 +143,10 @@ public class ChatService implements SendChatMessageUseCase {
                 }
         );
 
-        // 다음 단계 상담 도달, 채팅방 활성화
-        chatRoom.updateChatRoomStateAlive();
-        chatRoomCommandHelper.saveChatRoom(chatRoom);
-
-        // 다음 단계 오프닝 멘트 요청
-        List<Map<String, String>> openingMessages = chatPromptBuilder.createForNextLevelOpening(chatRoom);
-
         // 오프닝 멘트에 대한 AI 응답 SSE 스트리밍
-       AtomicBoolean isOkDetected = new AtomicBoolean(false);
+        AtomicBoolean isOkDetected = new AtomicBoolean(false);
 
-        chatProcessor.streamChat(openingMessages, systemPrompt, nextPrompt,
+        chatProcessor.streamChat(messages, systemPrompt, nextPrompt,
                 chunk -> {
                     if (chunk.contains("OK") && !nextPrompt.isLastPrompt()) {
                         // OK 응답이 감지되면 isOkDetected를 true로 설정
@@ -172,6 +169,10 @@ public class ChatService implements SendChatMessageUseCase {
                 },
                 errorMessage -> chatSseSender.sendError(memberId, errorMessage)
         );
+
+        // 다음 단계 상담 도달, 채팅방 활성화
+        chatRoom.updateChatRoomStateAlive();
+        chatRoomCommandHelper.saveChatRoom(chatRoom);
     }
 
     /*
