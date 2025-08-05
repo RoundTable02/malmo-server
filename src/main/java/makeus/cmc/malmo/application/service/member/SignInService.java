@@ -1,6 +1,7 @@
 package makeus.cmc.malmo.application.service.member;
 
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.adaptor.out.jwt.TokenInfo;
 import makeus.cmc.malmo.application.port.in.member.LogOutUseCase;
 import makeus.cmc.malmo.application.port.in.member.SignInUseCase;
@@ -93,6 +94,7 @@ public class SignInService implements SignInUseCase, LogOutUseCase {
     }
 
     @Override
+    @CheckValidMember
     public void logout(LogOutCommand command) {
         Member member = memberQueryHelper.getMemberByIdOrThrow(MemberId.of(command.getUserId()));
         // Refresh Token 만료 처리
