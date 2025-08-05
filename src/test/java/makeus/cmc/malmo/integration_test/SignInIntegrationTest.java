@@ -2,11 +2,13 @@ package makeus.cmc.malmo.integration_test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
+import makeus.cmc.malmo.adaptor.out.jwt.TokenInfo;
 import makeus.cmc.malmo.adaptor.out.oidc.AppleOidcAdapter;
 import makeus.cmc.malmo.adaptor.out.oidc.KakaoOidcAdapter;
 import makeus.cmc.malmo.adaptor.out.oidc.KakaoRestApiAdaptor;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
+import makeus.cmc.malmo.application.port.out.member.GenerateTokenPort;
 import makeus.cmc.malmo.domain.value.state.MemberState;
 import makeus.cmc.malmo.domain.value.type.MemberRole;
 import makeus.cmc.malmo.domain.value.type.Provider;
@@ -370,6 +372,74 @@ public class SignInIntegrationTest {
                             .content(objectMapper.writeValueAsString(
                                     SignInRequestDtoFactory.createRefreshRequestDto(refreshToken)
                             )))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.message").value(NO_SUCH_MEMBER.getMessage()))
+                    .andExpect(jsonPath("$.code").value(NO_SUCH_MEMBER.getCode()));
+        }
+    }
+
+    @Nested
+    @DisplayName("로그아웃 테스트")
+    class LogoutTest {
+
+        @Test
+        @DisplayName("로그아웃에 성공한다")
+        void 로그아웃에_성공한다() throws Exception {
+            // given
+            String idToken = "valid-id-token";
+            String accessToken = "valid-access-token";
+            given(kakaoOidcAdapter.validateToken(idToken)).willReturn(kakaoMember.getProviderId());
+            given(kakaoRestApiAdaptor.fetchMemberEmailFromKakao(accessToken)).willReturn("testEmail@test.com");
+
+            MvcResult mvcResult = mockMvc.perform(post("/login/kakao")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    SignInRequestDtoFactory.createKakaoLoginRequestDto(idToken, accessToken)
+                            )))
+                    .andExpect(status().isOk())
+                    .andReturn();
+            String responseContent = mvcResult.getResponse().getContentAsString();
+            accessToken = objectMapper.readTree(responseContent).get("data").get("accessToken").asText();
+
+            // when
+            mockMvc.perform(post("/logout")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk());
+
+            // then
+            MemberEntity entity = em.find(MemberEntity.class, kakaoMember.getId());
+            Assertions.assertThat(entity.getRefreshToken()).isNull();
+        }
+
+        @Test
+        @DisplayName("로그아웃 시 회원이 존재하지 않으면 실패한다")
+        void 로그아웃_시_탈퇴한_회원이면_실패한다() throws Exception {
+            // given
+            String idToken = "valid-id-token";
+            String accessToken = "valid-access-token";
+            given(kakaoOidcAdapter.validateToken(idToken)).willReturn(kakaoMember.getProviderId());
+            given(kakaoRestApiAdaptor.fetchMemberEmailFromKakao(accessToken)).willReturn("testEmail@test.com");
+
+            MvcResult mvcResult = mockMvc.perform(post("/login/kakao")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    SignInRequestDtoFactory.createKakaoLoginRequestDto(idToken, accessToken)
+                            )))
+                    .andExpect(status().isOk())
+                    .andReturn();
+            String responseContent = mvcResult.getResponse().getContentAsString();
+            accessToken = objectMapper.readTree(responseContent).get("data").get("accessToken").asText();
+
+            em.createQuery("UPDATE MemberEntity m SET m.memberState = :state, m.deletedAt = :deletedAt WHERE m.id = :memberId")
+                    .setParameter("state", MemberState.DELETED)
+                    .setParameter("deletedAt", LocalDateTime.now())
+                    .setParameter("memberId", kakaoMember.getId())
+                    .executeUpdate();
+
+            mockMvc.perform(post("/logout")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value(NO_SUCH_MEMBER.getMessage()))
                     .andExpect(jsonPath("$.code").value(NO_SUCH_MEMBER.getCode()));
