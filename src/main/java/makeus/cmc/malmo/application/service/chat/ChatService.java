@@ -121,7 +121,7 @@ public class ChatService implements SendChatMessageUseCase {
         int nowChatRoomLevel = chatRoom.getLevel();
 
         // 현재 단계의 메시지 불러오기
-        List<Map<String, String>> messages = chatPromptBuilder.createForProcessUserMessage(member, chatRoom, command.getMessage());
+        List<Map<String, String>> messages = chatPromptBuilder.createForProcessUserMessage(member, chatRoom, "");
 
         chatRoom.upgradeChatRoom();
         chatRoomCommandHelper.saveChatRoom(chatRoom);
