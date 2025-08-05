@@ -149,7 +149,7 @@ public class ChatService implements SendChatMessageUseCase {
         // 오프닝 멘트에 대한 AI 응답 SSE 스트리밍
        AtomicBoolean isOkDetected = new AtomicBoolean(false);
 
-        chatProcessor.streamChat(openingMessages, systemPrompt, prompt,
+        chatProcessor.streamChat(openingMessages, systemPrompt, nextPrompt,
                 chunk -> {
                     if (chunk.contains("OK") && !nextPrompt.isLastPrompt()) {
                         // OK 응답이 감지되면 isOkDetected를 true로 설정
