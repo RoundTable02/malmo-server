@@ -139,19 +139,39 @@ public class ChatService implements SendChatMessageUseCase {
                 }
         );
 
+        // 다음 단계 상담 도달, 채팅방 활성화
+        chatRoom.updateChatRoomStateAlive();
+        chatRoomCommandHelper.saveChatRoom(chatRoom);
+
         // 다음 단계 오프닝 멘트 요청
         List<Map<String, String>> openingMessages = chatPromptBuilder.createForNextLevelOpening(chatRoom);
 
         // 오프닝 멘트에 대한 AI 응답 SSE 스트리밍
-        chatProcessor.streamChat(openingMessages, systemPrompt, nextPrompt,
-                chunk -> chatSseSender.sendResponseChunk(memberId, chunk),
-                fullAnswer -> saveAiMessage(memberId, ChatRoomId.of(chatRoom.getId()), nextPrompt.getLevel(), fullAnswer),
+       AtomicBoolean isOkDetected = new AtomicBoolean(false);
+
+        chatProcessor.streamChat(openingMessages, systemPrompt, prompt,
+                chunk -> {
+                    if (chunk.contains("OK") && !nextPrompt.isLastPrompt()) {
+                        // OK 응답이 감지되면 isOkDetected를 true로 설정
+                        isOkDetected.set(true);
+                    } else {
+                        // OK가 감지되지 않은 경우 SSE 응답 스트리밍
+                        chatSseSender.sendResponseChunk(memberId, chunk);
+                    }
+                },
+                fullAnswer -> {
+                    if (!isOkDetected.get()) {
+                        // OK가 감지되지 않은 경우 전체 응답을 저장
+                        saveAiMessage(memberId, ChatRoomId.of(chatRoom.getId()), nextPrompt.getLevel(), fullAnswer);
+                    } else {
+                        // OK가 감지된 경우 OK를 제거하고 저장 후 현재 레벨 완료 처리
+                        fullAnswer = fullAnswer.replace("OK", "").trim();
+                        saveAiMessage(memberId, ChatRoomId.of(chatRoom.getId()), nextPrompt.getLevel(), fullAnswer);
+                        handleLevelFinished(memberId, ChatRoomId.of(chatRoom.getId()), nextPrompt, true);
+                    }
+                },
                 errorMessage -> chatSseSender.sendError(memberId, errorMessage)
         );
-
-        // 다음 단계 상담 도달, 채팅방 활성화
-        chatRoom.updateChatRoomStateAlive();
-        chatRoomCommandHelper.saveChatRoom(chatRoom);
     }
 
     /*
