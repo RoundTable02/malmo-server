@@ -13,7 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
+import makeus.cmc.malmo.application.port.in.member.LogOutUseCase;
 import makeus.cmc.malmo.application.port.in.member.SignInUseCase;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class LoginController {
 
     private final SignInUseCase signInUseCase;
+    private final LogOutUseCase logOutUseCase;
 
     @Operation(
             summary = "카카오 소셜 로그인",
@@ -65,6 +69,27 @@ public class LoginController {
                 .idToken(requestDto.idToken)
                 .build();
         return BaseResponse.success(signInUseCase.signInApple(command));
+    }
+
+    @Operation(
+            summary = "로그아웃",
+            description = "로그아웃을 진행합니다. 로그아웃에 성공하면 Refresh Token은 만료됩니다."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "로그인 성공",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.LogoutSuccessResponse.class))
+    )
+    @ApiCommonResponses.RequireAuth
+    @PostMapping("/logout")
+    public BaseResponse<Void> logout(
+            @AuthenticationPrincipal User user
+    ) {
+        LogOutUseCase.LogOutCommand command = LogOutUseCase.LogOutCommand.builder()
+                .userId(Long.valueOf(user.getUsername()))
+                .build();
+        logOutUseCase.logout(command);
+        return BaseResponse.success(null);
     }
 
 
