@@ -36,6 +36,18 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      # 테스트 실행 시 Redis 연결 확인 후 실행
+      - name: Wait for Redis
+        run: |
+          # redis-cli 설치
+          sudo apt-get update && sudo apt-get install -y redis-tools
+    
+          until redis-cli -h localhost -p 6379 ping; do
+            echo "Waiting for Redis..."
+            sleep 2
+          done
+          echo "Redis is ready!"
+
       # 4. 테스트 실행 (Pull Request일 경우 여기까지만 실행)
       - name: Run tests with Gradle
         run: ./gradlew test --no-daemon
