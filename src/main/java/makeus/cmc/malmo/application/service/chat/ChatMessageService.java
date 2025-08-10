@@ -19,6 +19,7 @@ import makeus.cmc.malmo.domain.service.ChatRoomDomainService;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -86,7 +87,6 @@ public class ChatMessageService implements ProcessMessageUseCase {
     public void processSummary(ProcessSummaryCommand command) {
         ChatRoom chatRoom = chatRoomQueryHelper.getChatRoomByIdOrThrow(ChatRoomId.of(command.getChatRoomId()));
         Prompt systemPrompt = promptQueryHelper.getSystemPrompt();
-        // TODO: 레벨 처리 확인
         Prompt prompt = promptQueryHelper.getPromptByLevel(chatRoom.getLevel());
         Prompt summaryPrompt = promptQueryHelper.getSummaryPrompt();
 

@@ -3,12 +3,6 @@ spring:
     name: malmo
   profiles:
     default: test
-  data:
-    redis:
-      port: 6379
-      host: localhost
-      repositories:
-        enabled: false
 
 # Swagger/OpenAPI 설정
 springdoc:

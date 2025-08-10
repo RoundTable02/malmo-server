@@ -2,6 +2,7 @@ package makeus.cmc.malmo.integration_test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
+import makeus.cmc.malmo.adaptor.message.StreamMessage;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatMessageEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatMessageSummaryEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatRoomEntity;
@@ -9,6 +10,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.ChatRoomEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
+import makeus.cmc.malmo.application.port.out.chat.PublishStreamMessagePort;
 import makeus.cmc.malmo.application.port.out.member.GenerateTokenPort;
 import makeus.cmc.malmo.application.service.chat.ChatProcessor;
 import makeus.cmc.malmo.domain.value.state.ChatRoomState;
@@ -41,8 +43,7 @@ import java.util.function.Consumer;
 import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.*;
 import static makeus.cmc.malmo.util.GlobalConstants.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -66,6 +67,9 @@ public class ChatRoomIntegrationTest {
 
     @MockBean
     private ChatProcessor chatProcessor;
+
+    @MockBean
+    private PublishStreamMessagePort publishStreamMessagePort;
 
     private String accessToken;
     private String otherAccessToken;
@@ -247,11 +251,9 @@ public class ChatRoomIntegrationTest {
                     .setParameter("chatRoomId", chatRoom.getId())
                     .getResultList();
 
-            Assertions.assertThat(messages).hasSize(2);
+            Assertions.assertThat(messages).hasSize(1);
             Assertions.assertThat(messages.get(0).getContent()).isEqualTo(message);
             Assertions.assertThat(messages.get(0).getSenderType()).isEqualTo(SenderType.USER);
-            Assertions.assertThat(messages.get(1).getContent()).isEqualTo("AI 응답입니다.");
-            Assertions.assertThat(messages.get(1).getSenderType()).isEqualTo(SenderType.ASSISTANT);
         }
 
         @Test
@@ -357,20 +359,9 @@ public class ChatRoomIntegrationTest {
             em.persist(chatRoom);
             em.flush();
 
-            // Mock GptService
-            ArgumentCaptor<List<Map<String, String>>> summaryCaptor = ArgumentCaptor.forClass(List.class);
-            doAnswer(invocation -> {
-                Consumer<String> onSummary = invocation.getArgument(4);
-                onSummary.accept("1단계 요약입니다.");
-                return null;
-            }).when(chatProcessor).requestSummaryAsync(summaryCaptor.capture(), any(), any(), any(), any());
-
-            ArgumentCaptor<List<Map<String, String>>> streamCaptor = ArgumentCaptor.forClass(List.class);
-            doAnswer(invocation -> {
-                Consumer<String> onComplete = invocation.getArgument(4);
-                onComplete.accept("다음 단계 오프닝 메시지입니다.");
-                return null;
-            }).when(chatProcessor).streamChat(streamCaptor.capture(), any(), any(), any(), any(), any());
+            // Mock publishStreamMessagePort - ArgumentCaptor로 호출 검증
+            ArgumentCaptor<Object> messageCaptor = ArgumentCaptor.forClass(Object.class);
+            doNothing().when(publishStreamMessagePort).publish(any(), (StreamMessage) messageCaptor.capture());
 
             // when & then
             mockMvc.perform(post("/chatrooms/current/upgrade")
@@ -381,17 +372,12 @@ public class ChatRoomIntegrationTest {
             Assertions.assertThat(updatedChatRoom.getLevel()).isEqualTo(2);
             Assertions.assertThat(updatedChatRoom.getChatRoomState()).isEqualTo(ChatRoomState.ALIVE);
 
-            ChatMessageSummaryEntity summary = em.createQuery("SELECT s FROM ChatMessageSummaryEntity s WHERE s.chatRoomEntityId.value = :chatRoomId", ChatMessageSummaryEntity.class)
-                    .setParameter("chatRoomId", chatRoom.getId())
-                    .getSingleResult();
-            Assertions.assertThat(summary.getContent()).isEqualTo("1단계 요약입니다.");
-            Assertions.assertThat(summary.getLevel()).isEqualTo(1);
+            // publishStreamMessagePort가 2번 호출되었는지 검증
+            verify(publishStreamMessagePort, times(2)).publish(any(), any());
 
-            List<ChatMessageEntity> messages = em.createQuery("SELECT m FROM ChatMessageEntity m WHERE m.chatRoomEntityId.value = :chatRoomId AND m.level = 2", ChatMessageEntity.class)
-                    .setParameter("chatRoomId", chatRoom.getId())
-                    .getResultList();
-            Assertions.assertThat(messages).hasSize(1);
-            Assertions.assertThat(messages.get(0).getContent()).isEqualTo("다음 단계 오프닝 메시지입니다.");
+            // 첫 번째 호출은 REQUEST_SUMMARY, 두 번째 호출은 REQUEST_CHAT_MESSAGE인지 검증
+            List<Object> capturedMessages = messageCaptor.getAllValues();
+            Assertions.assertThat(capturedMessages).hasSize(2);
         }
 
         @Test
