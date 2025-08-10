@@ -59,6 +59,9 @@ dependencies {
 	testImplementation 'com.h2database:h2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+	// Redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 }
 
 // QueryDSL Q클래스 생성 경로 설정
