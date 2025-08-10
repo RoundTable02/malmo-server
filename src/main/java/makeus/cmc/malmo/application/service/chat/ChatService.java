@@ -3,7 +3,11 @@ package makeus.cmc.malmo.application.service.chat;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
+import makeus.cmc.malmo.adaptor.message.RequestSummaryMessage;
+import makeus.cmc.malmo.adaptor.message.StreamChatMessage;
+import makeus.cmc.malmo.adaptor.message.StreamMessageType;
 import makeus.cmc.malmo.application.port.in.chat.SendChatMessageUseCase;
+import makeus.cmc.malmo.application.port.out.chat.PublishStreamMessagePort;
 import makeus.cmc.malmo.application.port.out.chat.SaveChatMessageSummaryPort;
 import makeus.cmc.malmo.application.port.out.SendSseEventPort;
 import makeus.cmc.malmo.application.port.out.member.ValidateMemberPort;
@@ -47,6 +51,8 @@ public class ChatService implements SendChatMessageUseCase {
     private final ChatRoomQueryHelper chatRoomQueryHelper;
     private final ChatRoomCommandHelper chatRoomCommandHelper;
 
+    private final PublishStreamMessagePort publishStreamMessagePort;
+
     @Override
     @Transactional
     @CheckValidMember
@@ -72,37 +78,15 @@ public class ChatService implements SendChatMessageUseCase {
         // 현재 유저 메시지를 저장
         ChatMessage savedUserMessage = saveUserMessage(chatRoom, command.getMessage());
 
-        // API 요청을 위한 프롬프트 생성
-        List<Map<String, String>> messages = chatPromptBuilder.createForProcessUserMessage(member, chatRoom, command.getMessage());
-
-        Prompt systemPrompt = promptQueryHelper.getSystemPrompt();
-        Prompt prompt = promptQueryHelper.getPromptByLevel(chatRoom.getLevel());
-        boolean isMemberCouple = validateMemberPort.isCoupleMember(memberId);
-
-        AtomicBoolean isOkDetected = new AtomicBoolean(false);
-
-        chatProcessor.streamChat(messages, systemPrompt, prompt,
-                chunk -> {
-                    if (chunk.contains("OK") && !prompt.isLastPrompt()) {
-                        // OK 응답이 감지되면 isOkDetected를 true로 설정
-                        isOkDetected.set(true);
-                    } else {
-                        // OK가 감지되지 않은 경우 SSE 응답 스트리밍
-                        chatSseSender.sendResponseChunk(memberId, chunk);
-                    }
-                },
-                fullAnswer -> {
-                    if (!isOkDetected.get()) {
-                        // OK가 감지되지 않은 경우 전체 응답을 저장
-                        saveAiMessage(memberId, ChatRoomId.of(chatRoom.getId()), prompt.getLevel(), fullAnswer);
-                    } else {
-                        // OK가 감지된 경우 OK를 제거하고 저장 후 현재 레벨 완료 처리
-                        fullAnswer = fullAnswer.replace("OK", "").trim();
-                        saveAiMessage(memberId, ChatRoomId.of(chatRoom.getId()), prompt.getLevel(), fullAnswer);
-                        handleLevelFinished(memberId, ChatRoomId.of(chatRoom.getId()), prompt, isMemberCouple);
-                    }
-                },
-                errorMessage -> chatSseSender.sendError(memberId, errorMessage)
+        // 채팅 응답 API 요청 스트림에 추가
+        publishStreamMessagePort.publish(
+                StreamMessageType.REQUEST_CHAT_MESSAGE,
+                new StreamChatMessage(
+                        member.getId(),
+                        chatRoom.getId(),
+                        command.getMessage(),
+                        chatRoom.getLevel()
+                )
         );
 
         return SendChatMessageResponse.builder()
@@ -120,86 +104,30 @@ public class ChatService implements SendChatMessageUseCase {
         ChatRoom chatRoom = chatRoomQueryHelper.getCurrentChatRoomByMemberIdOrThrow(memberId);
         int nowChatRoomLevel = chatRoom.getLevel();
 
-        // 현재 단계의 메시지 불러오기
-        List<Map<String, String>> messages = chatPromptBuilder.createForProcessUserMessage(member, chatRoom, "");
-
+        // 채팅방 업그레이드 처리
         chatRoom.upgradeChatRoom();
         chatRoomCommandHelper.saveChatRoom(chatRoom);
 
-        Prompt systemPrompt = promptQueryHelper.getSystemPrompt();
-        Prompt prompt = promptQueryHelper.getPromptByLevel(nowChatRoomLevel);
-        Prompt summaryPrompt = promptQueryHelper.getSummaryPrompt();
-        Prompt nextPrompt = promptQueryHelper.getPromptByLevel(nowChatRoomLevel + 1);
-
-        // 현재 단계 채팅에 대한 전체 요약 요청 (비동기)
-        List<Map<String, String>> summaryMessages = chatPromptBuilder.createForSummaryAsync(chatRoom);
-        chatProcessor.requestSummaryAsync(summaryMessages, systemPrompt, prompt, summaryPrompt,
-                summary -> {
-                    ChatMessageSummary chatMessageSummary = ChatMessageSummary.createChatMessageSummary(
-                            ChatRoomId.of(chatRoom.getId()), summary, prompt.getLevel()
-                    );
-                    // 요약된 메시지 저장
-                    saveChatMessageSummaryPort.saveChatMessageSummary(chatMessageSummary);
-                }
+        // 현재 단계 채팅에 대한 전체 요약 요청 스트림에 추가
+        publishStreamMessagePort.publish(
+                StreamMessageType.REQUEST_SUMMARY,
+                new RequestSummaryMessage(chatRoom.getId(), nowChatRoomLevel)
         );
 
-        // 오프닝 멘트에 대한 AI 응답 SSE 스트리밍
-        AtomicBoolean isOkDetected = new AtomicBoolean(false);
-
-        chatProcessor.streamChat(messages, systemPrompt, nextPrompt,
-                chunk -> {
-                    if (chunk.contains("OK") && !nextPrompt.isLastPrompt()) {
-                        // OK 응답이 감지되면 isOkDetected를 true로 설정
-                        isOkDetected.set(true);
-                    } else {
-                        // OK가 감지되지 않은 경우 SSE 응답 스트리밍
-                        chatSseSender.sendResponseChunk(memberId, chunk);
-                    }
-                },
-                fullAnswer -> {
-                    if (!isOkDetected.get()) {
-                        // OK가 감지되지 않은 경우 전체 응답을 저장
-                        saveAiMessage(memberId, ChatRoomId.of(chatRoom.getId()), nextPrompt.getLevel(), fullAnswer);
-                    } else {
-                        // OK가 감지된 경우 OK를 제거하고 저장 후 현재 레벨 완료 처리
-                        fullAnswer = fullAnswer.replace("OK", "").trim();
-                        saveAiMessage(memberId, ChatRoomId.of(chatRoom.getId()), nextPrompt.getLevel(), fullAnswer);
-                        handleLevelFinished(memberId, ChatRoomId.of(chatRoom.getId()), nextPrompt, true);
-                    }
-                },
-                errorMessage -> chatSseSender.sendError(memberId, errorMessage)
+        // 다음 단계 프롬프트를 통한 AI 응답 요청 스트림에 추가
+        publishStreamMessagePort.publish(
+                StreamMessageType.REQUEST_CHAT_MESSAGE,
+                new StreamChatMessage(
+                        member.getId(),
+                        chatRoom.getId(),
+                        "",
+                        nowChatRoomLevel + 1
+                )
         );
 
         // 다음 단계 상담 도달, 채팅방 활성화
         chatRoom.updateChatRoomStateAlive();
         chatRoomCommandHelper.saveChatRoom(chatRoom);
-    }
-
-    /*
-    - 1단계의 경우 커플 연동이 되지 않은 상태에서 대화가 종료되면 채팅방 상태를 일시정지로 변경하고 커플 연동을 요청
-    - 2단계 이상에서는 현재 단계가 완료되었다는 메시지를 전송
-     */
-    private void handleLevelFinished(MemberId memberId, ChatRoomId chatRoomId, Prompt prompt, boolean isMemberCoupled) {
-        if (prompt.isLastPromptForNotCoupleMember() && !isMemberCoupled) {
-            // 커플 연동이 되지 않은 상태에서 1단계가 종료된 경우
-            // 채팅방 상태를 일시정지로 변경하고 커플 연동 요청
-            ChatRoom chatRoom = chatRoomQueryHelper.getChatRoomByIdOrThrow(chatRoomId);
-            chatRoom.updateChatRoomStatePaused();
-            chatRoomCommandHelper.saveChatRoom(chatRoom);
-            chatSseSender.sendFlowEvent(
-                    memberId,
-                    SendSseEventPort.SseEventType.CHAT_ROOM_PAUSED,
-                    "커플 연동 전 대화가 종료되었습니다. 커플 연동을 해주세요."
-            );
-        } else {
-            // 2단계 이상이거나 커플 연동이 된 상태에서 현재 단계가 완료된 경우
-            // 현재 단계가 완료되었다는 메시지를 전송
-            chatSseSender.sendFlowEvent(
-                    memberId,
-                    SendSseEventPort.SseEventType.CURRENT_LEVEL_FINISHED,
-                    "현재 단계가 완료되었습니다. upgrade를 요청해주세요."
-            );
-        }
     }
 
     private SendChatMessageResponse handleLastPrompt(ChatRoom chatRoom, String message) {
