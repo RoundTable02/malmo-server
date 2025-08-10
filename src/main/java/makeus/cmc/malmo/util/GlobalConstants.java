@@ -3,6 +3,10 @@ package makeus.cmc.malmo.util;
 public class GlobalConstants {
     // 오늘의 질문 상수
     public static final int FIRST_QUESTION_LEVEL = 1;
+
+    // Redis 관련 상수
+    public static final String STREAM_KEY = "openai-stream";
+    public static final String PUBSUB_CHANNEL = "openai-events";
     
     // 채팅방 관련 상수
     public static final int INIT_CHATROOM_LEVEL = 1;
@@ -20,5 +24,8 @@ public class GlobalConstants {
             "대화 요약 리포트는 연애 고민 상담사 모모가 함께 대화했던 내용을 바탕으로 고민과 해결책을 분석해본 내용이야.\n" +
             "리포트를 확인하고 싶다면, 종료 버튼을 눌러줘!";
 
-    public static final String CREATING_SUMMARY_LINE = "하루가 지나 채팅방이 만료되었습니다. 요약 생성 중...";
+    public static final String EXPIRED_ROOM_CREATING_SUMMARY_LINE = "하루가 지나 채팅방이 만료되었습니다. 요약 생성 중...";
+
+    public static final String COMPLETED_ROOM_CREATING_SUMMARY_LINE = "채팅방이 종료되었습니다. 요약 생성 중...";
+
 }

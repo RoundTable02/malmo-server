@@ -10,6 +10,17 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       # 1. 소스 코드 체크아웃 (한 번만 실행)
       - name: Checkout source code
@@ -85,31 +96,67 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
-            echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-            
+            # 기존 컨테이너 중지 및 삭제
             docker stop malmo-app || true
             docker rm malmo-app || true
-            
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/malmo-app:latest
-            
-            docker run -d \
-              --name malmo-app \
-              -p 8080:8080 \
-              --restart unless-stopped \
-              -e TZ=Asia/Seoul \
-              -e SPRING_PROFILES_ACTIVE=prod \
-              -e SPRING_DATASOURCE_URL="${{ secrets.DB_URL }}" \
-              -e SPRING_DATASOURCE_USERNAME="${{ secrets.DB_USERNAME }}" \
-              -e SPRING_DATASOURCE_PASSWORD="${{ secrets.DB_PASSWORD }}" \
-              -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
-              -e KAKAO_REST_API_KEY="${{ secrets.KAKAO_REST_API_KEY }}" \
-              -e APPLE_REST_API_KEY="${{ secrets.APPLE_REST_API_KEY }}" \
-              -e OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" \
-              -e SWAGGER_SERVER_PRODUCTION_URL="${{ secrets.SWAGGER_SERVER_PRODUCTION_URL }}" \
-              -e SECURITY_CLIENT_URL_PRODUCTION="${{ secrets.SECURITY_CLIENT_URL_PRODUCTION }}" \
-              -e SECURITY_CLIENT_URL_DEVELOPMENT="${{ secrets.SECURITY_CLIENT_URL_DEVELOPMENT }}" \
-              -e SECURITY_SERVER_URL_PRODUCTION="${{ secrets.SECURITY_SERVER_URL_PRODUCTION }}" \
-              -e SECURITY_SERVER_URL_DEVELOPMENT="${{ secrets.SECURITY_SERVER_URL_DEVELOPMENT }}" \
-              ${{ secrets.DOCKERHUB_USERNAME }}/malmo-app:latest
-            
+
+            # docker-compose.yml 파일 생성
+            cat << 'EOF' > docker-compose.yml
+            version: '3.8'
+
+            services:
+              malmo-app:
+                image: ${{ secrets.DOCKERHUB_USERNAME }}/malmo-app:latest
+                container_name: malmo-app
+                depends_on:
+                  - redis
+                ports:
+                  - "8080:8080"
+                networks:
+                  - malmo-network
+                environment:
+                  - TZ=Asia/Seoul
+                  - SPRING_PROFILES_ACTIVE=prod
+                  - SPRING_DATASOURCE_URL=${{ secrets.DB_URL }}
+                  - SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }}
+                  - SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}
+                  - SPRING_DATA_REDIS_HOST=redis
+                  - JWT_SECRET=${{ secrets.JWT_SECRET }}
+                  - KAKAO_REST_API_KEY=${{ secrets.KAKAO_REST_API_KEY }}
+                  - APPLE_REST_API_KEY=${{ secrets.APPLE_REST_API_KEY }}
+                  - OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+                  - SWAGGER_SERVER_PRODUCTION_URL=${{ secrets.SWAGGER_SERVER_PRODUCTION_URL }}
+                  - SECURITY_CLIENT_URL_PRODUCTION=${{ secrets.SECURITY_CLIENT_URL_PRODUCTION }}
+                  - SECURITY_CLIENT_URL_DEVELOPMENT=${{ secrets.SECURITY_CLIENT_URL_DEVELOPMENT }}
+                  - SECURITY_SERVER_URL_PRODUCTION=${{ secrets.SECURITY_SERVER_URL_PRODUCTION }}
+                  - SECURITY_SERVER_URL_DEVELOPMENT=${{ secrets.SECURITY_SERVER_URL_DEVELOPMENT }}
+                restart: unless-stopped
+
+              redis:
+                image: "redis:7-alpine"
+                container_name: malmo-redis
+                ports:
+                  - "6379:6379"
+                volumes:
+                  - redis-data:/data
+                networks:
+                  - malmo-network
+                restart: always
+
+            networks:
+              malmo-network:
+                driver: bridge
+
+            volumes:
+              redis-data:
+            EOF
+
+            # Docker Hub 로그인
+            echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+
+            # docker-compose로 애플리케이션 실행
+            docker-compose pull
+            docker-compose up -d
+
+            # 불필요한 Docker 이미지 정리
             docker image prune -f

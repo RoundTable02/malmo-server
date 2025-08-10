@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  malmo-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: malmo-app
+    depends_on:
+      - redis
+    ports:
+      - "8080:8080"
+    networks:
+      - malmo-network
+    environment:
+      - TZ=Asia/Seoul
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=${DB_URL}
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - SPRING_DATA_REDIS_HOST=redis
+      - JWT_SECRET=${JWT_SECRET}
+      - KAKAO_REST_API_KEY=${KAKAO_REST_API_KEY}
+      - APPLE_REST_API_KEY=${APPLE_REST_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - SWAGGER_SERVER_PRODUCTION_URL=${SWAGGER_SERVER_PRODUCTION_URL}
+      - SECURITY_CLIENT_URL_PRODUCTION=${SECURITY_CLIENT_URL_PRODUCTION}
+      - SECURITY_CLIENT_URL_DEVELOPMENT=${SECURITY_CLIENT_URL_DEVELOPMENT}
+      - SECURITY_SERVER_URL_PRODUCTION=${SECURITY_SERVER_URL_PRODUCTION}
+      - SECURITY_SERVER_URL_DEVELOPMENT=${SECURITY_SERVER_URL_DEVELOPMENT}
+    restart: unless-stopped
+
+  redis:
+    image: "redis:7-alpine"
+    container_name: malmo-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - malmo-network
+    restart: always
+
+networks:
+  malmo-network:
+    driver: bridge
+
+volumes:
+  redis-data:
