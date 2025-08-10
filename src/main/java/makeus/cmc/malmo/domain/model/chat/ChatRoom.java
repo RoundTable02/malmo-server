@@ -9,8 +9,7 @@ import makeus.cmc.malmo.domain.value.state.ChatRoomState;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-import static makeus.cmc.malmo.util.GlobalConstants.CREATING_SUMMARY_LINE;
-import static makeus.cmc.malmo.util.GlobalConstants.INIT_CHATROOM_LEVEL;
+import static makeus.cmc.malmo.util.GlobalConstants.*;
 
 @Getter
 @Builder(access = AccessLevel.PRIVATE)
@@ -82,6 +81,7 @@ public class ChatRoom {
 
     public void complete() {
         this.chatRoomState = ChatRoomState.COMPLETED;
+        this.totalSummary = COMPLETED_ROOM_CREATING_SUMMARY_LINE;
     }
 
     public boolean isChatRoomValid() {
@@ -90,7 +90,7 @@ public class ChatRoom {
 
     public void expire() {
         this.chatRoomState = ChatRoomState.COMPLETED;
-        this.totalSummary = CREATING_SUMMARY_LINE;
+        this.totalSummary = EXPIRED_ROOM_CREATING_SUMMARY_LINE;
     }
 
     public boolean isOwner(MemberId memberId) {

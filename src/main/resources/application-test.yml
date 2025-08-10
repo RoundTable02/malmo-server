@@ -17,6 +17,12 @@ spring:
     init:
       mode: always
       data-locations: classpath:data-test.sql
+  data:
+    redis:
+      port: 6379
+      host: localhost
+      repositories:
+        enabled: false
 
 
 server:

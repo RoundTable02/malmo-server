@@ -3,6 +3,8 @@ package makeus.cmc.malmo.application.service.chat;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
+import makeus.cmc.malmo.adaptor.message.RequestTotalSummaryMessage;
+import makeus.cmc.malmo.adaptor.message.StreamMessageType;
 import makeus.cmc.malmo.application.port.in.chat.CompleteChatRoomUseCase;
 import makeus.cmc.malmo.application.port.in.chat.GetCurrentChatRoomMessagesUseCase;
 import makeus.cmc.malmo.application.port.in.chat.GetCurrentChatRoomUseCase;
@@ -11,6 +13,7 @@ import makeus.cmc.malmo.application.helper.chat_room.ChatRoomCommandHelper;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomQueryHelper;
 import makeus.cmc.malmo.application.helper.chat_room.PromptQueryHelper;
 import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
+import makeus.cmc.malmo.application.port.out.chat.PublishStreamMessagePort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
 import makeus.cmc.malmo.domain.model.chat.Prompt;
@@ -44,6 +47,8 @@ public class CurrentChatRoomService
     private final MemberQueryHelper memberQueryHelper;
     private final ChatRoomCommandHelper chatRoomCommandHelper;
 
+    private final PublishStreamMessagePort publishStreamMessagePort;
+
     @Override
     @Transactional
     @CheckValidMember
@@ -56,8 +61,12 @@ public class CurrentChatRoomService
                         chatRoom.expire();
                         ChatRoom savedChatRoom = chatRoomCommandHelper.saveChatRoom(chatRoom);
 
-                        // 채팅방 요약을 비동기로 요청
-                        requestChatRoomSummaryAsync(savedChatRoom);
+                        // 채팅방 요약 요청을 스트림에 추가
+                        publishStreamMessagePort.publish(
+                                StreamMessageType.REQUEST_TOTAL_SUMMARY,
+                                new RequestTotalSummaryMessage(savedChatRoom.getId())
+                        );
+                        log.info("채팅방 요약 요청 완료: chatRoomId={}", savedChatRoom.getId());
 
                         return createAndSaveNewChatRoom(MemberId.of(command.getUserId()));
                     }
@@ -88,24 +97,6 @@ public class CurrentChatRoomService
                         + INIT_CHAT_MESSAGE);
         chatRoomCommandHelper.saveChatMessage(initMessage);
         return savedChatRoom;
-    }
-
-    private void requestChatRoomSummaryAsync(ChatRoom savedChatRoom) {
-        CompletableFuture.runAsync(() -> {
-            try {
-                ChatProcessor.CounselingSummary summary = requestChatRoomSummary(savedChatRoom);
-
-                savedChatRoom.updateChatRoomSummary(
-                        summary.getTotalSummary(),
-                        summary.getSituationKeyword(),
-                        summary.getSolutionKeyword()
-                );
-                chatRoomCommandHelper.saveChatRoom(savedChatRoom);
-                log.info("채팅방 요약 완료: chatRoomId={}", savedChatRoom.getId());
-            } catch (Exception e) {
-                log.error("채팅방 요약 처리 중 오류 발생: chatRoomId={}", savedChatRoom.getId(), e);
-            }
-        });
     }
 
     @Override
@@ -141,15 +132,23 @@ public class CurrentChatRoomService
         chatRoom.complete();
 
         // 완료된 채팅방의 요약을 요청
-        ChatProcessor.CounselingSummary summary = requestChatRoomSummary(chatRoom);
+        try {
+            ChatProcessor.CounselingSummary summary = requestChatRoomSummary(chatRoom);
 
-        // 채팅방의 요약을 저장
-        chatRoom.updateChatRoomSummary(
-                summary.getTotalSummary(),
-                summary.getSituationKeyword(),
-                summary.getSolutionKeyword()
-        );
-        chatRoomCommandHelper.saveChatRoom(chatRoom);
+            // 채팅방의 요약을 저장
+            chatRoom.updateChatRoomSummary(
+                    summary.getTotalSummary(),
+                    summary.getSituationKeyword(),
+                    summary.getSolutionKeyword()
+            );
+            chatRoomCommandHelper.saveChatRoom(chatRoom);
+        } catch (Exception e) {
+            log.debug("채팅방 요약 요청 중 오류 발생, 재시도 스트림 추가: chatRoomId={}", chatRoom.getId(), e);
+            publishStreamMessagePort.publish(
+                    StreamMessageType.REQUEST_TOTAL_SUMMARY,
+                    new RequestTotalSummaryMessage(chatRoom.getId())
+            );
+        }
 
         return CompleteChatRoomResponse.builder()
                 .chatRoomId(chatRoom.getId())
