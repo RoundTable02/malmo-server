@@ -184,7 +184,7 @@ public class ChatRoomIntegrationTest {
                     .andExpect(jsonPath("$.data.chatRoomState").value(ChatRoomState.BEFORE_INIT.name()));
 
             Assertions.assertThat(chatRoom.getChatRoomState()).isEqualTo(ChatRoomState.COMPLETED);
-            Assertions.assertThat(chatRoom.getTotalSummary()).isEqualTo(GlobalConstants.CREATING_SUMMARY_LINE);
+            Assertions.assertThat(chatRoom.getTotalSummary()).isEqualTo(GlobalConstants.EXPIRED_ROOM_CREATING_SUMMARY_LINE);
 
             ChatRoomEntity newChatRoom = em.createQuery("SELECT c FROM ChatRoomEntity c WHERE c.memberEntityId.value = :memberId " +
                             "AND c.chatRoomState = :chatRoomState", ChatRoomEntity.class)
