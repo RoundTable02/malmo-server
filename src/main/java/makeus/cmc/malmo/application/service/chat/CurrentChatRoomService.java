@@ -61,8 +61,10 @@ public class CurrentChatRoomService
                         // 마지막 채팅 이후 하루가 지난 경우 채팅방 종료 처리
                         chatRoom.expire();
                         ChatRoom savedChatRoom = chatRoomCommandHelper.saveChatRoom(chatRoom);
-                        // 스트림 메시지 컨슈머가 채팅방 상태를 덮어씌우지 않도록 트랜잭션 종료 후 요청
-                        requestTotalSummaryAfterCommit(savedChatRoom);
+                        publishStreamMessagePort.publish(
+                                StreamMessageType.REQUEST_TOTAL_SUMMARY,
+                                new RequestTotalSummaryMessage(savedChatRoom.getId())
+                        );
 
                         return createAndSaveNewChatRoom(MemberId.of(command.getUserId()));
                     }
@@ -77,22 +79,6 @@ public class CurrentChatRoomService
         return GetCurrentChatRoomResponse.builder()
                 .chatRoomState(currentChatRoom.getChatRoomState())
                 .build();
-    }
-
-    private void requestTotalSummaryAfterCommit(ChatRoom chatRoom) {
-        TransactionSynchronizationManager.registerSynchronization(
-                new TransactionSynchronization() {
-                    @Override
-                    public void afterCommit() {
-                        // 채팅방 요약 요청을 스트림에 추가
-                        publishStreamMessagePort.publish(
-                                StreamMessageType.REQUEST_TOTAL_SUMMARY,
-                                new RequestTotalSummaryMessage(chatRoom.getId())
-                        );
-                        log.info("채팅방 요약 요청 완료: chatRoomId={}", chatRoom.getId());
-                    }
-                }
-        );
     }
 
     private ChatRoom createAndSaveNewChatRoom(MemberId memberId) {
@@ -156,8 +142,10 @@ public class CurrentChatRoomService
             chatRoomCommandHelper.saveChatRoom(chatRoom);
         } catch (Exception e) {
             log.debug("채팅방 요약 요청 중 오류 발생, 재시도 스트림 추가: chatRoomId={}", chatRoom.getId(), e);
-            // 스트림 메시지 컨슈머가 채팅방 상태를 덮어씌우지 않도록 트랜잭션 종료 후 요청
-            requestTotalSummaryAfterCommit(chatRoom);
+            publishStreamMessagePort.publish(
+                    StreamMessageType.REQUEST_TOTAL_SUMMARY,
+                    new RequestTotalSummaryMessage(chatRoom.getId())
+            );
         }
 
         return CompleteChatRoomResponse.builder()
