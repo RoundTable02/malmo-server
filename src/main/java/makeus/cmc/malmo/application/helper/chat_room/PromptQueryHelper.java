@@ -32,4 +32,9 @@ public class PromptQueryHelper {
         return loadPromptPort.loadPromptByLevel(TOTAL_SUMMARY_PROMPT_LEVEL)
                 .orElseThrow(PromptNotFoundException::new);
     }
+
+    public Prompt getMemberAnswerMetadata() {
+        return loadPromptPort.loadPromptByLevel(EXTRACT_METADATA_PROMPT)
+                .orElseThrow(PromptNotFoundException::new);
+    }
 }

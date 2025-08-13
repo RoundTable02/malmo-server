@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomCommandHelper;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomQueryHelper;
 import makeus.cmc.malmo.application.helper.chat_room.PromptQueryHelper;
+import makeus.cmc.malmo.application.helper.member.MemberMemoryCommandHelper;
 import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
+import makeus.cmc.malmo.application.helper.question.CoupleQuestionQueryHelper;
 import makeus.cmc.malmo.application.port.in.chat.ProcessMessageUseCase;
 import makeus.cmc.malmo.application.port.out.SendSseEventPort;
 import makeus.cmc.malmo.application.port.out.chat.SaveChatMessageSummaryPort;
@@ -14,8 +16,12 @@ import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
 import makeus.cmc.malmo.domain.model.chat.Prompt;
 import makeus.cmc.malmo.domain.model.member.Member;
+import makeus.cmc.malmo.domain.model.member.MemberMemory;
+import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
+import makeus.cmc.malmo.domain.model.question.MemberAnswer;
 import makeus.cmc.malmo.domain.service.ChatRoomDomainService;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
+import makeus.cmc.malmo.domain.value.id.CoupleQuestionId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +44,10 @@ public class ChatMessageService implements ProcessMessageUseCase {
     private final ChatRoomCommandHelper chatRoomCommandHelper;
     private final ChatRoomDomainService chatRoomDomainService;
     private final SaveChatMessageSummaryPort saveChatMessageSummaryPort;
+
+    private final CoupleQuestionQueryHelper coupleQuestionQueryHelper;
+
+    private final MemberMemoryCommandHelper memberMemoryCommandHelper;
 
     @Override
     public void processStreamChatMessage(ProcessMessageCommand command) {
@@ -85,17 +95,14 @@ public class ChatMessageService implements ProcessMessageUseCase {
         Prompt prompt = promptQueryHelper.getPromptByLevel(chatRoom.getLevel());
         Prompt summaryPrompt = promptQueryHelper.getSummaryPrompt();
 
-        // 현재 단계 채팅에 대한 전체 요약 요청 (비동기)
+        // 현재 단계 채팅에 대한 전체 요약 요청
         List<Map<String, String>> summaryMessages = chatPromptBuilder.createForSummaryAsync(chatRoom);
-        chatProcessor.requestSummaryAsync(summaryMessages, systemPrompt, prompt, summaryPrompt,
-                summary -> {
-                    ChatMessageSummary chatMessageSummary = ChatMessageSummary.createChatMessageSummary(
-                            ChatRoomId.of(chatRoom.getId()), summary, prompt.getLevel()
-                    );
-                    // 요약된 메시지 저장
-                    saveChatMessageSummaryPort.saveChatMessageSummary(chatMessageSummary);
-                }
-        );
+        String summary = chatProcessor.requestSummaryAsync(summaryMessages, systemPrompt, prompt, summaryPrompt);
+
+        ChatMessageSummary chatMessageSummary = ChatMessageSummary.createChatMessageSummary(
+                ChatRoomId.of(chatRoom.getId()), summary, prompt.getLevel());
+
+        saveChatMessageSummaryPort.saveChatMessageSummary(chatMessageSummary);
     }
 
     @Override
@@ -116,6 +123,28 @@ public class ChatMessageService implements ProcessMessageUseCase {
                 summary.getSolutionKeyword()
         );
         chatRoomCommandHelper.saveChatRoom(chatRoom);
+    }
+
+    @Override
+    public void processAnswerMetadata(ProcessAnswerCommand command) {
+        MemberAnswer memberAnswer = coupleQuestionQueryHelper.getMemberAnswerOrThrow(
+                CoupleQuestionId.of(command.getCoupleQuestionId()),
+                MemberId.of(command.getMemberId()));
+
+        CoupleQuestion coupleQuestion = coupleQuestionQueryHelper.getCoupleQuestionByIdOrThrow(
+                CoupleQuestionId.of(command.getCoupleQuestionId()));
+
+        Prompt metadataPrompt = promptQueryHelper.getMemberAnswerMetadata();
+
+        String metadata = chatProcessor.requestMetaData(
+                coupleQuestion.getQuestion().getContent(),
+                memberAnswer.getAnswer(),
+                metadataPrompt
+        );
+
+        MemberMemory memberMemory = MemberMemory.createMemberMemory(MemberId.of(command.getMemberId()), metadata);
+
+        memberMemoryCommandHelper.saveMemberMemory(memberMemory);
     }
 
     /*

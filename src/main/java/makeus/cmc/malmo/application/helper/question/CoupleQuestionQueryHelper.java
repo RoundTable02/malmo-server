@@ -35,6 +35,11 @@ public class CoupleQuestionQueryHelper {
                 .orElseThrow(CoupleQuestionNotFoundException::new);
     }
 
+    public CoupleQuestion getCoupleQuestionByIdOrThrow(CoupleQuestionId coupleQuestionId) {
+        return loadCoupleQuestionPort.loadCoupleQuestionById(coupleQuestionId)
+                .orElseThrow(CoupleQuestionNotFoundException::new);
+    }
+
     public CoupleQuestionDto getMaxLevelQuestionDto(MemberId memberId, CoupleId coupleId) {
         return loadCoupleQuestionPort.getMaxLevelQuestionDto(memberId, coupleId)
                 .orElseThrow(CoupleQuestionNotFoundException::new);

@@ -8,6 +8,7 @@ public interface ProcessMessageUseCase {
     void processStreamChatMessage(ProcessMessageCommand command);
     void processSummary(ProcessSummaryCommand command);
     void processTotalSummary(ProcessTotalSummaryCommand command);
+    void processAnswerMetadata(ProcessAnswerCommand command);
 
     @Data
     @Builder
@@ -29,5 +30,12 @@ public interface ProcessMessageUseCase {
     @Builder
     class ProcessTotalSummaryCommand {
         private Long chatRoomId;
+    }
+
+    @Data
+    @Builder
+    class ProcessAnswerCommand {
+        private Long memberId;
+        private Long coupleQuestionId;
     }
 }

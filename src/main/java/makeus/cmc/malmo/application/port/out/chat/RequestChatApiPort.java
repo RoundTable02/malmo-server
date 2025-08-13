@@ -5,15 +5,13 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public interface RequestChatApiPort {
-    void streamChat(
+    void requestStreamResponse(
             List<Map<String, String>> messages,
             Consumer<String> onData,
             Consumer<String> onCompleteFullResponse,
             Consumer<String> onError);
 
-    void requestSummary(
-            List<Map<String, String>> messages,
-            Consumer<String> onCompleteFullResponse);
+    String requestResponse(List<Map<String, String>> messages);
 
-    String requestTotalSummary(List<Map<String, String>> messages);
+    String requestJsonResponse(List<Map<String, String>> messages);
 }
