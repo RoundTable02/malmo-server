@@ -44,7 +44,7 @@ public class MemberAnswerRepositoryCustomImpl implements MemberAnswerRepositoryC
                         question.title,
                         question.content,
                         question.level,
-                        coupleQuestion.createdAt,
+                        myAnswer.createdAt,
                         me.nickname,
                         myAnswer.answer,
                         new CaseBuilder()
@@ -84,8 +84,6 @@ public class MemberAnswerRepositoryCustomImpl implements MemberAnswerRepositoryC
                         coupleQuestion.id.eq(coupleQuestionId)
                 )
                 .fetchOne();
-
-        System.out.println("MemberAnswerRepositoryCustomImpl.findAnswersDtoByCoupleQuestionId: " + result);
 
         return Optional.ofNullable(result);
     }

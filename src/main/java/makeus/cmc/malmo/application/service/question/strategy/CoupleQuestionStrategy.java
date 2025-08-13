@@ -23,6 +23,8 @@ import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Component
 @RequiredArgsConstructor
 public class CoupleQuestionStrategy implements QuestionHandlingStrategy{
@@ -84,7 +86,7 @@ public class CoupleQuestionStrategy implements QuestionHandlingStrategy{
                     .meAnswered(false)
                     .partnerAnswered(false)
                     .level(savedCoupleQuestion.getQuestion().getLevel())
-                    .createdAt(savedCoupleQuestion.getCreatedAt())
+                    .createdAt(LocalDateTime.now())
                     .build();
         }
 
@@ -95,7 +97,9 @@ public class CoupleQuestionStrategy implements QuestionHandlingStrategy{
                 .meAnswered(maxLevelQuestion.isMeAnswered())
                 .partnerAnswered(maxLevelQuestion.isPartnerAnswered())
                 .level(maxLevelQuestion.getLevel())
-                .createdAt(maxLevelQuestion.getCreatedAt())
+                .createdAt(maxLevelQuestion.getCreatedAt() == null
+                        ? LocalDateTime.now()
+                        : maxLevelQuestion.getCreatedAt())
                 .build();
     }
 
@@ -115,7 +119,9 @@ public class CoupleQuestionStrategy implements QuestionHandlingStrategy{
                 .title(answers.getTitle())
                 .content(answers.getContent())
                 .level(answers.getLevel())
-                .createdAt(answers.getCreatedAt())
+                .createdAt(answers.getCreatedAt() == null
+                        ? LocalDateTime.now()
+                        : answers.getCreatedAt())
                 .me(
                         answers.getMe() == null ? null :
                                 GetQuestionAnswerUseCase.AnswerDto.builder()

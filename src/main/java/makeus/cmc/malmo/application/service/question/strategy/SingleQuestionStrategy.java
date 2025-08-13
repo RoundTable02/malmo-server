@@ -15,6 +15,8 @@ import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.util.GlobalConstants;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+
 @Component
 @RequiredArgsConstructor
 public class SingleQuestionStrategy implements QuestionHandlingStrategy{
@@ -43,7 +45,9 @@ public class SingleQuestionStrategy implements QuestionHandlingStrategy{
                 .meAnswered(tempCoupleQuestion.isAnswered())
                 .level(GlobalConstants.FIRST_QUESTION_LEVEL)
                 .partnerAnswered(false)
-                .createdAt(tempCoupleQuestion.getCreatedAt())
+                .createdAt(tempCoupleQuestion.getAnsweredAt() == null
+                        ? LocalDateTime.now()
+                        : tempCoupleQuestion.getAnsweredAt())
                 .build();
     }
 
@@ -57,7 +61,9 @@ public class SingleQuestionStrategy implements QuestionHandlingStrategy{
                 .title(tempCoupleQuestion.getQuestion().getTitle())
                 .content(tempCoupleQuestion.getQuestion().getContent())
                 .level(GlobalConstants.FIRST_QUESTION_LEVEL)
-                .createdAt(tempCoupleQuestion.getCreatedAt())
+                .createdAt(tempCoupleQuestion.getAnsweredAt() == null
+                        ? LocalDateTime.now()
+                        : tempCoupleQuestion.getAnsweredAt())
                 .me(
                         GetQuestionAnswerUseCase.AnswerDto.builder()
                                 .nickname(member.getNickname())

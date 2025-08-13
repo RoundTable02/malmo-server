@@ -57,7 +57,12 @@ public class CoupleQuestionRepositoryCustomImpl implements CoupleQuestionReposit
                                 .where(memberAnswerEntity.coupleQuestionEntityId.value.eq(coupleQuestionEntity.id)
                                         .and(coupleMemberEntity.memberEntityId.value.ne(memberId)))
                                 .exists(),
-                        coupleQuestionEntity.createdAt
+                        JPAExpressions.select(memberAnswerEntity.createdAt)
+                                .from(memberAnswerEntity)
+                                .join(coupleMemberEntity)
+                                .on(memberAnswerEntity.coupleMemberEntityId.value.eq(coupleMemberEntity.id))
+                                .where(memberAnswerEntity.coupleQuestionEntityId.value.eq(coupleQuestionEntity.id)
+                                        .and(coupleMemberEntity.memberEntityId.value.eq(memberId)))
                 ))
                 .from(coupleQuestionEntity)
                 .where(coupleQuestionEntity.coupleEntityId.value.eq(coupleId))
