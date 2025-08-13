@@ -21,6 +21,7 @@ import makeus.cmc.malmo.domain.value.id.CoupleMemberId;
 import makeus.cmc.malmo.domain.value.id.CoupleQuestionId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
@@ -37,6 +38,7 @@ public class CoupleQuestionStrategy implements QuestionHandlingStrategy{
     private final PublishStreamMessagePort publishStreamMessagePort;
 
     @Override
+    @Transactional
     public GetQuestionUseCase.GetQuestionResponse getTodayQuestion(GetQuestionUseCase.GetTodayQuestionCommand command) {
         // 커플 사용자에게는 오늘의 커플 질문을 제공
         // 멤버가 속한 Couple의 가장 레벨이 높은 CoupleQuestion을 조회
@@ -59,7 +61,7 @@ public class CoupleQuestionStrategy implements QuestionHandlingStrategy{
             publishStreamMessagePort.publish(
                     StreamMessageType.REQUEST_EXTRACT_METADATA,
                     new RequestExtractMetadataMessage(
-                            savedCoupleQuestion.getId(),
+                            coupleQuestion.getId(),
                             command.getUserId()
                     )
             );
@@ -70,7 +72,7 @@ public class CoupleQuestionStrategy implements QuestionHandlingStrategy{
             publishStreamMessagePort.publish(
                     StreamMessageType.REQUEST_EXTRACT_METADATA,
                     new RequestExtractMetadataMessage(
-                            savedCoupleQuestion.getId(),
+                            coupleQuestion.getId(),
                             partnerId.getValue()
                     )
             );
