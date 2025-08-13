@@ -41,40 +41,37 @@ public class OpenAiApiClient implements RequestChatApiPort {
         Map<String, Object> body = createStreamBody(messages);
         Request request = createStreamRequest(body, onError);
 
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                log.error("Failed to connect to OpenAI API", e);
-                onError.accept("에러가 발생했습니다: 네트워크 연결에 실패했습니다.");
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                log.error("OpenAI API request failed with code: {}", response.code());
+                onError.accept("에러가 발생했습니다: API 요청에 실패했습니다.");
+                return;
             }
 
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) {
-                StringBuilder fullResponse = new StringBuilder();
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(response.body().byteStream()))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        if (line.startsWith("data: ")) {
-                            String data = line.substring(6).trim();
-                            if (data.equals("[DONE]")) break;
+            StringBuilder fullResponse = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(response.body().byteStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.startsWith("data: ")) {
+                        String data = line.substring(6).trim();
+                        if (data.equals("[DONE]")) break;
 
-                            String content = extractStreamContent(data);
-
-                            if (!content.isEmpty()) {
-                                fullResponse.append(content);
-                                onData.accept(content);
-                            }
+                        String content = extractStreamContent(data);
+                        if (!content.isEmpty()) {
+                            fullResponse.append(content);
+                            onData.accept(content); // 실시간 콜백 호출
                         }
                     }
-
-                    onCompleteFullResponse.accept(fullResponse.toString());
                 }
-                catch (Exception e) {
-                    log.error("Error processing OpenAI API response", e);
-                    onError.accept("에러가 발생했습니다: 응답 처리 중 문제가 발생했습니다.");
-                }
+                onCompleteFullResponse.accept(fullResponse.toString());
             }
-        });
+        } catch (IOException e) {
+            log.error("Failed to connect to OpenAI API", e);
+            onError.accept("에러가 발생했습니다: 네트워크 연결에 실패했습니다.");
+        } catch (Exception e) {
+            log.error("Error processing OpenAI API response", e);
+            onError.accept("에러가 발생했습니다: 응답 처리 중 문제가 발생했습니다.");
+        }
     }
 
     @Override
