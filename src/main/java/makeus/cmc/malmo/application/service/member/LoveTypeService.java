@@ -2,10 +2,10 @@ package makeus.cmc.malmo.application.service.member;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
-import makeus.cmc.malmo.application.port.in.member.UpdateMemberLoveTypeUseCase;
 import makeus.cmc.malmo.application.helper.love_type.LoveTypeQueryHelper;
 import makeus.cmc.malmo.application.helper.member.MemberCommandHelper;
 import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
+import makeus.cmc.malmo.application.port.in.member.UpdateMemberLoveTypeUseCase;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.service.LoveTypeCalculator;
 import makeus.cmc.malmo.domain.value.id.MemberId;

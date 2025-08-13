@@ -148,4 +148,19 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
 
         return count != null && count > 0;
     }
+
+    @Override
+    public Optional<Long> findPartnerMemberId(Long memberId) {
+        Long partnerMemberId = queryFactory
+                .select(coupleMemberEntity.memberEntityId.value)
+                .from(coupleEntity)
+                .join(coupleEntity.coupleMembers, coupleMemberEntity)
+                .join(memberEntity).on(memberEntity.id.eq(coupleMemberEntity.memberEntityId.value))
+                .where(coupleEntity.coupleState.ne(CoupleState.DELETED)
+                        .and(coupleEntity.coupleMembers.any().memberEntityId.value.eq(memberId)
+                                .and(coupleMemberEntity.memberEntityId.value.ne(memberId))))
+                .fetchOne();
+
+        return Optional.ofNullable(partnerMemberId);
+    }
 }

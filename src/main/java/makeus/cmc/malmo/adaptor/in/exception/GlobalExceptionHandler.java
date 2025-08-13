@@ -1,9 +1,9 @@
 package makeus.cmc.malmo.adaptor.in.exception;
 
 import lombok.extern.slf4j.Slf4j;
-import makeus.cmc.malmo.adaptor.out.exception.SseConnectionException;
 import makeus.cmc.malmo.adaptor.out.exception.OidcIdTokenException;
 import makeus.cmc.malmo.adaptor.out.exception.RestApiException;
+import makeus.cmc.malmo.adaptor.out.exception.SseConnectionException;
 import makeus.cmc.malmo.application.exception.*;
 import org.hibernate.TypeMismatchException;
 import org.springframework.http.ResponseEntity;

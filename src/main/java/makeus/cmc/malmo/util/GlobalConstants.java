@@ -13,6 +13,7 @@ public class GlobalConstants {
     public static final int SYSTEM_PROMPT_LEVEL = -2;
     public static final int SUMMARY_PROMPT_LEVEL = -1;
     public static final int TOTAL_SUMMARY_PROMPT_LEVEL = -3;
+    public static final int EXTRACT_METADATA_PROMPT = -4;
     public static final int NOT_COUPLE_MEMBER_LAST_PROMPT_LEVEL = 1;
     public static final int LAST_PROMPT_LEVEL = 4;
 

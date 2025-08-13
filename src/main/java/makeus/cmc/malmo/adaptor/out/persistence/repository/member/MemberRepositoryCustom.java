@@ -22,4 +22,5 @@ public interface MemberRepositoryCustom {
 
     boolean isMemberStateAlive(Long memberId);
 
+    Optional<Long> findPartnerMemberId(Long memberId);
 }

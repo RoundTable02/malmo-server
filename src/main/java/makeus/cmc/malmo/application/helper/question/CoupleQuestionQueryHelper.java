@@ -1,13 +1,13 @@
 package makeus.cmc.malmo.application.helper.question;
 
 import lombok.*;
+import makeus.cmc.malmo.application.exception.CoupleQuestionNotFoundException;
+import makeus.cmc.malmo.application.exception.MemberAccessDeniedException;
+import makeus.cmc.malmo.application.exception.QuestionNotFoundException;
 import makeus.cmc.malmo.application.port.out.question.LoadCoupleQuestionPort;
 import makeus.cmc.malmo.application.port.out.question.LoadMemberAnswerPort;
 import makeus.cmc.malmo.application.port.out.question.LoadQuestionPort;
 import makeus.cmc.malmo.application.port.out.question.LoadTempCoupleQuestionPort;
-import makeus.cmc.malmo.application.exception.CoupleQuestionNotFoundException;
-import makeus.cmc.malmo.application.exception.MemberAccessDeniedException;
-import makeus.cmc.malmo.application.exception.QuestionNotFoundException;
 import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
 import makeus.cmc.malmo.domain.model.question.MemberAnswer;
 import makeus.cmc.malmo.domain.model.question.Question;
@@ -32,6 +32,11 @@ public class CoupleQuestionQueryHelper {
 
     public CoupleQuestion getMaxLevelQuestionOrThrow(CoupleId coupleId) {
         return loadCoupleQuestionPort.loadMaxLevelCoupleQuestion(coupleId)
+                .orElseThrow(CoupleQuestionNotFoundException::new);
+    }
+
+    public CoupleQuestion getCoupleQuestionByIdOrThrow(CoupleQuestionId coupleQuestionId) {
+        return loadCoupleQuestionPort.loadCoupleQuestionById(coupleQuestionId)
                 .orElseThrow(CoupleQuestionNotFoundException::new);
     }
 

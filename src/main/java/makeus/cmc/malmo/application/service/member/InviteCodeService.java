@@ -2,8 +2,8 @@ package makeus.cmc.malmo.application.service.member;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
-import makeus.cmc.malmo.application.port.in.member.GetInviteCodeUseCase;
 import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
+import makeus.cmc.malmo.application.port.in.member.GetInviteCodeUseCase;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;

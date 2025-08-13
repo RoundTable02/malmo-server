@@ -48,6 +48,11 @@ public class MemberQueryHelper {
                 .orElseThrow(MemberNotFoundException::new);
     }
 
+    public MemberId getPartnerIdOrThrow(MemberId memberId) {
+        return loadPartnerPort.loadPartnerIdByMemberId(memberId)
+                .orElseThrow(MemberNotFoundException::new);
+    }
+
     public Optional<Member> getMemberByProviderId(Provider provider, String providerId) {
         return loadMemberPort.loadMemberByProviderId(provider, providerId);
     }

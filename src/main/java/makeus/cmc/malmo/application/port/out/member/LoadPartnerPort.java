@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface LoadPartnerPort {
     Optional<MemberQueryHelper.PartnerMemberDto> loadPartnerByMemberId(MemberId memberId);
+
+    Optional<MemberId> loadPartnerIdByMemberId(MemberId memberId);
 }

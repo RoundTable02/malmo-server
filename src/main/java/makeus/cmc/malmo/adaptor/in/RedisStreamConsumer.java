@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import makeus.cmc.malmo.adaptor.message.RequestSummaryMessage;
-import makeus.cmc.malmo.adaptor.message.RequestTotalSummaryMessage;
-import makeus.cmc.malmo.adaptor.message.StreamChatMessage;
-import makeus.cmc.malmo.adaptor.message.StreamMessageType;
+import makeus.cmc.malmo.adaptor.message.*;
 import makeus.cmc.malmo.application.port.in.chat.ProcessMessageUseCase;
 import org.springframework.data.redis.connection.stream.*;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -111,6 +108,9 @@ public class RedisStreamConsumer {
                 case REQUEST_TOTAL_SUMMARY:
                     processRequestTotalSummaryEvent(payloadNode);
                     break;
+                case REQUEST_EXTRACT_METADATA:
+                    processRequestMetadataEvent(payloadNode);
+                    break;
                 default:
                     log.warn("Unknown message type: {}", type);
             }
@@ -164,6 +164,20 @@ public class RedisStreamConsumer {
         processMessageUseCase.processTotalSummary(
                 ProcessMessageUseCase.ProcessTotalSummaryCommand.builder()
                         .chatRoomId(requestTotalSummaryMessage.getChatRoomId())
+                        .build()
+        );
+    }
+
+    private void processRequestMetadataEvent(JsonNode payloadNode) {
+        RequestExtractMetadataMessage requestExtractMetadataMessage = new RequestExtractMetadataMessage(
+                payloadNode.get("coupleQuestionId").asLong(),
+                payloadNode.get("memberId").asLong()
+        );
+
+        processMessageUseCase.processAnswerMetadata(
+                ProcessMessageUseCase.ProcessAnswerCommand.builder()
+                        .coupleQuestionId(requestExtractMetadataMessage.getCoupleQuestionId())
+                        .memberId(requestExtractMetadataMessage.getMemberId())
                         .build()
         );
     }

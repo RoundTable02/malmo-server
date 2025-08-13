@@ -6,14 +6,14 @@ import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.MemberMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.chat.ChatRoomRepository;
-import makeus.cmc.malmo.adaptor.out.persistence.repository.question.CoupleQuestionRepository;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.member.MemberRepository;
+import makeus.cmc.malmo.adaptor.out.persistence.repository.question.CoupleQuestionRepository;
+import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.application.port.out.chat.LoadChatRoomMetadataPort;
 import makeus.cmc.malmo.application.port.out.member.LoadInviteCodePort;
 import makeus.cmc.malmo.application.port.out.member.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.member.LoadPartnerPort;
 import makeus.cmc.malmo.application.port.out.member.SaveMemberPort;
-import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
 import makeus.cmc.malmo.domain.value.id.MemberId;
@@ -72,6 +72,12 @@ public class MemberPersistenceAdapter implements
     public Optional<MemberQueryHelper.PartnerMemberDto> loadPartnerByMemberId(MemberId memberId) {
         return memberRepository.findPartnerMember(memberId.getValue())
                 .map(PartnerMemberRepositoryDto::toDto);
+    }
+
+    @Override
+    public Optional<MemberId> loadPartnerIdByMemberId(MemberId memberId) {
+        return memberRepository.findPartnerMemberId(memberId.getValue())
+                .map(MemberId::of);
     }
 
     @Override

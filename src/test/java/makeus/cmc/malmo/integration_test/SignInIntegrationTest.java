@@ -2,13 +2,11 @@ package makeus.cmc.malmo.integration_test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
-import makeus.cmc.malmo.adaptor.out.jwt.TokenInfo;
 import makeus.cmc.malmo.adaptor.out.oidc.AppleOidcAdapter;
 import makeus.cmc.malmo.adaptor.out.oidc.KakaoOidcAdapter;
 import makeus.cmc.malmo.adaptor.out.oidc.KakaoRestApiAdaptor;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
-import makeus.cmc.malmo.application.port.out.member.GenerateTokenPort;
 import makeus.cmc.malmo.domain.value.state.MemberState;
 import makeus.cmc.malmo.domain.value.type.MemberRole;
 import makeus.cmc.malmo.domain.value.type.Provider;
@@ -29,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.INVALID_REFRESH_TOKEN;
 import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.NO_SUCH_MEMBER;

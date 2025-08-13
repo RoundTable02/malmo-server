@@ -2,8 +2,8 @@ package makeus.cmc.malmo.application.helper.love_type;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.application.port.out.LoadLoveTypeQuestionDataPort;
 import makeus.cmc.malmo.application.exception.LoveTypeQuestionNotFoundException;
+import makeus.cmc.malmo.application.port.out.LoadLoveTypeQuestionDataPort;
 import makeus.cmc.malmo.domain.model.love_type.LoveTypeQuestionData;
 import org.springframework.stereotype.Component;
 
