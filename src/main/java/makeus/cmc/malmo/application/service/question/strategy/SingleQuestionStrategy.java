@@ -1,19 +1,21 @@
-package makeus.cmc.malmo.application.service.strategy;
+package makeus.cmc.malmo.application.service.question.strategy;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.application.port.in.question.AnswerQuestionUseCase;
-import makeus.cmc.malmo.application.port.in.question.GetQuestionAnswerUseCase;
-import makeus.cmc.malmo.application.port.in.question.GetQuestionUseCase;
+import makeus.cmc.malmo.application.exception.MemberAccessDeniedException;
 import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.application.helper.question.CoupleQuestionCommandHelper;
 import makeus.cmc.malmo.application.helper.question.CoupleQuestionQueryHelper;
-import makeus.cmc.malmo.application.exception.MemberAccessDeniedException;
+import makeus.cmc.malmo.application.port.in.question.AnswerQuestionUseCase;
+import makeus.cmc.malmo.application.port.in.question.GetQuestionAnswerUseCase;
+import makeus.cmc.malmo.application.port.in.question.GetQuestionUseCase;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.question.Question;
 import makeus.cmc.malmo.domain.model.question.TempCoupleQuestion;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.util.GlobalConstants;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
@@ -43,7 +45,9 @@ public class SingleQuestionStrategy implements QuestionHandlingStrategy{
                 .meAnswered(tempCoupleQuestion.isAnswered())
                 .level(GlobalConstants.FIRST_QUESTION_LEVEL)
                 .partnerAnswered(false)
-                .createdAt(tempCoupleQuestion.getCreatedAt())
+                .createdAt(tempCoupleQuestion.getAnsweredAt() == null
+                        ? LocalDateTime.now()
+                        : tempCoupleQuestion.getAnsweredAt())
                 .build();
     }
 
@@ -57,7 +61,9 @@ public class SingleQuestionStrategy implements QuestionHandlingStrategy{
                 .title(tempCoupleQuestion.getQuestion().getTitle())
                 .content(tempCoupleQuestion.getQuestion().getContent())
                 .level(GlobalConstants.FIRST_QUESTION_LEVEL)
-                .createdAt(tempCoupleQuestion.getCreatedAt())
+                .createdAt(tempCoupleQuestion.getAnsweredAt() == null
+                        ? LocalDateTime.now()
+                        : tempCoupleQuestion.getAnsweredAt())
                 .me(
                         GetQuestionAnswerUseCase.AnswerDto.builder()
                                 .nickname(member.getNickname())

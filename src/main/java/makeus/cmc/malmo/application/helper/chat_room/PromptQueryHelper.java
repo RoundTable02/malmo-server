@@ -1,8 +1,8 @@
 package makeus.cmc.malmo.application.helper.chat_room;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.application.port.out.chat.LoadPromptPort;
 import makeus.cmc.malmo.application.exception.PromptNotFoundException;
+import makeus.cmc.malmo.application.port.out.chat.LoadPromptPort;
 import makeus.cmc.malmo.domain.model.chat.Prompt;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +30,11 @@ public class PromptQueryHelper {
 
     public Prompt getTotalSummaryPrompt() {
         return loadPromptPort.loadPromptByLevel(TOTAL_SUMMARY_PROMPT_LEVEL)
+                .orElseThrow(PromptNotFoundException::new);
+    }
+
+    public Prompt getMemberAnswerMetadata() {
+        return loadPromptPort.loadPromptByLevel(EXTRACT_METADATA_PROMPT)
                 .orElseThrow(PromptNotFoundException::new);
     }
 }

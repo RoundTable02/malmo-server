@@ -9,6 +9,8 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
 import makeus.cmc.malmo.domain.value.state.CoupleQuestionState;
 
+import java.time.LocalDateTime;
+
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -31,5 +33,7 @@ public class TempCoupleQuestionEntity extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     private CoupleQuestionState coupleQuestionState;
+
+    private LocalDateTime answeredAt;
 
 }

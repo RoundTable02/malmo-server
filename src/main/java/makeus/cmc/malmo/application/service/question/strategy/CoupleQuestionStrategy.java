@@ -1,13 +1,17 @@
-package makeus.cmc.malmo.application.service.strategy;
+package makeus.cmc.malmo.application.service.question.strategy;
 
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.adaptor.message.RequestExtractMetadataMessage;
+import makeus.cmc.malmo.adaptor.message.StreamMessageType;
+import makeus.cmc.malmo.application.exception.MemberAccessDeniedException;
+import makeus.cmc.malmo.application.helper.couple.CoupleQueryHelper;
+import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
+import makeus.cmc.malmo.application.helper.question.CoupleQuestionCommandHelper;
+import makeus.cmc.malmo.application.helper.question.CoupleQuestionQueryHelper;
 import makeus.cmc.malmo.application.port.in.question.AnswerQuestionUseCase;
 import makeus.cmc.malmo.application.port.in.question.GetQuestionAnswerUseCase;
 import makeus.cmc.malmo.application.port.in.question.GetQuestionUseCase;
-import makeus.cmc.malmo.application.helper.couple.CoupleQueryHelper;
-import makeus.cmc.malmo.application.helper.question.CoupleQuestionCommandHelper;
-import makeus.cmc.malmo.application.helper.question.CoupleQuestionQueryHelper;
-import makeus.cmc.malmo.application.exception.MemberAccessDeniedException;
+import makeus.cmc.malmo.application.port.out.chat.PublishStreamMessagePort;
 import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
 import makeus.cmc.malmo.domain.model.question.MemberAnswer;
 import makeus.cmc.malmo.domain.model.question.Question;
@@ -17,6 +21,9 @@ import makeus.cmc.malmo.domain.value.id.CoupleMemberId;
 import makeus.cmc.malmo.domain.value.id.CoupleQuestionId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
@@ -28,7 +35,12 @@ public class CoupleQuestionStrategy implements QuestionHandlingStrategy{
 
     private final CoupleQueryHelper coupleQueryHelper;
 
+    private final MemberQueryHelper memberQueryHelper;
+
+    private final PublishStreamMessagePort publishStreamMessagePort;
+
     @Override
+    @Transactional
     public GetQuestionUseCase.GetQuestionResponse getTodayQuestion(GetQuestionUseCase.GetTodayQuestionCommand command) {
         // 커플 사용자에게는 오늘의 커플 질문을 제공
         // 멤버가 속한 Couple의 가장 레벨이 높은 CoupleQuestion을 조회
@@ -47,6 +59,26 @@ public class CoupleQuestionStrategy implements QuestionHandlingStrategy{
             CoupleQuestion nextCoupleQuestion = CoupleQuestion.createCoupleQuestion(nextQuestion, coupleId);
             CoupleQuestion savedCoupleQuestion = coupleQuestionCommandHelper.saveCoupleQuestion(nextCoupleQuestion);
 
+            // 사용자 답변으로부터 메타데이터 추출
+            publishStreamMessagePort.publish(
+                    StreamMessageType.REQUEST_EXTRACT_METADATA,
+                    new RequestExtractMetadataMessage(
+                            coupleQuestion.getId(),
+                            command.getUserId()
+                    )
+            );
+
+            // 파트너의 메타데이터도 추출 요청
+            MemberId partnerId = memberQueryHelper.getPartnerIdOrThrow(MemberId.of(command.getUserId()));
+
+            publishStreamMessagePort.publish(
+                    StreamMessageType.REQUEST_EXTRACT_METADATA,
+                    new RequestExtractMetadataMessage(
+                            coupleQuestion.getId(),
+                            partnerId.getValue()
+                    )
+            );
+
             return GetQuestionUseCase.GetQuestionResponse.builder()
                     .coupleQuestionId(savedCoupleQuestion.getId())
                     .title(savedCoupleQuestion.getQuestion().getTitle())
@@ -54,7 +86,7 @@ public class CoupleQuestionStrategy implements QuestionHandlingStrategy{
                     .meAnswered(false)
                     .partnerAnswered(false)
                     .level(savedCoupleQuestion.getQuestion().getLevel())
-                    .createdAt(savedCoupleQuestion.getCreatedAt())
+                    .createdAt(LocalDateTime.now())
                     .build();
         }
 
@@ -65,7 +97,9 @@ public class CoupleQuestionStrategy implements QuestionHandlingStrategy{
                 .meAnswered(maxLevelQuestion.isMeAnswered())
                 .partnerAnswered(maxLevelQuestion.isPartnerAnswered())
                 .level(maxLevelQuestion.getLevel())
-                .createdAt(maxLevelQuestion.getCreatedAt())
+                .createdAt(maxLevelQuestion.getCreatedAt() == null
+                        ? LocalDateTime.now()
+                        : maxLevelQuestion.getCreatedAt())
                 .build();
     }
 
@@ -85,7 +119,9 @@ public class CoupleQuestionStrategy implements QuestionHandlingStrategy{
                 .title(answers.getTitle())
                 .content(answers.getContent())
                 .level(answers.getLevel())
-                .createdAt(answers.getCreatedAt())
+                .createdAt(answers.getCreatedAt() == null
+                        ? LocalDateTime.now()
+                        : answers.getCreatedAt())
                 .me(
                         answers.getMe() == null ? null :
                                 GetQuestionAnswerUseCase.AnswerDto.builder()

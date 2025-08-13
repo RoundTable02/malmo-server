@@ -17,6 +17,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleMemberEntityI
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleQuestionEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
+import makeus.cmc.malmo.application.port.out.chat.PublishStreamMessagePort;
 import makeus.cmc.malmo.application.port.out.member.GenerateTokenPort;
 import makeus.cmc.malmo.domain.value.state.CoupleQuestionState;
 import makeus.cmc.malmo.domain.value.state.MemberAnswerState;
@@ -30,9 +31,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -43,6 +46,8 @@ import java.time.LocalDateTime;
 
 import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.*;
 import static makeus.cmc.malmo.util.GlobalConstants.FIRST_QUESTION_LEVEL;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -53,6 +58,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class CoupleQuestionIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    PublishStreamMessagePort publishStreamMessagePort;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -342,6 +350,8 @@ public class CoupleQuestionIntegrationTest {
                     .setParameter("id", coupleQuestion.getId())
                     .executeUpdate();
 
+            doNothing().when(publishStreamMessagePort).publish(any(), any());
+
             // when
             MvcResult mvcResult = mockMvc.perform(get("/questions/today")
                             .header("Authorization", "Bearer " + accessToken)
@@ -366,6 +376,9 @@ public class CoupleQuestionIntegrationTest {
             Assertions.assertThat(data.level).isEqualTo(FIRST_QUESTION_LEVEL + 1);
             Assertions.assertThat(data.meAnswered).isFalse();
             Assertions.assertThat(data.partnerAnswered).isFalse();
+
+            // publishStreamMessagePort 호출 검증
+            verify(publishStreamMessagePort, times(2)).publish(any(), any());
         }
     }
 

@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Component
 public class SseEmitterAdapter implements SendSseEventPort, ConnectSsePort {
-    private static final long TIMEOUT = 10 * 60 * 1000L; // 10분
+    private static final long TIMEOUT = 60 * 1000L; // 1분
     private static final int MAX_SIZE = 1000;
     public static final long RECONNECT_TIME_MILLIS = 3000L;
 

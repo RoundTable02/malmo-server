@@ -2,9 +2,9 @@ package makeus.cmc.malmo.application.service.member;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
-import makeus.cmc.malmo.application.port.in.member.UpdateTermsAgreementUseCase;
 import makeus.cmc.malmo.application.helper.terms.TermsCommandHelper;
 import makeus.cmc.malmo.application.helper.terms.TermsQueryHelper;
+import makeus.cmc.malmo.application.port.in.member.UpdateTermsAgreementUseCase;
 import makeus.cmc.malmo.domain.model.terms.MemberTermsAgreement;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.id.TermsId;

@@ -36,20 +36,19 @@ public class ChatProcessor {
 
         log.info("total messages: {}", messages);
 
-        requestChatApiPort.streamChat(messages, onChunk, onComplete, onError);
+        requestChatApiPort.requestStreamResponse(messages, onChunk, onComplete, onError);
     }
 
-    public void requestSummaryAsync(List<Map<String, String>> messages,
+    public String requestSummaryAsync(List<Map<String, String>> messages,
                                     Prompt systemPrompt,
                                     Prompt prompt,
-                                    Prompt summaryPrompt,
-                                    Consumer<String> onSummary) {
+                                    Prompt summaryPrompt) {
 
         messages.add(createMessageMap(SenderType.SYSTEM, systemPrompt.getContent()));
         messages.add(createMessageMap(SenderType.SYSTEM, prompt.getContent()));
         messages.add(createMessageMap(SenderType.SYSTEM, "[현재 단계 지시] " + summaryPrompt.getContent()));
 
-        requestChatApiPort.requestSummary(messages, onSummary);
+        return requestChatApiPort.requestResponse(messages);
     }
 
     public CounselingSummary requestTotalSummary(List<Map<String, String>> messages,
@@ -58,15 +57,26 @@ public class ChatProcessor {
         messages.add(createMessageMap(SenderType.SYSTEM, systemPrompt.getContent()));
         messages.add(createMessageMap(SenderType.SYSTEM, "[현재 단계 지시] " + totalSummaryPrompt.getContent()));
 
-        String summaryJson = requestChatApiPort.requestTotalSummary(messages);
+        String summaryJson = requestChatApiPort.requestJsonResponse(messages);
 
         try {
             return objectMapper.readValue(summaryJson, CounselingSummary.class);
         } catch (JsonProcessingException e) {
-            // TODO : 적절한 예외 처리 로직 추가
             log.error("Failed to parse summary JSON: {}", summaryJson, e);
             throw new RuntimeException("Failed to parse summary JSON", e);
         }
+    }
+
+    public String requestMetaData(String question,
+                                  String memberAnswer,
+                                  Prompt metadataPrompt) {
+        List<Map<String, String>> messages = List.of(
+                createMessageMap(SenderType.SYSTEM, metadataPrompt.getContent()),
+                createMessageMap(SenderType.ASSISTANT, "[질문] " + question),
+                createMessageMap(SenderType.USER, "[답변] " + memberAnswer)
+        );
+
+        return requestChatApiPort.requestResponse(messages);
     }
 
     private Map<String, String> createMessageMap(SenderType senderType, String content) {
