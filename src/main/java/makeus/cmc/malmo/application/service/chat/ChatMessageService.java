@@ -6,7 +6,6 @@ import makeus.cmc.malmo.application.helper.chat_room.ChatRoomQueryHelper;
 import makeus.cmc.malmo.application.helper.chat_room.PromptQueryHelper;
 import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.application.port.in.chat.ProcessMessageUseCase;
-import makeus.cmc.malmo.application.port.in.chat.SendChatMessageUseCase;
 import makeus.cmc.malmo.application.port.out.SendSseEventPort;
 import makeus.cmc.malmo.application.port.out.chat.SaveChatMessageSummaryPort;
 import makeus.cmc.malmo.application.port.out.member.ValidateMemberPort;
@@ -19,14 +18,10 @@ import makeus.cmc.malmo.domain.service.ChatRoomDomainService;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static makeus.cmc.malmo.util.GlobalConstants.FINAL_MESSAGE;
-import static makeus.cmc.malmo.util.GlobalConstants.LAST_PROMPT_LEVEL;
 
 @Service
 @RequiredArgsConstructor

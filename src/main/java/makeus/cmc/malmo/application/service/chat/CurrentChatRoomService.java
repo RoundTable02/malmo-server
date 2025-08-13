@@ -5,14 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.adaptor.message.RequestTotalSummaryMessage;
 import makeus.cmc.malmo.adaptor.message.StreamMessageType;
-import makeus.cmc.malmo.application.port.in.chat.CompleteChatRoomUseCase;
-import makeus.cmc.malmo.application.port.in.chat.GetCurrentChatRoomMessagesUseCase;
-import makeus.cmc.malmo.application.port.in.chat.GetCurrentChatRoomUseCase;
-import makeus.cmc.malmo.application.port.out.chat.LoadMessagesPort;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomCommandHelper;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomQueryHelper;
 import makeus.cmc.malmo.application.helper.chat_room.PromptQueryHelper;
 import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
+import makeus.cmc.malmo.application.port.in.chat.CompleteChatRoomUseCase;
+import makeus.cmc.malmo.application.port.in.chat.GetCurrentChatRoomMessagesUseCase;
+import makeus.cmc.malmo.application.port.in.chat.GetCurrentChatRoomUseCase;
+import makeus.cmc.malmo.application.port.out.chat.LoadMessagesPort;
 import makeus.cmc.malmo.application.port.out.chat.PublishStreamMessagePort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
@@ -28,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 import static makeus.cmc.malmo.util.GlobalConstants.INIT_CHATROOM_LEVEL;
 import static makeus.cmc.malmo.util.GlobalConstants.INIT_CHAT_MESSAGE;

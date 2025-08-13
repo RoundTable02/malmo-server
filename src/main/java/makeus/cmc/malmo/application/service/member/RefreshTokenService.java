@@ -2,10 +2,10 @@ package makeus.cmc.malmo.application.service.member;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.jwt.TokenInfo;
-import makeus.cmc.malmo.application.port.in.member.RefreshTokenUseCase;
 import makeus.cmc.malmo.application.helper.member.AccessTokenHelper;
 import makeus.cmc.malmo.application.helper.member.MemberCommandHelper;
 import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
+import makeus.cmc.malmo.application.port.in.member.RefreshTokenUseCase;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;

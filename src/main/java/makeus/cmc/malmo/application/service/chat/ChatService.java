@@ -6,19 +6,13 @@ import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.adaptor.message.RequestSummaryMessage;
 import makeus.cmc.malmo.adaptor.message.StreamChatMessage;
 import makeus.cmc.malmo.adaptor.message.StreamMessageType;
-import makeus.cmc.malmo.application.port.in.chat.SendChatMessageUseCase;
-import makeus.cmc.malmo.application.port.out.chat.PublishStreamMessagePort;
-import makeus.cmc.malmo.application.port.out.chat.SaveChatMessageSummaryPort;
-import makeus.cmc.malmo.application.port.out.SendSseEventPort;
-import makeus.cmc.malmo.application.port.out.member.ValidateMemberPort;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomCommandHelper;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomQueryHelper;
-import makeus.cmc.malmo.application.helper.chat_room.PromptQueryHelper;
 import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
+import makeus.cmc.malmo.application.port.in.chat.SendChatMessageUseCase;
+import makeus.cmc.malmo.application.port.out.chat.PublishStreamMessagePort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
-import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
-import makeus.cmc.malmo.domain.model.chat.Prompt;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.service.ChatRoomDomainService;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
@@ -26,10 +20,6 @@ import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.state.ChatRoomState;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static makeus.cmc.malmo.util.GlobalConstants.FINAL_MESSAGE;
 import static makeus.cmc.malmo.util.GlobalConstants.LAST_PROMPT_LEVEL;
@@ -40,13 +30,8 @@ import static makeus.cmc.malmo.util.GlobalConstants.LAST_PROMPT_LEVEL;
 public class ChatService implements SendChatMessageUseCase {
 
     private final ChatRoomDomainService chatRoomDomainService;
-    private final PromptQueryHelper promptQueryHelper;
-    private final ChatPromptBuilder chatPromptBuilder;
-    private final ChatProcessor chatProcessor;
     private final ChatSseSender chatSseSender;
-    private final SaveChatMessageSummaryPort saveChatMessageSummaryPort;
 
-    private final ValidateMemberPort validateMemberPort;
     private final MemberQueryHelper memberQueryHelper;
     private final ChatRoomQueryHelper chatRoomQueryHelper;
     private final ChatRoomCommandHelper chatRoomCommandHelper;
