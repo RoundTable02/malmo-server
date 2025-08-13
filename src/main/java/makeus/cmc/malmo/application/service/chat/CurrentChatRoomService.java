@@ -25,6 +25,8 @@ import makeus.cmc.malmo.util.JosaUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 import java.util.Map;
@@ -59,13 +61,10 @@ public class CurrentChatRoomService
                         // 마지막 채팅 이후 하루가 지난 경우 채팅방 종료 처리
                         chatRoom.expire();
                         ChatRoom savedChatRoom = chatRoomCommandHelper.saveChatRoom(chatRoom);
-
-                        // 채팅방 요약 요청을 스트림에 추가
                         publishStreamMessagePort.publish(
                                 StreamMessageType.REQUEST_TOTAL_SUMMARY,
                                 new RequestTotalSummaryMessage(savedChatRoom.getId())
                         );
-                        log.info("채팅방 요약 요청 완료: chatRoomId={}", savedChatRoom.getId());
 
                         return createAndSaveNewChatRoom(MemberId.of(command.getUserId()));
                     }
