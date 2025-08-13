@@ -9,7 +9,7 @@ import makeus.cmc.malmo.application.helper.question.CoupleQuestionQueryHelper;
 import makeus.cmc.malmo.application.port.in.question.AnswerQuestionUseCase;
 import makeus.cmc.malmo.application.port.in.question.GetQuestionAnswerUseCase;
 import makeus.cmc.malmo.application.port.in.question.GetQuestionUseCase;
-import makeus.cmc.malmo.application.service.strategy.QuestionStrategyProvider;
+import makeus.cmc.malmo.application.service.question.strategy.QuestionStrategyProvider;
 import makeus.cmc.malmo.domain.value.id.CoupleId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;

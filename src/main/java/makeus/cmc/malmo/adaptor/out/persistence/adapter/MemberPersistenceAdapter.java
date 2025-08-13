@@ -75,6 +75,12 @@ public class MemberPersistenceAdapter implements
     }
 
     @Override
+    public Optional<MemberId> loadPartnerIdByMemberId(MemberId memberId) {
+        return memberRepository.findPartnerMemberId(memberId.getValue())
+                .map(MemberId::of);
+    }
+
+    @Override
     public Optional<InviteCodeValue> loadInviteCodeByMemberId(MemberId memberId) {
         return memberRepository.findInviteCodeByMemberId(memberId.getValue())
                 .map(code -> InviteCodeValue.of(code.getValue()));

@@ -1,13 +1,17 @@
-package makeus.cmc.malmo.application.service.strategy;
+package makeus.cmc.malmo.application.service.question.strategy;
 
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.adaptor.message.RequestExtractMetadataMessage;
+import makeus.cmc.malmo.adaptor.message.StreamMessageType;
 import makeus.cmc.malmo.application.exception.MemberAccessDeniedException;
 import makeus.cmc.malmo.application.helper.couple.CoupleQueryHelper;
+import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.application.helper.question.CoupleQuestionCommandHelper;
 import makeus.cmc.malmo.application.helper.question.CoupleQuestionQueryHelper;
 import makeus.cmc.malmo.application.port.in.question.AnswerQuestionUseCase;
 import makeus.cmc.malmo.application.port.in.question.GetQuestionAnswerUseCase;
 import makeus.cmc.malmo.application.port.in.question.GetQuestionUseCase;
+import makeus.cmc.malmo.application.port.out.chat.PublishStreamMessagePort;
 import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
 import makeus.cmc.malmo.domain.model.question.MemberAnswer;
 import makeus.cmc.malmo.domain.model.question.Question;
@@ -28,6 +32,10 @@ public class CoupleQuestionStrategy implements QuestionHandlingStrategy{
 
     private final CoupleQueryHelper coupleQueryHelper;
 
+    private final MemberQueryHelper memberQueryHelper;
+
+    private final PublishStreamMessagePort publishStreamMessagePort;
+
     @Override
     public GetQuestionUseCase.GetQuestionResponse getTodayQuestion(GetQuestionUseCase.GetTodayQuestionCommand command) {
         // 커플 사용자에게는 오늘의 커플 질문을 제공
@@ -46,6 +54,26 @@ public class CoupleQuestionStrategy implements QuestionHandlingStrategy{
             Question nextQuestion = coupleQuestionQueryHelper.getQuestionByLevelOrThrow(maxLevelQuestion.getLevel() + 1);
             CoupleQuestion nextCoupleQuestion = CoupleQuestion.createCoupleQuestion(nextQuestion, coupleId);
             CoupleQuestion savedCoupleQuestion = coupleQuestionCommandHelper.saveCoupleQuestion(nextCoupleQuestion);
+
+            // 사용자 답변으로부터 메타데이터 추출
+            publishStreamMessagePort.publish(
+                    StreamMessageType.REQUEST_EXTRACT_METADATA,
+                    new RequestExtractMetadataMessage(
+                            savedCoupleQuestion.getId(),
+                            command.getUserId()
+                    )
+            );
+
+            // 파트너의 메타데이터도 추출 요청
+            MemberId partnerId = memberQueryHelper.getPartnerIdOrThrow(MemberId.of(command.getUserId()));
+
+            publishStreamMessagePort.publish(
+                    StreamMessageType.REQUEST_EXTRACT_METADATA,
+                    new RequestExtractMetadataMessage(
+                            savedCoupleQuestion.getId(),
+                            partnerId.getValue()
+                    )
+            );
 
             return GetQuestionUseCase.GetQuestionResponse.builder()
                     .coupleQuestionId(savedCoupleQuestion.getId())

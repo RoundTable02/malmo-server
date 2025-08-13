@@ -1,4 +1,4 @@
-package makeus.cmc.malmo.application.service.strategy;
+package makeus.cmc.malmo.application.service.question.strategy;
 
 import makeus.cmc.malmo.application.port.in.question.AnswerQuestionUseCase;
 import makeus.cmc.malmo.application.port.in.question.GetQuestionAnswerUseCase;
