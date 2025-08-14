@@ -101,6 +101,20 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
     }
 
     @Override
+    public boolean isCodeOwnerMemberAlreadyCoupledWith(String inviteCode, Long memberId) {
+        return queryFactory
+                        .selectOne()
+                        .from(coupleMemberEntity)
+                        .join(memberEntity).on(memberEntity.id.eq(coupleMemberEntity.memberEntityId.value))
+                        .join(coupleEntity).on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value)
+                                .and(coupleEntity.coupleState.ne(CoupleState.DELETED)))
+                        .where(memberEntity.inviteCodeEntityValue.value.eq(inviteCode)
+                                .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED))
+                                .and(coupleEntity.coupleMembers.any().memberEntityId.value.eq(memberId)))
+                        .fetchFirst() != null;
+    }
+
+    @Override
     public Optional<InviteCodeEntityValue> findInviteCodeByMemberId(Long memberId) {
         InviteCodeEntityValue inviteCodeEntityValue = queryFactory
                 .select(memberEntity.inviteCodeEntityValue)

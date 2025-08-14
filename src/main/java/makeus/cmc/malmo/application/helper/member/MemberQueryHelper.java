@@ -65,10 +65,13 @@ public class MemberQueryHelper {
         return validateMemberPort.isCoupleMember(memberId);
     }
 
-    public void validateUsedInviteCode(InviteCodeValue inviteCodeValue) {
+    public void validateUsedInviteCode(InviteCodeValue inviteCodeValue, MemberId memberId) {
         boolean coupleMember = validateInviteCodePort.isAlreadyCoupleMemberByInviteCode(inviteCodeValue);
         if (coupleMember) {
-            throw new UsedInviteCodeException("이미 사용된 커플 코드입니다. 다른 코드를 입력해주세요.");
+            // 초대 코드의 주인이 이미 커플로 등록된 경우
+            if (!validateInviteCodePort.isCodeOwnerMemberAlreadyCoupledWith(inviteCodeValue, memberId))
+                // 등록된 커플의 대상이 본인인 경우에는 예외를 발생시키지 않음 (Recover 대상)
+                throw new UsedInviteCodeException("이미 사용된 커플 코드입니다. 다른 코드를 입력해주세요.");
         }
     }
 

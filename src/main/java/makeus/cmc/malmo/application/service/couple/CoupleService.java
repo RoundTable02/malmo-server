@@ -93,7 +93,7 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
     private void validateCoupleLinkRequest(CoupleLinkCommand command) {
         InviteCodeValue inviteCode = InviteCodeValue.of(command.getCoupleCode());
         MemberId userId = MemberId.of(command.getUserId());
-        memberQueryHelper.validateUsedInviteCode(inviteCode);
+        memberQueryHelper.validateUsedInviteCode(inviteCode, userId);
         memberQueryHelper.validateMemberNotCoupled(userId);
         memberQueryHelper.validateOwnInviteCode(userId, inviteCode);
     }
