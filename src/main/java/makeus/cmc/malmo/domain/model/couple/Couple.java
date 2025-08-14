@@ -3,7 +3,6 @@ package makeus.cmc.malmo.domain.model.couple;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
-import makeus.cmc.malmo.domain.value.id.CoupleMemberId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.state.CoupleMemberState;
 import makeus.cmc.malmo.domain.value.state.CoupleState;

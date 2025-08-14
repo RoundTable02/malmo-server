@@ -1,7 +1,6 @@
 package makeus.cmc.malmo.application.service.chat;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomCommandHelper;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomQueryHelper;
 import makeus.cmc.malmo.application.helper.chat_room.PromptQueryHelper;
