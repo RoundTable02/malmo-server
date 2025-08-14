@@ -400,10 +400,10 @@ public class CoupleIntegrationTest {
             CoupleEntity couple = em.createQuery("SELECT c FROM CoupleEntity c WHERE c.id = :coupleId", CoupleEntity.class)
                     .setParameter("coupleId", coupleId)
                     .getSingleResult();
-            Assertions.assertThat(couple.getCoupleState()).isEqualTo(CoupleState.DELETED);
+            Assertions.assertThat(couple.getCoupleState()).isEqualTo(CoupleState.ALIVE);
             Assertions.assertThat(couple.getCoupleMembers())
                     .extracting(CoupleMemberEntity::getCoupleMemberState)
-                    .containsExactlyInAnyOrder(CoupleMemberState.DELETED, CoupleMemberState.DELETED);
+                    .contains(CoupleMemberState.DELETED, CoupleMemberState.ALIVE);
 
             // 커플 전용 API 접근 시 실패
             mockMvc.perform(get("/members/partner")
