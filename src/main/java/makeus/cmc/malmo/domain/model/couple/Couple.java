@@ -10,6 +10,7 @@ import makeus.cmc.malmo.domain.value.state.CoupleState;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @Builder(access = AccessLevel.PRIVATE)
@@ -62,10 +63,23 @@ public class Couple {
         this.startLoveDate = startLoveDate;
     }
 
-    public void delete() {
-        this.coupleState = CoupleState.DELETED;
-        this.deletedAt = LocalDateTime.now();
-        this.coupleMembers.forEach(CoupleMember::coupleDeleted);
+    public void unlink(MemberId memberId) {
+        // 해지 요청한 사용자만 삭제 처리
+        this.coupleMembers.forEach(cm -> {
+            if (Objects.equals(cm.getMemberId().getValue(), memberId.getValue())) {
+                cm.coupleDeleted();
+            }
+        });
+
+        // 모든 커플 멤버가 삭제된 경우 커플 상태를 DELETED로 변경
+        int deletedCount = (int) this.coupleMembers.stream()
+                .filter(cm -> cm.getCoupleMemberState() == CoupleMemberState.DELETED)
+                .count();
+
+        if (deletedCount == this.coupleMembers.size()) {
+            this.coupleState = CoupleState.DELETED;
+            this.deletedAt = LocalDateTime.now();
+        }
     }
 
     public void recover() {

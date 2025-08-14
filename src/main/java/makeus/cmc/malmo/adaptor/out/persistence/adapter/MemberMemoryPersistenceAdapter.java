@@ -7,6 +7,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.repository.member.MemberMemoryRe
 import makeus.cmc.malmo.application.port.out.member.LoadMemberMemoryPort;
 import makeus.cmc.malmo.application.port.out.member.SaveMemberMemoryPort;
 import makeus.cmc.malmo.domain.model.member.MemberMemory;
+import makeus.cmc.malmo.domain.value.id.CoupleMemberId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +23,7 @@ public class MemberMemoryPersistenceAdapter implements LoadMemberMemoryPort, Sav
 
     @Override
     public List<MemberMemory> loadMemberMemoryByMemberId(MemberId memberId) {
-        return memberMemoryRepository.findByMemberEntityId_Value(memberId.getValue())
+        return memberMemoryRepository.findByMemberEntityId(memberId.getValue())
                 .stream()
                 .map(memberMemoryMapper::toDomain)
                 .toList();
@@ -32,5 +33,15 @@ public class MemberMemoryPersistenceAdapter implements LoadMemberMemoryPort, Sav
     public void saveMemberMemory(MemberMemory memberMemory) {
         MemberMemoryEntity entity = memberMemoryMapper.toEntity(memberMemory);
         memberMemoryRepository.save(entity);
+    }
+
+    @Override
+    public void deleteAliveMemory(MemberId memberId) {
+        memberMemoryRepository.deleteByMemberId(memberId.getValue());
+    }
+
+    @Override
+    public void recoverMemory(CoupleMemberId coupleMemberId) {
+        memberMemoryRepository.recoverByCoupleMemberId(coupleMemberId.getValue());
     }
 }

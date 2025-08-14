@@ -7,6 +7,7 @@ import makeus.cmc.malmo.application.helper.chat_room.ChatRoomCommandHelper;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomQueryHelper;
 import makeus.cmc.malmo.application.helper.couple.CoupleCommandHelper;
 import makeus.cmc.malmo.application.helper.couple.CoupleQueryHelper;
+import makeus.cmc.malmo.application.helper.member.MemberMemoryCommandHelper;
 import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.application.helper.question.CoupleQuestionCommandHelper;
 import makeus.cmc.malmo.application.helper.question.CoupleQuestionQueryHelper;
@@ -49,6 +50,8 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
     private final ChatRoomQueryHelper chatRoomQueryHelper;
     private final ChatRoomCommandHelper chatRoomCommandHelper;
 
+    private final MemberMemoryCommandHelper memberMemoryCommandHelper;
+
     @Override
     @CheckValidMember
     @Transactional
@@ -59,10 +62,16 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
         MemberId userId = MemberId.of(command.getUserId());
         MemberId partnerId = MemberId.of(partner.getId());
 
-        // 커플 조회 또는 생성
+        // 이전 커플 연결에서 생성된 메모리 삭제
+        memberMemoryCommandHelper.deleteAliveMemory(MemberId.of(command.getUserId()));
+
+        // 이전에 생성되었던 커플이 있는지 조회, 없으면 생성
         Couple couple = coupleQueryHelper.getBrokenCouple(userId, partnerId)
                 .map(this::reconnectCouple)
-                .orElseGet(() -> createNewCouple(userId, partnerId, partner.getStartLoveDate()));
+                .orElseGet(() -> {
+                    // 새로운 커플 생성
+                    return createNewCouple(userId, partnerId, partner.getStartLoveDate());
+                });
 
         // 커플 연결 후 부가 기능 활성화
         activateCoupleFeatures(userId, partnerId, couple);
@@ -77,20 +86,25 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
     @Transactional
     public void coupleUnlink(CoupleUnlinkCommand command) {
         Couple couple = coupleQueryHelper.getCoupleByMemberIdOrThrow(MemberId.of(command.getUserId()));
-        couple.delete();
+        couple.unlink(MemberId.of(command.getUserId()));
         coupleCommandHelper.saveCouple(couple);
     }
 
     private void validateCoupleLinkRequest(CoupleLinkCommand command) {
         InviteCodeValue inviteCode = InviteCodeValue.of(command.getCoupleCode());
         MemberId userId = MemberId.of(command.getUserId());
-        memberQueryHelper.validateUsedInviteCode(inviteCode);
+        memberQueryHelper.validateUsedInviteCode(inviteCode, userId);
         memberQueryHelper.validateMemberNotCoupled(userId);
         memberQueryHelper.validateOwnInviteCode(userId, inviteCode);
     }
 
     private Couple reconnectCouple(Couple brokenCouple) {
         brokenCouple.recover();
+        // 커플 멤버들의 메모리 복구
+        brokenCouple.getCoupleMembers().forEach(cm -> {
+            CoupleMemberId coupleMemberId = CoupleMemberId.of(cm.getId());
+            memberMemoryCommandHelper.recoverMemberMemory(coupleMemberId);
+        });
         return coupleCommandHelper.saveCouple(brokenCouple);
     }
 

@@ -3,7 +3,6 @@ package makeus.cmc.malmo.adaptor.out;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import makeus.cmc.malmo.adaptor.message.RequestTotalSummaryMessage;
 import makeus.cmc.malmo.adaptor.message.StreamMessage;
 import makeus.cmc.malmo.adaptor.message.StreamMessageType;
 import makeus.cmc.malmo.application.port.out.chat.PublishStreamMessagePort;

@@ -29,6 +29,11 @@ public class ValidateMemberAdapter implements ValidateMemberPort, ValidateInvite
         return memberRepository.isAlreadyCoupleMemberByInviteCode(inviteCode.getValue());
     }
 
+    @Override
+    public boolean isCodeOwnerMemberAlreadyCoupledWith(InviteCodeValue inviteCodeValue, MemberId memberId) {
+        return memberRepository.isCodeOwnerMemberAlreadyCoupledWith(inviteCodeValue.getValue(), memberId.getValue());
+    }
+
 
     @Override
     public boolean isInviteCodeDuplicated(InviteCodeValue inviteCodeValue) {

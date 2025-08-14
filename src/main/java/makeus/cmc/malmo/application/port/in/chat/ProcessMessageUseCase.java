@@ -35,7 +35,7 @@ public interface ProcessMessageUseCase {
     @Data
     @Builder
     class ProcessAnswerCommand {
-        private Long memberId;
+        private Long coupleMemberId;
         private Long coupleQuestionId;
     }
 }

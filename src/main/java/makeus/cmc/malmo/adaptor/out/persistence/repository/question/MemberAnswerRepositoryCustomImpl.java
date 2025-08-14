@@ -89,7 +89,7 @@ public class MemberAnswerRepositoryCustomImpl implements MemberAnswerRepositoryC
     }
 
     @Override
-    public Optional<MemberAnswerEntity> findByCoupleQuestionIdAndCoupleMemberId(Long coupleQuestionEntityId, Long memberId) {
+    public Optional<MemberAnswerEntity> findByCoupleQuestionIdAndMemberId(Long coupleQuestionEntityId, Long memberId) {
         MemberAnswerEntity result = queryFactory.selectFrom(memberAnswerEntity)
                 .join(coupleMemberEntity)
                 .on(memberAnswerEntity.coupleMemberEntityId.value.eq(coupleMemberEntity.id))

@@ -171,13 +171,13 @@ public class RedisStreamConsumer {
     private void processRequestMetadataEvent(JsonNode payloadNode) {
         RequestExtractMetadataMessage requestExtractMetadataMessage = new RequestExtractMetadataMessage(
                 payloadNode.get("coupleQuestionId").asLong(),
-                payloadNode.get("memberId").asLong()
+                payloadNode.get("coupleMemberId").asLong()
         );
 
         processMessageUseCase.processAnswerMetadata(
                 ProcessMessageUseCase.ProcessAnswerCommand.builder()
                         .coupleQuestionId(requestExtractMetadataMessage.getCoupleQuestionId())
-                        .memberId(requestExtractMetadataMessage.getMemberId())
+                        .coupleMemberId(requestExtractMetadataMessage.getCoupleMemberId())
                         .build()
         );
     }
