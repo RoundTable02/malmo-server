@@ -71,6 +71,16 @@ public class Couple {
                 cm.coupleDeleted();
             }
         });
+
+        // 모든 커플 멤버가 삭제된 경우 커플 상태를 DELETED로 변경
+        int deletedCount = (int) this.coupleMembers.stream()
+                .filter(cm -> cm.getCoupleMemberState() == CoupleMemberState.DELETED)
+                .count();
+
+        if (deletedCount == this.coupleMembers.size()) {
+            this.coupleState = CoupleState.DELETED;
+            this.deletedAt = LocalDateTime.now();
+        }
     }
 
     public void recover() {
