@@ -10,6 +10,7 @@ import java.util.List;
 
 public interface MemberMemoryRepository extends JpaRepository<MemberMemoryEntity, Long> {
 
+    @Query("select m from MemberMemoryEntity m where m.memberEntityId.value = ?1 and m.memberMemoryState = 'ALIVE'")
     List<MemberMemoryEntity> findByMemberEntityId_Value(Long memberId);
 
     @Modifying
