@@ -9,5 +9,5 @@ import lombok.Getter;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class RequestExtractMetadataMessage implements StreamMessage {
     private Long coupleQuestionId;
-    private Long memberId;
+    private Long coupleMemberId;
 }

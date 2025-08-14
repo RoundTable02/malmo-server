@@ -10,10 +10,22 @@ import java.util.List;
 
 public interface MemberMemoryRepository extends JpaRepository<MemberMemoryEntity, Long> {
 
-    @Query("select m from MemberMemoryEntity m where m.memberEntityId.value = ?1 and m.memberMemoryState = 'ALIVE'")
-    List<MemberMemoryEntity> findByMemberEntityId_Value(Long memberId);
+    @Query("select m from MemberMemoryEntity m " +
+            "where m.coupleMemberEntityId.value in " +
+            "(select cm.id from CoupleMemberEntity cm where cm.memberEntityId.value = ?1) " +
+            "and m.memberMemoryState = 'ALIVE'")
+    List<MemberMemoryEntity> findByMemberEntityId(Long memberId);
 
     @Modifying
-    @Query("UPDATE MemberMemoryEntity m SET m.memberMemoryState = 'DELETED', m.deletedAt = CURRENT_TIMESTAMP WHERE m.memberMemoryState = 'ALIVE' AND m.memberEntityId.value = :memberId")
-    void updateMemberMemoryStateToDeleted(Long memberId);
+    @Transactional
+    @Query("update MemberMemoryEntity m set m.memberMemoryState = 'DELETED', m.deletedAt = CURRENT_TIMESTAMP " +
+            "where m.coupleMemberEntityId.value in (select cm.id from CoupleMemberEntity cm where cm.memberEntityId.value = ?1) " +
+            "and m.memberMemoryState = 'ALIVE'")
+    void deleteByMemberId(Long memberId);
+
+    @Modifying
+    @Transactional
+    @Query("update MemberMemoryEntity m set m.memberMemoryState = 'ALIVE', m.deletedAt = NULL " +
+            "where m.coupleMemberEntityId.value = ?1")
+    void recoverByCoupleMemberId(Long coupleMemberId);
 }

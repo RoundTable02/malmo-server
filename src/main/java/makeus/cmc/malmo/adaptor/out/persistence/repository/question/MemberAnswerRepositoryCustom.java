@@ -8,7 +8,7 @@ import java.util.Optional;
 public interface MemberAnswerRepositoryCustom {
     Optional<MemberAnswerPersistenceAdapter.AnswerRepositoryDto> findAnswersDtoByCoupleQuestionId(Long memberId, Long coupleQuestionId);
 
-    Optional<MemberAnswerEntity> findByCoupleQuestionIdAndCoupleMemberId(Long coupleQuestionEntityId, Long memberId);
+    Optional<MemberAnswerEntity> findByCoupleQuestionIdAndMemberId(Long coupleQuestionEntityId, Long memberId);
 
     boolean existsByCoupleQuestionIdAndMemberId(Long coupleQuestionEntityId, Long memberId);
 

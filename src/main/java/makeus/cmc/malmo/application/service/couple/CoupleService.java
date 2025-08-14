@@ -62,13 +62,13 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
         MemberId userId = MemberId.of(command.getUserId());
         MemberId partnerId = MemberId.of(partner.getId());
 
-        // 커플 조회 또는 생성
+        // 이전 커플 연결에서 생성된 메모리 삭제
+        memberMemoryCommandHelper.deleteAliveMemory(MemberId.of(command.getUserId()));
+
+        // 이전에 생성되었던 커플이 있는지 조회, 없으면 생성
         Couple couple = coupleQueryHelper.getBrokenCouple(userId, partnerId)
                 .map(this::reconnectCouple)
                 .orElseGet(() -> {
-                    // 이전 커플과의 연결이 끊어지고, 새로운 커플로 연동한 경우 기존 메모리 제거
-                    memberMemoryCommandHelper.deleteAllMemory(MemberId.of(command.getUserId()));
-
                     // 새로운 커플 생성
                     return createNewCouple(userId, partnerId, partner.getStartLoveDate());
                 });
@@ -100,6 +100,11 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
 
     private Couple reconnectCouple(Couple brokenCouple) {
         brokenCouple.recover();
+        // 커플 멤버들의 메모리 복구
+        brokenCouple.getCoupleMembers().forEach(cm -> {
+            CoupleMemberId coupleMemberId = CoupleMemberId.of(cm.getId());
+            memberMemoryCommandHelper.recoverMemberMemory(coupleMemberId);
+        });
         return coupleCommandHelper.saveCouple(brokenCouple);
     }
 

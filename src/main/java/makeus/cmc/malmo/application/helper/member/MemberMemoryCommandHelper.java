@@ -3,6 +3,7 @@ package makeus.cmc.malmo.application.helper.member;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.application.port.out.member.SaveMemberMemoryPort;
 import makeus.cmc.malmo.domain.model.member.MemberMemory;
+import makeus.cmc.malmo.domain.value.id.CoupleMemberId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +17,11 @@ public class MemberMemoryCommandHelper {
         saveMemberMemoryPort.saveMemberMemory(memberMemory);
     }
 
-    public void deleteAllMemory(MemberId memberId) {
-        saveMemberMemoryPort.deleteAllMemory(memberId);
+    public void deleteAliveMemory(MemberId memberId) {
+        saveMemberMemoryPort.deleteAliveMemory(memberId);
+    }
+
+    public void recoverMemberMemory(CoupleMemberId coupleMemberId) {
+        saveMemberMemoryPort.recoverMemory(coupleMemberId);
     }
 }
