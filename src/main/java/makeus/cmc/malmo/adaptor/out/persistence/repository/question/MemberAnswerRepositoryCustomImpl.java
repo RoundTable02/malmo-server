@@ -73,7 +73,6 @@ public class MemberAnswerRepositoryCustomImpl implements MemberAnswerRepositoryC
                 .leftJoin(partnerCoupleMember).on(
                         partnerCoupleMember.coupleEntityId.value.eq(couple.id)
                                 .and(partnerCoupleMember.id.ne(myCoupleMember.id))
-                                .and(partnerCoupleMember.coupleMemberState.ne(CoupleMemberState.DELETED))
                 )
                 .leftJoin(partner).on(partnerCoupleMember.memberEntityId.value.eq(partner.id))
                 .leftJoin(partnerAnswer).on(
@@ -107,8 +106,7 @@ public class MemberAnswerRepositoryCustomImpl implements MemberAnswerRepositoryC
                 .join(coupleMemberEntity)
                 .on(memberAnswerEntity.coupleMemberEntityId.value.eq(coupleMemberEntity.id))
                 .where(memberAnswerEntity.coupleQuestionEntityId.value.eq(coupleQuestionEntityId)
-                        .and(coupleMemberEntity.memberEntityId.value.eq(memberId))
-                        .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
+                        .and(coupleMemberEntity.memberEntityId.value.eq(memberId)))
                 .fetchOne();
 
         return count != null && count > 0;

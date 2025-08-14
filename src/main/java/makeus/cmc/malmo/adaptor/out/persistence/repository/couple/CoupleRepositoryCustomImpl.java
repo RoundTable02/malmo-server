@@ -3,6 +3,7 @@ package makeus.cmc.malmo.adaptor.out.persistence.repository.couple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleEntity;
+import makeus.cmc.malmo.domain.value.state.CoupleMemberState;
 import makeus.cmc.malmo.domain.value.state.CoupleState;
 
 import java.util.Optional;
@@ -21,7 +22,7 @@ public class CoupleRepositoryCustomImpl implements CoupleRepositoryCustom{
                 .join(coupleMemberEntity)
                 .on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value))
                 .where(coupleMemberEntity.memberEntityId.value.eq(memberId)
-                        .and(coupleEntity.coupleState.ne(CoupleState.DELETED)))
+                        .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
                 .fetchOne();
 
         return Optional.ofNullable(result);

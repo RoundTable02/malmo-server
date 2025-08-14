@@ -1,6 +1,7 @@
 package makeus.cmc.malmo.adaptor.out.persistence.repository.member;
 
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.adapter.MemberPersistenceAdapter;
@@ -59,10 +60,15 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .from(coupleEntity)
                 .join(coupleEntity.coupleMembers, coupleMemberEntity)
                 .join(memberEntity).on(memberEntity.id.eq(coupleMemberEntity.memberEntityId.value))
-                .where(coupleEntity.coupleState.ne(CoupleState.DELETED)
-                                .and(coupleEntity.coupleMembers.any().memberEntityId.value.eq(memberId)
-                                                .and(coupleMemberEntity.memberEntityId.value.ne(memberId))))
+                .where(coupleEntity.id.in(
+                                JPAExpressions.select(coupleMemberEntity.coupleEntityId.value)
+                                        .from(coupleMemberEntity)
+                                        .where(coupleMemberEntity.memberEntityId.value.eq(memberId)
+                                                .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
+                        )
+                        .and(coupleMemberEntity.memberEntityId.value.ne(memberId)))
                 .fetchOne();
+
         return Optional.ofNullable(dto);
     }
 
@@ -93,10 +99,9 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .selectOne()
                 .from(coupleMemberEntity)
                 .join(memberEntity).on(memberEntity.id.eq(coupleMemberEntity.memberEntityId.value))
-                .join(coupleEntity).on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value)
-                        .and(coupleEntity.coupleState.ne(CoupleState.DELETED)))
+                .join(coupleEntity).on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value))
                 .where(memberEntity.inviteCodeEntityValue.value.eq(inviteCode)
-                        .and(coupleMemberEntity.coupleMemberState.eq(CoupleMemberState.ALIVE)))
+                        .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
                 .fetchFirst() != null;
     }
 
@@ -169,9 +174,13 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .from(coupleEntity)
                 .join(coupleEntity.coupleMembers, coupleMemberEntity)
                 .join(memberEntity).on(memberEntity.id.eq(coupleMemberEntity.memberEntityId.value))
-                .where(coupleEntity.coupleState.ne(CoupleState.DELETED)
-                        .and(coupleEntity.coupleMembers.any().memberEntityId.value.eq(memberId)
-                                .and(coupleMemberEntity.memberEntityId.value.ne(memberId))))
+                .where(coupleEntity.id.in(
+                                JPAExpressions.select(coupleMemberEntity.coupleEntityId.value)
+                                        .from(coupleMemberEntity)
+                                        .where(coupleMemberEntity.memberEntityId.value.eq(memberId)
+                                                .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
+                        )
+                        .and(coupleMemberEntity.memberEntityId.value.ne(memberId)))
                 .fetchOne();
 
         return Optional.ofNullable(partnerMemberId);
