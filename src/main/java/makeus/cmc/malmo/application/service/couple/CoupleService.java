@@ -7,6 +7,7 @@ import makeus.cmc.malmo.application.helper.chat_room.ChatRoomCommandHelper;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomQueryHelper;
 import makeus.cmc.malmo.application.helper.couple.CoupleCommandHelper;
 import makeus.cmc.malmo.application.helper.couple.CoupleQueryHelper;
+import makeus.cmc.malmo.application.helper.member.MemberMemoryCommandHelper;
 import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.application.helper.question.CoupleQuestionCommandHelper;
 import makeus.cmc.malmo.application.helper.question.CoupleQuestionQueryHelper;
@@ -49,6 +50,8 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
     private final ChatRoomQueryHelper chatRoomQueryHelper;
     private final ChatRoomCommandHelper chatRoomCommandHelper;
 
+    private final MemberMemoryCommandHelper memberMemoryCommandHelper;
+
     @Override
     @CheckValidMember
     @Transactional
@@ -62,7 +65,13 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
         // 커플 조회 또는 생성
         Couple couple = coupleQueryHelper.getBrokenCouple(userId, partnerId)
                 .map(this::reconnectCouple)
-                .orElseGet(() -> createNewCouple(userId, partnerId, partner.getStartLoveDate()));
+                .orElseGet(() -> {
+                    // 이전 커플과의 연결이 끊어지고, 새로운 커플로 연동한 경우 기존 메모리 제거
+                    memberMemoryCommandHelper.deleteAllMemory(MemberId.of(command.getUserId()));
+
+                    // 새로운 커플 생성
+                    return createNewCouple(userId, partnerId, partner.getStartLoveDate());
+                });
 
         // 커플 연결 후 부가 기능 활성화
         activateCoupleFeatures(userId, partnerId, couple);

@@ -33,4 +33,9 @@ public class MemberMemoryPersistenceAdapter implements LoadMemberMemoryPort, Sav
         MemberMemoryEntity entity = memberMemoryMapper.toEntity(memberMemory);
         memberMemoryRepository.save(entity);
     }
+
+    @Override
+    public void deleteAllMemory(MemberId memberId) {
+        memberMemoryRepository.updateMemberMemoryStateToDeleted(memberId.getValue());
+    }
 }

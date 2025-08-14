@@ -18,6 +18,7 @@ public class MemberMemoryMapper {
                 entity.getId(),
                 entity.getMemberEntityId() != null ? MemberId.of(entity.getMemberEntityId().getValue()): null,
                 entity.getContent(),
+                entity.getMemberMemoryState(),
                 entity.getCreatedAt(),
                 entity.getModifiedAt(),
                 entity.getDeletedAt()
@@ -33,6 +34,7 @@ public class MemberMemoryMapper {
                 .id(memberMemory.getId())
                 .memberEntityId(memberMemory.getMemberId() != null ? MemberEntityId.of(memberMemory.getMemberId().getValue()) : null)
                 .content(memberMemory.getContent())
+                .memberMemoryState(memberMemory.getMemberMemoryState())
                 .createdAt(memberMemory.getCreatedAt())
                 .modifiedAt(memberMemory.getModifiedAt())
                 .deletedAt(memberMemory.getDeletedAt())
