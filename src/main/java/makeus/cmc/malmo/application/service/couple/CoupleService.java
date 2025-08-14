@@ -86,7 +86,7 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
     @Transactional
     public void coupleUnlink(CoupleUnlinkCommand command) {
         Couple couple = coupleQueryHelper.getCoupleByMemberIdOrThrow(MemberId.of(command.getUserId()));
-        couple.delete();
+        couple.unlink(MemberId.of(command.getUserId()));
         coupleCommandHelper.saveCouple(couple);
     }
 

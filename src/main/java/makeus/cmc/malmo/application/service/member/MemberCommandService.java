@@ -74,7 +74,7 @@ public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLov
         // 멤버 채팅방, 커플 soft delete
         coupleQueryHelper.getCoupleByMemberId(MemberId.of(command.getMemberId()))
                         .ifPresent(couple -> {
-                            couple.delete();
+                            couple.unlink(MemberId.of(member.getId()));
                             coupleCommandHelper.saveCouple(couple);
                         });
     }

@@ -3,6 +3,7 @@ package makeus.cmc.malmo.domain.model.couple;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import makeus.cmc.malmo.domain.value.id.CoupleMemberId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.state.CoupleMemberState;
 import makeus.cmc.malmo.domain.value.state.CoupleState;
@@ -10,6 +11,7 @@ import makeus.cmc.malmo.domain.value.state.CoupleState;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @Builder(access = AccessLevel.PRIVATE)
@@ -62,10 +64,13 @@ public class Couple {
         this.startLoveDate = startLoveDate;
     }
 
-    public void delete() {
-        this.coupleState = CoupleState.DELETED;
-        this.deletedAt = LocalDateTime.now();
-        this.coupleMembers.forEach(CoupleMember::coupleDeleted);
+    public void unlink(MemberId memberId) {
+        // 해지 요청한 사용자만 삭제 처리
+        this.coupleMembers.forEach(cm -> {
+            if (Objects.equals(cm.getMemberId().getValue(), memberId.getValue())) {
+                cm.coupleDeleted();
+            }
+        });
     }
 
     public void recover() {

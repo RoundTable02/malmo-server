@@ -71,10 +71,9 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
         Long count = queryFactory.select(coupleMemberEntity.count())
                 .from(coupleMemberEntity)
                 .join(memberEntity).on(memberEntity.id.eq(coupleMemberEntity.memberEntityId.value))
-                .join(coupleEntity).on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value))
                 .where(coupleMemberEntity.memberEntityId.value.eq(memberId)
-                        .and(memberEntity.memberState.ne(MemberState.DELETED))
-                        .and(coupleEntity.coupleState.ne(CoupleState.DELETED)))
+                        .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED))
+                        .and(memberEntity.memberState.ne(MemberState.DELETED)))
                 .fetchOne();
 
         return count != null && count > 0;
