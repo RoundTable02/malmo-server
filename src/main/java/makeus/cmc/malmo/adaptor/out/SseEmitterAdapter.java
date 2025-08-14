@@ -37,15 +37,15 @@ public class SseEmitterAdapter implements SendSseEventPort, ConnectSsePort {
         }
 
         newEmitter.onTimeout(() -> {
+            newEmitter.complete();
             log.info("SSE emitter timed out for member: {}", memberIdValue);
-            emitters.remove(memberIdValue, newEmitter);
+        });
+        newEmitter.onError(e -> {
+            newEmitter.complete();
+            log.error("SSE emitter error for member: {}", memberIdValue, e);
         });
         newEmitter.onCompletion(() -> {
             log.info("SSE emitter completed for member: {}", memberIdValue);
-            emitters.remove(memberIdValue, newEmitter);
-        });
-        newEmitter.onError(e -> {
-            log.error("SSE emitter error for member: {}", memberIdValue, e);
             emitters.remove(memberIdValue, newEmitter);
         });
 

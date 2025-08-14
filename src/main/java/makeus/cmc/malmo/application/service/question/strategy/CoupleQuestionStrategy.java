@@ -12,6 +12,7 @@ import makeus.cmc.malmo.application.port.in.question.AnswerQuestionUseCase;
 import makeus.cmc.malmo.application.port.in.question.GetQuestionAnswerUseCase;
 import makeus.cmc.malmo.application.port.in.question.GetQuestionUseCase;
 import makeus.cmc.malmo.application.port.out.chat.PublishStreamMessagePort;
+import makeus.cmc.malmo.domain.model.couple.Couple;
 import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
 import makeus.cmc.malmo.domain.model.question.MemberAnswer;
 import makeus.cmc.malmo.domain.model.question.Question;
@@ -59,25 +60,17 @@ public class CoupleQuestionStrategy implements QuestionHandlingStrategy{
             CoupleQuestion nextCoupleQuestion = CoupleQuestion.createCoupleQuestion(nextQuestion, coupleId);
             CoupleQuestion savedCoupleQuestion = coupleQuestionCommandHelper.saveCoupleQuestion(nextCoupleQuestion);
 
-            // 사용자 답변으로부터 메타데이터 추출
-            publishStreamMessagePort.publish(
-                    StreamMessageType.REQUEST_EXTRACT_METADATA,
-                    new RequestExtractMetadataMessage(
-                            coupleQuestion.getId(),
-                            command.getUserId()
-                    )
-            );
-
-            // 파트너의 메타데이터도 추출 요청
-            MemberId partnerId = memberQueryHelper.getPartnerIdOrThrow(MemberId.of(command.getUserId()));
-
-            publishStreamMessagePort.publish(
-                    StreamMessageType.REQUEST_EXTRACT_METADATA,
-                    new RequestExtractMetadataMessage(
-                            coupleQuestion.getId(),
-                            partnerId.getValue()
-                    )
-            );
+            // 사용자 & 파트너 답변으로부터 각각 메타데이터 추출 요청
+            Couple couple = coupleQueryHelper.getCoupleByMemberIdOrThrow(MemberId.of(command.getUserId()));
+            couple.getCoupleMembers().forEach(cm -> {
+                publishStreamMessagePort.publish(
+                        StreamMessageType.REQUEST_EXTRACT_METADATA,
+                        new RequestExtractMetadataMessage(
+                                coupleQuestion.getId(),
+                                cm.getId()
+                        )
+                );
+            });
 
             return GetQuestionUseCase.GetQuestionResponse.builder()
                     .coupleQuestionId(savedCoupleQuestion.getId())

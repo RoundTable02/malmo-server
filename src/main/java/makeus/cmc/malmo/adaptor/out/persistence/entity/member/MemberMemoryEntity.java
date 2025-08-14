@@ -6,7 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntity;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleMemberEntityId;
+import makeus.cmc.malmo.domain.value.state.MemberMemoryState;
 
 @Getter
 @SuperBuilder
@@ -20,7 +21,10 @@ public class MemberMemoryEntity extends BaseTimeEntity {
     private Long id;
 
     @Embedded
-    private MemberEntityId memberEntityId;
+    private CoupleMemberEntityId coupleMemberEntityId;
 
     private String content;
+
+    @Enumerated(EnumType.STRING)
+    private MemberMemoryState memberMemoryState;
 }

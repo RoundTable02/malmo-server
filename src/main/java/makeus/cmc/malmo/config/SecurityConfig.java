@@ -1,5 +1,6 @@
 package makeus.cmc.malmo.config;
 
+import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.in.web.security.CustomAccessDeniedHandler;
 import makeus.cmc.malmo.adaptor.in.web.security.CustomAuthenticationEntryPoint;
@@ -54,6 +55,7 @@ public class SecurityConfig {
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
+                        .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/login/**", "/refresh", "/terms", "/test").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**", 

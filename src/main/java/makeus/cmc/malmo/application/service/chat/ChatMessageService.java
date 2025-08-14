@@ -1,10 +1,10 @@
 package makeus.cmc.malmo.application.service.chat;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomCommandHelper;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomQueryHelper;
 import makeus.cmc.malmo.application.helper.chat_room.PromptQueryHelper;
+import makeus.cmc.malmo.application.helper.couple.CoupleQueryHelper;
 import makeus.cmc.malmo.application.helper.member.MemberMemoryCommandHelper;
 import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.application.helper.question.CoupleQuestionQueryHelper;
@@ -22,6 +22,7 @@ import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
 import makeus.cmc.malmo.domain.model.question.MemberAnswer;
 import makeus.cmc.malmo.domain.service.ChatRoomDomainService;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
+import makeus.cmc.malmo.domain.value.id.CoupleMemberId;
 import makeus.cmc.malmo.domain.value.id.CoupleQuestionId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;
@@ -49,6 +50,7 @@ public class ChatMessageService implements ProcessMessageUseCase {
     private final CoupleQuestionQueryHelper coupleQuestionQueryHelper;
 
     private final MemberMemoryCommandHelper memberMemoryCommandHelper;
+    private final CoupleQueryHelper coupleQueryHelper;
 
     @Override
     public void processStreamChatMessage(ProcessMessageCommand command) {
@@ -128,9 +130,9 @@ public class ChatMessageService implements ProcessMessageUseCase {
 
     @Override
     public void processAnswerMetadata(ProcessAnswerCommand command) {
-        MemberAnswer memberAnswer = coupleQuestionQueryHelper.getMemberAnswerOrThrow(
+        MemberAnswer memberAnswer = coupleQuestionQueryHelper.getMemberAnswerByCoupleMemberId(
                 CoupleQuestionId.of(command.getCoupleQuestionId()),
-                MemberId.of(command.getMemberId()));
+                CoupleMemberId.of(command.getCoupleMemberId()));
 
         CoupleQuestion coupleQuestion = coupleQuestionQueryHelper.getCoupleQuestionByIdOrThrow(
                 CoupleQuestionId.of(command.getCoupleQuestionId()));
@@ -143,7 +145,10 @@ public class ChatMessageService implements ProcessMessageUseCase {
                 metadataPrompt
         );
 
-        MemberMemory memberMemory = MemberMemory.createMemberMemory(MemberId.of(command.getMemberId()), metadata);
+        // 멤버 메모리 생성 및 저장
+        MemberMemory memberMemory = MemberMemory.createMemberMemory(
+                CoupleMemberId.of(command.getCoupleMemberId()),
+                metadata);
 
         memberMemoryCommandHelper.saveMemberMemory(memberMemory);
     }

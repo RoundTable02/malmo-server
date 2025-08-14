@@ -16,6 +16,8 @@ public interface MemberRepositoryCustom {
 
     boolean isAlreadyCoupleMemberByInviteCode(String inviteCode);
 
+    boolean isCodeOwnerMemberAlreadyCoupledWith(String inviteCode, Long memberId);
+
     Optional<InviteCodeEntityValue> findInviteCodeByMemberId(Long memberId);
 
     Optional<LoadChatRoomMetadataPort.ChatRoomMetadataDto> loadChatRoomMetadata(Long memberId);
