@@ -14,6 +14,7 @@ import makeus.cmc.malmo.application.helper.question.CoupleQuestionQueryHelper;
 import makeus.cmc.malmo.application.port.in.couple.CoupleLinkUseCase;
 import makeus.cmc.malmo.application.port.in.couple.CoupleUnlinkUseCase;
 import makeus.cmc.malmo.application.port.out.SendSseEventPort;
+import makeus.cmc.malmo.application.port.out.member.ValidateMemberPort;
 import makeus.cmc.malmo.domain.model.couple.Couple;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
@@ -64,6 +65,14 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
 
         // 이전 커플 연결에서 생성된 메모리 삭제
         memberMemoryCommandHelper.deleteAliveMemory(MemberId.of(command.getUserId()));
+
+        // 이전 상대가 연결 해제, 본인은 따로 해지하지 않은 상황
+        coupleQueryHelper.getCoupleByMemberId(userId)
+                .ifPresent(couple -> {
+                    // 연결 해제 처리
+                    couple.unlink(userId);
+                    coupleCommandHelper.saveCouple(couple);
+                });
 
         // 이전에 생성되었던 커플이 있는지 조회, 없으면 생성
         Couple couple = coupleQueryHelper.getBrokenCouple(userId, partnerId)
