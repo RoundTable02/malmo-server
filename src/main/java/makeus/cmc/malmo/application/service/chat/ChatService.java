@@ -93,12 +93,6 @@ public class ChatService implements SendChatMessageUseCase {
         chatRoom.upgradeChatRoom();
         chatRoomCommandHelper.saveChatRoom(chatRoom);
 
-        // 현재 단계 채팅에 대한 전체 요약 요청 스트림에 추가
-        publishStreamMessagePort.publish(
-                StreamMessageType.REQUEST_SUMMARY,
-                new RequestSummaryMessage(chatRoom.getId(), nowChatRoomLevel)
-        );
-
         // 다음 단계 프롬프트를 통한 AI 응답 요청 스트림에 추가
         publishStreamMessagePort.publish(
                 StreamMessageType.REQUEST_CHAT_MESSAGE,
@@ -108,6 +102,12 @@ public class ChatService implements SendChatMessageUseCase {
                         "",
                         nowChatRoomLevel + 1
                 )
+        );
+
+        // 현재 단계 채팅에 대한 전체 요약 요청 스트림에 추가
+        publishStreamMessagePort.publish(
+                StreamMessageType.REQUEST_SUMMARY,
+                new RequestSummaryMessage(chatRoom.getId(), nowChatRoomLevel)
         );
 
         // 다음 단계 상담 도달, 채팅방 활성화
