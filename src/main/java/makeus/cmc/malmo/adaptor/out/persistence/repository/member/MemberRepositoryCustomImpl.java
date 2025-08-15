@@ -40,7 +40,13 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .from(memberEntity)
                 .leftJoin(coupleMemberEntity).on(coupleMemberEntity.memberEntityId.value.eq(memberEntity.id)
                         .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
-                .leftJoin(coupleEntity).on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value))
+                .leftJoin(coupleEntity)
+                .on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value)
+                        .and(JPAExpressions
+                                .selectFrom(coupleMemberEntity)
+                                .where(coupleMemberEntity.coupleEntityId.value.eq(coupleEntity.id)
+                                        .and(coupleMemberEntity.coupleMemberState.eq(CoupleMemberState.DELETED)))
+                                .notExists()))
                 .where(memberEntity.id.eq(memberId))
                 .fetchOne();
 
@@ -51,7 +57,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
     public Optional<MemberPersistenceAdapter.PartnerMemberRepositoryDto> findPartnerMember(Long memberId) {
         MemberPersistenceAdapter.PartnerMemberRepositoryDto dto = queryFactory
                 .select(Projections.constructor(MemberPersistenceAdapter.PartnerMemberRepositoryDto.class,
-                        memberEntity.memberState.stringValue(),
+                        coupleMemberEntity.coupleMemberState.stringValue(),
                         memberEntity.loveTypeCategory,
                         memberEntity.avoidanceRate,
                         memberEntity.anxietyRate,
