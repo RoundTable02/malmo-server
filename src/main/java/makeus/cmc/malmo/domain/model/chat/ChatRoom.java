@@ -93,6 +93,10 @@ public class ChatRoom {
         this.totalSummary = EXPIRED_ROOM_CREATING_SUMMARY_LINE;
     }
 
+    public boolean isStarted() {
+        return this.chatRoomState != ChatRoomState.BEFORE_INIT;
+    }
+
     public boolean isOwner(MemberId memberId) {
         return Objects.equals(this.memberId.getValue(), memberId.getValue());
     }

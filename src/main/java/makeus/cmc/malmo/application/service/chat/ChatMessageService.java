@@ -50,7 +50,6 @@ public class ChatMessageService implements ProcessMessageUseCase {
     private final CoupleQuestionQueryHelper coupleQuestionQueryHelper;
 
     private final MemberMemoryCommandHelper memberMemoryCommandHelper;
-    private final CoupleQueryHelper coupleQueryHelper;
 
     @Override
     public void processStreamChatMessage(ProcessMessageCommand command) {
@@ -68,7 +67,7 @@ public class ChatMessageService implements ProcessMessageUseCase {
 
         chatProcessor.streamChat(messages, systemPrompt, prompt,
                 chunk -> {
-                    if (chunk.contains("OK") && !prompt.isLastPrompt()) {
+                    if (chunk.contains("OK")) {
                         // OK 응답이 감지되면 isOkDetected를 true로 설정
                         isOkDetected.set(true);
                     } else {
