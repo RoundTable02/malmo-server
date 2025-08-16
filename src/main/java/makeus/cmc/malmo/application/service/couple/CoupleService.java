@@ -104,7 +104,7 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
         couple.unlink(MemberId.of(command.getUserId()));
         coupleCommandHelper.saveCouple(couple);
         sendSseEventPort.sendToMember(MemberId.of(command.getUserId()),
-                new SendSseEventPort.NotificationEvent(COUPLE_DISCONNECTED, couple.getId()));
+                new SendSseEventPort.NotificationEvent(COUPLE_DISCONNECTED, couple.getId())
         );
     }
 
