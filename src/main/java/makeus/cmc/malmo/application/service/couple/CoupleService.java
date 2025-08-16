@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 
 import static makeus.cmc.malmo.application.port.out.SendSseEventPort.SseEventType.COUPLE_CONNECTED;
+import static makeus.cmc.malmo.application.port.out.SendSseEventPort.SseEventType.COUPLE_DISCONNECTED;
 import static makeus.cmc.malmo.util.GlobalConstants.FIRST_QUESTION_LEVEL;
 
 @Service
@@ -102,6 +103,9 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
         Couple couple = coupleQueryHelper.getCoupleByMemberIdOrThrow(MemberId.of(command.getUserId()));
         couple.unlink(MemberId.of(command.getUserId()));
         coupleCommandHelper.saveCouple(couple);
+        sendSseEventPort.sendToMember(MemberId.of(command.getUserId()),
+                new SendSseEventPort.NotificationEvent(COUPLE_DISCONNECTED, couple.getId()));
+        );
     }
 
     private void validateCoupleLinkRequest(MemberId userId, MemberId codeOwnerId, InviteCodeValue inviteCode) {
