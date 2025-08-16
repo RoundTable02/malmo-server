@@ -152,8 +152,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .leftJoin(coupleEntity).on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value))
                 .leftJoin(partnerCoupleMemberEntity)
                 .on(partnerCoupleMemberEntity.coupleEntityId.value.eq(coupleEntity.id)
-                        .and(partnerCoupleMemberEntity.memberEntityId.value.ne(memberId))
-                        .and(partnerCoupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
+                        .and(partnerCoupleMemberEntity.memberEntityId.value.ne(memberId)))
                 .leftJoin(partnerMemberEntity).on(partnerMemberEntity.id.eq(partnerCoupleMemberEntity.memberEntityId.value))
                 .where(memberEntity.id.eq(memberId))
                 .fetchOne();
