@@ -18,6 +18,7 @@ public interface SendSseEventPort {
     @AllArgsConstructor
     enum SseEventType {
         COUPLE_CONNECTED("couple_connected"),
+        COUPLE_DISCONNECTED("couple_disconnected"),
         CHAT_RESPONSE("chat_response"),
         AI_RESPONSE_ID("ai_response_id"),
         CHAT_ROOM_PAUSED("chat_room_paused"),

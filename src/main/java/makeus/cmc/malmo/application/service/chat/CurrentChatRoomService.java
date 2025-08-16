@@ -55,7 +55,7 @@ public class CurrentChatRoomService
         // 현재 채팅방 가져오기
         ChatRoom currentChatRoom = chatRoomQueryHelper.getCurrentChatRoomByMemberId(MemberId.of(command.getUserId()))
                 .map(chatRoom -> {
-                    if (chatRoomDomainService.isChatRoomExpired(chatRoom.getLastMessageSentTime())) {
+                    if (chatRoom.isStarted() && chatRoomDomainService.isChatRoomExpired(chatRoom.getLastMessageSentTime())) {
                         // 마지막 채팅 이후 하루가 지난 경우 채팅방 종료 처리
                         chatRoom.expire();
                         ChatRoom savedChatRoom = chatRoomCommandHelper.saveChatRoom(chatRoom);
