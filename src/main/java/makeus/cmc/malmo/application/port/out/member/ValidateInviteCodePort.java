@@ -5,6 +5,4 @@ import makeus.cmc.malmo.domain.value.id.MemberId;
 
 public interface ValidateInviteCodePort {
     boolean isInviteCodeDuplicated(InviteCodeValue inviteCodeValue);
-    boolean isAlreadyCoupleMemberByInviteCode(InviteCodeValue inviteCode);
-    boolean isCodeOwnerMemberAlreadyCoupledWith(InviteCodeValue inviteCodeValue, MemberId memberId);
 }

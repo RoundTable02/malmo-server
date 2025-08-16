@@ -6,4 +6,6 @@ public interface ValidateMemberPort {
     boolean isCoupleMember(MemberId memberId);
 
     boolean isValidMember(MemberId memberId);
+
+    boolean isPartnerCoupleMemberAlive(MemberId memberId);
 }

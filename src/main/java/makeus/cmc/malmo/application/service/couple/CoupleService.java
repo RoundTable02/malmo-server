@@ -57,9 +57,14 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
     @CheckValidMember
     @Transactional
     public CoupleLinkResponse coupleLink(CoupleLinkCommand command) {
-        // 유효성 검사 및 파트너 조회
-        validateCoupleLinkRequest(command);
+        // 초대코드 주인 조회
         Member partner = memberQueryHelper.getMemberByInviteCodeOrThrow(InviteCodeValue.of(command.getCoupleCode()));
+
+        // 유효성 검사
+        validateCoupleLinkRequest(MemberId.of(command.getUserId()),
+                MemberId.of(partner.getId()),
+                InviteCodeValue.of(command.getCoupleCode()));
+
         MemberId userId = MemberId.of(command.getUserId());
         MemberId partnerId = MemberId.of(partner.getId());
 
@@ -99,10 +104,8 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
         coupleCommandHelper.saveCouple(couple);
     }
 
-    private void validateCoupleLinkRequest(CoupleLinkCommand command) {
-        InviteCodeValue inviteCode = InviteCodeValue.of(command.getCoupleCode());
-        MemberId userId = MemberId.of(command.getUserId());
-        memberQueryHelper.validateUsedInviteCode(inviteCode, userId);
+    private void validateCoupleLinkRequest(MemberId userId, MemberId codeOwnerId, InviteCodeValue inviteCode) {
+        memberQueryHelper.validateUsedInviteCode(codeOwnerId);
         memberQueryHelper.validateMemberNotCoupled(userId);
         memberQueryHelper.validateOwnInviteCode(userId, inviteCode);
     }

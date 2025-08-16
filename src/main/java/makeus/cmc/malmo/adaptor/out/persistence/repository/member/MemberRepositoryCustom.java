@@ -14,9 +14,7 @@ public interface MemberRepositoryCustom {
 
     boolean existsByInviteCode(String inviteCode);
 
-    boolean isAlreadyCoupleMemberByInviteCode(String inviteCode);
-
-    boolean isCodeOwnerMemberAlreadyCoupledWith(String inviteCode, Long memberId);
+    boolean isPartnerCoupleMemberAlive(Long memberId);
 
     Optional<InviteCodeEntityValue> findInviteCodeByMemberId(Long memberId);
 

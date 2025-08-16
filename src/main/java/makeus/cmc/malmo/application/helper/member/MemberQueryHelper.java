@@ -65,15 +65,14 @@ public class MemberQueryHelper {
         return validateMemberPort.isCoupleMember(memberId);
     }
 
-    public void validateUsedInviteCode(InviteCodeValue inviteCodeValue, MemberId memberId) {
-        boolean coupleMember = validateInviteCodePort.isAlreadyCoupleMemberByInviteCode(inviteCodeValue);
+    public void validateUsedInviteCode(MemberId codeOwnerId) {
+        boolean coupleMember = validateMemberPort.isCoupleMember(codeOwnerId);
+
         if (coupleMember) {
             // 초대 코드의 주인이 이미 커플로 등록된 경우
-            if (!validateInviteCodePort.isCodeOwnerMemberAlreadyCoupledWith(inviteCodeValue, memberId))
-                // 등록된 커플의 대상이 본인인 경우에는 예외를 발생시키지 않음 (Recover 대상)
-            // 등록된 커플의 대상이 본인인 경우(복구 시나리오)에는 예외를 발생시키지 않고,
-            // 그렇지 않은 경우(즉, 코드 소유자가 이미 다른 사람과 커플인 경우)에는 예외를 발생시킴
-            if (!validateInviteCodePort.isCodeOwnerMemberAlreadyCoupledWith(inviteCodeValue, memberId)) {
+            if (validateMemberPort.isPartnerCoupleMemberAlive(codeOwnerId)) {
+                // 초대 코드의 주인이 커플 해지를 당한 사용자인 경우, 예외처리하지 않음.
+                // 그렇지 않은 경우(즉, 코드 소유자가 이미 다른 사람과 커플인 경우)에는 예외를 발생시킴
                 throw new UsedInviteCodeException("이미 사용된 커플 코드입니다. 다른 코드를 입력해주세요.");
             }
         }
@@ -83,7 +82,10 @@ public class MemberQueryHelper {
         boolean coupleMember = validateMemberPort.isCoupleMember(memberId);
 
         if (coupleMember) {
-            throw new AlreadyCoupledMemberException("이미 커플로 등록된 사용자입니다. 커플 등록을 해제 후 이용해주세요.");
+            // 멤버가 커플 해지 당한 경우, 예외처리하지 않음
+            if (validateMemberPort.isPartnerCoupleMemberAlive(memberId)) {
+                throw new AlreadyCoupledMemberException("이미 커플로 등록된 사용자입니다. 커플 등록을 해제 후 이용해주세요.");
+            }
         }
     }
 

@@ -4,7 +4,9 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.out.persistence.adapter.MemberPersistenceAdapter;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleMemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleMemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.QMemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
@@ -19,6 +21,7 @@ import static makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleEnti
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleMemberEntity.coupleMemberEntity;
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.member.QMemberEntity.memberEntity;
 
+@Slf4j
 @RequiredArgsConstructor
 public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
 
@@ -100,29 +103,25 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
     }
 
     @Override
-    public boolean isAlreadyCoupleMemberByInviteCode(String inviteCode) {
-        return queryFactory
-                .selectOne()
-                .from(coupleMemberEntity)
+    public boolean isPartnerCoupleMemberAlive(Long memberId) {
+        CoupleMemberEntity coupleMemberEntity1 = queryFactory
+                .selectFrom(coupleMemberEntity)
                 .join(memberEntity).on(memberEntity.id.eq(coupleMemberEntity.memberEntityId.value))
-                .join(coupleEntity).on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value))
-                .where(memberEntity.inviteCodeEntityValue.value.eq(inviteCode)
+                .join(coupleEntity).on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value)
+                        .and(coupleEntity.coupleState.ne(CoupleState.DELETED)))
+                .where(coupleEntity.id.in(
+                                JPAExpressions.select(coupleMemberEntity.coupleEntityId.value)
+                                        .from(coupleMemberEntity)
+                                        .where(coupleMemberEntity.memberEntityId.value.eq(memberId)
+                                                .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
+                        )
+                        .and(coupleMemberEntity.memberEntityId.value.ne(memberId))
                         .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
-                .fetchFirst() != null;
-    }
+                .fetchFirst();
 
-    @Override
-    public boolean isCodeOwnerMemberAlreadyCoupledWith(String inviteCode, Long memberId) {
-        return queryFactory
-                        .selectOne()
-                        .from(coupleMemberEntity)
-                        .join(memberEntity).on(memberEntity.id.eq(coupleMemberEntity.memberEntityId.value))
-                        .join(coupleEntity).on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value)
-                                .and(coupleEntity.coupleState.ne(CoupleState.DELETED)))
-                        .where(memberEntity.inviteCodeEntityValue.value.eq(inviteCode)
-                                .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED))
-                                .and(coupleEntity.coupleMembers.any().memberEntityId.value.eq(memberId)))
-                        .fetchFirst() != null;
+
+        log.info("Is partner couple member alive for memberId {}: {}", memberId, coupleMemberEntity1 != null);
+        return coupleMemberEntity1 != null;
     }
 
     @Override
