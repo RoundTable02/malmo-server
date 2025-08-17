@@ -27,6 +27,7 @@ public class MemberAnswerEntity extends BaseTimeEntity {
     @Embedded
     private CoupleMemberEntityId coupleMemberEntityId;
 
+    @Column(columnDefinition = "TEXT")
     private String answer;
 
     @Enumerated(EnumType.STRING)

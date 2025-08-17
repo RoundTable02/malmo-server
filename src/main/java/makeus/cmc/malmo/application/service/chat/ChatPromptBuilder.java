@@ -46,6 +46,14 @@ public class ChatPromptBuilder {
             messages.add(createMessageMap(chatMessage.getSenderType(), chatMessage.getContent()));
         }
 
+        if (currentChatRoomMessages.isEmpty()) {
+            // 만약 현재 단계 메시지가 없다면, 이전 단계 메시지를 가져온다. (현재 단계 최초 진입)
+            currentChatRoomMessages = chatRoomQueryHelper.getChatRoomLevelMessages(ChatRoomId.of(chatRoom.getId()), chatRoomLevel - 1);
+            for (ChatMessage chatMessage : currentChatRoomMessages) {
+                messages.add(createMessageMap(chatMessage.getSenderType(), chatMessage.getContent()));
+            }
+        }
+
         // 4. 현재 사용자 메시지 추가
         messages.add(createMessageMap(SenderType.USER, userMessage));
 

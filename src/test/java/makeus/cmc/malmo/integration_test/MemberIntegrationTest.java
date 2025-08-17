@@ -7,6 +7,7 @@ import com.jayway.jsonpath.JsonPath;
 import jakarta.persistence.EntityManager;
 import makeus.cmc.malmo.adaptor.in.web.controller.SignUpController;
 import makeus.cmc.malmo.adaptor.out.jwt.TokenInfo;
+import makeus.cmc.malmo.adaptor.out.oauth.KakaoUnlinkAdapter;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatRoomEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleMemberEntity;
@@ -17,6 +18,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.terms.MemberTermsAgreemen
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
+import makeus.cmc.malmo.application.helper.member.OauthTokenHelper;
 import makeus.cmc.malmo.application.port.out.member.GenerateTokenPort;
 import makeus.cmc.malmo.domain.value.state.*;
 import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
@@ -32,6 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -42,6 +45,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.*;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -62,6 +66,9 @@ public class MemberIntegrationTest {
 
     @Autowired
     private GenerateTokenPort generateTokenPort;
+
+    @MockBean
+    private KakaoUnlinkAdapter kakaoUnlinkAdapter;
 
     private String accessToken;
 
@@ -250,6 +257,9 @@ public class MemberIntegrationTest {
         @Test
         @DisplayName("정상적인 요청의 경우 멤버 탈퇴가 성공한다")
         void 멤버_탈퇴_성공() throws Exception {
+            // given
+            doNothing().when(kakaoUnlinkAdapter).unlink("testProviderId");
+
             // when
             mockMvc.perform(delete("/members")
                             .header("Authorization", "Bearer " + accessToken)
@@ -260,6 +270,7 @@ public class MemberIntegrationTest {
             MemberEntity deletedMember = em.find(MemberEntity.class, member.getId());
             Assertions.assertThat(deletedMember.getMemberState()).isEqualTo(MemberState.DELETED);
             Assertions.assertThat(deletedMember.getProviderId()).isEqualTo("testProviderId_deleted");
+            verify(kakaoUnlinkAdapter, times(1)).unlink("testProviderId");
         }
 
         @Test
@@ -267,6 +278,7 @@ public class MemberIntegrationTest {
         void 멤버_탈퇴_커플_상태_변경() throws Exception {
             // given
             MemberEntity partner = createAndSavePartner();
+            doNothing().when(kakaoUnlinkAdapter).unlink("testProviderId");
 
             MvcResult mvcResult = mockMvc.perform(post("/couples")
                             .header("Authorization", "Bearer " + accessToken)
@@ -297,6 +309,7 @@ public class MemberIntegrationTest {
             Assertions.assertThat(couple.getCoupleMembers())
                     .extracting(CoupleMemberEntity::getCoupleMemberState)
                     .contains(CoupleMemberState.DELETED, CoupleMemberState.ALIVE);
+            verify(kakaoUnlinkAdapter, times(1)).unlink("testProviderId");
         }
     }
 

@@ -93,21 +93,28 @@ public class ChatService implements SendChatMessageUseCase {
         chatRoom.upgradeChatRoom();
         chatRoomCommandHelper.saveChatRoom(chatRoom);
 
+        // 다음 단계 프롬프트를 통한 AI 응답 요청 스트림에 추가
+        if (nowChatRoomLevel + 1 == LAST_PROMPT_LEVEL) {
+            // 마지막 단계로 업그레이드된 경우, 고정된 메시지를 전송
+            chatSseSender.sendLastResponse(chatRoom.getMemberId(), FINAL_MESSAGE);
+            saveAiMessage(chatRoom.getMemberId(), ChatRoomId.of(chatRoom.getId()), LAST_PROMPT_LEVEL, FINAL_MESSAGE);
+        } else {
+            // 다음 단계로 업그레이드된 경우, AI 응답 요청 스트림에 추가
+            publishStreamMessagePort.publish(
+                    StreamMessageType.REQUEST_CHAT_MESSAGE,
+                    new StreamChatMessage(
+                            member.getId(),
+                            chatRoom.getId(),
+                            "",
+                            nowChatRoomLevel + 1
+                    )
+            );
+        }
+
         // 현재 단계 채팅에 대한 전체 요약 요청 스트림에 추가
         publishStreamMessagePort.publish(
                 StreamMessageType.REQUEST_SUMMARY,
                 new RequestSummaryMessage(chatRoom.getId(), nowChatRoomLevel)
-        );
-
-        // 다음 단계 프롬프트를 통한 AI 응답 요청 스트림에 추가
-        publishStreamMessagePort.publish(
-                StreamMessageType.REQUEST_CHAT_MESSAGE,
-                new StreamChatMessage(
-                        member.getId(),
-                        chatRoom.getId(),
-                        "",
-                        nowChatRoomLevel + 1
-                )
         );
 
         // 다음 단계 상담 도달, 채팅방 활성화

@@ -57,4 +57,6 @@ public class MemberEntity extends BaseTimeEntity {
     private InviteCodeEntityValue inviteCodeEntityValue;
 
     private LocalDate startLoveDate;
+
+    private String oauthToken;
 }

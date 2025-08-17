@@ -30,6 +30,7 @@ public class Member {
     private String email;
     private InviteCodeValue inviteCode;
     private LocalDate startLoveDate;
+    private String oauthToken;
 
     // BaseTimeEntity fields
     private LocalDateTime createdAt;
@@ -37,7 +38,7 @@ public class Member {
     private LocalDateTime deletedAt;
 
 
-    public static Member createMember(Provider provider, String providerId, MemberRole memberRole, MemberState memberState, String email, InviteCodeValue inviteCode) {
+    public static Member createMember(Provider provider, String providerId, MemberRole memberRole, MemberState memberState, String email, InviteCodeValue inviteCode, String oauthToken) {
         return Member.builder()
                 .provider(provider)
                 .providerId(providerId)
@@ -45,6 +46,7 @@ public class Member {
                 .memberState(memberState)
                 .email(email)
                 .inviteCode(inviteCode)
+                .oauthToken(oauthToken)
                 .build();
     }
 
@@ -64,6 +66,7 @@ public class Member {
             String email,
             InviteCodeValue inviteCode,
             LocalDate startLoveDate,
+            String oauthToken,
             LocalDateTime createdAt,
             LocalDateTime modifiedAt,
             LocalDateTime deletedAt
@@ -84,6 +87,7 @@ public class Member {
                 .email(email)
                 .inviteCode(inviteCode)
                 .startLoveDate(startLoveDate)
+                .oauthToken(oauthToken)
                 .createdAt(createdAt)
                 .modifiedAt(modifiedAt)
                 .deletedAt(deletedAt)

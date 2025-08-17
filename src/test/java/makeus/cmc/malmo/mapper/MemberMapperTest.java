@@ -272,6 +272,7 @@ class MemberMapperTest {
                 "test@example.com",
                 null, // Assuming InviteCodeValue is not used in this test
                 LocalDate.now(),
+                null,
                 LocalDateTime.now(),
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -280,25 +281,25 @@ class MemberMapperTest {
 
     private Member createMemberWithNulls() {
         return Member.createMember(
-                null, null, null, null, null, null
+                null, null, null, null, null, null, null
         );
     }
 
     private Member createMemberWithProvider(Provider provider) {
         return Member.createMember(
-                provider, "provider123", MemberRole.MEMBER, MemberState.ALIVE, "", null
+                provider, "provider123", MemberRole.MEMBER, MemberState.ALIVE, "", null, null
         );
     }
 
     private Member createMemberWithRole(MemberRole role) {
         return Member.createMember(
-                Provider.KAKAO, "provider123", role, MemberState.ALIVE, "", null
+                Provider.KAKAO, "provider123", role, MemberState.ALIVE, "", null, null
         );
     }
 
     private Member createMemberWithState(MemberState state) {
         return Member.createMember(
-                Provider.KAKAO, "provider123", MemberRole.MEMBER, state, "", null
+                Provider.KAKAO, "provider123", MemberRole.MEMBER, state, "", null, null
         );
     }
 }

@@ -5,9 +5,9 @@ public class GlobalConstants {
     public static final int FIRST_QUESTION_LEVEL = 1;
 
     // Redis 관련 상수
-    public static final String STREAM_KEY = "openai-stream";
-    public static final String PUBSUB_CHANNEL = "openai-events";
-    
+    public static final String STREAM_KEY = "my-stream";
+    public static final String CONSUMER_GROUP = "malmo-group";
+
     // 채팅방 관련 상수
     public static final int INIT_CHATROOM_LEVEL = 1;
     public static final int SYSTEM_PROMPT_LEVEL = -2;

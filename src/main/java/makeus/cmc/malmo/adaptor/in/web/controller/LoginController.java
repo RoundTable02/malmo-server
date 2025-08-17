@@ -67,6 +67,7 @@ public class LoginController {
     ) {
         SignInUseCase.SignInAppleCommand command = SignInUseCase.SignInAppleCommand.builder()
                 .idToken(requestDto.idToken)
+                .authorizationCode(requestDto.authorizationCode)
                 .build();
         return BaseResponse.success(signInUseCase.signInApple(command));
     }
@@ -105,5 +106,7 @@ public class LoginController {
     public static class AppleLoginRequestDto {
         @NotEmpty(message = "idToken은 필수 입력값입니다.")
         private String idToken;
+        @NotEmpty(message = "authorizationCode는 필수 입력값입니다.")
+        private String authorizationCode;
     }
 }

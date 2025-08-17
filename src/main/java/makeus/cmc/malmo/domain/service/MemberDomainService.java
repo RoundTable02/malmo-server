@@ -14,14 +14,15 @@ import static java.time.temporal.ChronoUnit.DAYS;
 @Component
 public class MemberDomainService {
 
-    public Member createMember(Provider provider, String providerId, String email, InviteCodeValue inviteCode) {
+    public Member createMember(Provider provider, String providerId, String email, InviteCodeValue inviteCode, String oauthToken) {
         return Member.createMember(
                 provider,
                 providerId,
                 MemberRole.MEMBER,
                 MemberState.BEFORE_ONBOARDING,
                 email,
-                inviteCode
+                inviteCode,
+                oauthToken
         );
     }
 
