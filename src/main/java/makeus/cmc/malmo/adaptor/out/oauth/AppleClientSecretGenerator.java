@@ -24,7 +24,7 @@ public class AppleClientSecretGenerator {
     private String keyId;
 
     @Value("${apple.oauth.private-key}")
-    private String privateKey;
+    private String privateKeyBase64;
 
     public String generateClientSecret() throws Exception {
         Date now = new Date();
@@ -44,7 +44,8 @@ public class AppleClientSecretGenerator {
     }
 
     private PrivateKey getPrivateKey() throws Exception {
-        String privateKeyPem = privateKey.replace("-----BEGIN PRIVATE KEY-----", "")
+        String decoded = new String(Base64.getDecoder().decode(privateKeyBase64));
+        String privateKeyPem = decoded.replace("-----BEGIN PRIVATE KEY-----", "")
                 .replace("-----END PRIVATE KEY-----", "")
                 .replaceAll("\\s+", "");
 
