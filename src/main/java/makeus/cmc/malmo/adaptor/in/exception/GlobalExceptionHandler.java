@@ -133,6 +133,12 @@ public class GlobalExceptionHandler {
         return ErrorResponse.of(ErrorCode.NO_SUCH_COUPLE_QUESTION);
     }
 
+    @ExceptionHandler({OAuthUnlinkFailureException.class})
+    public ResponseEntity<ErrorResponse> handleOAuthUnlinkFailureException(OAuthUnlinkFailureException e) {
+        log.error("[GlobalExceptionHandler: handleOAuthUnlinkFailureException 호출]", e);
+        return ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR);
+    }
+
 
 
 
