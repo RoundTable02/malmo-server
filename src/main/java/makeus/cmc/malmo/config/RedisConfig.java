@@ -1,19 +1,24 @@
 package makeus.cmc.malmo.config;
 
-import makeus.cmc.malmo.adaptor.in.RedisEventListener;
+import makeus.cmc.malmo.adaptor.in.RedisStreamConsumer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.connection.stream.Consumer;
+import org.springframework.data.redis.connection.stream.MapRecord;
+import org.springframework.data.redis.connection.stream.ReadOffset;
+import org.springframework.data.redis.connection.stream.StreamOffset;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.listener.PatternTopic;
-import org.springframework.data.redis.listener.RedisMessageListenerContainer;
-import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.data.redis.stream.StreamMessageListenerContainer;
 
-import static makeus.cmc.malmo.util.GlobalConstants.PUBSUB_CHANNEL;
+import java.time.Duration;
+import java.util.concurrent.Executors;
+
+import static makeus.cmc.malmo.util.GlobalConstants.CONSUMER_GROUP;
+import static makeus.cmc.malmo.util.GlobalConstants.STREAM_KEY;
 
 @Configuration
 public class RedisConfig {
@@ -27,11 +32,6 @@ public class RedisConfig {
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
         return new LettuceConnectionFactory(redisHost, redisPort);
-    }
-
-    @Bean
-    public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory connectionFactory) {
-        return new StringRedisTemplate(connectionFactory);
     }
 
     @Bean
@@ -50,15 +50,31 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisMessageListenerContainer redisContainer(RedisConnectionFactory connectionFactory,
-                                                        RedisEventListener consumer) {
-        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
-        container.setConnectionFactory(connectionFactory);
+    public StreamMessageListenerContainer<String, MapRecord<String, String, String>> streamContainer(
+            RedisConnectionFactory connectionFactory,
+            RedisStreamConsumer consumer
+    ) {
+        StreamMessageListenerContainer.StreamMessageListenerContainerOptions<String, MapRecord<String, String, String>> options =
+                StreamMessageListenerContainer.StreamMessageListenerContainerOptions.builder()
+                        .pollTimeout(Duration.ofSeconds(2))
+                        .executor(Executors.newFixedThreadPool(8))
+                        .build();
 
-        MessageListenerAdapter listener = new MessageListenerAdapter(consumer, "onMessage");
-        container.addMessageListener(listener, new PatternTopic(PUBSUB_CHANNEL));
+        StreamMessageListenerContainer<String, MapRecord<String, String, String>> container =
+                StreamMessageListenerContainer.create(connectionFactory, options);
 
+        // Consumer 그룹 내 여러 Consumer를 등록 → 병렬 처리
+        for (int i = 0; i < 4; i++) {
+            container.receive(
+                    Consumer.from(CONSUMER_GROUP, "malmo-consumer-" + i),
+                    StreamOffset.create(STREAM_KEY, ReadOffset.lastConsumed()),
+                    consumer::onMessage
+            );
+        }
+
+        container.start();
         return container;
     }
 }
+
 
