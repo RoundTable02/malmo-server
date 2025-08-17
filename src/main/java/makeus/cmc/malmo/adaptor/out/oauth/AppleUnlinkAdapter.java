@@ -3,6 +3,7 @@ package makeus.cmc.malmo.adaptor.out.oauth;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.application.exception.OAuthUnlinkFailureException;
+import makeus.cmc.malmo.application.port.out.member.UnlinkApplePort;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
@@ -14,7 +15,7 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class AppleUnlinkAdapter {
+public class AppleUnlinkAdapter implements UnlinkApplePort {
 
     @Value("${apple.oauth.client-id}")
     private String clientId;
@@ -24,7 +25,8 @@ public class AppleUnlinkAdapter {
 
     private final AppleClientSecretGenerator clientSecretGenerator;
 
-    public void revoke(String oauthToken) {
+    @Override
+    public void unlink(String oauthToken) {
         RestTemplate restTemplate = new RestTemplate();
 
         try {

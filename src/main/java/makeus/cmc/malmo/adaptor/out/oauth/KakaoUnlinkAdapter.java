@@ -2,6 +2,7 @@ package makeus.cmc.malmo.adaptor.out.oauth;
 
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.application.exception.OAuthUnlinkFailureException;
+import makeus.cmc.malmo.application.port.out.member.UnlinkKakaoPort;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
@@ -12,13 +13,15 @@ import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Component
-public class KakaoUnlinkAdapter {
+public class KakaoUnlinkAdapter implements UnlinkKakaoPort {
 
     @Value("${kakao.oauth.admin-key}")
     private String kakaoAdminKey;
 
-    private static final String KAKAO_API_URL = "https://kapi.kakao.com/v1/user/unlink";
+    @Value("${kakao.oauth.unlink-uri}")
+    private String unlinkUrl;
 
+    @Override
     public void unlink(Long providerId) {
         RestTemplate restTemplate = new RestTemplate();
 
@@ -38,7 +41,7 @@ public class KakaoUnlinkAdapter {
         try {
             // 4. RestTemplate을 사용하여 POST 요청 전송
             ResponseEntity<String> response = restTemplate.exchange(
-                    KAKAO_API_URL,
+                    unlinkUrl,
                     HttpMethod.POST,
                     requestEntity,
                     String.class

@@ -28,6 +28,7 @@ public class MemberMapper {
                 entity.getEmail(),
                 entity.getInviteCodeEntityValue() != null ? InviteCodeValue.of(entity.getInviteCodeEntityValue().getValue()) : null,
                 entity.getStartLoveDate(),
+                entity.getOauthToken()
                 entity.getCreatedAt(),
                 entity.getModifiedAt(),
                 entity.getDeletedAt()
@@ -53,6 +54,7 @@ public class MemberMapper {
                         domain.getInviteCode() != null ? InviteCodeEntityValue.of(domain.getInviteCode().getValue()) : null
                 )
                 .startLoveDate(domain.getStartLoveDate())
+                .oauthToken(domain.getOauthToken())
                 .createdAt(domain.getCreatedAt())
                 .modifiedAt(domain.getModifiedAt())
                 .deletedAt(domain.getDeletedAt())

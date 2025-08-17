@@ -19,6 +19,7 @@ public interface SignInUseCase {
     @Builder
     class SignInAppleCommand {
         private String idToken;
+        private String authorizationCode;
     }
 
     @Data

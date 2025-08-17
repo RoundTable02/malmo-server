@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.exception.RestApiException;
+import makeus.cmc.malmo.application.port.out.member.FetchAppleRefreshTokenPort;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -15,7 +16,7 @@ import org.springframework.web.client.RestTemplate;
 
 @RequiredArgsConstructor
 @Component
-public class AppleRefreshTokenAdapter {
+public class AppleRefreshTokenAdapter implements FetchAppleRefreshTokenPort {
 
     private final AppleClientSecretGenerator clientSecretGenerator;
 
@@ -25,6 +26,7 @@ public class AppleRefreshTokenAdapter {
     @Value("${apple.oauth.token-uri}")
     private String appleTokenUrl;
 
+    @Override
     public String getAppleRefreshToken(String authorizationCode) {
         RestTemplate restTemplate = new RestTemplate();
 
