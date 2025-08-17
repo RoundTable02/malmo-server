@@ -28,7 +28,7 @@ public class MemberMapper {
                 entity.getEmail(),
                 entity.getInviteCodeEntityValue() != null ? InviteCodeValue.of(entity.getInviteCodeEntityValue().getValue()) : null,
                 entity.getStartLoveDate(),
-                entity.getOauthToken()
+                entity.getOauthToken(),
                 entity.getCreatedAt(),
                 entity.getModifiedAt(),
                 entity.getDeletedAt()

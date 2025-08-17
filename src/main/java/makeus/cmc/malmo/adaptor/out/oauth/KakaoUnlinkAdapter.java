@@ -22,7 +22,7 @@ public class KakaoUnlinkAdapter implements UnlinkKakaoPort {
     private String unlinkUrl;
 
     @Override
-    public void unlink(Long providerId) {
+    public void unlink(String providerId) {
         RestTemplate restTemplate = new RestTemplate();
 
         // 1. 요청 헤더 설정
@@ -33,7 +33,7 @@ public class KakaoUnlinkAdapter implements UnlinkKakaoPort {
         // 2. 요청 본문(body) 설정
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("target_id_type", "user_id");
-        body.add("target_id", String.valueOf(providerId));
+        body.add("target_id", providerId);
 
         // 3. 헤더와 본문을 포함하는 HttpEntity 객체 생성
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(body, headers);
