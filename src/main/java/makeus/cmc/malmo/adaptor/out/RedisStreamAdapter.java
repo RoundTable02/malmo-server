@@ -17,7 +17,6 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import java.util.HashMap;
 import java.util.Map;
 
-import static makeus.cmc.malmo.util.GlobalConstants.PUBSUB_CHANNEL;
 import static makeus.cmc.malmo.util.GlobalConstants.STREAM_KEY;
 
 @Slf4j
@@ -41,8 +40,6 @@ public class RedisStreamAdapter implements PublishStreamMessagePort {
 
                             StreamOperations<String, String, String> ops = redisTemplate.opsForStream();
                             RecordId id = ops.add(MapRecord.create(STREAM_KEY, map));
-
-                            redisTemplate.convertAndSend(PUBSUB_CHANNEL, "new-message");
 
                             log.info("Published message to Redis Stream: type={}, payload={}, id={}", type, payload, id);
                         } catch (Exception e) {
