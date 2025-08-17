@@ -132,6 +132,11 @@ jobs:
                   - JWT_SECRET=${{ secrets.JWT_SECRET }}
                   - KAKAO_REST_API_KEY=${{ secrets.KAKAO_REST_API_KEY }}
                   - APPLE_REST_API_KEY=${{ secrets.APPLE_REST_API_KEY }}
+                  - APPLE_TEAM_ID=${{ secrets.APPLE_TEAM_ID }}
+                  - APPLE_KEY_ID=${{ secrets.APPLE_KEY_ID }}
+                  - APPLE_PRIVATE_KEY=${{ secrets.APPLE_PRIVATE_KEY }}
+                  - APPLE_CLIENT_ID=${{ secrets.APPLE_CLIENT_ID }}
+                  - KAKAO_ADMIN_KEY=${{ secrets.KAKAO_ADMIN_KEY }}
                   - OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
                   - SWAGGER_SERVER_PRODUCTION_URL=${{ secrets.SWAGGER_SERVER_PRODUCTION_URL }}
                   - SECURITY_CLIENT_URL_PRODUCTION=${{ secrets.SECURITY_CLIENT_URL_PRODUCTION }}
