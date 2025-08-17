@@ -64,7 +64,7 @@ public class SignInService implements SignInUseCase, LogOutUseCase {
         Member member = memberQueryHelper.getMemberByProviderId(provider, providerId)
                 .orElseGet(() -> {
                     // idToken 복호화로 이메일을 가져옴
-                    String email = oauthTokenHelper.getAppleEmailOrThrow(providerId);
+                    String email = oauthTokenHelper.getAppleEmailOrThrow(command.getIdToken());
                     // Apple OAuth 인증 코드로부터 Refresh Token을 가져옴
                     String oauthToken = oauthTokenHelper.fetchAppleRefreshTokenOrThrow(command.getAuthorizationCode());
                     return createNewMember(provider, providerId, email, oauthToken);

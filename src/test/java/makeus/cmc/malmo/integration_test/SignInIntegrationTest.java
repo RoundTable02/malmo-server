@@ -230,7 +230,7 @@ public class SignInIntegrationTest {
             String email = "guest@email.com";
             String authorizationCode = "valid-authorization-code";
             given(appleOidcAdapter.validateToken(idToken)).willReturn(providerId);
-            given(appleOidcAdapter.extractEmailFromIdToken(providerId)).willReturn(email);
+            given(appleOidcAdapter.extractEmailFromIdToken(idToken)).willReturn(email);
             given(appleRefreshTokenAdapter.getAppleRefreshToken(authorizationCode)).willReturn("valid-refresh-token");
 
             // when & then
