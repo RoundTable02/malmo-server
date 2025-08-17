@@ -76,7 +76,7 @@ public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLov
         } else if (member.getProvider() == Provider.APPLE) {
             oauthTokenHelper.unlinkApple(member.getOauthToken());
         }
-        
+
         // 멤버 soft delete
         member.delete();
         memberCommandHelper.saveMember(member);

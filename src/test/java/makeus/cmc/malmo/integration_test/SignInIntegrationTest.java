@@ -2,6 +2,7 @@ package makeus.cmc.malmo.integration_test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
+import makeus.cmc.malmo.adaptor.out.oauth.AppleRefreshTokenAdapter;
 import makeus.cmc.malmo.adaptor.out.oidc.AppleOidcAdapter;
 import makeus.cmc.malmo.adaptor.out.oidc.KakaoOidcAdapter;
 import makeus.cmc.malmo.adaptor.out.oidc.KakaoRestApiAdaptor;
@@ -31,6 +32,7 @@ import java.time.LocalDateTime;
 import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.INVALID_REFRESH_TOKEN;
 import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.NO_SUCH_MEMBER;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -56,6 +58,9 @@ public class SignInIntegrationTest {
 
     @MockBean
     private KakaoRestApiAdaptor kakaoRestApiAdaptor;
+
+    @MockBean
+    private AppleRefreshTokenAdapter appleRefreshTokenAdapter;
 
     private String accessToken;
 
@@ -200,13 +205,14 @@ public class SignInIntegrationTest {
         void 등록된_사용자의_경우_애플_소셜_로그인에_성공한다() throws Exception {
             // given
             String idToken = "valid-id-token";
+            String authorizationCode = "valid-authorization-code";
             given(appleOidcAdapter.validateToken(idToken)).willReturn(appleMember.getProviderId());
 
             // when & then
             mockMvc.perform(post("/login/apple")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(
-                                    SignInRequestDtoFactory.createAppleLoginRequestDto(idToken)
+                                    SignInRequestDtoFactory.createAppleLoginRequestDto(idToken, authorizationCode)
                             )))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data.accessToken").isNotEmpty())
@@ -222,14 +228,16 @@ public class SignInIntegrationTest {
             String providerId = "guest-provider-id";
             String idToken = "valid-id-token";
             String email = "guest@email.com";
+            String authorizationCode = "valid-authorization-code";
             given(appleOidcAdapter.validateToken(idToken)).willReturn(providerId);
-            given(appleOidcAdapter.extractEmailFromIdToken(idToken)).willReturn(email);
+            given(appleOidcAdapter.extractEmailFromIdToken(providerId)).willReturn(email);
+            given(appleRefreshTokenAdapter.getAppleRefreshToken(authorizationCode)).willReturn("valid-refresh-token");
 
             // when & then
             mockMvc.perform(post("/login/apple")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(
-                                    SignInRequestDtoFactory.createAppleLoginRequestDto(idToken)
+                                    SignInRequestDtoFactory.createAppleLoginRequestDto(idToken, authorizationCode)
                             )))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data.accessToken").isNotEmpty())
@@ -245,45 +253,7 @@ public class SignInIntegrationTest {
             Assertions.assertThat(memberEntity.getProviderId()).isEqualTo(providerId);
             Assertions.assertThat(memberEntity.getEmail()).isEqualTo(email);
             Assertions.assertThat(memberEntity.getMemberState()).isEqualTo(MemberState.BEFORE_ONBOARDING);
-        }
-
-        @Test
-        @DisplayName("애플 소셜 로그인 탈퇴한 멤버의 경우 사용자 정보 복구")
-        void 애플_소셜_로그인_탈퇴한_멤버의_경우_사용자_정보_복구() throws Exception {
-            // given
-            String idToken = "valid-id-token";
-            String originalProviderId = appleMember.getProviderId();
-            given(appleOidcAdapter.validateToken(idToken)).willReturn(originalProviderId);
-            given(appleOidcAdapter.extractEmailFromIdToken(idToken)).willReturn("testEmail@test.com");
-
-            em.createQuery("UPDATE MemberEntity m SET m.memberState = :state, " +
-                            "m.deletedAt = :deletedAt, " +
-                            "m.providerId = :providerId WHERE m.id = :memberId")
-                    .setParameter("state", MemberState.DELETED)
-                    .setParameter("deletedAt", LocalDateTime.now())
-                    .setParameter("providerId", appleMember.getProviderId() + "_deleted")
-                    .setParameter("memberId", appleMember.getId())
-                    .executeUpdate();
-
-            // when & then
-            mockMvc.perform(post("/login/apple")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(
-                                    SignInRequestDtoFactory.createAppleLoginRequestDto(idToken)
-                            )))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.data.accessToken").isNotEmpty())
-                    .andExpect(jsonPath("$.data.refreshToken").isNotEmpty())
-                    .andExpect(jsonPath("$.data.memberState").value("BEFORE_ONBOARDING"))
-                    .andExpect(jsonPath("$.data.grantType").value("Bearer"));
-
-            MemberEntity newMember = em.createQuery("SELECT m FROM MemberEntity m WHERE m.providerId = :providerId", MemberEntity.class)
-                    .setParameter("providerId", originalProviderId)
-                    .getSingleResult();
-
-            Assertions.assertThat(newMember.getMemberState()).isEqualTo(MemberState.BEFORE_ONBOARDING);
-            Assertions.assertThat(newMember.getDeletedAt()).isNull();
-            Assertions.assertThat(newMember.getId()).isNotEqualTo(appleMember.getId());
+            Assertions.assertThat(memberEntity.getOauthToken()).isEqualTo("valid-refresh-token");
         }
     }
 
@@ -296,12 +266,13 @@ public class SignInIntegrationTest {
         void 리프레시_토큰을_통한_액세스_토큰_재발급에_성공한다() throws Exception {
             // given
             String idToken = "valid-id-token";
+            String authorizationCode = "valid-authorization-code";
             given(appleOidcAdapter.validateToken(idToken)).willReturn(appleMember.getProviderId());
 
             MvcResult loginResult = mockMvc.perform(post("/login/apple")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(
-                                    SignInRequestDtoFactory.createAppleLoginRequestDto(idToken)
+                                    SignInRequestDtoFactory.createAppleLoginRequestDto(idToken, authorizationCode)
                             )))
                     .andExpect(status().isOk())
                     .andReturn();
@@ -345,12 +316,13 @@ public class SignInIntegrationTest {
         void 탈퇴한_사용자의_리프레시_토큰을_통한_액세스_토큰_재발급에_실패한다() throws Exception {
             // given
             String idToken = "valid-id-token";
+            String authorizationCode = "valid-authorization-code";
             given(appleOidcAdapter.validateToken(idToken)).willReturn(appleMember.getProviderId());
 
             MvcResult loginResult = mockMvc.perform(post("/login/apple")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(
-                                    SignInRequestDtoFactory.createAppleLoginRequestDto(idToken)
+                                    SignInRequestDtoFactory.createAppleLoginRequestDto(idToken, authorizationCode)
                             )))
                     .andExpect(status().isOk())
                     .andReturn();

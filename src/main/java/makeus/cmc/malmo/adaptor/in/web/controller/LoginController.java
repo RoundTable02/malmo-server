@@ -67,6 +67,7 @@ public class LoginController {
     ) {
         SignInUseCase.SignInAppleCommand command = SignInUseCase.SignInAppleCommand.builder()
                 .idToken(requestDto.idToken)
+                .authorizationCode(requestDto.authorizationCode)
                 .build();
         return BaseResponse.success(signInUseCase.signInApple(command));
     }

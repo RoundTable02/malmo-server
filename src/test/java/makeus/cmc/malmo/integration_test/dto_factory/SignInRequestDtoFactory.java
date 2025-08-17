@@ -12,9 +12,10 @@ public class SignInRequestDtoFactory {
         return dto;
     }
 
-    public static LoginController.AppleLoginRequestDto createAppleLoginRequestDto(String idToken) {
+    public static LoginController.AppleLoginRequestDto createAppleLoginRequestDto(String idToken, String authorizationCode) {
         LoginController.AppleLoginRequestDto dto = new LoginController.AppleLoginRequestDto();
         dto.setIdToken(idToken);
+        dto.setAuthorizationCode(authorizationCode);
         return dto;
     }
 
