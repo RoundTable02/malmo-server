@@ -7,6 +7,8 @@ import makeus.cmc.malmo.application.port.out.SaveTempLoveTypePort;
 import makeus.cmc.malmo.domain.model.love_type.TempLoveType;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @RequiredArgsConstructor
 @Component
 public class TempLoveTypeHelper {
@@ -21,6 +23,10 @@ public class TempLoveTypeHelper {
     public TempLoveType getTempLoveTypeByIdOrThrow(Long tempLoveTypeId) {
         return loadTempLoveTypePort.loadTempLoveTypeById(tempLoveTypeId)
                 .orElseThrow(TempLoveTypeNotFoundException::new);
+    }
+
+    public Optional<TempLoveType> getTempLoveType(Long tempLoveTypeId) {
+        return loadTempLoveTypePort.loadTempLoveTypeById(tempLoveTypeId);
     }
 
 }
