@@ -37,7 +37,7 @@ public class LoveTypeService implements UpdateMemberLoveTypeUseCase {
         LoveTypeCalculator.LoveTypeCalculationResult calculationResult =
                 loveTypeCalculator.calculate(testResultInputs, loveTypeQueryHelper::getQuestionById);
 
-        member.updateLoveTypeId(calculationResult.category(),
+        member.updateLoveType(calculationResult.category(),
                 calculationResult.avoidanceScore(),
                 calculationResult.anxietyScore());
 

@@ -59,6 +59,7 @@ public class SignUpController {
                 .terms(termsCommandList)
                 .nickname(requestDto.getNickname())
                 .loveStartDate(requestDto.getLoveStartDate())
+                .loveTypeId(requestDto.getLoveTypeId()) // Optional, 애착 유형 결과를 매핑하기 위한 ID
                 .build();
 
         signUpUseCase.signUp(command);
@@ -79,6 +80,8 @@ public class SignUpController {
         @NotNull(message = "시작일은 필수 입력값입니다.")
         @PastOrPresent(message = "시작일은 오늘 또는 과거 날짜여야 합니다.")
         private LocalDate loveStartDate;
+
+        private Long loveTypeId; // Optional, 애착 유형 결과를 매핑하기 위한 ID
     }
 
     @Data
