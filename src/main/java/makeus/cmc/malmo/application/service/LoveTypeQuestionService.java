@@ -1,10 +1,10 @@
 package makeus.cmc.malmo.application.service;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.application.helper.love_type.LoveTypeQueryHelper;
-import makeus.cmc.malmo.application.helper.love_type.TempLoveTypeCommandHelper;
+import makeus.cmc.malmo.application.helper.love_type.TempLoveTypeHelper;
 import makeus.cmc.malmo.application.port.in.CalculateQuestionResultUseCase;
+import makeus.cmc.malmo.application.port.in.GetLoveTypeQuestionResultUseCase;
 import makeus.cmc.malmo.application.port.in.GetLoveTypeQuestionsUseCase;
 import makeus.cmc.malmo.application.port.out.LoadLoveTypeQuestionDataPort;
 import makeus.cmc.malmo.domain.model.love_type.LoveTypeQuestionData;
@@ -19,13 +19,14 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class LoveTypeQuestionService implements GetLoveTypeQuestionsUseCase, CalculateQuestionResultUseCase {
+public class LoveTypeQuestionService
+        implements GetLoveTypeQuestionsUseCase, CalculateQuestionResultUseCase, GetLoveTypeQuestionResultUseCase {
 
     private final LoadLoveTypeQuestionDataPort loadLoveTypeQuestionDataPort;
     private final LoveTypeCalculator loveTypeCalculator;
     private final LoveTypeQueryHelper loveTypeQueryHelper;
 
-    private final TempLoveTypeCommandHelper tempLoveTypeCommandHelper;
+    private final TempLoveTypeHelper tempLoveTypeHelper;
 
 
     @Override
@@ -64,13 +65,24 @@ public class LoveTypeQuestionService implements GetLoveTypeQuestionsUseCase, Cal
                 calculationResult.anxietyScore()
         );
 
-        TempLoveType savedTempLoveType = tempLoveTypeCommandHelper.saveTempLoveType(tempLoveType);
+        TempLoveType savedTempLoveType = tempLoveTypeHelper.saveTempLoveType(tempLoveType);
 
         return CalculateResultResponse.builder()
                 .loveTypeId(savedTempLoveType.getId())
                 .loveTypeCategory(savedTempLoveType.getCategory())
                 .avoidanceRate(savedTempLoveType.getAvoidanceRate())
                 .anxietyRate(savedTempLoveType.getAnxietyRate())
+                .build();
+    }
+
+    @Override
+    public LoveTypeResultResponse getResult(GetLoveTypeResultCommand command) {
+        TempLoveType tempLoveType = tempLoveTypeHelper.getTempLoveTypeByIdOrThrow(command.getLoveTypeId());
+        return LoveTypeResultResponse.builder()
+                .loveTypeId(tempLoveType.getId())
+                .loveTypeCategory(tempLoveType.getCategory())
+                .avoidanceRate(tempLoveType.getAvoidanceRate())
+                .anxietyRate(tempLoveType.getAnxietyRate())
                 .build();
     }
 }

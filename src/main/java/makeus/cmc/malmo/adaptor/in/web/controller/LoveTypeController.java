@@ -18,6 +18,7 @@ import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseListResponse;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
 import makeus.cmc.malmo.application.port.in.CalculateQuestionResultUseCase;
+import makeus.cmc.malmo.application.port.in.GetLoveTypeQuestionResultUseCase;
 import makeus.cmc.malmo.application.port.in.GetLoveTypeQuestionsUseCase;
 import makeus.cmc.malmo.application.port.in.member.UpdateMemberLoveTypeUseCase;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +34,7 @@ public class LoveTypeController {
 
     private final GetLoveTypeQuestionsUseCase getLoveTypeQuestionsUseCase;
     private final CalculateQuestionResultUseCase calculateQuestionResultUseCase;
+    private final GetLoveTypeQuestionResultUseCase getLoveTypeQuestionResultUseCase;
 
     @Operation(
             summary = "애착 유형 검사 질문 조회",
@@ -61,7 +63,7 @@ public class LoveTypeController {
             content = @Content(schema = @Schema(implementation = SwaggerResponses.LoveTypeQuestionCalculateSuccessResponse.class))
     )
     @PostMapping("/result")
-    public BaseResponse<CalculateQuestionResultUseCase.CalculateResultResponse> getLoveTypeQuestions(
+    public BaseResponse<CalculateQuestionResultUseCase.CalculateResultResponse> registerResult(
             @Valid @RequestBody RegisterLoveTypeRequestDto requestDto
     ) {
         List<CalculateQuestionResultUseCase.LoveTypeTestResult> results = requestDto.getResults().stream()
@@ -77,6 +79,26 @@ public class LoveTypeController {
                         .build();
 
         return BaseResponse.success(calculateQuestionResultUseCase.calculateResult(command));
+    }
+
+    @Operation(
+            summary = "애착 유형 검사 결과 조회",
+            description = "애착 유형 검사 답변의 결과를 조회합니다. 답변 등록 시와 동일한 결과를 반환합니다."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "애착 유형 결과 조회 성공",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.LoveTypeQuestionCalculateSuccessResponse.class))
+    )
+    @PostMapping("/result/{loveTypeId}")
+    public BaseResponse<GetLoveTypeQuestionResultUseCase.LoveTypeResultResponse> getLoveTypeResult(
+            @PathVariable Long loveTypeId
+    ) {
+        GetLoveTypeQuestionResultUseCase.GetLoveTypeResultCommand command = GetLoveTypeQuestionResultUseCase.GetLoveTypeResultCommand.builder()
+                .loveTypeId(loveTypeId)
+                .build();
+
+        return BaseResponse.success(getLoveTypeQuestionResultUseCase.getResult(command));
     }
 
     @Data
