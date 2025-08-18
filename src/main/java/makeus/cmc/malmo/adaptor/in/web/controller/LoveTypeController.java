@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -14,6 +15,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
+import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerErrorResponse;
 import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseListResponse;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
@@ -62,6 +64,18 @@ public class LoveTypeController {
             description = "애착 유형 등록 성공",
             content = @Content(schema = @Schema(implementation = SwaggerResponses.LoveTypeQuestionCalculateSuccessResponse.class))
     )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "서버 내부 오류",
+                    content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "존재하지 않는 애착 유형 검사 질문",
+                    content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class))
+            )
+    })
     @PostMapping("/result")
     public BaseResponse<CalculateQuestionResultUseCase.CalculateResultResponse> registerResult(
             @Valid @RequestBody RegisterLoveTypeRequestDto requestDto
@@ -90,6 +104,18 @@ public class LoveTypeController {
             description = "애착 유형 결과 조회 성공",
             content = @Content(schema = @Schema(implementation = SwaggerResponses.LoveTypeQuestionCalculateSuccessResponse.class))
     )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "서버 내부 오류",
+                    content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "존재하지 않는 애착 유형 결과",
+                    content = @Content(schema = @Schema(implementation = SwaggerErrorResponse.class))
+            )
+    })
     @GetMapping("/result/{loveTypeId}")
     public BaseResponse<GetLoveTypeQuestionResultUseCase.LoveTypeResultResponse> getLoveTypeResult(
             @PathVariable Long loveTypeId
