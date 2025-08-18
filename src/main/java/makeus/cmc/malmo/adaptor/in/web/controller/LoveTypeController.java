@@ -28,15 +28,13 @@ public class LoveTypeController {
 
     @Operation(
             summary = "애착 유형 검사 질문 조회",
-            description = "애착 유형 검사의 질문을 조회합니다. JWT 토큰이 필요합니다.",
-            security = @SecurityRequirement(name = "Bearer Authentication")
+            description = "애착 유형 검사의 질문을 조회합니다."
     )
     @ApiResponse(
             responseCode = "200",
             description = "애착 유형 조회 성공",
             content = @Content(schema = @Schema(implementation = SwaggerResponses.LoveTypeQuestionSuccessResponse.class))
     )
-    @ApiCommonResponses.RequireAuth
     @GetMapping("/questions")
     public BaseResponse<BaseListResponse<GetLoveTypeQuestionsUseCase.LoveTypeQuestionDto>> getLoveTypeQuestions() {
         GetLoveTypeQuestionsUseCase.LoveTypeQuestionsResponseDto loveTypeQuestions

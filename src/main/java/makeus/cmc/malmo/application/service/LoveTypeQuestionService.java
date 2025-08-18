@@ -18,7 +18,6 @@ public class LoveTypeQuestionService implements GetLoveTypeQuestionsUseCase {
     private final LoadLoveTypeQuestionDataPort loadLoveTypeQuestionDataPort;
 
     @Override
-    @CheckValidMember
     public LoveTypeQuestionsResponseDto getLoveTypeQuestions() {
         Map<Long, LoveTypeQuestionData> map = loadLoveTypeQuestionDataPort.loadLoveTypeData();
         List<LoveTypeQuestionData> loveTypeQuestions = map.values().stream()

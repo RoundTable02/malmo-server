@@ -57,7 +57,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/login/**", "/refresh", "/terms", "/test").permitAll()
+                        .requestMatchers("/login/**", "/refresh", "/terms", "/test", "/love-types/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**", 
                                         "/v3/api-docs/**", "/v3/api-docs", "/webjars/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
