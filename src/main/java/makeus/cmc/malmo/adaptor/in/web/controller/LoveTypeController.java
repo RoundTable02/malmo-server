@@ -90,7 +90,7 @@ public class LoveTypeController {
             description = "애착 유형 결과 조회 성공",
             content = @Content(schema = @Schema(implementation = SwaggerResponses.LoveTypeQuestionCalculateSuccessResponse.class))
     )
-    @PostMapping("/result/{loveTypeId}")
+    @GetMapping("/result/{loveTypeId}")
     public BaseResponse<GetLoveTypeQuestionResultUseCase.LoveTypeResultResponse> getLoveTypeResult(
             @PathVariable Long loveTypeId
     ) {

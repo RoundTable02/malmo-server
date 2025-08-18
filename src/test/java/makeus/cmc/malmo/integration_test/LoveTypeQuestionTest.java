@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.*;
 import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.NO_SUCH_LOVE_TYPE_QUESTION;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -58,8 +59,8 @@ public class LoveTypeQuestionTest {
                     .andExpect(jsonPath("data.avoidanceRate").value(5.00f))
                     .andExpect(jsonPath("data.anxietyRate").value(1.00f))
                     .andReturn();
-            String coupleContent = mvcResult.getResponse().getContentAsString();
-            Integer loveTypeId = JsonPath.read(coupleContent, "$.data.loveTypeId");
+            String content = mvcResult.getResponse().getContentAsString();
+            Integer loveTypeId = JsonPath.read(content, "$.data.loveTypeId");
 
 
             // then
@@ -86,8 +87,8 @@ public class LoveTypeQuestionTest {
                     .andExpect(jsonPath("data.avoidanceRate").value(1.00f))
                     .andExpect(jsonPath("data.anxietyRate").value(5.00f))
                     .andReturn();
-            String coupleContent = mvcResult.getResponse().getContentAsString();
-            Integer loveTypeId = JsonPath.read(coupleContent, "$.data.loveTypeId");
+            String content = mvcResult.getResponse().getContentAsString();
+            Integer loveTypeId = JsonPath.read(content, "$.data.loveTypeId");
 
 
             // then
@@ -114,8 +115,8 @@ public class LoveTypeQuestionTest {
                     .andExpect(jsonPath("data.avoidanceRate").value(5.00f))
                     .andExpect(jsonPath("data.anxietyRate").value(5.00f))
                     .andReturn();
-            String coupleContent = mvcResult.getResponse().getContentAsString();
-            Integer loveTypeId = JsonPath.read(coupleContent, "$.data.loveTypeId");
+            String content = mvcResult.getResponse().getContentAsString();
+            Integer loveTypeId = JsonPath.read(content, "$.data.loveTypeId");
 
 
             // then
@@ -142,9 +143,8 @@ public class LoveTypeQuestionTest {
                     .andExpect(jsonPath("data.avoidanceRate").value(1.00f))
                     .andExpect(jsonPath("data.anxietyRate").value(1.00f))
                     .andReturn();
-            String coupleContent = mvcResult.getResponse().getContentAsString();
-            Integer loveTypeId = JsonPath.read(coupleContent, "$.data.loveTypeId");
-
+            String content = mvcResult.getResponse().getContentAsString();
+            Integer loveTypeId = JsonPath.read(content, "$.data.loveTypeId");
 
             // then
             TempLoveTypeEntity tempLoveTypeEntity = em.find(TempLoveTypeEntity.class, loveTypeId);
@@ -201,5 +201,51 @@ public class LoveTypeQuestionTest {
                     .andExpect(jsonPath("message").value(NO_SUCH_LOVE_TYPE_QUESTION.getMessage()))
                     .andExpect(jsonPath("code").value(NO_SUCH_LOVE_TYPE_QUESTION.getCode()));
         }
+    }
+
+    @Nested
+    @DisplayName("등록된 애착 유형 결과 조회 테스트")
+    class GetLoveTypeResultTest {
+        @Test
+        @DisplayName("애착 유형 조회 성공")
+        void 애착_유형_조회_성공() throws Exception {
+            // given
+            int[] scores = {1, 1, 5, 1, 5, 1, 5, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1, 5, 5, 1, 5, 5, 5, 1, 1};
+
+            MvcResult mvcResult = mockMvc.perform(post("/love-types/result")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    LoveTypeQuestionRequestDtoFactory.createRegisterLoveTypeRequestDto(scores)
+                            )))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            String content = mvcResult.getResponse().getContentAsString();
+            Integer loveTypeId = JsonPath.read(content, "$.data.loveTypeId");
+
+            // when
+            mockMvc.perform(get("/love-types/result/" + loveTypeId)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("data.loveTypeId").value(loveTypeId))
+                    .andExpect(jsonPath("data.loveTypeCategory").value(LoveTypeCategory.STABLE_TYPE.name()))
+                    .andExpect(jsonPath("data.avoidanceRate").value(1.00f))
+                    .andExpect(jsonPath("data.anxietyRate").value(1.00f));
+        }
+
+        @Test
+        @DisplayName("애착 유형 조회 실패 - 존재하지 않는 애착 유형 ID인 경우")
+        void 애착_유형_조회_실패_존재하지_않는_애착_유형_ID인_경우() throws Exception {
+            // given
+            long loveTypeId = 999L; // 존재하지 않는 애착 유형 ID
+
+            // when
+            mockMvc.perform(get("/love-types/result/" + loveTypeId)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("message").value(NO_SUCH_TEMP_LOVE_TYPE.getMessage()))
+                    .andExpect(jsonPath("code").value(NO_SUCH_TEMP_LOVE_TYPE.getCode()));
+        }
+
     }
 }
