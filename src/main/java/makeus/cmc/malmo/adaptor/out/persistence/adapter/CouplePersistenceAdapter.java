@@ -29,16 +29,6 @@ public class CouplePersistenceAdapter implements SaveCouplePort, LoadCouplePort 
     }
 
     @Override
-    public CoupleId loadCoupleIdByMemberId(MemberId memberId) {
-        return CoupleId.of(coupleRepository.findCoupleIdByMemberId(memberId.getValue()));
-    }
-
-    @Override
-    public CoupleMemberId loadCoupleMemberIdByMemberId(MemberId memberId) {
-        return CoupleMemberId.of(coupleRepository.findCoupleMemberIdByMemberId(memberId.getValue()));
-    }
-
-    @Override
     public Optional<Couple> loadCoupleByMemberId(MemberId memberId) {
         return coupleRepository.findCoupleByMemberId(memberId.getValue())
                 .map(coupleAggregateMapper::toDomain);

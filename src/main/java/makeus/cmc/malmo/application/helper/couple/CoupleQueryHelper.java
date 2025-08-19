@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.application.exception.AlreadyCoupledMemberException;
 import makeus.cmc.malmo.application.exception.NotCoupleMemberException;
 import makeus.cmc.malmo.application.port.out.couple.LoadCouplePort;
+import makeus.cmc.malmo.application.port.out.member.LoadMemberPort;
 import makeus.cmc.malmo.domain.model.couple.Couple;
 import makeus.cmc.malmo.domain.value.id.CoupleId;
 import makeus.cmc.malmo.domain.value.id.CoupleMemberId;
@@ -17,13 +18,10 @@ import java.util.Optional;
 public class CoupleQueryHelper {
 
     private final LoadCouplePort loadCouplePort;
+    private final LoadMemberPort loadMemberPort;
 
     public CoupleId getCoupleIdByMemberId(MemberId memberId) {
-        return loadCouplePort.loadCoupleIdByMemberId(memberId);
-    }
-
-    public CoupleMemberId getCoupleMemberIdByMemberId(MemberId memberId) {
-        return loadCouplePort.loadCoupleMemberIdByMemberId(memberId);
+        return loadMemberPort.loadCoupleIdByMemberId(memberId);
     }
 
     public Couple getCoupleByMemberIdOrThrow(MemberId memberId) {

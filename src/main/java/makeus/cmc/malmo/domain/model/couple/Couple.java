@@ -27,14 +27,38 @@ public class Couple {
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
 
+    public static Couple createCouple(Long memberId, Long partnerId, LocalDate startLoveDate, CoupleState coupleState) {
+        return Couple.builder()
+                .firstMemberId(MemberId.of(memberId))
+                .secondMemberId(MemberId.of(partnerId))
+                .startLoveDate(startLoveDate)
+                .coupleState(coupleState)
+                .build();
+    }
+
+    public static Couple from(Long id, LocalDate startLoveDate,
+                              MemberId firstMemberId, MemberId secondMemberId,
+                              CoupleState coupleState,
+                          CoupleMemberSnapshot firstMemberSnapshot, CoupleMemberSnapshot secondMemberSnapshot,
+                          LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
+        return Couple.builder()
+                .id(id)
+                .startLoveDate(startLoveDate)
+                .firstMemberId(firstMemberId)
+                .secondMemberId(secondMemberId)
+                .firstMemberSnapshot(firstMemberSnapshot)
+                .secondMemberSnapshot(secondMemberSnapshot)
+                .coupleState(coupleState)
+                .createdAt(createdAt)
+                .modifiedAt(modifiedAt)
+                .deletedAt(deletedAt)
+                .build();
+    }
+
     public void recover() {
         this.firstMemberSnapshot = null;
         this.secondMemberSnapshot = null;
         this.coupleState = CoupleState.ALIVE;
-    }
-
-    public void delete() {
-        this.coupleState = CoupleState.DELETED;
     }
 
     public boolean isBroken() {
@@ -52,7 +76,7 @@ public class Couple {
     public void unlink(MemberId memberId, String nickname, LoveTypeCategory loveTypeCategory, float anxietyRate, float avoidanceRate) {
         this.coupleState = CoupleState.DELETED;
 
-        CoupleMemberSnapshot coupleMemberSnapshot = new CoupleMemberSnapshot(memberId, nickname, loveTypeCategory, anxietyRate, avoidanceRate);
+        CoupleMemberSnapshot coupleMemberSnapshot = new CoupleMemberSnapshot(nickname, loveTypeCategory, anxietyRate, avoidanceRate);
         if (Objects.equals(memberId, firstMemberId)) {
             this.firstMemberSnapshot = coupleMemberSnapshot;
         } else {

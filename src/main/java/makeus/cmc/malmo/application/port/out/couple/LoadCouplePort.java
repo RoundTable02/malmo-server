@@ -8,8 +8,6 @@ import makeus.cmc.malmo.domain.value.id.MemberId;
 import java.util.Optional;
 
 public interface LoadCouplePort {
-    CoupleId loadCoupleIdByMemberId(MemberId memberId);
-    CoupleMemberId loadCoupleMemberIdByMemberId(MemberId memberId);
     Optional<Couple> loadCoupleByMemberId(MemberId memberId);
     Optional<Couple> loadCoupleByMemberIdAndPartnerId(MemberId memberId, MemberId partnerId);
 

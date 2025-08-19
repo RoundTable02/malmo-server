@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
 import makeus.cmc.malmo.domain.value.state.CoupleState;
 
 import java.time.LocalDate;
@@ -27,7 +28,33 @@ public class CoupleEntity extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private CoupleState coupleState;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "couple_id")
-    private List<CoupleMemberEntity> coupleMembers;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "value", column = @Column(name = "first_member_id"))
+    })
+    private MemberEntityId firstMemberId;
+
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "value", column = @Column(name = "second_member_id"))
+    })
+    private MemberEntityId secondMemberId;
+
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "nickname", column = @Column(name = "first_member_nickname")),
+            @AttributeOverride(name = "loveTypeCategory", column = @Column(name = "first_member_love_type_category")),
+            @AttributeOverride(name = "avoidanceRate", column = @Column(name = "first_member_avoidance_rate")),
+            @AttributeOverride(name = "anxietyRate", column = @Column(name = "first_member_anxiety_rate"))
+    })
+    private CoupleMemberSnapshotEntity firstMemberSnapshot;
+
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "nickname", column = @Column(name = "second_member_nickname")),
+            @AttributeOverride(name = "loveTypeCategory", column = @Column(name = "second_member_love_type_category")),
+            @AttributeOverride(name = "avoidanceRate", column = @Column(name = "second_member_avoidance_rate")),
+            @AttributeOverride(name = "anxietyRate", column = @Column(name = "second_member_anxiety_rate"))
+    })
+    private CoupleMemberSnapshotEntity secondMemberSnapshot;
 }

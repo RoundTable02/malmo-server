@@ -69,6 +69,7 @@ public class Member {
             InviteCodeValue inviteCode,
             LocalDate startLoveDate,
             String oauthToken,
+            CoupleId coupleId,
             LocalDateTime createdAt,
             LocalDateTime modifiedAt,
             LocalDateTime deletedAt
@@ -90,6 +91,7 @@ public class Member {
                 .inviteCode(inviteCode)
                 .startLoveDate(startLoveDate)
                 .oauthToken(oauthToken)
+                .coupleId(coupleId)
                 .createdAt(createdAt)
                 .modifiedAt(modifiedAt)
                 .deletedAt(deletedAt)
@@ -142,5 +144,9 @@ public class Member {
 
     public void linkCouple(CoupleId coupleId) {
         this.coupleId = coupleId;
+    }
+
+    public void unlinkCouple() {
+        this.coupleId = null;
     }
 }

@@ -9,7 +9,7 @@ import makeus.cmc.malmo.domain.value.state.CoupleState;
 import java.util.Optional;
 
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleEntity.coupleEntity;
-import static makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleMemberEntity.coupleMemberEntity;
+import static makeus.cmc.malmo.adaptor.out.persistence.entity.member.QMemberEntity.memberEntity;
 
 @RequiredArgsConstructor
 public class CoupleRepositoryCustomImpl implements CoupleRepositoryCustom{
@@ -18,11 +18,10 @@ public class CoupleRepositoryCustomImpl implements CoupleRepositoryCustom{
 
     @Override
     public Optional<CoupleEntity> findCoupleByMemberId(Long memberId) {
-        CoupleEntity result = queryFactory.selectFrom(coupleEntity)
-                .join(coupleMemberEntity)
-                .on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value))
-                .where(coupleMemberEntity.memberEntityId.value.eq(memberId)
-                        .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
+        CoupleEntity result = queryFactory.select(coupleEntity)
+                .from(memberEntity)
+                .join(coupleEntity).on(memberEntity.coupleEntityId.value.eq(coupleEntity.id))
+                .where(memberEntity.id.eq(memberId))
                 .fetchOne();
 
         return Optional.ofNullable(result);
@@ -31,10 +30,12 @@ public class CoupleRepositoryCustomImpl implements CoupleRepositoryCustom{
     @Override
     public Optional<CoupleEntity> findCoupleByMemberIdAndPartnerId(Long memberId, Long partnerId) {
         CoupleEntity result = queryFactory.selectFrom(coupleEntity)
-                .join(coupleMemberEntity)
-                .on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value))
-                .where(coupleEntity.coupleMembers.any().memberEntityId.value.eq(memberId)
-                        .and(coupleEntity.coupleMembers.any().memberEntityId.value.eq(partnerId)))
+                .where(
+                        (coupleEntity.firstMemberId.value.eq(memberId)
+                                .and(coupleEntity.secondMemberId.value.eq(partnerId)))
+                                .or(coupleEntity.firstMemberId.value.eq(partnerId)
+                                        .and(coupleEntity.secondMemberId.value.eq(memberId)))
+                )
                 .fetchOne();
 
         return Optional.ofNullable(result);

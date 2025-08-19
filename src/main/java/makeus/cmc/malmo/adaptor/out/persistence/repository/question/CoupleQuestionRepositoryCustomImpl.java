@@ -11,7 +11,8 @@ import makeus.cmc.malmo.domain.value.state.CoupleQuestionState;
 
 import java.util.Optional;
 
-import static makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleMemberEntity.coupleMemberEntity;
+import static makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleEntity.coupleEntity;
+import static makeus.cmc.malmo.adaptor.out.persistence.entity.member.QMemberEntity.memberEntity;
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.question.QCoupleQuestionEntity.coupleQuestionEntity;
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.question.QMemberAnswerEntity.memberAnswerEntity;
 
@@ -45,24 +46,18 @@ public class CoupleQuestionRepositoryCustomImpl implements CoupleQuestionReposit
                         coupleQuestionEntity.bothAnsweredAt,
                         JPAExpressions.selectOne()
                                 .from(memberAnswerEntity)
-                                .join(coupleMemberEntity)
-                                .on(memberAnswerEntity.coupleMemberEntityId.value.eq(coupleMemberEntity.id))
                                 .where(memberAnswerEntity.coupleQuestionEntityId.value.eq(coupleQuestionEntity.id)
-                                        .and(coupleMemberEntity.memberEntityId.value.eq(memberId)))
+                                        .and(memberAnswerEntity.memberEntityId.value.eq(memberId)))
                                 .exists(),
                         JPAExpressions.selectOne()
                                 .from(memberAnswerEntity)
-                                .join(coupleMemberEntity)
-                                .on(memberAnswerEntity.coupleMemberEntityId.value.eq(coupleMemberEntity.id))
                                 .where(memberAnswerEntity.coupleQuestionEntityId.value.eq(coupleQuestionEntity.id)
-                                        .and(coupleMemberEntity.memberEntityId.value.ne(memberId)))
+                                        .and(memberAnswerEntity.memberEntityId.value.ne(memberId)))
                                 .exists(),
                         JPAExpressions.select(memberAnswerEntity.createdAt)
                                 .from(memberAnswerEntity)
-                                .join(coupleMemberEntity)
-                                .on(memberAnswerEntity.coupleMemberEntityId.value.eq(coupleMemberEntity.id))
                                 .where(memberAnswerEntity.coupleQuestionEntityId.value.eq(coupleQuestionEntity.id)
-                                        .and(coupleMemberEntity.memberEntityId.value.eq(memberId)))
+                                        .and(memberAnswerEntity.memberEntityId.value.eq(memberId)))
                 ))
                 .from(coupleQuestionEntity)
                 .where(coupleQuestionEntity.coupleEntityId.value.eq(coupleId))
@@ -86,17 +81,13 @@ public class CoupleQuestionRepositoryCustomImpl implements CoupleQuestionReposit
                         coupleQuestionEntity.bothAnsweredAt,
                         JPAExpressions.selectOne()
                                 .from(memberAnswerEntity)
-                                .join(coupleMemberEntity)
-                                .on(memberAnswerEntity.coupleMemberEntityId.value.eq(coupleMemberEntity.id))
                                 .where(memberAnswerEntity.coupleQuestionEntityId.value.eq(coupleQuestionEntity.id)
-                                        .and(coupleMemberEntity.memberEntityId.value.eq(memberId)))
+                                        .and(memberAnswerEntity.memberEntityId.value.eq(memberId)))
                                 .exists(),
                         JPAExpressions.selectOne()
                                 .from(memberAnswerEntity)
-                                .join(coupleMemberEntity)
-                                .on(memberAnswerEntity.coupleMemberEntityId.value.eq(coupleMemberEntity.id))
                                 .where(memberAnswerEntity.coupleQuestionEntityId.value.eq(coupleQuestionEntity.id)
-                                        .and(coupleMemberEntity.memberEntityId.value.ne(memberId)))
+                                        .and(memberAnswerEntity.memberEntityId.value.ne(memberId)))
                                 .exists(),
                         coupleQuestionEntity.createdAt
                 ))
@@ -113,13 +104,12 @@ public class CoupleQuestionRepositoryCustomImpl implements CoupleQuestionReposit
     public int countCoupleQuestionsByMemberId(Long memberId) {
         return queryFactory
                 .select(coupleQuestionEntity.count().intValue())
-                .from(coupleQuestionEntity)
-                .join(coupleMemberEntity)
-                .on(coupleMemberEntity.coupleEntityId.value.eq(coupleQuestionEntity.coupleEntityId.value)
-                        .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
-                .where(coupleMemberEntity.memberEntityId.value.eq(memberId)
-                        .and(coupleQuestionEntity.coupleQuestionState.eq(CoupleQuestionState.COMPLETED)
-                                .or(coupleQuestionEntity.coupleQuestionState.eq(CoupleQuestionState.OUTDATED))))
+                .from(memberEntity)
+                .join(coupleEntity).on(memberEntity.coupleEntityId.value.eq(coupleEntity.id))
+                .join(coupleQuestionEntity).on(coupleQuestionEntity.coupleEntityId.value.eq(coupleEntity.id))
+                .where(memberEntity.id.eq(memberId)
+                        .and(coupleQuestionEntity.coupleQuestionState.ne(CoupleQuestionState.OUTDATED))
+                        .and(coupleQuestionEntity.coupleQuestionState.eq(CoupleQuestionState.COMPLETED)))
                 .fetchOne();
     }
 }

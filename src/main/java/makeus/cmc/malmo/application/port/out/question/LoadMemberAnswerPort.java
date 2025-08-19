@@ -11,7 +11,6 @@ import java.util.Optional;
 public interface LoadMemberAnswerPort {
     Optional<CoupleQuestionQueryHelper.MemberAnswersDto> getQuestionAnswers(MemberId memberId, CoupleQuestionId coupleQuestionId);
     Optional<MemberAnswer> getMemberAnswer(CoupleQuestionId coupleQuestionId, MemberId memberId);
-    Optional<MemberAnswer> getMemberAnswer(CoupleQuestionId coupleQuestionId, CoupleMemberId coupleMemberId);
 
     boolean isMemberAnswered(CoupleQuestionId coupleQuestionId, MemberId memberId);
 

@@ -39,12 +39,6 @@ public class MemberAnswerPersistenceAdapter implements LoadMemberAnswerPort, Sav
     }
 
     @Override
-    public Optional<MemberAnswer> getMemberAnswer(CoupleQuestionId coupleQuestionId, CoupleMemberId coupleMemberId) {
-        return memberAnswerRepository.findByCoupleQuestionIdAndCoupleMemberId(coupleQuestionId.getValue(), coupleMemberId.getValue())
-                .map(memberAnswerMapper::toDomain);
-    }
-
-    @Override
     public boolean isMemberAnswered(CoupleQuestionId coupleQuestionId, MemberId memberId) {
         return memberAnswerRepository.existsByCoupleQuestionIdAndMemberId(coupleQuestionId.getValue(), memberId.getValue());
     }

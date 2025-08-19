@@ -3,9 +3,11 @@ package makeus.cmc.malmo.adaptor.out.persistence.mapper;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.question.MemberAnswerEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleMemberEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleQuestionEntityId;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
 import makeus.cmc.malmo.domain.model.question.MemberAnswer;
 import makeus.cmc.malmo.domain.value.id.CoupleMemberId;
 import makeus.cmc.malmo.domain.value.id.CoupleQuestionId;
+import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,8 +18,8 @@ public class MemberAnswerMapper {
                 memberAnswerEntity.getId(),
                 memberAnswerEntity.getCoupleQuestionEntityId() != null ?
                         CoupleQuestionId.of(memberAnswerEntity.getCoupleQuestionEntityId().getValue()) : null,
-                memberAnswerEntity.getCoupleMemberEntityId() != null ?
-                        CoupleMemberId.of(memberAnswerEntity.getCoupleMemberEntityId().getValue()) : null,
+                memberAnswerEntity.getMemberEntityId() != null ?
+                        MemberId.of(memberAnswerEntity.getMemberEntityId().getValue()) : null,
                 memberAnswerEntity.getAnswer(),
                 memberAnswerEntity.getMemberAnswerState(),
                 memberAnswerEntity.getCreatedAt(),
@@ -31,8 +33,8 @@ public class MemberAnswerMapper {
                 .id(memberAnswer.getId())
                 .coupleQuestionEntityId(memberAnswer.getCoupleQuestionId() != null ?
                         CoupleQuestionEntityId.of(memberAnswer.getCoupleQuestionId().getValue()) : null)
-                .coupleMemberEntityId(memberAnswer.getCoupleMemberId() != null ?
-                        CoupleMemberEntityId.of(memberAnswer.getCoupleMemberId().getValue()) : null)
+                .memberEntityId(memberAnswer.getMemberId() != null ?
+                        MemberEntityId.of(memberAnswer.getMemberId().getValue()) : null)
                 .answer(memberAnswer.getAnswer())
                 .memberAnswerState(memberAnswer.getMemberAnswerState())
                 .createdAt(memberAnswer.getCreatedAt())

@@ -6,8 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleMemberEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleQuestionEntityId;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
 import makeus.cmc.malmo.domain.value.state.MemberAnswerState;
 
 @Getter
@@ -25,7 +27,7 @@ public class MemberAnswerEntity extends BaseTimeEntity {
     private CoupleQuestionEntityId coupleQuestionEntityId;
 
     @Embedded
-    private CoupleMemberEntityId coupleMemberEntityId;
+    private MemberEntityId memberEntityId;
 
     @Column(columnDefinition = "TEXT")
     private String answer;
