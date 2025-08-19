@@ -19,6 +19,20 @@ public class MemberRequestDtoFactory {
         return dto;
     }
 
+    public static SignUpController.SignUpRequestDto createSignUpWithLoveTypeIdRequestDto(
+            List<SignUpController.TermsDto> terms,
+            String nickname,
+            LocalDate startLoveDate,
+            Long loveTypeId) {
+        SignUpController.SignUpRequestDto dto = new SignUpController.SignUpRequestDto();
+        dto.setTerms(terms);
+        dto.setNickname(nickname);
+        dto.setLoveStartDate(startLoveDate);
+        dto.setLoveTypeId(loveTypeId);
+
+        return dto;
+    }
+
     public static SignUpController.TermsDto createTermsDto(Long termsId, boolean isAgreed) {
         SignUpController.TermsDto termsDto = new SignUpController.TermsDto();
         termsDto.setTermsId(termsId);

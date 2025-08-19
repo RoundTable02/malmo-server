@@ -119,6 +119,11 @@ public class SwaggerResponses {
     }
 
     @Getter
+    @Schema(description = "애착유형 질문 결과 등록 성공 응답")
+    public static class LoveTypeQuestionCalculateSuccessResponse extends BaseSwaggerResponse<LoveTypeQuestionCalculationData> {
+    }
+
+    @Getter
     @Schema(description = "애착유형 등록 성공 응답")
     public static class RegisterLoveTypeSuccessResponse extends BaseSwaggerResponse<Void> {
     }
@@ -320,6 +325,22 @@ public class SwaggerResponses {
         private int questionNumber;
         @Schema(description = "내용", example = "나는 연인에게 모든 것을 다 이야기한다")
         private String content;
+    }
+
+    @Getter
+    @Schema(description = "애착유형 질문 응답 등록 결과 데이터")
+    public static class LoveTypeQuestionCalculationData {
+        @Schema(description = "임시 애착유형 결과 ID", example = "1")
+        private Long loveTypeId;
+
+        @Schema(description = "애착 유형", example = "STABLE_TYPE")
+        private LoveTypeCategory loveTypeCategory;
+
+        @Schema(description = "회피 비율", example = "0.3")
+        private float avoidanceRate;
+
+        @Schema(description = "불안 비율", example = "0.2")
+        private float anxietyRate;
     }
 
     @Getter

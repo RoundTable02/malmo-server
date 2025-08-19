@@ -101,9 +101,14 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
     @Transactional
     public void coupleUnlink(CoupleUnlinkCommand command) {
         Couple couple = coupleQueryHelper.getCoupleByMemberIdOrThrow(MemberId.of(command.getUserId()));
+        MemberId partnerId = memberQueryHelper.getPartnerIdOrThrow(MemberId.of(command.getUserId()));
+
+        // 커플 해제 처리
         couple.unlink(MemberId.of(command.getUserId()));
         coupleCommandHelper.saveCouple(couple);
-        sendSseEventPort.sendToMember(MemberId.of(command.getUserId()),
+
+        // 상대방에게 커플 해지됨 알림
+        sendSseEventPort.sendToMember(partnerId,
                 new SendSseEventPort.NotificationEvent(COUPLE_DISCONNECTED, couple.getId())
         );
     }
