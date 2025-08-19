@@ -116,8 +116,6 @@ jobs:
               malmo-test:
                 image: ${{ secrets.DOCKERHUB_USERNAME }}/malmo-test:latest
                 container_name: malmo-test
-                depends_on:
-                  - redis
                 ports:
                   - "8081:8080"
                 networks:
