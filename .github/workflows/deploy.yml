@@ -121,7 +121,7 @@ jobs:
                 ports:
                   - "8080:8080"
                 networks:
-                  - malmo-network
+                  - malmo-net
                 environment:
                   - TZ=Asia/Seoul
                   - SPRING_PROFILES_ACTIVE=prod
@@ -148,12 +148,12 @@ jobs:
                 volumes:
                   - redis-data:/data
                 networks:
-                  - malmo-network
+                  - malmo-net
                 restart: always
 
             networks:
-              malmo-network:
-                driver: bridge
+              malmo-net:
+                external: true
 
             volumes:
               redis-data:
