@@ -109,7 +109,7 @@ jobs:
             docker rm malmo-test || true
 
             # docker-compose.yml 파일 생성
-            cat << 'EOF' > docker-compose.yml
+            cat << 'EOF' > docker-compose.test.yml
             version: '3.8'
 
             services:
@@ -124,7 +124,7 @@ jobs:
                   - SPRING_DATASOURCE_URL=${{ secrets.TEST_DB_URL }}
                   - SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }}
                   - SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}
-                  - SPRING_DATA_REDIS_HOST=127.0.0.1
+                  - SPRING_DATA_REDIS_HOST=malmo-redis
                   - REDIS_STREAM_KEY=${{ secrets.TEST_REDIS_STREAM_KEY }}
                   - REDIS_CONSUMER_GROUP=${{ secrets.TEST_REDIS_CONSUMER_GROUP }}
                   - JWT_SECRET=${{ secrets.JWT_SECRET }}
@@ -142,15 +142,20 @@ jobs:
                   - SECURITY_SERVER_URL_PRODUCTION=${{ secrets.SECURITY_SERVER_URL_PRODUCTION }}
                   - SECURITY_SERVER_URL_DEVELOPMENT=${{ secrets.SECURITY_SERVER_URL_DEVELOPMENT }}
                 restart: unless-stopped
+                networks:
+                  - malmo-net
 
+            networks:
+              malmo-net:
+                external: true
             EOF
 
             # Docker Hub 로그인
             echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
             # docker-compose로 애플리케이션 실행
-            docker-compose pull
-            docker-compose up -d
+            docker-compose -f docker-compose.test.yml pull
+            docker-compose -f docker-compose.test.yml up -d
 
             # 불필요한 Docker 이미지 정리
             docker image prune -f
