@@ -4,12 +4,11 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import makeus.cmc.malmo.domain.value.id.MemberId;
-import makeus.cmc.malmo.domain.value.state.CoupleMemberState;
 import makeus.cmc.malmo.domain.value.state.CoupleState;
+import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -17,74 +16,51 @@ import java.util.Objects;
 public class Couple {
     private Long id;
     private LocalDate startLoveDate;
+    private MemberId firstMemberId;
+    private MemberId secondMemberId;
+    private CoupleMemberSnapshot firstMemberSnapshot;
+    private CoupleMemberSnapshot secondMemberSnapshot;
     private CoupleState coupleState;
-    private List<CoupleMember> coupleMembers;
 
     // BaseTimeEntity fields
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
 
-    public static Couple createCouple(Long memberId, Long partnerId, LocalDate startLoveDate, CoupleState coupleState) {
-        Couple couple = Couple.builder()
-                .startLoveDate(startLoveDate)
-                .coupleState(coupleState)
-                .build();
-
-        CoupleMember coupleMember = CoupleMember.builder()
-                .memberId(MemberId.of(memberId))
-                .coupleMemberState(CoupleMemberState.ALIVE)
-                .build();
-
-        CoupleMember couplePartner = CoupleMember.builder()
-                .memberId(MemberId.of(partnerId))
-                .coupleMemberState(CoupleMemberState.ALIVE)
-                .build();
-
-        couple.coupleMembers = List.of(coupleMember, couplePartner);
-
-        return couple;
+    public void recover() {
+        this.firstMemberSnapshot = null;
+        this.secondMemberSnapshot = null;
+        this.coupleState = CoupleState.ALIVE;
     }
 
-    public static Couple from(Long id, LocalDate startLoveDate, CoupleState coupleState, List<CoupleMember> coupleMembers,
-                              LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
-        return Couple.builder()
-                .id(id)
-                .startLoveDate(startLoveDate)
-                .coupleState(coupleState)
-                .coupleMembers(coupleMembers)
-                .createdAt(createdAt)
-                .modifiedAt(modifiedAt)
-                .deletedAt(deletedAt)
-                .build();
+    public void delete() {
+        this.coupleState = CoupleState.DELETED;
+    }
+
+    public boolean isBroken() {
+        return Objects.equals(this.coupleState, CoupleState.DELETED);
+    }
+
+    public MemberId getOtherMemberId(MemberId memberId) {
+        if (Objects.equals(memberId, firstMemberId)) {
+            return secondMemberId;
+        } else {
+            return firstMemberId;
+        }
+    }
+
+    public void unlink(MemberId memberId, String nickname, LoveTypeCategory loveTypeCategory, float anxietyRate, float avoidanceRate) {
+        this.coupleState = CoupleState.DELETED;
+
+        CoupleMemberSnapshot coupleMemberSnapshot = new CoupleMemberSnapshot(memberId, nickname, loveTypeCategory, anxietyRate, avoidanceRate);
+        if (Objects.equals(memberId, firstMemberId)) {
+            this.firstMemberSnapshot = coupleMemberSnapshot;
+        } else {
+            this.secondMemberSnapshot = coupleMemberSnapshot;
+        }
     }
 
     public void updateStartLoveDate(LocalDate startLoveDate) {
         this.startLoveDate = startLoveDate;
-    }
-
-    public void unlink(MemberId memberId) {
-        // 해지 요청한 사용자만 삭제 처리
-        this.coupleMembers.forEach(cm -> {
-            if (Objects.equals(cm.getMemberId().getValue(), memberId.getValue())) {
-                cm.coupleDeleted();
-            }
-        });
-
-        // 모든 커플 멤버가 삭제된 경우 커플 상태를 DELETED로 변경
-        int deletedCount = (int) this.coupleMembers.stream()
-                .filter(cm -> cm.getCoupleMemberState() == CoupleMemberState.DELETED)
-                .count();
-
-        if (deletedCount == this.coupleMembers.size()) {
-            this.coupleState = CoupleState.DELETED;
-            this.deletedAt = LocalDateTime.now();
-        }
-    }
-
-    public void recover() {
-        this.coupleState = CoupleState.ALIVE;
-        this.deletedAt = null;
-        this.coupleMembers.forEach(CoupleMember::recover);
     }
 }

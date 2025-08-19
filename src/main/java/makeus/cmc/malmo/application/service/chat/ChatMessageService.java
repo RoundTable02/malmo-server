@@ -21,10 +21,7 @@ import makeus.cmc.malmo.domain.model.member.MemberMemory;
 import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
 import makeus.cmc.malmo.domain.model.question.MemberAnswer;
 import makeus.cmc.malmo.domain.service.ChatRoomDomainService;
-import makeus.cmc.malmo.domain.value.id.ChatRoomId;
-import makeus.cmc.malmo.domain.value.id.CoupleMemberId;
-import makeus.cmc.malmo.domain.value.id.CoupleQuestionId;
-import makeus.cmc.malmo.domain.value.id.MemberId;
+import makeus.cmc.malmo.domain.value.id.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -129,9 +126,9 @@ public class ChatMessageService implements ProcessMessageUseCase {
 
     @Override
     public void processAnswerMetadata(ProcessAnswerCommand command) {
-        MemberAnswer memberAnswer = coupleQuestionQueryHelper.getMemberAnswerByCoupleMemberId(
+        MemberAnswer memberAnswer = coupleQuestionQueryHelper.getMemberAnswerOrThrow(
                 CoupleQuestionId.of(command.getCoupleQuestionId()),
-                CoupleMemberId.of(command.getCoupleMemberId()));
+                MemberId.of(command.getMemberId()));
 
         CoupleQuestion coupleQuestion = coupleQuestionQueryHelper.getCoupleQuestionByIdOrThrow(
                 CoupleQuestionId.of(command.getCoupleQuestionId()));
@@ -146,7 +143,8 @@ public class ChatMessageService implements ProcessMessageUseCase {
 
         // 멤버 메모리 생성 및 저장
         MemberMemory memberMemory = MemberMemory.createMemberMemory(
-                CoupleMemberId.of(command.getCoupleMemberId()),
+                CoupleId.of(command.getCoupleId()),
+                MemberId.of(command.getMemberId()),
                 metadata);
 
         memberMemoryCommandHelper.saveMemberMemory(memberMemory);

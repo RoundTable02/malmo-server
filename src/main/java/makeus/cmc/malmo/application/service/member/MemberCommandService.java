@@ -54,7 +54,7 @@ public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLov
         member.updateStartLoveDate(startLoveDate);
         Member savedMember = memberCommandHelper.saveMember(member);
 
-        coupleQueryHelper.getCoupleByMemberId(MemberId.of(command.getMemberId()))
+        coupleQueryHelper.getCoupleById(member.getCoupleId())
                 .ifPresent(couple -> {
                     couple.updateStartLoveDate(startLoveDate);
                     coupleCommandHelper.saveCouple(couple);
@@ -84,7 +84,7 @@ public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLov
         // 멤버 채팅방, 커플 soft delete
         coupleQueryHelper.getCoupleByMemberId(MemberId.of(command.getMemberId()))
                         .ifPresent(couple -> {
-                            couple.unlink(MemberId.of(member.getId()));
+                            couple.unlink(MemberId.of(member.getId()), member.getNickname(), member.getLoveTypeCategory(), member.getAnxietyRate(), member.getAvoidanceRate());
                             coupleCommandHelper.saveCouple(couple);
                         });
     }

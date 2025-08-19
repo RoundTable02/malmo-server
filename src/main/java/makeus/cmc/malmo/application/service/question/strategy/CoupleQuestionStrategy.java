@@ -62,15 +62,23 @@ public class CoupleQuestionStrategy implements QuestionHandlingStrategy{
 
             // 사용자 & 파트너 답변으로부터 각각 메타데이터 추출 요청
             Couple couple = coupleQueryHelper.getCoupleByMemberIdOrThrow(MemberId.of(command.getUserId()));
-            couple.getCoupleMembers().forEach(cm -> {
-                publishStreamMessagePort.publish(
-                        StreamMessageType.REQUEST_EXTRACT_METADATA,
-                        new RequestExtractMetadataMessage(
-                                coupleQuestion.getId(),
-                                cm.getId()
-                        )
-                );
-            });
+            publishStreamMessagePort.publish(
+                    StreamMessageType.REQUEST_EXTRACT_METADATA,
+                    new RequestExtractMetadataMessage(
+                            couple.getId(),
+                            couple.getFirstMemberId().getValue(),
+                            coupleQuestion.getId()
+                    )
+            );
+
+            publishStreamMessagePort.publish(
+                    StreamMessageType.REQUEST_EXTRACT_METADATA,
+                    new RequestExtractMetadataMessage(
+                            couple.getId(),
+                            couple.getSecondMemberId().getValue(),
+                            coupleQuestion.getId()
+                    )
+            );
 
             return GetQuestionUseCase.GetQuestionResponse.builder()
                     .coupleQuestionId(savedCoupleQuestion.getId())
@@ -141,9 +149,8 @@ public class CoupleQuestionStrategy implements QuestionHandlingStrategy{
         CoupleQuestion coupleQuestion = coupleQuestionQueryHelper.getMaxLevelQuestionOrThrow(coupleId);
 
         // 답변을 저장
-        CoupleMemberId coupleMemberId = coupleQueryHelper.getCoupleMemberIdByMemberId(MemberId.of(command.getUserId()));
         coupleQuestionQueryHelper.validateMemberAlreadyAnswered(CoupleQuestionId.of(coupleQuestion.getId()), MemberId.of(command.getUserId()));
-        MemberAnswer memberAnswer = coupleQuestion.createMemberAnswer(coupleMemberId, command.getAnswer());
+        MemberAnswer memberAnswer = coupleQuestion.createMemberAnswer(MemberId.of(command.getUserId()), command.getAnswer());
         coupleQuestionCommandHelper.saveMemberAnswer(memberAnswer);
 
         // 커플 질문 개수 체크

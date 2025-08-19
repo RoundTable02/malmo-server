@@ -110,8 +110,9 @@ public class RedisStreamConsumer {
     private void processMetadata(JsonNode payloadNode) {
         processMessageUseCase.processAnswerMetadata(
                 ProcessMessageUseCase.ProcessAnswerCommand.builder()
+                        .coupleId(payloadNode.get("coupleId").asLong())
+                        .memberId(payloadNode.get("memberId").asLong())
                         .coupleQuestionId(payloadNode.get("coupleQuestionId").asLong())
-                        .coupleMemberId(payloadNode.get("coupleMemberId").asLong())
                         .build()
         );
     }

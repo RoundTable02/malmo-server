@@ -70,11 +70,6 @@ public class CoupleQuestionQueryHelper {
                 .orElseThrow(() -> new MemberAccessDeniedException("답변이 존재하지 않습니다."));
     }
 
-    public MemberAnswer getMemberAnswerByCoupleMemberId(CoupleQuestionId coupleQuestionId, CoupleMemberId coupleMemberId) {
-        return loadMemberAnswerPort.getMemberAnswer(coupleQuestionId, coupleMemberId)
-                .orElseThrow(() -> new MemberAccessDeniedException("답변이 존재하지 않습니다."));
-    }
-
     public void validateQuestionOwnership(CoupleQuestionId coupleQuestionId, CoupleId coupleId) {
         CoupleQuestion coupleQuestion = loadCoupleQuestionPort.loadCoupleQuestionById(coupleQuestionId)
                 .orElseThrow(CoupleQuestionNotFoundException::new);
