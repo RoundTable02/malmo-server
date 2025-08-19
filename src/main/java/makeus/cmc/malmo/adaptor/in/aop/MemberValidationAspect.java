@@ -1,6 +1,7 @@
 package makeus.cmc.malmo.adaptor.in.aop;
 
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.application.exception.MemberNotFoundException;
 import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.aspectj.lang.annotation.Aspect;
@@ -23,7 +24,7 @@ public class MemberValidationAspect {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !(authentication.getPrincipal() instanceof User user)) {
-            throw new AuthenticationCredentialsNotFoundException("인증된 사용자를 찾을 수 없습니다.");
+            throw new MemberNotFoundException("인증된 사용자를 찾을 수 없습니다.");
         }
 
         Long memberId = Long.valueOf(user.getUsername());
@@ -36,7 +37,7 @@ public class MemberValidationAspect {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !(authentication.getPrincipal() instanceof User user)) {
-            throw new AuthenticationCredentialsNotFoundException("인증된 사용자를 찾을 수 없습니다.");
+            throw new MemberNotFoundException("인증된 사용자를 찾을 수 없습니다.");
         }
 
         Long memberId = Long.valueOf(user.getUsername());

@@ -25,6 +25,7 @@ import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.value.type.MemberRole;
 import makeus.cmc.malmo.domain.value.type.Provider;
 import makeus.cmc.malmo.integration_test.dto_factory.CoupleRequestDtoFactory;
+import makeus.cmc.malmo.integration_test.dto_factory.LoveTypeQuestionRequestDtoFactory;
 import makeus.cmc.malmo.integration_test.dto_factory.MemberRequestDtoFactory;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -248,6 +249,88 @@ public class MemberIntegrationTest {
                                             futureDate)
                             )))
                     .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("이전에 애착유형 검사를 한 경우 회원가입이 성공한다")
+        void 회원가입_애착유형_검사_성공() throws Exception {
+            // given
+            int[] scores = {1, 1, 5, 1, 5, 1, 5, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 1, 5, 1, 1, 1, 5, 1, 5, 5, 1, 5, 5, 5, 1, 1};
+
+            MvcResult mvcResult = mockMvc.perform(post("/love-types/result")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    LoveTypeQuestionRequestDtoFactory.createRegisterLoveTypeRequestDto(scores)
+                            )))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            String content = mvcResult.getResponse().getContentAsString();
+            Integer loveTypeId = JsonPath.read(content, "$.data.loveTypeId");
+
+            List<SignUpController.TermsDto> terms = List.of(
+                    MemberRequestDtoFactory.createTermsDto(1L, true),
+                    MemberRequestDtoFactory.createTermsDto(2L, true),
+                    MemberRequestDtoFactory.createTermsDto(3L, true),
+                    MemberRequestDtoFactory.createTermsDto(4L, true)
+            );
+
+            LocalDate today = LocalDate.now();
+
+            // when
+            mockMvc.perform(post("/members/onboarding")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    MemberRequestDtoFactory.createSignUpWithLoveTypeIdRequestDto(terms,
+                                            "테스트닉네임",
+                                            today,
+                                            Long.valueOf(loveTypeId))
+                            )))
+                    .andExpect(status().isOk());
+
+            MemberEntity savedMember = em.find(MemberEntity.class, member.getId());
+
+            Assertions.assertThat(savedMember.getNickname()).isEqualTo("테스트닉네임");
+            Assertions.assertThat(savedMember.getStartLoveDate()).isEqualTo(today);
+            Assertions.assertThat(savedMember.getLoveTypeCategory()).isEqualTo(LoveTypeCategory.STABLE_TYPE);
+            Assertions.assertThat(savedMember.getAnxietyRate()).isEqualTo(1.00f);
+            Assertions.assertThat(savedMember.getAvoidanceRate()).isEqualTo(1.00f);
+        }
+
+        @Test
+        @DisplayName("애착유형 검사 ID가 존재하지 않는 경우에도 회원가입이 성공한다")
+        void 회원가입_애착유형_검사_ID_존재하지_않는_경우_성공() throws Exception {
+            // given
+            List<SignUpController.TermsDto> terms = List.of(
+                    MemberRequestDtoFactory.createTermsDto(1L, true),
+                    MemberRequestDtoFactory.createTermsDto(2L, true),
+                    MemberRequestDtoFactory.createTermsDto(3L, true),
+                    MemberRequestDtoFactory.createTermsDto(4L, true)
+            );
+
+            LocalDate today = LocalDate.now();
+            long loveTypeId = 999L; // 존재하지 않는 ID
+
+            // when
+            mockMvc.perform(post("/members/onboarding")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    MemberRequestDtoFactory.createSignUpWithLoveTypeIdRequestDto(terms,
+                                            "테스트닉네임",
+                                            today,
+                                            loveTypeId)
+                            )))
+                    .andExpect(status().isOk());
+
+            MemberEntity savedMember = em.find(MemberEntity.class, member.getId());
+
+            Assertions.assertThat(savedMember.getNickname()).isEqualTo("테스트닉네임");
+            Assertions.assertThat(savedMember.getStartLoveDate()).isEqualTo(today);
+            Assertions.assertThat(savedMember.getLoveTypeCategory()).isNull();
+            Assertions.assertThat(savedMember.getAnxietyRate()).isEqualTo(0.0f);
+            Assertions.assertThat(savedMember.getAvoidanceRate()).isEqualTo(0.0f);
         }
     }
 

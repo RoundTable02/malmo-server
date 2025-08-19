@@ -81,7 +81,7 @@ jobs:
       - name: Build and push Docker image
         if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
         env:
-          IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/malmo-app
+          IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/malmo-test
         run: |
           docker build --platform linux/amd64 -t $IMAGE_NAME:${{ github.sha }} -t $IMAGE_NAME:latest .
           docker push $IMAGE_NAME:${{ github.sha }}
@@ -105,21 +105,21 @@ jobs:
             fi
 
             # 기존 컨테이너 중지 및 삭제
-            docker stop malmo-app || true
-            docker rm malmo-app || true
+            docker stop malmo-test || true
+            docker rm malmo-test || true
 
             # docker-compose.yml 파일 생성
             cat << 'EOF' > docker-compose.yml
             version: '3.8'
 
             services:
-              malmo-app:
-                image: ${{ secrets.DOCKERHUB_USERNAME }}/malmo-app:latest
-                container_name: malmo-app
+              malmo-test:
+                image: ${{ secrets.DOCKERHUB_USERNAME }}/malmo-test:latest
+                container_name: malmo-test
                 depends_on:
                   - redis
                 ports:
-                  - "8080:8080"
+                  - "8081:8080"
                 networks:
                   - malmo-network
                 environment:
@@ -129,6 +129,8 @@ jobs:
                   - SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }}
                   - SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}
                   - SPRING_DATA_REDIS_HOST=redis
+                  - REDIS_STREAM_KEY=${{ secrets.TEST_REDIS_STREAM_KEY }}
+                  - REDIS_CONSUMER_GROUP=${{ secrets.TEST_REDIS_CONSUMER_GROUP }}
                   - JWT_SECRET=${{ secrets.JWT_SECRET }}
                   - KAKAO_REST_API_KEY=${{ secrets.KAKAO_REST_API_KEY }}
                   - APPLE_REST_API_KEY=${{ secrets.APPLE_REST_API_KEY }}
@@ -138,30 +140,16 @@ jobs:
                   - APPLE_CLIENT_ID=${{ secrets.APPLE_CLIENT_ID }}
                   - KAKAO_ADMIN_KEY=${{ secrets.KAKAO_ADMIN_KEY }}
                   - OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
-                  - SWAGGER_SERVER_PRODUCTION_URL=${{ secrets.SWAGGER_SERVER_PRODUCTION_URL }}
+                  - SWAGGER_SERVER_PRODUCTION_URL=${{ secrets.TEST_SWAGGER_SERVER_PRODUCTION_URL }}
                   - SECURITY_CLIENT_URL_PRODUCTION=${{ secrets.SECURITY_CLIENT_URL_PRODUCTION }}
                   - SECURITY_CLIENT_URL_DEVELOPMENT=${{ secrets.SECURITY_CLIENT_URL_DEVELOPMENT }}
                   - SECURITY_SERVER_URL_PRODUCTION=${{ secrets.SECURITY_SERVER_URL_PRODUCTION }}
                   - SECURITY_SERVER_URL_DEVELOPMENT=${{ secrets.SECURITY_SERVER_URL_DEVELOPMENT }}
                 restart: unless-stopped
 
-              redis:
-                image: "redis:7-alpine"
-                container_name: malmo-redis
-                ports:
-                  - "6379:6379"
-                volumes:
-                  - redis-data:/data
-                networks:
-                  - malmo-network
-                restart: always
-
             networks:
               malmo-network:
-                driver: bridge
-
-            volumes:
-              redis-data:
+                driver: external
             EOF
 
             # Docker Hub 로그인

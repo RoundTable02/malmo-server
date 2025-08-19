@@ -17,6 +17,7 @@ public interface SignUpUseCase {
         private List<TermsCommand> terms;
         private String nickname;
         private LocalDate loveStartDate;
+        private Long loveTypeId;
     }
 
     @Data

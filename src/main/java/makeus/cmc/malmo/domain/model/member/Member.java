@@ -105,7 +105,7 @@ public class Member {
         this.nickname = nickname;
     }
 
-    public void updateLoveTypeId(LoveTypeCategory loveTypeCategory, float avoidanceRate, float anxietyRate) {
+    public void updateLoveType(LoveTypeCategory loveTypeCategory, float avoidanceRate, float anxietyRate) {
         this.loveTypeCategory = loveTypeCategory;
         this.avoidanceRate = avoidanceRate;
         this.anxietyRate = anxietyRate;

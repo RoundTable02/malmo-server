@@ -17,9 +17,6 @@ import org.springframework.data.redis.stream.StreamMessageListenerContainer;
 import java.time.Duration;
 import java.util.concurrent.Executors;
 
-import static makeus.cmc.malmo.util.GlobalConstants.CONSUMER_GROUP;
-import static makeus.cmc.malmo.util.GlobalConstants.STREAM_KEY;
-
 @Configuration
 public class RedisConfig {
 
@@ -28,6 +25,12 @@ public class RedisConfig {
 
     @Value("${spring.data.redis.port}")
     private int redisPort;
+
+    @Value("${spring.data.redis.stream-key}")
+    private String streamKey;
+
+    @Value("${spring.data.redis.consumer-group}")
+    private String consumerGroup;
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
@@ -66,8 +69,8 @@ public class RedisConfig {
         // Consumer 그룹 내 여러 Consumer를 등록 → 병렬 처리
         for (int i = 0; i < 4; i++) {
             container.receive(
-                    Consumer.from(CONSUMER_GROUP, "malmo-consumer-" + i),
-                    StreamOffset.create(STREAM_KEY, ReadOffset.lastConsumed()),
+                    Consumer.from(consumerGroup, "malmo-consumer-" + i),
+                    StreamOffset.create(streamKey, ReadOffset.lastConsumed()),
                     consumer::onMessage
             );
         }
