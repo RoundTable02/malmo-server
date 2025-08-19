@@ -4,10 +4,6 @@ public class GlobalConstants {
     // 오늘의 질문 상수
     public static final int FIRST_QUESTION_LEVEL = 1;
 
-    // Redis 관련 상수
-    public static final String STREAM_KEY = "my-stream";
-    public static final String CONSUMER_GROUP = "malmo-group";
-
     // 채팅방 관련 상수
     public static final int INIT_CHATROOM_LEVEL = 1;
     public static final int SYSTEM_PROMPT_LEVEL = -2;

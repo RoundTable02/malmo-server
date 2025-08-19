@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.message.StreamMessage;
 import makeus.cmc.malmo.adaptor.message.StreamMessageType;
 import makeus.cmc.malmo.application.port.out.chat.PublishStreamMessagePort;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.connection.stream.RecordId;
 import org.springframework.data.redis.core.StreamOperations;
@@ -17,12 +18,14 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import java.util.HashMap;
 import java.util.Map;
 
-import static makeus.cmc.malmo.util.GlobalConstants.STREAM_KEY;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class RedisStreamAdapter implements PublishStreamMessagePort {
+
+    @Value("${spring.data.redis.stream-key}")
+    private String streamKey;
 
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
@@ -39,7 +42,7 @@ public class RedisStreamAdapter implements PublishStreamMessagePort {
                             map.put("retry", "0");
 
                             StreamOperations<String, String, String> ops = redisTemplate.opsForStream();
-                            RecordId id = ops.add(MapRecord.create(STREAM_KEY, map));
+                            RecordId id = ops.add(MapRecord.create(streamKey, map));
 
                             log.info("Published message to Redis Stream: type={}, payload={}, id={}", type, payload, id);
                         } catch (Exception e) {

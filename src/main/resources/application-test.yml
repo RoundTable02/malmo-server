@@ -21,6 +21,8 @@ spring:
     redis:
       port: 6379
       host: localhost
+      stream-key: test-stream
+      consumer-group: test-group
       repositories:
         enabled: false
 

@@ -129,6 +129,8 @@ jobs:
                   - SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }}
                   - SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}
                   - SPRING_DATA_REDIS_HOST=redis
+                  - REDIS_STREAM_KEY=${{ secrets.REDIS_STREAM_KEY }}
+                  - REDIS_CONSUMER_GROUP=${{ secrets.REDIS_CONSUMER_GROUP }}
                   - JWT_SECRET=${{ secrets.JWT_SECRET }}
                   - KAKAO_REST_API_KEY=${{ secrets.KAKAO_REST_API_KEY }}
                   - APPLE_REST_API_KEY=${{ secrets.APPLE_REST_API_KEY }}
