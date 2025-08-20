@@ -8,7 +8,6 @@ import makeus.cmc.malmo.application.port.out.couple.LoadCouplePort;
 import makeus.cmc.malmo.application.port.out.couple.SaveCouplePort;
 import makeus.cmc.malmo.domain.model.couple.Couple;
 import makeus.cmc.malmo.domain.value.id.CoupleId;
-import makeus.cmc.malmo.domain.value.id.CoupleMemberId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Component;
 
@@ -29,16 +28,6 @@ public class CouplePersistenceAdapter implements SaveCouplePort, LoadCouplePort 
     }
 
     @Override
-    public CoupleId loadCoupleIdByMemberId(MemberId memberId) {
-        return CoupleId.of(coupleRepository.findCoupleIdByMemberId(memberId.getValue()));
-    }
-
-    @Override
-    public CoupleMemberId loadCoupleMemberIdByMemberId(MemberId memberId) {
-        return CoupleMemberId.of(coupleRepository.findCoupleMemberIdByMemberId(memberId.getValue()));
-    }
-
-    @Override
     public Optional<Couple> loadCoupleByMemberId(MemberId memberId) {
         return coupleRepository.findCoupleByMemberId(memberId.getValue())
                 .map(coupleAggregateMapper::toDomain);
@@ -47,6 +36,12 @@ public class CouplePersistenceAdapter implements SaveCouplePort, LoadCouplePort 
     @Override
     public Optional<Couple> loadCoupleByMemberIdAndPartnerId(MemberId memberId, MemberId partnerId) {
         return coupleRepository.findCoupleByMemberIdAndPartnerId(memberId.getValue(), partnerId.getValue())
+                .map(coupleAggregateMapper::toDomain);
+    }
+
+    @Override
+    public Optional<Couple> loadCoupleByCoupleId(CoupleId coupleId) {
+        return coupleRepository.findById(coupleId.getValue())
                 .map(coupleAggregateMapper::toDomain);
     }
 }

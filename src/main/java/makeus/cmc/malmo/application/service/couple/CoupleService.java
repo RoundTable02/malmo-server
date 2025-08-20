@@ -7,6 +7,7 @@ import makeus.cmc.malmo.application.helper.chat_room.ChatRoomCommandHelper;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomQueryHelper;
 import makeus.cmc.malmo.application.helper.couple.CoupleCommandHelper;
 import makeus.cmc.malmo.application.helper.couple.CoupleQueryHelper;
+import makeus.cmc.malmo.application.helper.member.MemberCommandHelper;
 import makeus.cmc.malmo.application.helper.member.MemberMemoryCommandHelper;
 import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.application.helper.question.CoupleQuestionCommandHelper;
@@ -14,7 +15,6 @@ import makeus.cmc.malmo.application.helper.question.CoupleQuestionQueryHelper;
 import makeus.cmc.malmo.application.port.in.couple.CoupleLinkUseCase;
 import makeus.cmc.malmo.application.port.in.couple.CoupleUnlinkUseCase;
 import makeus.cmc.malmo.application.port.out.SendSseEventPort;
-import makeus.cmc.malmo.application.port.out.member.ValidateMemberPort;
 import makeus.cmc.malmo.domain.model.couple.Couple;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
@@ -23,7 +23,6 @@ import makeus.cmc.malmo.domain.model.question.Question;
 import makeus.cmc.malmo.domain.model.question.TempCoupleQuestion;
 import makeus.cmc.malmo.domain.service.CoupleDomainService;
 import makeus.cmc.malmo.domain.value.id.CoupleId;
-import makeus.cmc.malmo.domain.value.id.CoupleMemberId;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;
@@ -53,43 +52,51 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
     private final ChatRoomCommandHelper chatRoomCommandHelper;
 
     private final MemberMemoryCommandHelper memberMemoryCommandHelper;
+    private final MemberCommandHelper memberCommandHelper;
 
     @Override
     @CheckValidMember
     @Transactional
     public CoupleLinkResponse coupleLink(CoupleLinkCommand command) {
-        // 초대코드 주인 조회
+        Member member = memberQueryHelper.getMemberByIdOrThrow(MemberId.of(command.getUserId()));
+
+        // 초대 코드 유효성 검사
+        // 본인의 초대코드는 사용할 수 없음
+        memberQueryHelper.validateOwnInviteCode(member.getInviteCode(), InviteCodeValue.of(command.getCoupleCode()));
+
+        // 이미 본인이 커플인 사용자인지 확인
+        if (member.isCoupleLinked()) {
+            coupleQueryHelper.validateBrokenCouple(member.getCoupleId());
+            // 과거 커플의 메모리 삭제
+            memberMemoryCommandHelper.deleteCoupleMemberMemory(member.getCoupleId(), MemberId.of(member.getId()));
+        }
+
+        // 상대방이 이미 커플인 사용자인지 확인
         Member partner = memberQueryHelper.getMemberByInviteCodeOrThrow(InviteCodeValue.of(command.getCoupleCode()));
+        if (partner.isCoupleLinked()) {
+            coupleQueryHelper.validateBrokenCouple(partner.getCoupleId());
+            // 과거 커플의 메모리 삭제
+            memberMemoryCommandHelper.deleteCoupleMemberMemory(partner.getCoupleId(), MemberId.of(partner.getId()));
+        }
 
-        // 유효성 검사
-        validateCoupleLinkRequest(MemberId.of(command.getUserId()),
-                MemberId.of(partner.getId()),
-                InviteCodeValue.of(command.getCoupleCode()));
-
-        MemberId userId = MemberId.of(command.getUserId());
-        MemberId partnerId = MemberId.of(partner.getId());
-
-        // 이전 커플 연결에서 생성된 메모리 삭제
-        memberMemoryCommandHelper.deleteAliveMemory(MemberId.of(command.getUserId()));
-
-        // 이전 상대가 연결 해제, 본인은 따로 해지하지 않은 상황
-        coupleQueryHelper.getCoupleByMemberId(userId)
-                .ifPresent(couple -> {
-                    // 연결 해제 처리
-                    couple.unlink(userId);
-                    coupleCommandHelper.saveCouple(couple);
-                });
-
-        // 이전에 생성되었던 커플이 있는지 조회, 없으면 생성
-        Couple couple = coupleQueryHelper.getBrokenCouple(userId, partnerId)
+        // 커플 생성 또는 재연결
+        // 과거 두 사용자가 커플이었던 경우 재연결, 아니라면 새로 생성
+        Couple couple = coupleQueryHelper.getCoupleByMemberAndPartnerId(MemberId.of(member.getId()), MemberId.of(partner.getId()))
                 .map(this::reconnectCouple)
-                .orElseGet(() -> {
-                    // 새로운 커플 생성
-                    return createNewCouple(userId, partnerId, partner.getStartLoveDate());
-                });
+                .orElseGet(() -> createNewCouple(
+                        MemberId.of(member.getId()),
+                        MemberId.of(partner.getId()),
+                        partner.getStartLoveDate()
+                ));
 
-        // 커플 연결 후 부가 기능 활성화
-        activateCoupleFeatures(userId, partnerId, couple);
+        // 사용자 커플 연결 처리
+        member.linkCouple(CoupleId.of(couple.getId()));
+        partner.linkCouple(CoupleId.of(couple.getId()));
+
+        memberCommandHelper.saveMember(member);
+        memberCommandHelper.saveMember(partner);
+
+        activateCoupleFeatures(MemberId.of(member.getId()), MemberId.of(partner.getId()), couple);
 
         return CoupleLinkResponse.builder()
                 .coupleId(couple.getId())
@@ -100,12 +107,23 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
     @CheckCoupleMember
     @Transactional
     public void coupleUnlink(CoupleUnlinkCommand command) {
-        Couple couple = coupleQueryHelper.getCoupleByMemberIdOrThrow(MemberId.of(command.getUserId()));
-        MemberId partnerId = memberQueryHelper.getPartnerIdOrThrow(MemberId.of(command.getUserId()));
+        Member member = memberQueryHelper.getMemberByIdOrThrow(MemberId.of(command.getUserId()));
+        Couple couple = coupleQueryHelper.getCoupleByIdOrThrow(member.getCoupleId());
+        MemberId partnerId = couple.getOtherMemberId(MemberId.of(command.getUserId()));
+
+        // 사용자의 커플 메모리 제거
+        memberMemoryCommandHelper.deleteCoupleMemberMemory(member.getCoupleId(), MemberId.of(member.getId()));
 
         // 커플 해제 처리
-        couple.unlink(MemberId.of(command.getUserId()));
+        couple.unlink(MemberId.of(member.getId()),
+                member.getNickname(),
+                member.getLoveTypeCategory(),
+                member.getAnxietyRate(),
+                member.getAvoidanceRate());
         coupleCommandHelper.saveCouple(couple);
+
+        member.unlinkCouple();
+        memberCommandHelper.saveMember(member);
 
         // 상대방에게 커플 해지됨 알림
         sendSseEventPort.sendToMember(partnerId,
@@ -113,19 +131,12 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
         );
     }
 
-    private void validateCoupleLinkRequest(MemberId userId, MemberId codeOwnerId, InviteCodeValue inviteCode) {
-        memberQueryHelper.validateUsedInviteCode(codeOwnerId);
-        memberQueryHelper.validateMemberNotCoupled(userId);
-        memberQueryHelper.validateOwnInviteCode(userId, inviteCode);
-    }
-
     private Couple reconnectCouple(Couple brokenCouple) {
         brokenCouple.recover();
         // 커플 멤버들의 메모리 복구
-        brokenCouple.getCoupleMembers().forEach(cm -> {
-            CoupleMemberId coupleMemberId = CoupleMemberId.of(cm.getId());
-            memberMemoryCommandHelper.recoverMemberMemory(coupleMemberId);
-        });
+        memberMemoryCommandHelper.recoverMemberMemory(CoupleId.of(brokenCouple.getId()));
+        memberMemoryCommandHelper.recoverMemberMemory(CoupleId.of(brokenCouple.getId()));
+
         return coupleCommandHelper.saveCouple(brokenCouple);
     }
 
@@ -137,14 +148,17 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
     }
 
     private void setupInitialCoupleQuestion(Couple couple, MemberId userId, MemberId partnerId) {
+        // 초기 커플 질문 생성
         Question question = coupleQuestionQueryHelper.getQuestionByLevelOrThrow(FIRST_QUESTION_LEVEL);
         CoupleQuestion coupleQuestion = coupleQuestionCommandHelper.saveCoupleQuestion(
                 CoupleQuestion.createCoupleQuestion(question, CoupleId.of(couple.getId()))
         );
 
+        // 과거 질문이 있는 경우 임시 질문에서 답변을 가져와서 커플 질문으로 저장
         boolean memberAnswered = migrateAnswerFromTemp(userId, coupleQuestion);
         boolean partnerAnswered = migrateAnswerFromTemp(partnerId, coupleQuestion);
 
+        // 커플 질문에 답변이 모두 완료되면 커플 질문 상태를 완료로 설정
         if (memberAnswered && partnerAnswered) {
             coupleQuestion.complete();
             coupleQuestionCommandHelper.saveCoupleQuestion(coupleQuestion);
@@ -155,8 +169,7 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
         return coupleQuestionQueryHelper.getTempCoupleQuestion(memberId)
                 .filter(TempCoupleQuestion::isAnswered)
                 .map(tempQuestion -> {
-                    CoupleMemberId coupleMemberId = coupleQueryHelper.getCoupleMemberIdByMemberId(memberId);
-                    MemberAnswer memberAnswer = coupleQuestion.createMemberAnswer(coupleMemberId, tempQuestion.getAnswer());
+                    MemberAnswer memberAnswer = coupleQuestion.createMemberAnswer(memberId, tempQuestion.getAnswer());
                     coupleQuestionCommandHelper.saveMemberAnswer(memberAnswer);
 
                     tempQuestion.usedForCoupleQuestion();
