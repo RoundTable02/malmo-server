@@ -109,16 +109,13 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
 
     @Override
     public boolean isCoupleMember(Long memberId) {
-        Long count = queryFactory.select(memberEntity.count())
+        Boolean isCouple = queryFactory.select(memberEntity.coupleEntityId.value.isNotNull())
                 .from(memberEntity)
-                .join(coupleEntity)
-                .on(memberEntity.coupleEntityId.value.eq(coupleEntity.id))
                 .where(memberEntity.id.eq(memberId)
-                        .and(memberEntity.memberState.ne(MemberState.DELETED))
-                        .and(coupleEntity.coupleState.ne(CoupleState.DELETED)))
-                .fetchOne();
+                        .and(memberEntity.memberState.ne(MemberState.DELETED)))
+                .fetchFirst();
 
-        return count != null && count > 0;
+        return isCouple != null && isCouple;
     }
 
     @Override
