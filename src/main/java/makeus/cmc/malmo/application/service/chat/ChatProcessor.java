@@ -11,9 +11,11 @@ import makeus.cmc.malmo.application.port.out.chat.RequestChatApiPort;
 import makeus.cmc.malmo.domain.model.chat.Prompt;
 import makeus.cmc.malmo.domain.value.type.SenderType;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 @Slf4j
@@ -24,25 +26,30 @@ public class ChatProcessor {
     private final RequestChatApiPort requestChatApiPort;
     private final ObjectMapper objectMapper;
 
-    public void streamChat(List<Map<String, String>> messages,
-                           Prompt systemPrompt,
-                           Prompt prompt,
-                           Consumer<String> onChunk,
-                           Consumer<String> onComplete,
-                           Consumer<String> onError) {
+    public Mono<Void> streamChat(List<Map<String, String>> messages,
+                                 Prompt systemPrompt,
+                                 Prompt prompt,
+                                 Consumer<String> onChunk,
+                                 Consumer<String> onComplete,
+                                 Consumer<String> onError) {
 
         messages.add(createMessageMap(SenderType.SYSTEM, systemPrompt.getContent()));
         messages.add(createMessageMap(SenderType.SYSTEM, prompt.getContent()));
 
-        log.info("total messages: {}", messages);
-
-        requestChatApiPort.requestStreamResponse(messages, onChunk, onComplete, onError);
+        return requestChatApiPort.requestStreamResponse(messages, onChunk) // onChunk 콜백만 넘김
+                .flatMap(fullAnswer -> {
+                    // 스트림이 성공적으로 완료되고 전체 응답(fullAnswer)이 오면 onComplete 로직 실행
+                    onComplete.accept(fullAnswer);
+                    return Mono.empty(); // 성공적으로 완료했음을 알리기 위해 비어있는 Mono 반환
+                })
+                .doOnError(throwable -> onError.accept(throwable.getMessage())) // 에러 발생 시 onError 콜백 실행
+                .then(); // 최종적으로 Mono<Void>로 변환하여 작업의 완료를 알림
     }
 
-    public String requestSummaryAsync(List<Map<String, String>> messages,
-                                    Prompt systemPrompt,
-                                    Prompt prompt,
-                                    Prompt summaryPrompt) {
+    public CompletableFuture<String> requestSummaryAsync(List<Map<String, String>> messages,
+                                                         Prompt systemPrompt,
+                                                         Prompt prompt,
+                                                         Prompt summaryPrompt) {
 
         messages.add(createMessageMap(SenderType.SYSTEM, systemPrompt.getContent()));
         messages.add(createMessageMap(SenderType.SYSTEM, prompt.getContent()));
@@ -51,23 +58,28 @@ public class ChatProcessor {
         return requestChatApiPort.requestResponse(messages);
     }
 
-    public CounselingSummary requestTotalSummary(List<Map<String, String>> messages,
-                                                 Prompt systemPrompt,
-                                                 Prompt totalSummaryPrompt) {
+    public CompletableFuture<CounselingSummary> requestTotalSummary(List<Map<String, String>> messages,
+                                                                    Prompt systemPrompt,
+                                                                    Prompt totalSummaryPrompt) {
         messages.add(createMessageMap(SenderType.SYSTEM, systemPrompt.getContent()));
         messages.add(createMessageMap(SenderType.SYSTEM, "[현재 단계 지시] " + totalSummaryPrompt.getContent()));
 
-        String summaryJson = requestChatApiPort.requestJsonResponse(messages);
-
-        try {
-            return objectMapper.readValue(summaryJson, CounselingSummary.class);
-        } catch (JsonProcessingException e) {
-            log.error("Failed to parse summary JSON: {}", summaryJson, e);
-            throw new RuntimeException("Failed to parse summary JSON", e);
-        }
+        // 비동기 API 호출 후 CompletableFuture<String> 형태로 응답
+        return requestChatApiPort.requestJsonResponse(messages)
+                // 응답(JSON 문자열)이 오면, thenApply를 통해 다음 작업을 연결
+                .thenApply(summaryJson -> {
+                    try {
+                        // JSON 문자열을 CounselingSummary 객체로 파싱
+                        return objectMapper.readValue(summaryJson, CounselingSummary.class);
+                    } catch (JsonProcessingException e) {
+                        log.error("Failed to parse summary JSON: {}", summaryJson, e);
+                        // 예외 발생 시, 런타임 예외로 감싸서 CompletableFuture가 예외를 인지
+                        throw new RuntimeException("Failed to parse summary JSON", e);
+                    }
+                });
     }
 
-    public String requestMetaData(String question,
+    public CompletableFuture<String> requestMetaData(String question,
                                   String memberAnswer,
                                   Prompt metadataPrompt) {
         List<Map<String, String>> messages = List.of(
