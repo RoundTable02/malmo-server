@@ -1,12 +1,9 @@
 package makeus.cmc.malmo.adaptor.out.persistence.entity.couple;
 
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.*;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
-import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 
 @Embeddable

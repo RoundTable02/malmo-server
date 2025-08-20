@@ -8,7 +8,6 @@ import makeus.cmc.malmo.application.port.out.member.LoadMemberMemoryPort;
 import makeus.cmc.malmo.application.port.out.member.SaveMemberMemoryPort;
 import makeus.cmc.malmo.domain.model.member.MemberMemory;
 import makeus.cmc.malmo.domain.value.id.CoupleId;
-import makeus.cmc.malmo.domain.value.id.CoupleMemberId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Component;
 

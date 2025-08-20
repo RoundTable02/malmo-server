@@ -1,11 +1,9 @@
 package makeus.cmc.malmo.adaptor.out.persistence.mapper;
 
 import makeus.cmc.malmo.adaptor.out.persistence.entity.question.MemberAnswerEntity;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleMemberEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleQuestionEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
 import makeus.cmc.malmo.domain.model.question.MemberAnswer;
-import makeus.cmc.malmo.domain.value.id.CoupleMemberId;
 import makeus.cmc.malmo.domain.value.id.CoupleQuestionId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Component;

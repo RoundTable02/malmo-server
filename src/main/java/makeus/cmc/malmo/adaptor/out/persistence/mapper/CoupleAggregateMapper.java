@@ -5,13 +5,8 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleMemberSnapsh
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
 import makeus.cmc.malmo.domain.model.couple.Couple;
 import makeus.cmc.malmo.domain.model.couple.CoupleMemberSnapshot;
-import makeus.cmc.malmo.domain.value.id.CoupleId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class CoupleAggregateMapper {

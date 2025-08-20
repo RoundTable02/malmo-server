@@ -10,7 +10,6 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
 import makeus.cmc.malmo.domain.value.state.CoupleState;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Getter
 @SuperBuilder

@@ -6,7 +6,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.adapter.CoupleQuestionPersistenceAdapter;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.question.CoupleQuestionEntity;
-import makeus.cmc.malmo.domain.value.state.CoupleMemberState;
 import makeus.cmc.malmo.domain.value.state.CoupleQuestionState;
 
 import java.util.Optional;

@@ -5,10 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import makeus.cmc.malmo.adaptor.message.*;
+import makeus.cmc.malmo.adaptor.message.StreamMessageType;
 import makeus.cmc.malmo.application.port.in.chat.ProcessMessageUseCase;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.connection.stream.*;
+import org.springframework.data.redis.connection.stream.MapRecord;
+import org.springframework.data.redis.connection.stream.ObjectRecord;
+import org.springframework.data.redis.connection.stream.ReadOffset;
+import org.springframework.data.redis.connection.stream.StreamRecords;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 

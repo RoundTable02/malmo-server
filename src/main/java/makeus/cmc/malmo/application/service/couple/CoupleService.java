@@ -16,7 +16,6 @@ import makeus.cmc.malmo.application.port.in.couple.CoupleLinkUseCase;
 import makeus.cmc.malmo.application.port.in.couple.CoupleUnlinkUseCase;
 import makeus.cmc.malmo.application.port.out.SendSseEventPort;
 import makeus.cmc.malmo.domain.model.couple.Couple;
-import makeus.cmc.malmo.domain.model.couple.CoupleMemberSnapshot;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
 import makeus.cmc.malmo.domain.model.question.MemberAnswer;

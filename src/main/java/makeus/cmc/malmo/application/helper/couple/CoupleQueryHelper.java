@@ -7,7 +7,6 @@ import makeus.cmc.malmo.application.port.out.couple.LoadCouplePort;
 import makeus.cmc.malmo.application.port.out.member.LoadMemberPort;
 import makeus.cmc.malmo.domain.model.couple.Couple;
 import makeus.cmc.malmo.domain.value.id.CoupleId;
-import makeus.cmc.malmo.domain.value.id.CoupleMemberId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Component;
 

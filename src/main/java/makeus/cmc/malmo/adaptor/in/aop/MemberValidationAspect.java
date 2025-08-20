@@ -6,7 +6,6 @@ import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;

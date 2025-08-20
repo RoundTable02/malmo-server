@@ -11,7 +11,6 @@ import makeus.cmc.malmo.application.helper.question.CoupleQuestionQueryHelper;
 import makeus.cmc.malmo.application.port.out.question.LoadMemberAnswerPort;
 import makeus.cmc.malmo.application.port.out.question.SaveMemberAnswerPort;
 import makeus.cmc.malmo.domain.model.question.MemberAnswer;
-import makeus.cmc.malmo.domain.value.id.CoupleMemberId;
 import makeus.cmc.malmo.domain.value.id.CoupleQuestionId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Component;
