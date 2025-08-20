@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import static makeus.cmc.malmo.util.GlobalConstants.INIT_CHATROOM_LEVEL;
 import static makeus.cmc.malmo.util.GlobalConstants.INIT_CHAT_MESSAGE;
@@ -39,9 +40,6 @@ public class CurrentChatRoomService
         implements GetCurrentChatRoomUseCase, GetCurrentChatRoomMessagesUseCase, CompleteChatRoomUseCase {
 
     private final ChatRoomDomainService chatRoomDomainService;
-    private final PromptQueryHelper promptQueryHelper;
-    private final ChatPromptBuilder chatPromptBuilder;
-    private final ChatProcessor chatProcessor;
     private final ChatRoomQueryHelper chatRoomQueryHelper;
     private final MemberQueryHelper memberQueryHelper;
     private final ChatRoomCommandHelper chatRoomCommandHelper;
@@ -128,36 +126,17 @@ public class CurrentChatRoomService
         chatRoom.complete();
 
         // 완료된 채팅방의 요약을 요청
-        try {
-            ChatProcessor.CounselingSummary summary = requestChatRoomSummary(chatRoom);
+        log.info("채팅방 요약 요청 스트림 추가: chatRoomId={}", chatRoom.getId());
+        publishStreamMessagePort.publish(
+                StreamMessageType.REQUEST_TOTAL_SUMMARY,
+                new RequestTotalSummaryMessage(chatRoom.getId())
+        );
 
-            // 채팅방의 요약을 저장
-            chatRoom.updateChatRoomSummary(
-                    summary.getTotalSummary(),
-                    summary.getSituationKeyword(),
-                    summary.getSolutionKeyword()
-            );
-            chatRoomCommandHelper.saveChatRoom(chatRoom);
-        } catch (Exception e) {
-            log.debug("채팅방 요약 요청 중 오류 발생, 재시도 스트림 추가: chatRoomId={}", chatRoom.getId(), e);
-            publishStreamMessagePort.publish(
-                    StreamMessageType.REQUEST_TOTAL_SUMMARY,
-                    new RequestTotalSummaryMessage(chatRoom.getId())
-            );
-        }
-
+        // 사용자에게는 즉시 성공 응답 반환
         return CompleteChatRoomResponse.builder()
                 .chatRoomId(chatRoom.getId())
                 .build();
     }
 
-    private ChatProcessor.CounselingSummary requestChatRoomSummary(ChatRoom chatRoom) {
-        Prompt systemPrompt = promptQueryHelper.getSystemPrompt();
-        Prompt totalSummaryPrompt = promptQueryHelper.getTotalSummaryPrompt();
-
-        List<Map<String, String>> messages = chatPromptBuilder.createForTotalSummary(chatRoom);
-
-        return chatProcessor.requestTotalSummary(messages, systemPrompt, totalSummaryPrompt);
-    }
 }
 
