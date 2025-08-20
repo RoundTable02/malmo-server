@@ -63,11 +63,13 @@ public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLov
         member.updateStartLoveDate(startLoveDate);
         Member savedMember = memberCommandHelper.saveMember(member);
 
-        coupleQueryHelper.getCoupleById(member.getCoupleId())
-                .ifPresent(couple -> {
-                    couple.updateStartLoveDate(startLoveDate);
-                    coupleCommandHelper.saveCouple(couple);
-                });
+        if (member.isCoupleLinked()) {
+            coupleQueryHelper.getCoupleById(member.getCoupleId())
+                    .ifPresent(couple -> {
+                        couple.updateStartLoveDate(startLoveDate);
+                        coupleCommandHelper.saveCouple(couple);
+                    });
+        }
 
         return UpdateStartLoveDateResponse.builder()
                 .startLoveDate(savedMember.getStartLoveDate())

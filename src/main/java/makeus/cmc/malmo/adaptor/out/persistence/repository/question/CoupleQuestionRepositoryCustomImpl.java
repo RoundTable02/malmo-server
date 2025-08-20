@@ -107,8 +107,8 @@ public class CoupleQuestionRepositoryCustomImpl implements CoupleQuestionReposit
                 .join(coupleEntity).on(memberEntity.coupleEntityId.value.eq(coupleEntity.id))
                 .join(coupleQuestionEntity).on(coupleQuestionEntity.coupleEntityId.value.eq(coupleEntity.id))
                 .where(memberEntity.id.eq(memberId)
-                        .and(coupleQuestionEntity.coupleQuestionState.ne(CoupleQuestionState.OUTDATED))
-                        .and(coupleQuestionEntity.coupleQuestionState.eq(CoupleQuestionState.COMPLETED)))
+                        .and(coupleQuestionEntity.coupleQuestionState.eq(CoupleQuestionState.OUTDATED)
+                                .or(coupleQuestionEntity.coupleQuestionState.eq(CoupleQuestionState.COMPLETED))))
                 .fetchOne();
     }
 }

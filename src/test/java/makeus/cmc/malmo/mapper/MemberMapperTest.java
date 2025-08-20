@@ -3,6 +3,8 @@ package makeus.cmc.malmo.mapper;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.MemberMapper;
 import makeus.cmc.malmo.domain.model.member.Member;
+import makeus.cmc.malmo.domain.value.id.CoupleId;
+import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
 import makeus.cmc.malmo.domain.value.state.MemberState;
 import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.value.type.MemberRole;
@@ -270,12 +272,13 @@ class MemberMapperTest {
                 0.3f,
                 "testuser",
                 "test@example.com",
-                null, // Assuming InviteCodeValue is not used in this test
+                null, // InviteCodeValue
                 LocalDate.now(),
-                null,
+                null, // oauthToken
+                null, // CoupleId
                 LocalDateTime.now(),
                 LocalDateTime.now(),
-                LocalDateTime.now()
+                null
         );
     }
 
