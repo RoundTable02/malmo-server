@@ -3,6 +3,7 @@ package makeus.cmc.malmo.domain.model.member;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import makeus.cmc.malmo.domain.value.id.CoupleId;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
 import makeus.cmc.malmo.domain.value.state.MemberState;
 import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
@@ -31,6 +32,7 @@ public class Member {
     private InviteCodeValue inviteCode;
     private LocalDate startLoveDate;
     private String oauthToken;
+    private CoupleId coupleId;
 
     // BaseTimeEntity fields
     private LocalDateTime createdAt;
@@ -67,6 +69,7 @@ public class Member {
             InviteCodeValue inviteCode,
             LocalDate startLoveDate,
             String oauthToken,
+            CoupleId coupleId,
             LocalDateTime createdAt,
             LocalDateTime modifiedAt,
             LocalDateTime deletedAt
@@ -88,6 +91,7 @@ public class Member {
                 .inviteCode(inviteCode)
                 .startLoveDate(startLoveDate)
                 .oauthToken(oauthToken)
+                .coupleId(coupleId)
                 .createdAt(createdAt)
                 .modifiedAt(modifiedAt)
                 .deletedAt(deletedAt)
@@ -132,5 +136,17 @@ public class Member {
     public void logOut() {
         this.refreshToken = null;
         this.firebaseToken = null;
+    }
+
+    public boolean isCoupleLinked() {
+        return this.coupleId != null;
+    }
+
+    public void linkCouple(CoupleId coupleId) {
+        this.coupleId = coupleId;
+    }
+
+    public void unlinkCouple() {
+        this.coupleId = null;
     }
 }

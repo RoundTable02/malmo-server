@@ -7,13 +7,11 @@ import com.jayway.jsonpath.JsonPath;
 import jakarta.persistence.EntityManager;
 import makeus.cmc.malmo.adaptor.in.web.controller.QuestionController;
 import makeus.cmc.malmo.adaptor.out.jwt.TokenInfo;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleMemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.question.CoupleQuestionEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.question.MemberAnswerEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.question.QuestionEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.question.TempCoupleQuestionEntity;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleMemberEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleQuestionEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
@@ -278,18 +276,13 @@ public class CoupleQuestionIntegrationTest {
             String coupleContent = coupleResult.getResponse().getContentAsString();
             Integer coupleId = JsonPath.read(coupleContent, "$.data.coupleId");
 
-            CoupleMemberEntity partnerCoupleMember = em.createQuery("SELECT cm FROM CoupleMemberEntity cm WHERE cm.coupleEntityId.value = :coupleId AND cm.memberEntityId.value = :memberId", CoupleMemberEntity.class)
-                    .setParameter("coupleId", coupleId)
-                    .setParameter("memberId", partner.getId())
-                    .getSingleResult();
-
             CoupleQuestionEntity coupleQuestion = em.createQuery("SELECT cq FROM CoupleQuestionEntity cq WHERE cq.coupleEntityId.value = :coupleId", CoupleQuestionEntity.class)
-                    .setParameter("coupleId", coupleId)
+                    .setParameter("coupleId", Long.valueOf(coupleId))
                     .getSingleResult();
 
             MemberAnswerEntity answer = MemberAnswerEntity.builder()
                     .coupleQuestionEntityId(CoupleQuestionEntityId.of(coupleQuestion.getId()))
-                    .coupleMemberEntityId(CoupleMemberEntityId.of(partnerCoupleMember.getId()))
+                    .memberEntityId(MemberEntityId.of(partner.getId()))
                     .answer("상대방 답변")
                     .memberAnswerState(MemberAnswerState.ALIVE)
                     .build();
@@ -340,7 +333,7 @@ public class CoupleQuestionIntegrationTest {
             Integer coupleId = JsonPath.read(coupleContent, "$.data.coupleId");
 
             CoupleQuestionEntity coupleQuestion = em.createQuery("SELECT cq FROM CoupleQuestionEntity cq WHERE cq.coupleEntityId.value = :coupleId", CoupleQuestionEntity.class)
-                    .setParameter("coupleId", coupleId)
+                    .setParameter("coupleId", Long.valueOf(coupleId))
                     .getSingleResult();
 
             em.createQuery("UPDATE CoupleQuestionEntity cq SET cq.coupleQuestionState = :state, cq.bothAnsweredAt = :bothAnsweredAt WHERE cq.id = :id")
@@ -412,7 +405,7 @@ public class CoupleQuestionIntegrationTest {
             Integer coupleId = JsonPath.read(coupleContent, "$.data.coupleId");
 
             CoupleQuestionEntity coupleQuestion = em.createQuery("SELECT cq FROM CoupleQuestionEntity cq WHERE cq.coupleEntityId.value = :coupleId", CoupleQuestionEntity.class)
-                    .setParameter("coupleId", coupleId)
+                    .setParameter("coupleId", Long.valueOf(coupleId))
                     .getSingleResult();
             em.createQuery("UPDATE CoupleQuestionEntity cq SET cq.coupleQuestionState = :state, cq.bothAnsweredAt = :bothAnsweredAt WHERE cq.id = :id")
                     .setParameter("state", CoupleQuestionState.OUTDATED)
@@ -442,17 +435,12 @@ public class CoupleQuestionIntegrationTest {
                     .bothAnsweredAt(LocalDateTime.now().minusDays(2))
                     .build();
 
-            CoupleMemberEntity partnerCoupleMember = em.createQuery("SELECT cm FROM CoupleMemberEntity cm WHERE cm.coupleEntityId.value = :coupleId AND cm.memberEntityId.value = :memberId", CoupleMemberEntity.class)
-                    .setParameter("coupleId", coupleId)
-                    .setParameter("memberId", partner.getId())
-                    .getSingleResult();
-
             em.persist(coupleQuestion1);
             em.persist(coupleQuestion2);
 
             MemberAnswerEntity answer = MemberAnswerEntity.builder()
                     .coupleQuestionEntityId(CoupleQuestionEntityId.of(coupleQuestion1.getId()))
-                    .coupleMemberEntityId(CoupleMemberEntityId.of(partnerCoupleMember.getId()))
+                    .memberEntityId(MemberEntityId.of(partner.getId()))
                     .answer("상대방 답변")
                     .memberAnswerState(MemberAnswerState.ALIVE)
                     .build();
@@ -549,13 +537,13 @@ public class CoupleQuestionIntegrationTest {
         @DisplayName("커플인 멤버 오늘의 질문 답변 등록 성공")
         void 커플인_멤버_오늘의_질문_답변_등록_성공() throws Exception {
             // given
-            mockMvc.perform(post("/couples")
+            MvcResult mvcResult = mockMvc.perform(post("/couples")
                             .header("Authorization", "Bearer " + accessToken)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(
                                     CoupleRequestDtoFactory.createCoupleLinkRequestDto(partner.getInviteCodeEntityValue().getValue())
                             )))
-                    .andExpect(status().isOk());
+                    .andExpect(status().isOk()).andReturn();
 
             String answer = "my answer";
             QuestionController.AnswerRequestDto requestDto = CoupleQuestionRequestDtoFactory.createAnswerRequestDto(answer);
@@ -568,11 +556,8 @@ public class CoupleQuestionIntegrationTest {
                     .andExpect(status().isOk());
 
             // then
-            CoupleMemberEntity coupleMember = em.createQuery("select cm from CoupleMemberEntity cm where cm.memberEntityId.value = :memberId", CoupleMemberEntity.class)
+            MemberAnswerEntity memberAnswer = em.createQuery("select ma from MemberAnswerEntity ma where ma.memberEntityId.value = :memberId", MemberAnswerEntity.class)
                     .setParameter("memberId", member.getId())
-                    .getSingleResult();
-            MemberAnswerEntity memberAnswer = em.createQuery("select ma from MemberAnswerEntity ma where ma.coupleMemberEntityId.value = :coupleMemberId", MemberAnswerEntity.class)
-                    .setParameter("coupleMemberId", coupleMember.getId())
                     .getSingleResult();
             Assertions.assertThat(memberAnswer.getAnswer()).isEqualTo(answer);
         }
@@ -624,16 +609,12 @@ public class CoupleQuestionIntegrationTest {
             Integer coupleId = JsonPath.read(coupleContent, "$.data.coupleId");
 
             CoupleQuestionEntity coupleQuestion = em.createQuery("SELECT cq FROM CoupleQuestionEntity cq WHERE cq.coupleEntityId.value = :coupleId", CoupleQuestionEntity.class)
-                    .setParameter("coupleId", coupleId)
-                    .getSingleResult();
-
-            CoupleMemberEntity coupleMember = em.createQuery("select cm from CoupleMemberEntity cm where cm.memberEntityId.value = :memberId", CoupleMemberEntity.class)
-                    .setParameter("memberId", member.getId())
+                    .setParameter("coupleId", Long.valueOf(coupleId))
                     .getSingleResult();
 
             MemberAnswerEntity answerEntity = MemberAnswerEntity.builder()
                     .coupleQuestionEntityId(CoupleQuestionEntityId.of(coupleQuestion.getId()))
-                    .coupleMemberEntityId(CoupleMemberEntityId.of(coupleMember.getId()))
+                    .memberEntityId(MemberEntityId.of(member.getId()))
                     .answer("my answer")
                     .memberAnswerState(MemberAnswerState.ALIVE)
                     .build();
@@ -669,7 +650,7 @@ public class CoupleQuestionIntegrationTest {
             Integer coupleId = JsonPath.read(coupleContent, "$.data.coupleId");
 
             CoupleQuestionEntity coupleQuestion = em.createQuery("SELECT cq FROM CoupleQuestionEntity cq WHERE cq.coupleEntityId.value = :coupleId", CoupleQuestionEntity.class)
-                    .setParameter("coupleId", coupleId)
+                    .setParameter("coupleId", Long.valueOf(coupleId))
                     .getSingleResult();
 
             em.createQuery("UPDATE CoupleQuestionEntity cq SET cq.coupleQuestionState = :state, cq.bothAnsweredAt = :bothAnsweredAt WHERE cq.id = :id")
@@ -678,13 +659,9 @@ public class CoupleQuestionIntegrationTest {
                     .setParameter("id", coupleQuestion.getId())
                     .executeUpdate();
 
-            CoupleMemberEntity coupleMember = em.createQuery("select cm from CoupleMemberEntity cm where cm.memberEntityId.value = :memberId", CoupleMemberEntity.class)
-                    .setParameter("memberId", member.getId())
-                    .getSingleResult();
-
             MemberAnswerEntity answerEntity = MemberAnswerEntity.builder()
                     .coupleQuestionEntityId(CoupleQuestionEntityId.of(coupleQuestion.getId()))
-                    .coupleMemberEntityId(CoupleMemberEntityId.of(coupleMember.getId()))
+                    .memberEntityId(MemberEntityId.of(member.getId()))
                     .answer("my answer")
                     .memberAnswerState(MemberAnswerState.ALIVE)
                     .build();
@@ -778,7 +755,7 @@ public class CoupleQuestionIntegrationTest {
             Integer coupleId = JsonPath.read(coupleContent, "$.data.coupleId");
 
             CoupleQuestionEntity coupleQuestion = em.createQuery("select cq from CoupleQuestionEntity cq where cq.coupleEntityId.value = :coupleId", CoupleQuestionEntity.class)
-                    .setParameter("coupleId", coupleId)
+                    .setParameter("coupleId", Long.valueOf(coupleId))
                     .getSingleResult();
 
             // when & then
@@ -808,17 +785,13 @@ public class CoupleQuestionIntegrationTest {
             Integer coupleId = JsonPath.read(coupleContent, "$.data.coupleId");
 
             CoupleQuestionEntity coupleQuestion = em.createQuery("SELECT cq FROM CoupleQuestionEntity cq WHERE cq.coupleEntityId.value = :coupleId", CoupleQuestionEntity.class)
-                    .setParameter("coupleId", coupleId)
-                    .getSingleResult();
-
-            CoupleMemberEntity coupleMember = em.createQuery("select cm from CoupleMemberEntity cm where cm.memberEntityId.value = :memberId", CoupleMemberEntity.class)
-                    .setParameter("memberId", member.getId())
+                    .setParameter("coupleId", Long.valueOf(coupleId))
                     .getSingleResult();
 
             String answer = "my answer";
             MemberAnswerEntity answerEntity = MemberAnswerEntity.builder()
                     .coupleQuestionEntityId(CoupleQuestionEntityId.of(coupleQuestion.getId()))
-                    .coupleMemberEntityId(CoupleMemberEntityId.of(coupleMember.getId()))
+                    .memberEntityId(MemberEntityId.of(member.getId()))
                     .answer(answer)
                     .memberAnswerState(MemberAnswerState.ALIVE)
                     .build();
@@ -850,17 +823,13 @@ public class CoupleQuestionIntegrationTest {
             Integer coupleId = JsonPath.read(coupleContent, "$.data.coupleId");
 
             CoupleQuestionEntity coupleQuestion = em.createQuery("SELECT cq FROM CoupleQuestionEntity cq WHERE cq.coupleEntityId.value = :coupleId", CoupleQuestionEntity.class)
-                    .setParameter("coupleId", coupleId)
-                    .getSingleResult();
-
-            CoupleMemberEntity partnerCoupleMember = em.createQuery("select cm from CoupleMemberEntity cm where cm.memberEntityId.value = :memberId", CoupleMemberEntity.class)
-                    .setParameter("memberId", partner.getId())
+                    .setParameter("coupleId", Long.valueOf(coupleId))
                     .getSingleResult();
 
             String partnerAnswer = "partner's answer";
             MemberAnswerEntity answerEntity = MemberAnswerEntity.builder()
                     .coupleQuestionEntityId(CoupleQuestionEntityId.of(coupleQuestion.getId()))
-                    .coupleMemberEntityId(CoupleMemberEntityId.of(partnerCoupleMember.getId()))
+                    .memberEntityId(MemberEntityId.of(partner.getId()))
                     .answer(partnerAnswer)
                     .memberAnswerState(MemberAnswerState.ALIVE)
                     .build();
@@ -892,21 +861,13 @@ public class CoupleQuestionIntegrationTest {
             Integer coupleId = JsonPath.read(coupleContent, "$.data.coupleId");
 
             CoupleQuestionEntity coupleQuestion = em.createQuery("SELECT cq FROM CoupleQuestionEntity cq WHERE cq.coupleEntityId.value = :coupleId", CoupleQuestionEntity.class)
-                    .setParameter("coupleId", coupleId)
-                    .getSingleResult();
-
-            CoupleMemberEntity coupleMember = em.createQuery("select cm from CoupleMemberEntity cm where cm.memberEntityId.value = :memberId", CoupleMemberEntity.class)
-                    .setParameter("memberId", member.getId())
-                    .getSingleResult();
-
-            CoupleMemberEntity partnerCoupleMember = em.createQuery("select cm from CoupleMemberEntity cm where cm.memberEntityId.value = :memberId", CoupleMemberEntity.class)
-                    .setParameter("memberId", partner.getId())
+                    .setParameter("coupleId", Long.valueOf(coupleId))
                     .getSingleResult();
 
             String myAnswer = "my answer";
             MemberAnswerEntity myAnswerEntity = MemberAnswerEntity.builder()
                     .coupleQuestionEntityId(CoupleQuestionEntityId.of(coupleQuestion.getId()))
-                    .coupleMemberEntityId(CoupleMemberEntityId.of(coupleMember.getId()))
+                    .memberEntityId(MemberEntityId.of(member.getId()))
                     .answer(myAnswer)
                     .memberAnswerState(MemberAnswerState.ALIVE)
                     .build();
@@ -915,7 +876,7 @@ public class CoupleQuestionIntegrationTest {
             String partnerAnswer = "partner's answer";
             MemberAnswerEntity partnerAnswerEntity = MemberAnswerEntity.builder()
                     .coupleQuestionEntityId(CoupleQuestionEntityId.of(coupleQuestion.getId()))
-                    .coupleMemberEntityId(CoupleMemberEntityId.of(partnerCoupleMember.getId()))
+                    .memberEntityId(MemberEntityId.of(partner.getId()))
                     .answer(partnerAnswer)
                     .memberAnswerState(MemberAnswerState.ALIVE)
                     .build();
@@ -947,7 +908,7 @@ public class CoupleQuestionIntegrationTest {
             Integer coupleId = JsonPath.read(coupleContent, "$.data.coupleId");
 
             CoupleQuestionEntity coupleQuestion = em.createQuery("SELECT cq FROM CoupleQuestionEntity cq WHERE cq.coupleEntityId.value = :coupleId", CoupleQuestionEntity.class)
-                    .setParameter("coupleId", coupleId)
+                    .setParameter("coupleId", Long.valueOf(coupleId))
                     .getSingleResult();
 
             em.createQuery("UPDATE CoupleQuestionEntity cq SET cq.coupleQuestionState = :state, cq.bothAnsweredAt = :bothAnsweredAt WHERE cq.id = :id")
@@ -956,18 +917,10 @@ public class CoupleQuestionIntegrationTest {
                     .setParameter("id", coupleQuestion.getId())
                     .executeUpdate();
 
-            CoupleMemberEntity coupleMember = em.createQuery("select cm from CoupleMemberEntity cm where cm.memberEntityId.value = :memberId", CoupleMemberEntity.class)
-                    .setParameter("memberId", member.getId())
-                    .getSingleResult();
-
-            CoupleMemberEntity partnerCoupleMember = em.createQuery("select cm from CoupleMemberEntity cm where cm.memberEntityId.value = :memberId", CoupleMemberEntity.class)
-                    .setParameter("memberId", partner.getId())
-                    .getSingleResult();
-
             String myAnswer = "my answer";
             MemberAnswerEntity myAnswerEntity = MemberAnswerEntity.builder()
                     .coupleQuestionEntityId(CoupleQuestionEntityId.of(coupleQuestion.getId()))
-                    .coupleMemberEntityId(CoupleMemberEntityId.of(coupleMember.getId()))
+                    .memberEntityId(MemberEntityId.of(member.getId()))
                     .answer(myAnswer)
                     .memberAnswerState(MemberAnswerState.ALIVE)
                     .build();
@@ -976,7 +929,7 @@ public class CoupleQuestionIntegrationTest {
             String partnerAnswer = "partner's answer";
             MemberAnswerEntity partnerAnswerEntity = MemberAnswerEntity.builder()
                     .coupleQuestionEntityId(CoupleQuestionEntityId.of(coupleQuestion.getId()))
-                    .coupleMemberEntityId(CoupleMemberEntityId.of(partnerCoupleMember.getId()))
+                    .memberEntityId(MemberEntityId.of(partner.getId()))
                     .answer(partnerAnswer)
                     .memberAnswerState(MemberAnswerState.ALIVE)
                     .build();
@@ -1034,7 +987,7 @@ public class CoupleQuestionIntegrationTest {
             Integer coupleId = JsonPath.read(coupleContent, "$.data.coupleId");
 
             CoupleQuestionEntity coupleQuestion = em.createQuery("SELECT cq FROM CoupleQuestionEntity cq WHERE cq.coupleEntityId.value = :coupleId", CoupleQuestionEntity.class)
-                    .setParameter("coupleId", coupleId)
+                    .setParameter("coupleId", Long.valueOf(coupleId))
                     .getSingleResult();
 
             // when & then
@@ -1102,16 +1055,12 @@ public class CoupleQuestionIntegrationTest {
             Integer coupleId = JsonPath.read(coupleContent, "$.data.coupleId");
 
             CoupleQuestionEntity coupleQuestion = em.createQuery("SELECT cq FROM CoupleQuestionEntity cq WHERE cq.coupleEntityId.value = :coupleId", CoupleQuestionEntity.class)
-                    .setParameter("coupleId", coupleId)
-                    .getSingleResult();
-
-            CoupleMemberEntity coupleMember = em.createQuery("select cm from CoupleMemberEntity cm where cm.memberEntityId.value = :memberId", CoupleMemberEntity.class)
-                    .setParameter("memberId", member.getId())
+                    .setParameter("coupleId", Long.valueOf(coupleId))
                     .getSingleResult();
 
             MemberAnswerEntity answerEntity = MemberAnswerEntity.builder()
                     .coupleQuestionEntityId(CoupleQuestionEntityId.of(coupleQuestion.getId()))
-                    .coupleMemberEntityId(CoupleMemberEntityId.of(coupleMember.getId()))
+                    .memberEntityId(MemberEntityId.of(member.getId()))
                     .answer("my answer")
                     .memberAnswerState(MemberAnswerState.ALIVE)
                     .build();
@@ -1129,8 +1078,8 @@ public class CoupleQuestionIntegrationTest {
                     .andExpect(status().isOk());
 
             // then
-            MemberAnswerEntity memberAnswer = em.createQuery("select ma from MemberAnswerEntity ma where ma.coupleMemberEntityId.value = :coupleMemberId", MemberAnswerEntity.class)
-                    .setParameter("coupleMemberId", coupleMember.getId())
+            MemberAnswerEntity memberAnswer = em.createQuery("select ma from MemberAnswerEntity ma where ma.memberEntityId.value = :memberId", MemberAnswerEntity.class)
+                    .setParameter("memberId", member.getId())
                     .getSingleResult();
             Assertions.assertThat(memberAnswer.getAnswer()).isEqualTo(newAnswer);
         }
@@ -1198,7 +1147,7 @@ public class CoupleQuestionIntegrationTest {
             Integer coupleId = JsonPath.read(coupleContent, "$.data.coupleId");
 
             CoupleQuestionEntity coupleQuestion = em.createQuery("SELECT cq FROM CoupleQuestionEntity cq WHERE cq.coupleEntityId.value = :coupleId", CoupleQuestionEntity.class)
-                    .setParameter("coupleId", coupleId)
+                    .setParameter("coupleId", Long.valueOf(coupleId))
                     .getSingleResult();
 
             em.createQuery("UPDATE CoupleQuestionEntity cq SET cq.coupleQuestionState = :state, cq.bothAnsweredAt = :bothAnsweredAt WHERE cq.id = :id")
@@ -1241,16 +1190,12 @@ public class CoupleQuestionIntegrationTest {
             Integer coupleId = JsonPath.read(coupleContent, "$.data.coupleId");
 
             CoupleQuestionEntity coupleQuestion = em.createQuery("SELECT cq FROM CoupleQuestionEntity cq WHERE cq.coupleEntityId.value = :coupleId", CoupleQuestionEntity.class)
-                    .setParameter("coupleId", coupleId)
-                    .getSingleResult();
-
-            CoupleMemberEntity coupleMember = em.createQuery("select cm from CoupleMemberEntity cm where cm.memberEntityId.value = :memberId", CoupleMemberEntity.class)
-                    .setParameter("memberId", member.getId())
+                    .setParameter("coupleId", Long.valueOf(coupleId))
                     .getSingleResult();
 
             MemberAnswerEntity answerEntity = MemberAnswerEntity.builder()
                     .coupleQuestionEntityId(CoupleQuestionEntityId.of(coupleQuestion.getId()))
-                    .coupleMemberEntityId(CoupleMemberEntityId.of(coupleMember.getId()))
+                    .memberEntityId(MemberEntityId.of(member.getId()))
                     .answer("my answer")
                     .memberAnswerState(MemberAnswerState.ALIVE)
                     .build();
@@ -1400,16 +1345,12 @@ public class CoupleQuestionIntegrationTest {
             Integer coupleId = JsonPath.read(coupleContent, "$.data.coupleId");
 
             CoupleQuestionEntity coupleQuestion = em.createQuery("SELECT cq FROM CoupleQuestionEntity cq WHERE cq.coupleEntityId.value = :coupleId", CoupleQuestionEntity.class)
-                    .setParameter("coupleId", coupleId)
-                    .getSingleResult();
-
-            CoupleMemberEntity coupleMember = em.createQuery("select cm from CoupleMemberEntity cm where cm.memberEntityId.value = :memberId", CoupleMemberEntity.class)
-                    .setParameter("memberId", partner.getId())
+                    .setParameter("coupleId", Long.valueOf(coupleId))
                     .getSingleResult();
 
             MemberAnswerEntity answerEntity = MemberAnswerEntity.builder()
                     .coupleQuestionEntityId(CoupleQuestionEntityId.of(coupleQuestion.getId()))
-                    .coupleMemberEntityId(CoupleMemberEntityId.of(coupleMember.getId()))
+                    .memberEntityId(MemberEntityId.of(partner.getId()))
                     .answer("my answer")
                     .memberAnswerState(MemberAnswerState.ALIVE)
                     .build();
@@ -1447,16 +1388,12 @@ public class CoupleQuestionIntegrationTest {
             Integer coupleId = JsonPath.read(coupleContent, "$.data.coupleId");
 
             CoupleQuestionEntity coupleQuestion = em.createQuery("SELECT cq FROM CoupleQuestionEntity cq WHERE cq.coupleEntityId.value = :coupleId", CoupleQuestionEntity.class)
-                    .setParameter("coupleId", coupleId)
-                    .getSingleResult();
-
-            CoupleMemberEntity coupleMember = em.createQuery("select cm from CoupleMemberEntity cm where cm.memberEntityId.value = :memberId", CoupleMemberEntity.class)
-                    .setParameter("memberId", partner.getId())
+                    .setParameter("coupleId", Long.valueOf(coupleId))
                     .getSingleResult();
 
             MemberAnswerEntity answerEntity = MemberAnswerEntity.builder()
                     .coupleQuestionEntityId(CoupleQuestionEntityId.of(coupleQuestion.getId()))
-                    .coupleMemberEntityId(CoupleMemberEntityId.of(coupleMember.getId()))
+                    .memberEntityId(MemberEntityId.of(partner.getId()))
                     .answer("my answer")
                     .memberAnswerState(MemberAnswerState.ALIVE)
                     .build();
@@ -1584,7 +1521,7 @@ public class CoupleQuestionIntegrationTest {
             Integer coupleId = JsonPath.read(coupleContent, "$.data.coupleId");
 
             CoupleQuestionEntity coupleQuestion = em.createQuery("SELECT cq FROM CoupleQuestionEntity cq WHERE cq.coupleEntityId.value = :coupleId", CoupleQuestionEntity.class)
-                    .setParameter("coupleId", coupleId)
+                    .setParameter("coupleId", Long.valueOf(coupleId))
                     .getSingleResult();
 
             em.createQuery("UPDATE CoupleQuestionEntity cq SET cq.coupleQuestionState = :state, cq.bothAnsweredAt = :bothAnsweredAt WHERE cq.id = :id")
@@ -1744,7 +1681,7 @@ public class CoupleQuestionIntegrationTest {
             Integer coupleId = JsonPath.read(coupleContent, "$.data.coupleId");
 
             CoupleQuestionEntity coupleQuestion = em.createQuery("SELECT cq FROM CoupleQuestionEntity cq WHERE cq.coupleEntityId.value = :coupleId", CoupleQuestionEntity.class)
-                    .setParameter("coupleId", coupleId)
+                    .setParameter("coupleId", Long.valueOf(coupleId))
                     .getSingleResult();
 
             em.createQuery("UPDATE CoupleQuestionEntity cq SET cq.coupleQuestionState = :state, cq.bothAnsweredAt = :bothAnsweredAt WHERE cq.id = :id")
@@ -1789,7 +1726,7 @@ public class CoupleQuestionIntegrationTest {
             Integer coupleId = JsonPath.read(coupleContent, "$.data.coupleId");
 
             CoupleQuestionEntity coupleQuestion = em.createQuery("SELECT cq FROM CoupleQuestionEntity cq WHERE cq.coupleEntityId.value = :coupleId", CoupleQuestionEntity.class)
-                    .setParameter("coupleId", coupleId)
+                    .setParameter("coupleId", Long.valueOf(coupleId))
                     .getSingleResult();
 
             mockMvc.perform(delete("/couples")
@@ -1842,11 +1779,8 @@ public class CoupleQuestionIntegrationTest {
                     .andExpect(status().isOk());
 
             // then
-            CoupleMemberEntity coupleMember = em.createQuery("select cm from CoupleMemberEntity cm where cm.memberEntityId.value = :memberId", CoupleMemberEntity.class)
+            MemberAnswerEntity memberAnswer = em.createQuery("select ma from MemberAnswerEntity ma where ma.memberEntityId.value = :memberId", MemberAnswerEntity.class)
                     .setParameter("memberId", member.getId())
-                    .getSingleResult();
-            MemberAnswerEntity memberAnswer = em.createQuery("select ma from MemberAnswerEntity ma where ma.coupleMemberEntityId.value = :coupleMemberId", MemberAnswerEntity.class)
-                    .setParameter("coupleMemberId", coupleMember.getId())
                     .getSingleResult();
             Assertions.assertThat(memberAnswer.getAnswer()).isEqualTo(answer);
         }
@@ -1896,24 +1830,18 @@ public class CoupleQuestionIntegrationTest {
             Integer coupleId = JsonPath.read(coupleContent, "$.data.coupleId");
 
             // then
-            CoupleMemberEntity coupleMember = em.createQuery("select cm from CoupleMemberEntity cm where cm.memberEntityId.value = :memberId", CoupleMemberEntity.class)
+            MemberAnswerEntity memberAnswer = em.createQuery("select ma from MemberAnswerEntity ma where ma.memberEntityId.value = :memberId", MemberAnswerEntity.class)
                     .setParameter("memberId", member.getId())
-                    .getSingleResult();
-            MemberAnswerEntity memberAnswer = em.createQuery("select ma from MemberAnswerEntity ma where ma.coupleMemberEntityId.value = :coupleMemberId", MemberAnswerEntity.class)
-                    .setParameter("coupleMemberId", coupleMember.getId())
                     .getSingleResult();
             Assertions.assertThat(memberAnswer.getAnswer()).isEqualTo(myAnswer);
 
-            CoupleMemberEntity partnerCoupleMember = em.createQuery("select cm from CoupleMemberEntity cm where cm.memberEntityId.value = :memberId", CoupleMemberEntity.class)
+            MemberAnswerEntity partnerMemberAnswer = em.createQuery("select ma from MemberAnswerEntity ma where ma.memberEntityId.value = :memberId", MemberAnswerEntity.class)
                     .setParameter("memberId", partner.getId())
-                    .getSingleResult();
-            MemberAnswerEntity partnerMemberAnswer = em.createQuery("select ma from MemberAnswerEntity ma where ma.coupleMemberEntityId.value = :coupleMemberId", MemberAnswerEntity.class)
-                    .setParameter("coupleMemberId", partnerCoupleMember.getId())
                     .getSingleResult();
             Assertions.assertThat(partnerMemberAnswer.getAnswer()).isEqualTo(partnerAnswer);
 
             CoupleQuestionEntity coupleQuestion = em.createQuery("SELECT cq FROM CoupleQuestionEntity cq WHERE cq.coupleEntityId.value = :coupleId", CoupleQuestionEntity.class)
-                    .setParameter("coupleId", coupleId)
+                    .setParameter("coupleId", Long.valueOf(coupleId))
                     .getSingleResult();
             Assertions.assertThat(coupleQuestion.getCoupleQuestionState()).isEqualTo(CoupleQuestionState.COMPLETED);
         }

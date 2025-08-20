@@ -25,4 +25,7 @@ public class GlobalConstants {
 
     public static final String COMPLETED_ROOM_CREATING_SUMMARY_LINE = "채팅방이 종료되었습니다. 요약 생성 중...";
 
+    public static final String OPENAI_CHAT_URL = "https://api.openai.com/v1";
+
+
 }

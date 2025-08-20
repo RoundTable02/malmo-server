@@ -24,11 +24,6 @@ public class ValidateMemberAdapter implements ValidateMemberPort, ValidateInvite
         return memberRepository.isMemberStateAlive(memberId.getValue());
     }
 
-    @Override
-    public boolean isPartnerCoupleMemberAlive(MemberId memberId) {
-        return memberRepository.isPartnerCoupleMemberAlive(memberId.getValue());
-    }
-
 
     @Override
     public boolean isInviteCodeDuplicated(InviteCodeValue inviteCodeValue) {

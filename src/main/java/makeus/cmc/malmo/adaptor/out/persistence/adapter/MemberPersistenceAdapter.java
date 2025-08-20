@@ -15,6 +15,7 @@ import makeus.cmc.malmo.application.port.out.member.LoadMemberPort;
 import makeus.cmc.malmo.application.port.out.member.LoadPartnerPort;
 import makeus.cmc.malmo.application.port.out.member.SaveMemberPort;
 import makeus.cmc.malmo.domain.model.member.Member;
+import makeus.cmc.malmo.domain.value.id.CoupleId;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
@@ -34,6 +35,11 @@ public class MemberPersistenceAdapter implements
 
     private final ChatRoomRepository chatRoomRepository;
     private final CoupleQuestionRepository coupleQuestionRepository;
+
+    @Override
+    public CoupleId loadCoupleIdByMemberId(MemberId memberId) {
+        return CoupleId.of(memberRepository.findCoupleIdByMemberId(memberId.getValue()));
+    }
 
     @Override
     public Optional<Member> loadMemberByProviderId(Provider provider, String providerId) {
@@ -72,12 +78,6 @@ public class MemberPersistenceAdapter implements
     public Optional<MemberQueryHelper.PartnerMemberDto> loadPartnerByMemberId(MemberId memberId) {
         return memberRepository.findPartnerMember(memberId.getValue())
                 .map(PartnerMemberRepositoryDto::toDto);
-    }
-
-    @Override
-    public Optional<MemberId> loadPartnerIdByMemberId(MemberId memberId) {
-        return memberRepository.findPartnerMemberId(memberId.getValue())
-                .map(MemberId::of);
     }
 
     @Override

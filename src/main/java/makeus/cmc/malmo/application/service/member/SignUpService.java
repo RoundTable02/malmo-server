@@ -8,7 +8,6 @@ import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.application.helper.terms.TermsCommandHelper;
 import makeus.cmc.malmo.application.helper.terms.TermsQueryHelper;
 import makeus.cmc.malmo.application.port.in.member.SignUpUseCase;
-import makeus.cmc.malmo.domain.model.love_type.TempLoveType;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.terms.MemberTermsAgreement;
 import makeus.cmc.malmo.domain.model.terms.Terms;
@@ -16,8 +15,6 @@ import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.id.TermsId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor

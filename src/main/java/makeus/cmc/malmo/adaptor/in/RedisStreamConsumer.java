@@ -5,14 +5,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import makeus.cmc.malmo.adaptor.message.*;
+import makeus.cmc.malmo.adaptor.message.StreamMessageType;
 import makeus.cmc.malmo.application.port.in.chat.ProcessMessageUseCase;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.connection.stream.*;
+import org.springframework.data.redis.connection.stream.MapRecord;
+import org.springframework.data.redis.connection.stream.ObjectRecord;
+import org.springframework.data.redis.connection.stream.ReadOffset;
+import org.springframework.data.redis.connection.stream.StreamRecords;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -48,39 +52,53 @@ public class RedisStreamConsumer {
         try {
             String type = record.getValue().get("type");
             String payloadJson = record.getValue().get("payload");
+            JsonNode payloadNode = objectMapper.readTree(payloadJson);
 
             log.info("Processing record type={}, id={}", type, record.getId());
 
-            JsonNode payloadNode = objectMapper.readTree(payloadJson);
-
+            CompletableFuture<Void> future;
             switch (StreamMessageType.valueOf(type)) {
                 case REQUEST_CHAT_MESSAGE:
-                    processChatMessage(payloadNode);
+                    future = processChatMessage(payloadNode);
                     break;
                 case REQUEST_SUMMARY:
-                    processSummary(payloadNode);
+                    future = processSummary(payloadNode);
                     break;
                 case REQUEST_TOTAL_SUMMARY:
-                    processTotalSummary(payloadNode);
+                    future = processTotalSummary(payloadNode);
                     break;
                 case REQUEST_EXTRACT_METADATA:
-                    processMetadata(payloadNode);
+                    future = processMetadata(payloadNode);
                     break;
                 default:
                     log.warn("Unknown message type: {}", type);
+                    // 알 수 없는 타입은 바로 ACK 처리
+                    redisTemplate.opsForStream().acknowledge(streamKey, consumerGroup, record.getId());
+                    return;
             }
 
-            // 메시지 처리 완료 → ACK
-            redisTemplate.opsForStream().acknowledge(streamKey, consumerGroup, record.getId());
+            // 비동기 작업이 완료되었을 때의 처리
+            future.whenComplete((result, throwable) -> {
+                if (throwable != null) {
+                    // 비동기 작업 중 예외 발생 시
+                    log.error("Error processing record {} asynchronously", record.getId(), throwable);
+                    handleFailedMessage(record); // 실패 처리 로직 (DLQ 등)
+                } else {
+                    // 성공적으로 완료 시 ACK
+                    redisTemplate.opsForStream().acknowledge(streamKey, consumerGroup, record.getId());
+                    log.info("Successfully processed and acknowledged record id={}", record.getId());
+                }
+            });
 
         } catch (Exception e) {
+            // onMessage 메서드 자체에서 동기적으로 에러 발생 시
             log.error("Error processing record {}", record.getId(), e);
             handleFailedMessage(record);
         }
     }
 
-    private void processChatMessage(JsonNode payloadNode) {
-        processMessageUseCase.processStreamChatMessage(
+    private CompletableFuture<Void> processChatMessage(JsonNode payloadNode) {
+        return processMessageUseCase.processStreamChatMessage(
                 ProcessMessageUseCase.ProcessMessageCommand.builder()
                         .memberId(payloadNode.get("memberId").asLong())
                         .chatRoomId(payloadNode.get("chatRoomId").asLong())
@@ -90,8 +108,8 @@ public class RedisStreamConsumer {
         );
     }
 
-    private void processSummary(JsonNode payloadNode) {
-        processMessageUseCase.processSummary(
+    private CompletableFuture<Void> processSummary(JsonNode payloadNode) {
+        return processMessageUseCase.processSummary(
                 ProcessMessageUseCase.ProcessSummaryCommand.builder()
                         .chatRoomId(payloadNode.get("chatRoomId").asLong())
                         .promptLevel(payloadNode.get("promptLevel").asInt())
@@ -99,19 +117,20 @@ public class RedisStreamConsumer {
         );
     }
 
-    private void processTotalSummary(JsonNode payloadNode) {
-        processMessageUseCase.processTotalSummary(
+    private CompletableFuture<Void> processTotalSummary(JsonNode payloadNode) {
+        return processMessageUseCase.processTotalSummary(
                 ProcessMessageUseCase.ProcessTotalSummaryCommand.builder()
                         .chatRoomId(payloadNode.get("chatRoomId").asLong())
                         .build()
         );
     }
 
-    private void processMetadata(JsonNode payloadNode) {
-        processMessageUseCase.processAnswerMetadata(
+    private CompletableFuture<Void> processMetadata(JsonNode payloadNode) {
+        return processMessageUseCase.processAnswerMetadata(
                 ProcessMessageUseCase.ProcessAnswerCommand.builder()
+                        .coupleId(payloadNode.get("coupleId").asLong())
+                        .memberId(payloadNode.get("memberId").asLong())
                         .coupleQuestionId(payloadNode.get("coupleQuestionId").asLong())
-                        .coupleMemberId(payloadNode.get("coupleMemberId").asLong())
                         .build()
         );
     }

@@ -1,10 +1,10 @@
 package makeus.cmc.malmo.application.service.chat;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomCommandHelper;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomQueryHelper;
 import makeus.cmc.malmo.application.helper.chat_room.PromptQueryHelper;
-import makeus.cmc.malmo.application.helper.couple.CoupleQueryHelper;
 import makeus.cmc.malmo.application.helper.member.MemberMemoryCommandHelper;
 import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.application.helper.question.CoupleQuestionQueryHelper;
@@ -22,15 +22,17 @@ import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
 import makeus.cmc.malmo.domain.model.question.MemberAnswer;
 import makeus.cmc.malmo.domain.service.ChatRoomDomainService;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
-import makeus.cmc.malmo.domain.value.id.CoupleMemberId;
+import makeus.cmc.malmo.domain.value.id.CoupleId;
 import makeus.cmc.malmo.domain.value.id.CoupleQuestionId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatMessageService implements ProcessMessageUseCase {
@@ -52,7 +54,7 @@ public class ChatMessageService implements ProcessMessageUseCase {
     private final MemberMemoryCommandHelper memberMemoryCommandHelper;
 
     @Override
-    public void processStreamChatMessage(ProcessMessageCommand command) {
+    public CompletableFuture<Void> processStreamChatMessage(ProcessMessageCommand command) {
         MemberId memberId = MemberId.of(command.getMemberId());
         Member member = memberQueryHelper.getMemberByIdOrThrow(memberId);
         ChatRoom chatRoom = chatRoomQueryHelper.getChatRoomByIdOrThrow(ChatRoomId.of(command.getChatRoomId()));
@@ -65,33 +67,31 @@ public class ChatMessageService implements ProcessMessageUseCase {
 
         AtomicBoolean isOkDetected = new AtomicBoolean(false);
 
-        chatProcessor.streamChat(messages, systemPrompt, prompt,
+        return chatProcessor.streamChat(messages, systemPrompt, prompt,
                 chunk -> {
+                    // 실시간 SSE 전송 로직 (onChunk)
                     if (chunk.contains("OK")) {
-                        // OK 응답이 감지되면 isOkDetected를 true로 설정
                         isOkDetected.set(true);
                     } else {
-                        // OK가 감지되지 않은 경우 SSE 응답 스트리밍
                         chatSseSender.sendResponseChunk(memberId, chunk);
                     }
                 },
                 fullAnswer -> {
+                    // 스트림 완료 후 DB 저장 및 후처리 로직 (onComplete)
                     if (!isOkDetected.get()) {
-                        // OK가 감지되지 않은 경우 전체 응답을 저장
                         saveAiMessage(memberId, ChatRoomId.of(chatRoom.getId()), prompt.getLevel(), fullAnswer);
                     } else {
-                        // OK가 감지된 경우 OK를 제거하고 저장 후 현재 레벨 완료 처리
                         fullAnswer = fullAnswer.replace("OK", "").trim();
                         saveAiMessage(memberId, ChatRoomId.of(chatRoom.getId()), prompt.getLevel(), fullAnswer);
                         handleLevelFinished(memberId, ChatRoomId.of(chatRoom.getId()), prompt, isMemberCouple);
                     }
                 },
                 errorMessage -> chatSseSender.sendError(memberId, errorMessage)
-        );
+        ).toFuture();
     }
 
     @Override
-    public void processSummary(ProcessSummaryCommand command) {
+    public CompletableFuture<Void> processSummary(ProcessSummaryCommand command) {
         ChatRoom chatRoom = chatRoomQueryHelper.getChatRoomByIdOrThrow(ChatRoomId.of(command.getChatRoomId()));
         Prompt systemPrompt = promptQueryHelper.getSystemPrompt();
         Prompt prompt = promptQueryHelper.getPromptByLevel(chatRoom.getLevel());
@@ -99,16 +99,17 @@ public class ChatMessageService implements ProcessMessageUseCase {
 
         // 현재 단계 채팅에 대한 전체 요약 요청
         List<Map<String, String>> summaryMessages = chatPromptBuilder.createForSummaryAsync(chatRoom);
-        String summary = chatProcessor.requestSummaryAsync(summaryMessages, systemPrompt, prompt, summaryPrompt);
-
-        ChatMessageSummary chatMessageSummary = ChatMessageSummary.createChatMessageSummary(
-                ChatRoomId.of(chatRoom.getId()), summary, prompt.getLevel());
-
-        saveChatMessageSummaryPort.saveChatMessageSummary(chatMessageSummary);
+        return chatProcessor.requestSummaryAsync(summaryMessages, systemPrompt, prompt, summaryPrompt)
+                .thenAcceptAsync(summary -> { // 비동기 작업이 끝나면 이 블록이 실행됨
+                    ChatMessageSummary chatMessageSummary = ChatMessageSummary.createChatMessageSummary(
+                            ChatRoomId.of(chatRoom.getId()), summary, prompt.getLevel());
+                    saveChatMessageSummaryPort.saveChatMessageSummary(chatMessageSummary);
+                    log.info("Successfully processed and saved summary for chatRoomId: {}", command.getChatRoomId());
+                }); // 별도의 스레드 풀에서 실행되도록 thenAcceptAsync 사용
     }
 
     @Override
-    public void processTotalSummary(ProcessTotalSummaryCommand command) {
+    public CompletableFuture<Void> processTotalSummary(ProcessTotalSummaryCommand command) {
         ChatRoom chatRoom = chatRoomQueryHelper.getChatRoomByIdOrThrow(ChatRoomId.of(command.getChatRoomId()));
 
         Prompt systemPrompt = promptQueryHelper.getSystemPrompt();
@@ -116,40 +117,46 @@ public class ChatMessageService implements ProcessMessageUseCase {
 
         List<Map<String, String>> messages = chatPromptBuilder.createForTotalSummary(chatRoom);
 
-        ChatProcessor.CounselingSummary summary = chatProcessor
-                .requestTotalSummary(messages, systemPrompt, totalSummaryPrompt);
-
-        chatRoom.updateChatRoomSummary(
-                summary.getTotalSummary(),
-                summary.getSituationKeyword(),
-                summary.getSolutionKeyword()
-        );
-        chatRoomCommandHelper.saveChatRoom(chatRoom);
+        return chatProcessor.requestTotalSummary(messages, systemPrompt, totalSummaryPrompt)
+                .thenAcceptAsync(summary -> { // CounselingSummary 객체를 받음
+                    chatRoom.updateChatRoomSummary(
+                            summary.getTotalSummary(),
+                            summary.getSituationKeyword(),
+                            summary.getSolutionKeyword()
+                    );
+                    chatRoomCommandHelper.saveChatRoom(chatRoom);
+                    log.info("Successfully processed and saved total summary for chatRoomId: {}", command.getChatRoomId());
+                });
     }
 
     @Override
-    public void processAnswerMetadata(ProcessAnswerCommand command) {
-        MemberAnswer memberAnswer = coupleQuestionQueryHelper.getMemberAnswerByCoupleMemberId(
+    public CompletableFuture<Void> processAnswerMetadata(ProcessAnswerCommand command) {
+        // 1. 비동기 작업에 필요한 데이터는 미리 동기적으로 조회합니다.
+        MemberAnswer memberAnswer = coupleQuestionQueryHelper.getMemberAnswerOrThrow(
                 CoupleQuestionId.of(command.getCoupleQuestionId()),
-                CoupleMemberId.of(command.getCoupleMemberId()));
+                MemberId.of(command.getMemberId()));
 
         CoupleQuestion coupleQuestion = coupleQuestionQueryHelper.getCoupleQuestionByIdOrThrow(
                 CoupleQuestionId.of(command.getCoupleQuestionId()));
 
         Prompt metadataPrompt = promptQueryHelper.getMemberAnswerMetadata();
 
-        String metadata = chatProcessor.requestMetaData(
-                coupleQuestion.getQuestion().getContent(),
-                memberAnswer.getAnswer(),
-                metadataPrompt
-        );
+        // 2. 비동기 API 호출로 CompletableFuture 체인을 시작하고, 그 결과를 즉시 반환합니다.
+        return chatProcessor.requestMetaData(
+                        coupleQuestion.getQuestion().getContent(),
+                        memberAnswer.getAnswer(),
+                        metadataPrompt
+                )
+                // 3. API 호출이 성공적으로 완료되면(then), 그 결과(metadata)를 받아서(Accept) 다음 작업을 비동기(Async)로 실행합니다.
+                .thenAcceptAsync(metadata -> {
+                    // 멤버 메모리 생성 및 저장
+                    MemberMemory memberMemory = MemberMemory.createMemberMemory(
+                            CoupleId.of(command.getCoupleId()),
+                            MemberId.of(command.getMemberId()),
+                            metadata);
 
-        // 멤버 메모리 생성 및 저장
-        MemberMemory memberMemory = MemberMemory.createMemberMemory(
-                CoupleMemberId.of(command.getCoupleMemberId()),
-                metadata);
-
-        memberMemoryCommandHelper.saveMemberMemory(memberMemory);
+                    memberMemoryCommandHelper.saveMemberMemory(memberMemory);
+                });
     }
 
     /*

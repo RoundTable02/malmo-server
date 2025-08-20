@@ -3,6 +3,7 @@ package makeus.cmc.malmo.integration_test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import makeus.cmc.malmo.adaptor.message.StreamMessage;
+import makeus.cmc.malmo.adaptor.message.StreamMessageType;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatMessageEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatMessageSummaryEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatRoomEntity;
@@ -37,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.*;
@@ -178,7 +180,7 @@ public class ChatRoomIntegrationTest {
                     "상황 키워드",
                     "솔루션 키워드"
             );
-            when(chatProcessor.requestTotalSummary(any(), any(), any())).thenReturn(mockSummary);
+            when(chatProcessor.requestTotalSummary(any(), any(), any())).thenReturn(CompletableFuture.completedFuture(mockSummary));
 
             // when & then
             mockMvc.perform(get("/chatrooms/current")
@@ -458,7 +460,7 @@ public class ChatRoomIntegrationTest {
             em.flush();
 
             ChatProcessor.CounselingSummary summary = new ChatProcessor.CounselingSummary("최종 요약", "상황 키워드", "솔루션 키워드");
-            when(chatProcessor.requestTotalSummary(any(), any(), any())).thenReturn(summary);
+            when(chatProcessor.requestTotalSummary(any(), any(), any())).thenReturn(CompletableFuture.completedFuture(summary));
 
             // when & then
             mockMvc.perform(post("/chatrooms/current/complete")
@@ -467,9 +469,7 @@ public class ChatRoomIntegrationTest {
 
             ChatRoomEntity completedChatRoom = em.find(ChatRoomEntity.class, chatRoom.getId());
             Assertions.assertThat(completedChatRoom.getChatRoomState()).isEqualTo(ChatRoomState.COMPLETED);
-            Assertions.assertThat(completedChatRoom.getTotalSummary()).isEqualTo("최종 요약");
-            Assertions.assertThat(completedChatRoom.getSituationKeyword()).isEqualTo("상황 키워드");
-            Assertions.assertThat(completedChatRoom.getSolutionKeyword()).isEqualTo("솔루션 키워드");
+            verify(publishStreamMessagePort, times(1)).publish(any(), any());
         }
 
         @Test
