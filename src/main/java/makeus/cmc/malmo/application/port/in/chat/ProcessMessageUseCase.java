@@ -3,12 +3,14 @@ package makeus.cmc.malmo.application.port.in.chat;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.concurrent.CompletableFuture;
+
 public interface ProcessMessageUseCase {
 
-    void processStreamChatMessage(ProcessMessageCommand command);
-    void processSummary(ProcessSummaryCommand command);
-    void processTotalSummary(ProcessTotalSummaryCommand command);
-    void processAnswerMetadata(ProcessAnswerCommand command);
+    CompletableFuture<Void> processStreamChatMessage(ProcessMessageCommand command);
+    CompletableFuture<Void> processSummary(ProcessSummaryCommand command);
+    CompletableFuture<Void> processTotalSummary(ProcessTotalSummaryCommand command);
+    CompletableFuture<Void> processAnswerMetadata(ProcessAnswerCommand command);
 
     @Data
     @Builder
