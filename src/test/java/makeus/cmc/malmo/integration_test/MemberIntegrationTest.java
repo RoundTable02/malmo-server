@@ -10,7 +10,6 @@ import makeus.cmc.malmo.adaptor.out.jwt.TokenInfo;
 import makeus.cmc.malmo.adaptor.out.oauth.KakaoUnlinkAdapter;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatRoomEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleEntity;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleMemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.question.CoupleQuestionEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.question.QuestionEntity;
@@ -18,7 +17,6 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.terms.MemberTermsAgreemen
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
-import makeus.cmc.malmo.application.helper.member.OauthTokenHelper;
 import makeus.cmc.malmo.application.port.out.member.GenerateTokenPort;
 import makeus.cmc.malmo.domain.value.state.*;
 import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
@@ -386,12 +384,9 @@ public class MemberIntegrationTest {
             Assertions.assertThat(deletedMember.getMemberState()).isEqualTo(MemberState.DELETED);
 
             CoupleEntity couple = em.createQuery("SELECT c FROM CoupleEntity c WHERE c.id = :coupleId", CoupleEntity.class)
-                    .setParameter("coupleId", coupleId)
+                    .setParameter("coupleId", Long.valueOf(coupleId))
                     .getSingleResult();
-            Assertions.assertThat(couple.getCoupleState()).isEqualTo(CoupleState.ALIVE);
-            Assertions.assertThat(couple.getCoupleMembers())
-                    .extracting(CoupleMemberEntity::getCoupleMemberState)
-                    .contains(CoupleMemberState.DELETED, CoupleMemberState.ALIVE);
+            Assertions.assertThat(couple.getCoupleState()).isEqualTo(CoupleState.DELETED);
             verify(kakaoUnlinkAdapter, times(1)).unlink("testProviderId");
         }
     }
@@ -786,6 +781,8 @@ public class MemberIntegrationTest {
                     .andExpect(status().isOk());
 
             // then
+            em.flush();
+            em.clear();
             MemberEntity savedMember = em.createQuery("SELECT m FROM MemberEntity m WHERE m.email = :email", MemberEntity.class)
                     .setParameter("email", member.getEmail())
                     .getSingleResult();
@@ -828,7 +825,7 @@ public class MemberIntegrationTest {
 
             // 커플의 디데이도 함께 수정되어야 함
             CoupleEntity couple = em.createQuery("SELECT c FROM CoupleEntity c WHERE c.id = :coupleId", CoupleEntity.class)
-                    .setParameter("coupleId", coupleId)
+                    .setParameter("coupleId", Long.valueOf(coupleId))
                     .getSingleResult();
             Assertions.assertThat(couple.getStartLoveDate()).isEqualTo(newDday);
         }

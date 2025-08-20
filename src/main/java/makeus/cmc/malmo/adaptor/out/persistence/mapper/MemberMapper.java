@@ -2,8 +2,10 @@ package makeus.cmc.malmo.adaptor.out.persistence.mapper;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.domain.model.member.Member;
+import makeus.cmc.malmo.domain.value.id.CoupleId;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
 import org.springframework.stereotype.Component;
 
@@ -29,6 +31,7 @@ public class MemberMapper {
                 entity.getInviteCodeEntityValue() != null ? InviteCodeValue.of(entity.getInviteCodeEntityValue().getValue()) : null,
                 entity.getStartLoveDate(),
                 entity.getOauthToken(),
+                entity.getCoupleEntityId() != null ? CoupleId.of(entity.getCoupleEntityId().getValue()) : null,
                 entity.getCreatedAt(),
                 entity.getModifiedAt(),
                 entity.getDeletedAt()
@@ -55,6 +58,7 @@ public class MemberMapper {
                 )
                 .startLoveDate(domain.getStartLoveDate())
                 .oauthToken(domain.getOauthToken())
+                .coupleEntityId(domain.getCoupleId() != null ? CoupleEntityId.of(domain.getCoupleId().getValue()) : null)
                 .createdAt(domain.getCreatedAt())
                 .modifiedAt(domain.getModifiedAt())
                 .deletedAt(domain.getDeletedAt())

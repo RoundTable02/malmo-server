@@ -13,7 +13,6 @@ import makeus.cmc.malmo.domain.model.question.MemberAnswer;
 import makeus.cmc.malmo.domain.model.question.Question;
 import makeus.cmc.malmo.domain.model.question.TempCoupleQuestion;
 import makeus.cmc.malmo.domain.value.id.CoupleId;
-import makeus.cmc.malmo.domain.value.id.CoupleMemberId;
 import makeus.cmc.malmo.domain.value.id.CoupleQuestionId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.state.CoupleQuestionState;
@@ -67,11 +66,6 @@ public class CoupleQuestionQueryHelper {
 
     public MemberAnswer getMemberAnswerOrThrow(CoupleQuestionId coupleQuestionId, MemberId memberId) {
         return loadMemberAnswerPort.getMemberAnswer(coupleQuestionId, memberId)
-                .orElseThrow(() -> new MemberAccessDeniedException("답변이 존재하지 않습니다."));
-    }
-
-    public MemberAnswer getMemberAnswerByCoupleMemberId(CoupleQuestionId coupleQuestionId, CoupleMemberId coupleMemberId) {
-        return loadMemberAnswerPort.getMemberAnswer(coupleQuestionId, coupleMemberId)
                 .orElseThrow(() -> new MemberAccessDeniedException("답변이 존재하지 않습니다."));
     }
 

@@ -3,7 +3,10 @@ package makeus.cmc.malmo.application.helper.member;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.application.exception.*;
+import makeus.cmc.malmo.application.exception.InviteCodeNotFoundException;
+import makeus.cmc.malmo.application.exception.MemberNotFoundException;
+import makeus.cmc.malmo.application.exception.NotCoupleMemberException;
+import makeus.cmc.malmo.application.exception.NotValidCoupleCodeException;
 import makeus.cmc.malmo.application.port.out.member.*;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
@@ -48,11 +51,6 @@ public class MemberQueryHelper {
                 .orElseThrow(MemberNotFoundException::new);
     }
 
-    public MemberId getPartnerIdOrThrow(MemberId memberId) {
-        return loadPartnerPort.loadPartnerIdByMemberId(memberId)
-                .orElseThrow(MemberNotFoundException::new);
-    }
-
     public Optional<Member> getMemberByProviderId(Provider provider, String providerId) {
         return loadMemberPort.loadMemberByProviderId(provider, providerId);
     }
@@ -65,35 +63,8 @@ public class MemberQueryHelper {
         return validateMemberPort.isCoupleMember(memberId);
     }
 
-    public void validateUsedInviteCode(MemberId codeOwnerId) {
-        boolean coupleMember = validateMemberPort.isCoupleMember(codeOwnerId);
-
-        if (coupleMember) {
-            // 초대 코드의 주인이 이미 커플로 등록된 경우
-            if (validateMemberPort.isPartnerCoupleMemberAlive(codeOwnerId)) {
-                // 초대 코드의 주인이 커플 해지를 당한 사용자인 경우, 예외처리하지 않음.
-                // 그렇지 않은 경우(즉, 코드 소유자가 이미 다른 사람과 커플인 경우)에는 예외를 발생시킴
-                throw new UsedInviteCodeException("이미 사용된 커플 코드입니다. 다른 코드를 입력해주세요.");
-            }
-        }
-    }
-
-    public void validateMemberNotCoupled(MemberId memberId) {
-        boolean coupleMember = validateMemberPort.isCoupleMember(memberId);
-
-        if (coupleMember) {
-            // 멤버가 커플 해지 당한 경우, 예외처리하지 않음
-            if (validateMemberPort.isPartnerCoupleMemberAlive(memberId)) {
-                throw new AlreadyCoupledMemberException("이미 커플로 등록된 사용자입니다. 커플 등록을 해제 후 이용해주세요.");
-            }
-        }
-    }
-
-    public void validateOwnInviteCode(MemberId memberId, InviteCodeValue inviteCode) {
-        Member member = loadMemberPort.loadMemberById(memberId)
-                .orElseThrow(MemberNotFoundException::new);
-
-        if (member.getInviteCode().equals(inviteCode)) {
+    public void validateOwnInviteCode(InviteCodeValue memberInviteCode, InviteCodeValue inviteCode) {
+        if (memberInviteCode.getValue().equals(inviteCode.getValue())) {
             throw new NotValidCoupleCodeException("본인의 초대코드를 사용할 수 없습니다.");
         }
     }

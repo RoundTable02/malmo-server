@@ -10,22 +10,19 @@ import java.util.List;
 
 public interface MemberMemoryRepository extends JpaRepository<MemberMemoryEntity, Long> {
 
-    @Query("select m from MemberMemoryEntity m " +
-            "where m.coupleMemberEntityId.value in " +
-            "(select cm.id from CoupleMemberEntity cm where cm.memberEntityId.value = ?1) " +
+    @Query("select m from MemberMemoryEntity m where m.memberEntityId.value = ?1 " +
             "and m.memberMemoryState = 'ALIVE'")
     List<MemberMemoryEntity> findByMemberEntityId(Long memberId);
 
     @Modifying
     @Transactional
     @Query("update MemberMemoryEntity m set m.memberMemoryState = 'DELETED', m.deletedAt = CURRENT_TIMESTAMP " +
-            "where m.coupleMemberEntityId.value in (select cm.id from CoupleMemberEntity cm where cm.memberEntityId.value = ?1) " +
-            "and m.memberMemoryState = 'ALIVE'")
-    void deleteByMemberId(Long memberId);
+            "where m.coupleEntityId.value = ?1 and m.memberEntityId.value = ?2")
+    void deleteByCoupleIdAndMemberId(Long coupleId, Long memberId);
 
     @Modifying
     @Transactional
     @Query("update MemberMemoryEntity m set m.memberMemoryState = 'ALIVE', m.deletedAt = NULL " +
-            "where m.coupleMemberEntityId.value = ?1")
-    void recoverByCoupleMemberId(Long coupleMemberId);
+            "where m.coupleEntityId.value = ?1")
+    void recoverByCoupleId(Long coupleId);
 }

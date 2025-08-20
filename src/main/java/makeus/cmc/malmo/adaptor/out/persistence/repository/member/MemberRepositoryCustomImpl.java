@@ -1,24 +1,20 @@
 package makeus.cmc.malmo.adaptor.out.persistence.repository.member;
 
 import com.querydsl.core.types.Projections;
-import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.out.persistence.adapter.MemberPersistenceAdapter;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleMemberEntity;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleMemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.QMemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.application.port.out.chat.LoadChatRoomMetadataPort;
-import makeus.cmc.malmo.domain.value.state.CoupleMemberState;
 import makeus.cmc.malmo.domain.value.state.CoupleState;
 import makeus.cmc.malmo.domain.value.state.MemberState;
 
 import java.util.Optional;
 
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleEntity.coupleEntity;
-import static makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleMemberEntity.coupleMemberEntity;
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.member.QMemberEntity.memberEntity;
 
 @Slf4j
@@ -41,15 +37,9 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                         memberEntity.email
                 ))
                 .from(memberEntity)
-                .leftJoin(coupleMemberEntity).on(coupleMemberEntity.memberEntityId.value.eq(memberEntity.id)
-                        .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
                 .leftJoin(coupleEntity)
-                .on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value)
-                        .and(JPAExpressions
-                                .selectFrom(coupleMemberEntity)
-                                .where(coupleMemberEntity.coupleEntityId.value.eq(coupleEntity.id)
-                                        .and(coupleMemberEntity.coupleMemberState.eq(CoupleMemberState.DELETED)))
-                                .notExists()))
+                .on(memberEntity.coupleEntityId.value.eq(coupleEntity.id)
+                        .and(coupleEntity.coupleState.ne(CoupleState.DELETED)))
                 .where(memberEntity.id.eq(memberId))
                 .fetchOne();
 
@@ -58,24 +48,60 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
 
     @Override
     public Optional<MemberPersistenceAdapter.PartnerMemberRepositoryDto> findPartnerMember(Long memberId) {
+        QMemberEntity partnerMemberEntity = new QMemberEntity("partnerMemberEntity");
+
         MemberPersistenceAdapter.PartnerMemberRepositoryDto dto = queryFactory
                 .select(Projections.constructor(MemberPersistenceAdapter.PartnerMemberRepositoryDto.class,
-                        coupleMemberEntity.coupleMemberState.stringValue(),
-                        memberEntity.loveTypeCategory,
-                        memberEntity.avoidanceRate,
-                        memberEntity.anxietyRate,
-                        memberEntity.nickname
+                        coupleEntity.coupleState.stringValue(),
+                        // 파트너가 실제 멤버면 memberEntity 정보, 아니면 스냅샷 정보 사용
+                        new CaseBuilder()
+                                .when(partnerMemberEntity.coupleEntityId.value.eq(coupleEntity.id))
+                                .then(partnerMemberEntity.loveTypeCategory)
+                                .otherwise(
+                                        new CaseBuilder()
+                                                .when(coupleEntity.firstMemberId.value.eq(memberId))
+                                                .then(coupleEntity.secondMemberSnapshot.loveTypeCategory)
+                                                .otherwise(coupleEntity.firstMemberSnapshot.loveTypeCategory)
+                                ),
+                        new CaseBuilder()
+                                .when(partnerMemberEntity.coupleEntityId.value.eq(coupleEntity.id))
+                                .then(partnerMemberEntity.avoidanceRate)
+                                .otherwise(
+                                        new CaseBuilder()
+                                                .when(coupleEntity.firstMemberId.value.eq(memberId))
+                                                .then(coupleEntity.secondMemberSnapshot.avoidanceRate)
+                                                .otherwise(coupleEntity.firstMemberSnapshot.avoidanceRate)
+                                ),
+                        new CaseBuilder()
+                                .when(partnerMemberEntity.coupleEntityId.value.eq(coupleEntity.id))
+                                .then(partnerMemberEntity.anxietyRate)
+                                .otherwise(
+                                        new CaseBuilder()
+                                                .when(coupleEntity.firstMemberId.value.eq(memberId))
+                                                .then(coupleEntity.secondMemberSnapshot.anxietyRate)
+                                                .otherwise(coupleEntity.firstMemberSnapshot.anxietyRate)
+                                ),
+                        new CaseBuilder()
+                                .when(partnerMemberEntity.coupleEntityId.value.eq(coupleEntity.id))
+                                .then(partnerMemberEntity.nickname)
+                                .otherwise(
+                                        new CaseBuilder()
+                                                .when(coupleEntity.firstMemberId.value.eq(memberId))
+                                                .then(coupleEntity.secondMemberSnapshot.nickname)
+                                                .otherwise(coupleEntity.firstMemberSnapshot.nickname)
+                                )
                 ))
-                .from(coupleEntity)
-                .join(coupleEntity.coupleMembers, coupleMemberEntity)
-                .join(memberEntity).on(memberEntity.id.eq(coupleMemberEntity.memberEntityId.value))
-                .where(coupleEntity.id.in(
-                                JPAExpressions.select(coupleMemberEntity.coupleEntityId.value)
-                                        .from(coupleMemberEntity)
-                                        .where(coupleMemberEntity.memberEntityId.value.eq(memberId)
-                                                .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
+                .from(memberEntity)
+                .join(coupleEntity).on(memberEntity.coupleEntityId.value.eq(coupleEntity.id))
+                .leftJoin(partnerMemberEntity).on(
+                        partnerMemberEntity.id.eq(
+                                new CaseBuilder()
+                                        .when(coupleEntity.firstMemberId.value.eq(memberId))
+                                        .then(coupleEntity.secondMemberId.value)
+                                        .otherwise(coupleEntity.firstMemberId.value)
                         )
-                        .and(coupleMemberEntity.memberEntityId.value.ne(memberId)))
+                )
+                .where(memberEntity.id.eq(memberId))
                 .fetchOne();
 
         return Optional.ofNullable(dto);
@@ -83,12 +109,13 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
 
     @Override
     public boolean isCoupleMember(Long memberId) {
-        Long count = queryFactory.select(coupleMemberEntity.count())
-                .from(coupleMemberEntity)
-                .join(memberEntity).on(memberEntity.id.eq(coupleMemberEntity.memberEntityId.value))
-                .where(coupleMemberEntity.memberEntityId.value.eq(memberId)
-                        .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED))
-                        .and(memberEntity.memberState.ne(MemberState.DELETED)))
+        Long count = queryFactory.select(memberEntity.count())
+                .from(memberEntity)
+                .join(coupleEntity)
+                .on(memberEntity.coupleEntityId.value.eq(coupleEntity.id))
+                .where(memberEntity.id.eq(memberId)
+                        .and(memberEntity.memberState.ne(MemberState.DELETED))
+                        .and(coupleEntity.coupleState.ne(CoupleState.DELETED)))
                 .fetchOne();
 
         return count != null && count > 0;
@@ -100,28 +127,6 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .selectFrom(memberEntity)
                 .where(memberEntity.inviteCodeEntityValue.value.eq(inviteCode))
                 .fetchFirst() != null;
-    }
-
-    @Override
-    public boolean isPartnerCoupleMemberAlive(Long memberId) {
-        CoupleMemberEntity coupleMemberEntity1 = queryFactory
-                .selectFrom(coupleMemberEntity)
-                .join(memberEntity).on(memberEntity.id.eq(coupleMemberEntity.memberEntityId.value))
-                .join(coupleEntity).on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value)
-                        .and(coupleEntity.coupleState.ne(CoupleState.DELETED)))
-                .where(coupleEntity.id.in(
-                                JPAExpressions.select(coupleMemberEntity.coupleEntityId.value)
-                                        .from(coupleMemberEntity)
-                                        .where(coupleMemberEntity.memberEntityId.value.eq(memberId)
-                                                .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
-                        )
-                        .and(coupleMemberEntity.memberEntityId.value.ne(memberId))
-                        .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
-                .fetchFirst();
-
-
-        log.info("Is partner couple member alive for memberId {}: {}", memberId, coupleMemberEntity1 != null);
-        return coupleMemberEntity1 != null;
     }
 
     @Override
@@ -138,22 +143,31 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
     @Override
     public Optional<LoadChatRoomMetadataPort.ChatRoomMetadataDto> loadChatRoomMetadata(Long memberId) {
         QMemberEntity partnerMemberEntity = new QMemberEntity("partnerMemberEntity");
-        QCoupleMemberEntity partnerCoupleMemberEntity = new QCoupleMemberEntity("partnerCoupleMemberEntity");
 
         LoadChatRoomMetadataPort.ChatRoomMetadataDto dto = queryFactory
                 .select(Projections.constructor(
                         LoadChatRoomMetadataPort.ChatRoomMetadataDto.class,
                         memberEntity.loveTypeCategory,
-                        partnerMemberEntity.loveTypeCategory
+                        new CaseBuilder()
+                                .when(partnerMemberEntity.coupleEntityId.value.eq(coupleEntity.id))
+                                .then(partnerMemberEntity.loveTypeCategory)
+                                .otherwise(
+                                        new CaseBuilder()
+                                                .when(coupleEntity.firstMemberId.value.eq(memberId))
+                                                .then(coupleEntity.secondMemberSnapshot.loveTypeCategory)
+                                                .otherwise(coupleEntity.firstMemberSnapshot.loveTypeCategory)
+                                )
                 ))
                 .from(memberEntity)
-                .leftJoin(coupleMemberEntity).on(coupleMemberEntity.memberEntityId.value.eq(memberEntity.id)
-                        .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
-                .leftJoin(coupleEntity).on(coupleEntity.id.eq(coupleMemberEntity.coupleEntityId.value))
-                .leftJoin(partnerCoupleMemberEntity)
-                .on(partnerCoupleMemberEntity.coupleEntityId.value.eq(coupleEntity.id)
-                        .and(partnerCoupleMemberEntity.memberEntityId.value.ne(memberId)))
-                .leftJoin(partnerMemberEntity).on(partnerMemberEntity.id.eq(partnerCoupleMemberEntity.memberEntityId.value))
+                .leftJoin(coupleEntity).on(memberEntity.coupleEntityId.value.eq(coupleEntity.id))
+                .leftJoin(partnerMemberEntity).on(
+                        partnerMemberEntity.id.eq(
+                                new CaseBuilder()
+                                        .when(coupleEntity.firstMemberId.value.eq(memberId))
+                                        .then(coupleEntity.secondMemberId.value)
+                                        .otherwise(coupleEntity.firstMemberId.value)
+                        )
+                )
                 .where(memberEntity.id.eq(memberId))
                 .fetchOne();
 
@@ -169,24 +183,5 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
             .fetchOne();
 
         return count != null && count > 0;
-    }
-
-    @Override
-    public Optional<Long> findPartnerMemberId(Long memberId) {
-        Long partnerMemberId = queryFactory
-                .select(coupleMemberEntity.memberEntityId.value)
-                .from(coupleEntity)
-                .join(coupleEntity.coupleMembers, coupleMemberEntity)
-                .join(memberEntity).on(memberEntity.id.eq(coupleMemberEntity.memberEntityId.value))
-                .where(coupleEntity.id.in(
-                                JPAExpressions.select(coupleMemberEntity.coupleEntityId.value)
-                                        .from(coupleMemberEntity)
-                                        .where(coupleMemberEntity.memberEntityId.value.eq(memberId)
-                                                .and(coupleMemberEntity.coupleMemberState.ne(CoupleMemberState.DELETED)))
-                        )
-                        .and(coupleMemberEntity.memberEntityId.value.ne(memberId)))
-                .fetchOne();
-
-        return Optional.ofNullable(partnerMemberId);
     }
 }

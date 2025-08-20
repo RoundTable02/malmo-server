@@ -6,7 +6,6 @@ import jakarta.persistence.EntityManager;
 import makeus.cmc.malmo.adaptor.out.jwt.TokenInfo;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatRoomEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleEntity;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.CoupleMemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.question.CoupleQuestionEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
@@ -28,6 +27,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.*;
 import static makeus.cmc.malmo.util.GlobalConstants.FIRST_QUESTION_LEVEL;
@@ -127,21 +128,14 @@ public class CoupleIntegrationTest {
             // 커플 생성 여부 확인
             Assertions.assertThat(coupleId).isNotNull();
             CoupleEntity couple = em.createQuery("SELECT c FROM CoupleEntity c WHERE c.id = :coupleId", CoupleEntity.class)
-                    .setParameter("coupleId", coupleId)
+                    .setParameter("coupleId", Long.valueOf(coupleId))
                     .getSingleResult();
 
-            // 커플 멤버 생성 여부 확인
-            Assertions.assertThat(couple.getCoupleMembers()).hasSize(2);
             Assertions.assertThat(couple.getCoupleState()).isEqualTo(CoupleState.ALIVE);
-
-            // 연애 시작 날짜는 초대 코드 주인의 날짜를 따라가야 한다
             Assertions.assertThat(couple.getStartLoveDate()).isEqualTo(partner.getStartLoveDate());
 
-            // 커플 멤버의 memberEntityId가 member, partner의 id에 속하는지 확인
-            Assertions.assertThat(couple.getCoupleMembers().stream()
-                    .anyMatch(cm -> cm.getMemberEntityId().getValue().equals(member.getId()))).isTrue();
-            Assertions.assertThat(couple.getCoupleMembers().stream()
-                    .anyMatch(cm -> cm.getMemberEntityId().getValue().equals(partner.getId()))).isTrue();
+            List<Long> memberIds = List.of(couple.getFirstMemberId().getValue(), couple.getSecondMemberId().getValue());
+            Assertions.assertThat(memberIds).containsExactlyInAnyOrder(member.getId(), partner.getId());
 
             // 커플 질문이 생성되었는지 확인
             CoupleQuestionEntity coupleQuestion = em.createQuery("SELECT cq FROM CoupleQuestionEntity cq WHERE cq.coupleEntityId.value = :coupleId", CoupleQuestionEntity.class)
@@ -189,16 +183,14 @@ public class CoupleIntegrationTest {
             // 커플 생성 여부 확인
             Assertions.assertThat(coupleId).isNotNull();
             CoupleEntity couple = em.createQuery("SELECT c FROM CoupleEntity c WHERE c.id = :coupleId", CoupleEntity.class)
-                    .setParameter("coupleId", coupleId)
+                    .setParameter("coupleId", Long.valueOf(coupleId))
                     .getSingleResult();
             Assertions.assertThat(couple).isNotNull();
             Assertions.assertThat(couple.getCoupleState()).isEqualTo(CoupleState.ALIVE);
             Assertions.assertThat(couple.getStartLoveDate()).isEqualTo(partner.getStartLoveDate());
-            Assertions.assertThat(couple.getCoupleMembers()).hasSize(2);
-            Assertions.assertThat(couple.getCoupleMembers().stream()
-                    .anyMatch(cm -> cm.getMemberEntityId().getValue().equals(member.getId()))).isTrue();
-            Assertions.assertThat(couple.getCoupleMembers().stream()
-                    .anyMatch(cm -> cm.getMemberEntityId().getValue().equals(partner.getId()))).isTrue();
+
+            List<Long> memberIds = List.of(couple.getFirstMemberId().getValue(), couple.getSecondMemberId().getValue());
+            Assertions.assertThat(memberIds).containsExactlyInAnyOrder(member.getId(), partner.getId());
 
             // 커플 멤버의 채팅방 상태가 활성화 되었는지 확인
             ChatRoomEntity memberChatRoomAfter = em.createQuery("SELECT cr FROM ChatRoomEntity cr WHERE cr.memberEntityId.value = :memberId", ChatRoomEntity.class)
@@ -211,7 +203,6 @@ public class CoupleIntegrationTest {
             Assertions.assertThat(partnerChatRoomAfter.getChatRoomState()).isEqualTo(ChatRoomState.NEED_NEXT_QUESTION);
         }
 
-        // TODO : 재결합 커플인 경우 데이터 복구
         @Test
         @DisplayName("재결합 커플인 경우 커플 연결이 성공 후 데이터가 복구된다.")
         void 재결합_커플_연결_성공_데이터_복구() throws Exception {
@@ -242,14 +233,11 @@ public class CoupleIntegrationTest {
 
             // then
             CoupleEntity couple = em.createQuery("SELECT c FROM CoupleEntity c WHERE c.id = :coupleId", CoupleEntity.class)
-                    .setParameter("coupleId", coupleId)
+                    .setParameter("coupleId", Long.valueOf(coupleId))
                     .getSingleResult();
 
             Assertions.assertThat(couple).isNotNull();
             Assertions.assertThat(couple.getCoupleState()).isEqualTo(CoupleState.ALIVE);
-            Assertions.assertThat(couple.getCoupleMembers())
-                    .extracting(CoupleMemberEntity::getCoupleMemberState)
-                    .containsExactlyInAnyOrder(CoupleMemberState.ALIVE, CoupleMemberState.ALIVE);
         }
 
         @Test
@@ -323,8 +311,8 @@ public class CoupleIntegrationTest {
                                     CoupleRequestDtoFactory.createCoupleLinkRequestDto(partner.getInviteCodeEntityValue().getValue())
                             )))
                     .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("message").value(USED_COUPLE_CODE.getMessage()))
-                    .andExpect(jsonPath("code").value(USED_COUPLE_CODE.getCode()));
+                    .andExpect(jsonPath("message").value(ALREADY_COUPLED_MEMBER.getMessage()))
+                    .andExpect(jsonPath("code").value(ALREADY_COUPLED_MEMBER.getCode()));
         }
 
         @Test
@@ -398,12 +386,15 @@ public class CoupleIntegrationTest {
 
             // then
             CoupleEntity couple = em.createQuery("SELECT c FROM CoupleEntity c WHERE c.id = :coupleId", CoupleEntity.class)
-                    .setParameter("coupleId", coupleId)
+                    .setParameter("coupleId", Long.valueOf(coupleId))
                     .getSingleResult();
-            Assertions.assertThat(couple.getCoupleState()).isEqualTo(CoupleState.ALIVE);
-            Assertions.assertThat(couple.getCoupleMembers())
-                    .extracting(CoupleMemberEntity::getCoupleMemberState)
-                    .contains(CoupleMemberState.DELETED, CoupleMemberState.ALIVE);
+            Assertions.assertThat(couple.getCoupleState()).isEqualTo(CoupleState.DELETED);
+
+            em.flush();
+            em.clear();
+
+            MemberEntity unlinkedMember = em.find(MemberEntity.class, member.getId());
+            Assertions.assertThat(unlinkedMember.getCoupleEntityId()).isNull();
 
             // 커플 전용 API 접근 시 실패
             mockMvc.perform(get("/members/partner")

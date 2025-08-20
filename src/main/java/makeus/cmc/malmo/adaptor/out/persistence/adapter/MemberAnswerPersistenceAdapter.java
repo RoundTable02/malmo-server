@@ -11,7 +11,6 @@ import makeus.cmc.malmo.application.helper.question.CoupleQuestionQueryHelper;
 import makeus.cmc.malmo.application.port.out.question.LoadMemberAnswerPort;
 import makeus.cmc.malmo.application.port.out.question.SaveMemberAnswerPort;
 import makeus.cmc.malmo.domain.model.question.MemberAnswer;
-import makeus.cmc.malmo.domain.value.id.CoupleMemberId;
 import makeus.cmc.malmo.domain.value.id.CoupleQuestionId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Component;
@@ -35,12 +34,6 @@ public class MemberAnswerPersistenceAdapter implements LoadMemberAnswerPort, Sav
     @Override
     public Optional<MemberAnswer> getMemberAnswer(CoupleQuestionId coupleQuestionId, MemberId memberId) {
         return memberAnswerRepository.findByCoupleQuestionIdAndMemberId(coupleQuestionId.getValue(), memberId.getValue())
-                .map(memberAnswerMapper::toDomain);
-    }
-
-    @Override
-    public Optional<MemberAnswer> getMemberAnswer(CoupleQuestionId coupleQuestionId, CoupleMemberId coupleMemberId) {
-        return memberAnswerRepository.findByCoupleQuestionIdAndCoupleMemberId(coupleQuestionId.getValue(), coupleMemberId.getValue())
                 .map(memberAnswerMapper::toDomain);
     }
 

@@ -14,13 +14,9 @@ public interface MemberRepositoryCustom {
 
     boolean existsByInviteCode(String inviteCode);
 
-    boolean isPartnerCoupleMemberAlive(Long memberId);
-
     Optional<InviteCodeEntityValue> findInviteCodeByMemberId(Long memberId);
 
     Optional<LoadChatRoomMetadataPort.ChatRoomMetadataDto> loadChatRoomMetadata(Long memberId);
 
     boolean isMemberStateAlive(Long memberId);
-
-    Optional<Long> findPartnerMemberId(Long memberId);
 }

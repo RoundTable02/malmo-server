@@ -6,18 +6,16 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.adapter.MemberAnswerPersistenceAdapter;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleEntity;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleMemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.member.QMemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.question.MemberAnswerEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.question.QCoupleQuestionEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.question.QMemberAnswerEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.question.QQuestionEntity;
-import makeus.cmc.malmo.domain.value.state.CoupleMemberState;
 import makeus.cmc.malmo.domain.value.state.CoupleQuestionState;
 
 import java.util.Optional;
 
-import static makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleMemberEntity.coupleMemberEntity;
+import static makeus.cmc.malmo.adaptor.out.persistence.entity.couple.QCoupleEntity.coupleEntity;
 import static makeus.cmc.malmo.adaptor.out.persistence.entity.question.QMemberAnswerEntity.memberAnswerEntity;
 
 @RequiredArgsConstructor
@@ -31,11 +29,9 @@ public class MemberAnswerRepositoryCustomImpl implements MemberAnswerRepositoryC
         QQuestionEntity question = QQuestionEntity.questionEntity;
         QCoupleEntity couple = QCoupleEntity.coupleEntity;
 
-        QCoupleMemberEntity myCoupleMember = QCoupleMemberEntity.coupleMemberEntity;
         QMemberEntity me = QMemberEntity.memberEntity;
         QMemberAnswerEntity myAnswer = QMemberAnswerEntity.memberAnswerEntity;
 
-        QCoupleMemberEntity partnerCoupleMember = new QCoupleMemberEntity("partnerCoupleMember");
         QMemberEntity partner = new QMemberEntity("partner");
         QMemberAnswerEntity partnerAnswer = new QMemberAnswerEntity("partnerAnswer");
 
@@ -51,7 +47,15 @@ public class MemberAnswerRepositoryCustomImpl implements MemberAnswerRepositoryC
                                 .when(coupleQuestion.coupleQuestionState.ne(CoupleQuestionState.OUTDATED))
                                 .then(true)
                                 .otherwise(false),
-                        partner.nickname,
+                        new CaseBuilder()
+                                .when(partner.coupleEntityId.value.isNotNull())
+                                .then(partner.nickname)
+                                .otherwise(
+                                        new CaseBuilder()
+                                                .when(couple.firstMemberId.value.eq(memberId))
+                                                .then(couple.secondMemberSnapshot.nickname)
+                                                .otherwise(couple.firstMemberSnapshot.nickname)
+                                ),
                         partnerAnswer.answer,
                         new CaseBuilder()
                                 .when(coupleQuestion.coupleQuestionState.ne(CoupleQuestionState.OUTDATED))
@@ -61,27 +65,30 @@ public class MemberAnswerRepositoryCustomImpl implements MemberAnswerRepositoryC
                 .from(coupleQuestion)
                 .join(coupleQuestion.question, question)
                 .join(couple).on(coupleQuestion.coupleEntityId.value.eq(couple.id))
-                .join(myCoupleMember).on(
-                        myCoupleMember.coupleEntityId.value.eq(couple.id)
-                                .and(myCoupleMember.memberEntityId.value.eq(memberId))
-                )
-                .join(me).on(myCoupleMember.memberEntityId.value.eq(me.id))
+                .join(me).on(me.coupleEntityId.value.eq(couple.id).and(me.id.eq(memberId)))
                 .leftJoin(myAnswer).on(
                         myAnswer.coupleQuestionEntityId.value.eq(coupleQuestion.id)
-                                .and(myAnswer.coupleMemberEntityId.value.eq(myCoupleMember.id))
+                                .and(myAnswer.memberEntityId.value.eq(me.id))
                 )
-                .leftJoin(partnerCoupleMember).on(
-                        partnerCoupleMember.coupleEntityId.value.eq(couple.id)
-                                .and(partnerCoupleMember.id.ne(myCoupleMember.id))
+                // 파트너 ID를 먼저 계산하고 해당 ID로 파트너를 조회
+                .leftJoin(partner).on(
+                        partner.id.eq(
+                                new CaseBuilder()
+                                        .when(couple.firstMemberId.value.eq(memberId))
+                                        .then(couple.secondMemberId.value)
+                                        .otherwise(couple.firstMemberId.value)
+                        )
                 )
-                .leftJoin(partner).on(partnerCoupleMember.memberEntityId.value.eq(partner.id))
                 .leftJoin(partnerAnswer).on(
                         partnerAnswer.coupleQuestionEntityId.value.eq(coupleQuestion.id)
-                                .and(partnerAnswer.coupleMemberEntityId.value.eq(partnerCoupleMember.id))
+                                .and(partnerAnswer.memberEntityId.value.eq(
+                                        new CaseBuilder()
+                                                .when(couple.firstMemberId.value.eq(memberId))
+                                                .then(couple.secondMemberId.value)
+                                                .otherwise(couple.firstMemberId.value)
+                                ))
                 )
-                .where(
-                        coupleQuestion.id.eq(coupleQuestionId)
-                )
+                .where(coupleQuestion.id.eq(coupleQuestionId))
                 .fetchOne();
 
         return Optional.ofNullable(result);
@@ -90,10 +97,8 @@ public class MemberAnswerRepositoryCustomImpl implements MemberAnswerRepositoryC
     @Override
     public Optional<MemberAnswerEntity> findByCoupleQuestionIdAndMemberId(Long coupleQuestionEntityId, Long memberId) {
         MemberAnswerEntity result = queryFactory.selectFrom(memberAnswerEntity)
-                .join(coupleMemberEntity)
-                .on(memberAnswerEntity.coupleMemberEntityId.value.eq(coupleMemberEntity.id))
                 .where(memberAnswerEntity.coupleQuestionEntityId.value.eq(coupleQuestionEntityId)
-                        .and(coupleMemberEntity.memberEntityId.value.eq(memberId)))
+                        .and(memberAnswerEntity.memberEntityId.value.eq(memberId)))
                 .fetchOne();
 
         return Optional.ofNullable(result);
@@ -103,10 +108,8 @@ public class MemberAnswerRepositoryCustomImpl implements MemberAnswerRepositoryC
     public boolean existsByCoupleQuestionIdAndMemberId(Long coupleQuestionEntityId, Long memberId) {
         Long count = queryFactory.select(memberAnswerEntity.count())
                 .from(memberAnswerEntity)
-                .join(coupleMemberEntity)
-                .on(memberAnswerEntity.coupleMemberEntityId.value.eq(coupleMemberEntity.id))
                 .where(memberAnswerEntity.coupleQuestionEntityId.value.eq(coupleQuestionEntityId)
-                        .and(coupleMemberEntity.memberEntityId.value.eq(memberId)))
+                        .and(memberAnswerEntity.memberEntityId.value.eq(memberId)))
                 .fetchOne();
 
         return count != null && count > 0;

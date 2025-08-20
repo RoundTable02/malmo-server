@@ -2,7 +2,8 @@ package makeus.cmc.malmo.domain.model.member;
 
 import lombok.Builder;
 import lombok.Getter;
-import makeus.cmc.malmo.domain.value.id.CoupleMemberId;
+import makeus.cmc.malmo.domain.value.id.CoupleId;
+import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.state.MemberMemoryState;
 
 import java.time.LocalDateTime;
@@ -11,7 +12,8 @@ import java.time.LocalDateTime;
 @Builder(access = lombok.AccessLevel.PRIVATE)
 public class MemberMemory {
     private Long id;
-    private CoupleMemberId coupleMemberId;
+    private CoupleId coupleId;
+    private MemberId memberId;
     private String content;
     private MemberMemoryState memberMemoryState;
 
@@ -20,12 +22,13 @@ public class MemberMemory {
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
 
-    public static MemberMemory from(Long id, CoupleMemberId coupleMemberId,
+    public static MemberMemory from(Long id, CoupleId coupleId, MemberId memberId,
                                     String content, MemberMemoryState memberMemoryState,
                                   LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
         return MemberMemory.builder()
                 .id(id)
-                .coupleMemberId(coupleMemberId)
+                .coupleId(coupleId)
+                .memberId(memberId)
                 .content(content)
                 .memberMemoryState(memberMemoryState)
                 .createdAt(createdAt)
@@ -34,9 +37,10 @@ public class MemberMemory {
                 .build();
     }
 
-    public static MemberMemory createMemberMemory(CoupleMemberId coupleMemberId, String content) {
+    public static MemberMemory createMemberMemory(CoupleId coupleId, MemberId memberId, String content) {
         return MemberMemory.builder()
-                .coupleMemberId(coupleMemberId)
+                .coupleId(coupleId)
+                .memberId(memberId)
                 .content(content)
                 .memberMemoryState(MemberMemoryState.ALIVE)
                 .build();
