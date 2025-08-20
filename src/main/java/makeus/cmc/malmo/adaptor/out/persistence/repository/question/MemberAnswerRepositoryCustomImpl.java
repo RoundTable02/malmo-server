@@ -48,13 +48,13 @@ public class MemberAnswerRepositoryCustomImpl implements MemberAnswerRepositoryC
                                 .then(true)
                                 .otherwise(false),
                         new CaseBuilder()
-                                .when(partner.coupleEntityId.value.eq(coupleEntity.id))
+                                .when(partner.coupleEntityId.value.isNotNull())
                                 .then(partner.nickname)
                                 .otherwise(
                                         new CaseBuilder()
-                                                .when(coupleEntity.firstMemberId.value.eq(memberId))
-                                                .then(coupleEntity.secondMemberSnapshot.nickname)
-                                                .otherwise(coupleEntity.firstMemberSnapshot.nickname)
+                                                .when(couple.firstMemberId.value.eq(memberId))
+                                                .then(couple.secondMemberSnapshot.nickname)
+                                                .otherwise(couple.firstMemberSnapshot.nickname)
                                 ),
                         partnerAnswer.answer,
                         new CaseBuilder()
@@ -70,17 +70,25 @@ public class MemberAnswerRepositoryCustomImpl implements MemberAnswerRepositoryC
                         myAnswer.coupleQuestionEntityId.value.eq(coupleQuestion.id)
                                 .and(myAnswer.memberEntityId.value.eq(me.id))
                 )
+                // 파트너 ID를 먼저 계산하고 해당 ID로 파트너를 조회
                 .leftJoin(partner).on(
-                        partner.coupleEntityId.value.eq(couple.id)
-                                .and(partner.id.ne(me.id))
+                        partner.id.eq(
+                                new CaseBuilder()
+                                        .when(couple.firstMemberId.value.eq(memberId))
+                                        .then(couple.secondMemberId.value)
+                                        .otherwise(couple.firstMemberId.value)
+                        )
                 )
                 .leftJoin(partnerAnswer).on(
                         partnerAnswer.coupleQuestionEntityId.value.eq(coupleQuestion.id)
-                                .and(partnerAnswer.memberEntityId.value.eq(partner.id))
+                                .and(partnerAnswer.memberEntityId.value.eq(
+                                        new CaseBuilder()
+                                                .when(couple.firstMemberId.value.eq(memberId))
+                                                .then(couple.secondMemberId.value)
+                                                .otherwise(couple.firstMemberId.value)
+                                ))
                 )
-                .where(
-                        coupleQuestion.id.eq(coupleQuestionId)
-                )
+                .where(coupleQuestion.id.eq(coupleQuestionId))
                 .fetchOne();
 
         return Optional.ofNullable(result);
