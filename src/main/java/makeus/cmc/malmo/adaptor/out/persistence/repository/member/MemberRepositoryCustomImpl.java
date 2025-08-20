@@ -114,7 +114,8 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .join(coupleEntity)
                 .on(memberEntity.coupleEntityId.value.eq(coupleEntity.id))
                 .where(memberEntity.id.eq(memberId)
-                        .and(coupleEntity.id.eq(memberEntity.coupleEntityId.value)))
+                        .and(memberEntity.memberState.ne(MemberState.DELETED))
+                        .and(coupleEntity.coupleState.ne(CoupleState.DELETED)))
                 .fetchOne();
 
         return count != null && count > 0;
