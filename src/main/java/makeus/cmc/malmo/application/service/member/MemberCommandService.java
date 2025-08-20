@@ -6,11 +6,13 @@ import makeus.cmc.malmo.application.helper.couple.CoupleCommandHelper;
 import makeus.cmc.malmo.application.helper.couple.CoupleQueryHelper;
 import makeus.cmc.malmo.application.helper.member.MemberCommandHelper;
 import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
+import makeus.cmc.malmo.application.helper.member.OauthTokenHelper;
 import makeus.cmc.malmo.application.port.in.member.DeleteMemberUseCase;
 import makeus.cmc.malmo.application.port.in.member.UpdateMemberUseCase;
 import makeus.cmc.malmo.application.port.in.member.UpdateStartLoveDateUseCase;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.value.id.MemberId;
+import makeus.cmc.malmo.domain.value.type.Provider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,7 @@ public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLov
 
     private final MemberQueryHelper memberQueryHelper;
     private final MemberCommandHelper memberCommandHelper;
+    private final OauthTokenHelper oauthTokenHelper;
 
     @Override
     @CheckValidMember
@@ -66,8 +69,15 @@ public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLov
     @CheckValidMember
     @Transactional
     public void deleteMember(DeleteMemberCommand command) {
-        // 멤버 soft delete
         Member member = memberQueryHelper.getMemberByIdOrThrow(MemberId.of(command.getMemberId()));
+        // OAuth를 통한 계정 연결 해제
+        if (member.getProvider() == Provider.KAKAO) {
+            oauthTokenHelper.unlinkKakao(member.getProviderId());
+        } else if (member.getProvider() == Provider.APPLE) {
+            oauthTokenHelper.unlinkApple(member.getOauthToken());
+        }
+
+        // 멤버 soft delete
         member.delete();
         memberCommandHelper.saveMember(member);
 

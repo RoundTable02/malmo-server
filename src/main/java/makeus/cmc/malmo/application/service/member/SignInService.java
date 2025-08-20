@@ -18,8 +18,6 @@ import makeus.cmc.malmo.domain.value.type.Provider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.function.Supplier;
-
 @Service
 @RequiredArgsConstructor
 public class SignInService implements SignInUseCase, LogOutUseCase {
@@ -39,24 +37,16 @@ public class SignInService implements SignInUseCase, LogOutUseCase {
     @Transactional
     public SignInResponse signInKakao(SignInKakaoCommand command) {
         String providerId = oauthTokenHelper.getKakaoIdTokenOrThrow(command.getIdToken());
-        Supplier<String> emailSupplier = () -> oauthTokenHelper.fetchKakaoEmailOrThrow(command.getAccessToken());
-        return processSignIn(Provider.KAKAO, providerId, emailSupplier);
-    }
+        Provider provider = Provider.KAKAO;
 
-    @Override
-    @Transactional
-    public SignInResponse signInApple(SignInAppleCommand command) {
-        String providerId = oauthTokenHelper.getAppleIdTokenOrThrow(command.getIdToken());
-        Supplier<String> emailSupplier = () -> oauthTokenHelper.getAppleEmailOrThrow(command.getIdToken());
-        return processSignIn(Provider.APPLE, providerId, emailSupplier);
-    }
-
-    private SignInResponse processSignIn(Provider provider, String providerId, Supplier<String> emailSupplier) {
-        // 1. provider와 providerId로 회원 조회 또는 신규 생성
         Member member = memberQueryHelper.getMemberByProviderId(provider, providerId)
-                .orElseGet(() -> createNewMember(provider, providerId, emailSupplier.get()));
+                .orElseGet(() -> {
+                    // 카카오 Access Token을 이용해 OAuth로 이메일을 가져옴
+                    String email = oauthTokenHelper.fetchKakaoEmailOrThrow(command.getAccessToken());
+                    return createNewMember(provider, providerId, email, null);
+                });
 
-        // 2. JWT 토큰 발급 및 저장
+        // 어플리케이션 토큰 생성
         TokenInfo tokenInfo = accessTokenHelper.generateToken(member.getId(), member.getMemberRole());
         member.refreshMemberToken(tokenInfo.getRefreshToken());
         memberCommandHelper.saveMember(member);
@@ -65,9 +55,33 @@ public class SignInService implements SignInUseCase, LogOutUseCase {
         return buildSignInResponse(member, tokenInfo);
     }
 
-    private Member createNewMember(Provider provider, String providerId, String email) {
-        InviteCodeValue inviteCode = createInviteCode(); // 기존 초대코드 생성 로직 재사용
-        Member newMember = memberDomainService.createMember(provider, providerId, email, inviteCode);
+    @Override
+    @Transactional
+    public SignInResponse signInApple(SignInAppleCommand command) {
+        String providerId = oauthTokenHelper.getAppleIdTokenOrThrow(command.getIdToken());
+        Provider provider = Provider.APPLE;
+
+        Member member = memberQueryHelper.getMemberByProviderId(provider, providerId)
+                .orElseGet(() -> {
+                    // idToken 복호화로 이메일을 가져옴
+                    String email = oauthTokenHelper.getAppleEmailOrThrow(command.getIdToken());
+                    // Apple OAuth 인증 코드로부터 Refresh Token을 가져옴
+                    String oauthToken = oauthTokenHelper.fetchAppleRefreshTokenOrThrow(command.getAuthorizationCode());
+                    return createNewMember(provider, providerId, email, oauthToken);
+                });
+
+        // 어플리케이션 토큰 생성
+        TokenInfo tokenInfo = accessTokenHelper.generateToken(member.getId(), member.getMemberRole());
+        member.refreshMemberToken(tokenInfo.getRefreshToken());
+        memberCommandHelper.saveMember(member);
+
+        return buildSignInResponse(member, tokenInfo);
+    }
+
+    private Member createNewMember(Provider provider, String providerId, String email, String oauthToken) {
+        // 초대 코드 생성
+        InviteCodeValue inviteCode = createInviteCode();
+        Member newMember = memberDomainService.createMember(provider, providerId, email, inviteCode, oauthToken);
         return memberCommandHelper.saveMember(newMember);
     }
 

@@ -7,19 +7,23 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.message.*;
 import makeus.cmc.malmo.application.port.in.chat.ProcessMessageUseCase;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.connection.stream.*;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
-import static makeus.cmc.malmo.util.GlobalConstants.CONSUMER_GROUP;
-import static makeus.cmc.malmo.util.GlobalConstants.STREAM_KEY;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class RedisStreamConsumer {
+
+    @Value("${spring.data.redis.stream-key}")
+    private String streamKey;
+
+    @Value("${spring.data.redis.consumer-group}")
+    private String consumerGroup;
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final ProcessMessageUseCase processMessageUseCase;
@@ -30,8 +34,8 @@ public class RedisStreamConsumer {
         try {
             // Consumer Group 생성 (이미 존재하면 무시)
             try {
-                redisTemplate.opsForStream().createGroup(STREAM_KEY, ReadOffset.from("0"), CONSUMER_GROUP);
-                log.info("Created consumer group: {}", CONSUMER_GROUP);
+                redisTemplate.opsForStream().createGroup(streamKey, ReadOffset.from("0"), consumerGroup);
+                log.info("Created consumer group: {}", consumerGroup);
             } catch (Exception e) {
                 log.debug("Consumer group already exists or stream doesn't exist yet");
             }
@@ -67,7 +71,7 @@ public class RedisStreamConsumer {
             }
 
             // 메시지 처리 완료 → ACK
-            redisTemplate.opsForStream().acknowledge(STREAM_KEY, CONSUMER_GROUP, record.getId());
+            redisTemplate.opsForStream().acknowledge(streamKey, consumerGroup, record.getId());
 
         } catch (Exception e) {
             log.error("Error processing record {}", record.getId(), e);
@@ -127,7 +131,7 @@ public class RedisStreamConsumer {
 
                 // 새로운 메시지 생성 (기존 데이터 + retry count 업데이트)
                 ObjectRecord<String, Map<String, String>> retryRecord = StreamRecords.objectBacked(record.getValue())
-                        .withStreamKey(STREAM_KEY);
+                        .withStreamKey(streamKey);
 
                 // retryCount 필드 추가/업데이트
                 retryRecord.getValue().put("type", record.getValue().get("type"));
@@ -143,7 +147,7 @@ public class RedisStreamConsumer {
             } else {
                 log.error("Maximum retry count exceeded for message: {}", record.getId());
                 // DLQ에 실패한 메시지 추가
-                String dlqKey = STREAM_KEY + ":dlq";
+                String dlqKey = streamKey + ":dlq";
                 ObjectRecord<String, Map<String, String>> dlqRecord = StreamRecords.objectBacked(record.getValue())
                         .withStreamKey(dlqKey);
                 dlqRecord.getValue().put("failedAt", String.valueOf(System.currentTimeMillis()));

@@ -21,6 +21,8 @@ spring:
     redis:
       port: 6379
       host: localhost
+      stream-key: test-stream
+      consumer-group: test-group
       repositories:
         enabled: false
 
@@ -46,12 +48,22 @@ kakao:
     aud: test-kakao-client-id
     jwks-uri: https://kauth.kakao.com/.well-known/jwks.json
     user-info-uri: https://kapi.kakao.com/v1/oidc/userinfo
+  oauth:
+    unlink-uri: https://kapi.kakao.com/v1/user/unlink
+    admin-key: test-kakao-admin-key
 
 apple:
   oidc:
     iss: https://appleid.apple.com
     aud: test-apple-client-id
     jwks-uri: https://appleid.apple.com/auth/keys
+  oauth:
+    team-id: test-apple-team-id
+    client-id: com.malmo.app
+    key-id: test-apple-key-id
+    private-key: test-apple-private-key
+    revoke-uri: https://appleid.apple.com/auth/revoke
+    token-uri: https://appleid.apple.com/auth/token
 
 swagger:
   server:

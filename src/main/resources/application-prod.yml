@@ -17,6 +17,8 @@ spring:
     redis:
       port: 6379
       host: redis
+      stream-key: ${REDIS_STREAM_KEY}
+      consumer-group: ${REDIS_CONSUMER_GROUP}
       repositories:
         enabled: false
 
@@ -37,12 +39,22 @@ kakao:
     aud: ${KAKAO_REST_API_KEY}
     jwks-uri: https://kauth.kakao.com/.well-known/jwks.json
     user-info-uri: https://kapi.kakao.com/v1/oidc/userinfo
+  oauth:
+    unlink-uri: https://kapi.kakao.com/v1/user/unlink
+    admin-key: ${KAKAO_ADMIN_KEY}
 
 apple:
   oidc:
     iss: https://appleid.apple.com
     aud: ${APPLE_REST_API_KEY}
     jwks-uri: https://appleid.apple.com/auth/keys
+  oauth:
+    team-id: ${APPLE_TEAM_ID}
+    client-id: ${APPLE_CLIENT_ID}
+    key-id: ${APPLE_KEY_ID}
+    private-key: ${APPLE_PRIVATE_KEY}
+    revoke-uri: https://appleid.apple.com/auth/revoke
+    token-uri: https://appleid.apple.com/auth/token
 
 swagger:
   server:
