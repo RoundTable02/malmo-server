@@ -65,6 +65,12 @@ dependencies {
 	// WebFlux (Web Client)
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
+	// Spring Boot Actuator
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+	// Micrometer Prometheus Registry
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+
 }
 
 // QueryDSL Q클래스 생성 경로 설정

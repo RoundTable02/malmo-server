@@ -1,10 +1,12 @@
 package makeus.cmc.malmo.adaptor.out;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.out.exception.SseConnectionException;
 import makeus.cmc.malmo.application.port.out.ConnectSsePort;
 import makeus.cmc.malmo.application.port.out.SendSseEventPort;
 import makeus.cmc.malmo.domain.value.id.MemberId;
+import makeus.cmc.malmo.metric.SseMetrics;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -13,6 +15,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
+@RequiredArgsConstructor
 @Component
 public class SseEmitterAdapter implements SendSseEventPort, ConnectSsePort {
     private static final long TIMEOUT = 60 * 1000L; // 1분
@@ -21,12 +24,16 @@ public class SseEmitterAdapter implements SendSseEventPort, ConnectSsePort {
 
     private final Map<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
 
+    private final SseMetrics sseMetrics;
+
     @Override
     public SseEmitter connect(MemberId memberId) {
         if (emitters.size() >= MAX_SIZE) {
             log.warn("Cannot connect SSE: Emitter map is full (size: {}).", emitters.size());
             throw new SseConnectionException("Maximum number of connections exceeded.");
         }
+
+        sseMetrics.increment();
 
         Long memberIdValue = memberId.getValue();
         SseEmitter newEmitter = new SseEmitter(TIMEOUT);
@@ -47,6 +54,7 @@ public class SseEmitterAdapter implements SendSseEventPort, ConnectSsePort {
         newEmitter.onCompletion(() -> {
             log.info("SSE emitter completed for member: {}", memberIdValue);
             emitters.remove(memberIdValue, newEmitter);
+            sseMetrics.decrement();
         });
 
         try {
