@@ -124,6 +124,7 @@ public class CurrentChatRoomService
     public CompleteChatRoomResponse completeChatRoom(CompleteChatRoomCommand command) {
         ChatRoom chatRoom = chatRoomQueryHelper.getCurrentChatRoomByMemberIdOrThrow(MemberId.of(command.getUserId()));
         chatRoom.complete();
+        chatRoomCommandHelper.saveChatRoom(chatRoom);
 
         // 완료된 채팅방의 요약을 요청
         log.info("채팅방 요약 요청 스트림 추가: chatRoomId={}", chatRoom.getId());
