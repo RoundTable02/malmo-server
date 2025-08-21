@@ -9,4 +9,6 @@ import java.util.List;
 public interface LoadNotificationPort {
 
     List<MemberNotification> getNotificationsByMemberIdAndState(MemberId memberId, NotificationState state);
+
+    boolean validateAllNotificationsOwnership(MemberId memberId, List<Long> notificationIds);
 }

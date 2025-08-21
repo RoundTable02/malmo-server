@@ -29,9 +29,19 @@ public class MemberNotificationPersistenceAdapter implements LoadNotificationPor
     }
 
     @Override
+    public boolean validateAllNotificationsOwnership(MemberId memberId, List<Long> notificationIds) {
+        return memberNotificationRepository.areAllNotificationsBelongToMember(notificationIds, memberId.getValue(), notificationIds.size());
+    }
+
+    @Override
     public MemberNotification saveNotification(MemberNotification memberNotification) {
         MemberNotificationEntity entity = memberNotificationMapper.toEntity(memberNotification);
         MemberNotificationEntity savedEntity = memberNotificationRepository.save(entity);
         return memberNotificationMapper.toDomain(savedEntity);
+    }
+
+    @Override
+    public void readNotifications(List<Long> notificationIds) {
+        memberNotificationRepository.readNotifications(notificationIds);
     }
 }

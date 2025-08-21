@@ -8,6 +8,7 @@ import makeus.cmc.malmo.domain.value.state.NotificationState;
 import makeus.cmc.malmo.domain.value.type.NotificationType;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor
@@ -29,6 +30,10 @@ public class MemberNotificationCommandHelper {
         );
 
         return saveNotificationPort.saveNotification(memberNotification);
+    }
+
+    public void markNotificationsAsRead(List<Long> notificationIds) {
+        saveNotificationPort.readNotifications(notificationIds);
     }
 
 }

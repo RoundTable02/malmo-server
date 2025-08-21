@@ -104,6 +104,11 @@ public class SwaggerResponses {
     }
 
     @Getter
+    @Schema(description = "멤버 미조회 알림 조회 처리 성공 응답")
+    public static class ReadMemberNotificationSuccessResponse extends BaseSwaggerResponse<Void> {
+    }
+
+    @Getter
     @Schema(description = "멤버 초대 코드 성공 응답")
     public static class GetInviteCodeSuccessResponse extends BaseSwaggerResponse<InviteCodeResponseData> {
     }
