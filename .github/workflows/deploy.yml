@@ -107,6 +107,8 @@ jobs:
             # 기존 컨테이너 중지 및 삭제
             docker stop malmo-app || true
             docker rm malmo-app || true
+            docker stop redis-exporter || true
+            docker rm redis-exporter || true
 
             # docker-compose.yml 파일 생성
             cat << 'EOF' > docker-compose.yml

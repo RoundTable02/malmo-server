@@ -1,18 +1,20 @@
 package makeus.cmc.malmo.adaptor.in.web.docs;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
+import makeus.cmc.malmo.application.port.in.notification.GetPendingNotificationUseCase;
 import makeus.cmc.malmo.domain.value.state.ChatRoomState;
 import makeus.cmc.malmo.domain.value.state.MemberState;
+import makeus.cmc.malmo.domain.value.state.NotificationState;
 import makeus.cmc.malmo.domain.value.state.TermsDetailsType;
-import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
-import makeus.cmc.malmo.domain.value.type.Provider;
-import makeus.cmc.malmo.domain.value.type.SenderType;
-import makeus.cmc.malmo.domain.value.type.TermsType;
+import makeus.cmc.malmo.domain.value.type.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 public class SwaggerResponses {
 
@@ -94,6 +96,11 @@ public class SwaggerResponses {
     @Getter
     @Schema(description = "멤버 약관 동의 수정 성공 응답")
     public static class UpdateMemberTermsSuccessResponse extends BaseSwaggerResponse<BaseListSwaggerResponse<TermsData>> {
+    }
+
+    @Getter
+    @Schema(description = "멤버 미조회 알림 조회 성공 응답")
+    public static class GetPendingMemberNotificationSuccessResponse extends BaseSwaggerResponse<BaseListSwaggerResponse<PendingNotificationData>> {
     }
 
     @Getter
@@ -287,6 +294,25 @@ public class SwaggerResponses {
 
         @Schema(description = "이메일", example = "test@example.com")
         private String email;
+    }
+
+    @Data
+    @Builder
+    public static class PendingNotificationData {
+        @Schema(description = "알림 ID", example = "1")
+        private Long id;
+
+        @Schema(description = "알림 타입", example = "COUPLE_DISCONNECTED")
+        private NotificationType type;
+
+        @Schema(description = "알림 상태", example = "PENDING")
+        private NotificationState state;
+
+        @Schema(description = "알림 세부사항", example = "알람 마다 다른 내용이 들어갑니다.")
+        private Map<String, Object> payload;
+
+        @Schema(description = "알림 생성시간", example = "2023-07-03T10:00:00")
+        private LocalDateTime createdAt;
     }
 
     @Getter
