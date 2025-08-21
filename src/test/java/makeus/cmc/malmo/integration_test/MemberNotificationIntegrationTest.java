@@ -99,7 +99,7 @@ public class MemberNotificationIntegrationTest {
             mockMvc.perform(get("/members/notifications/pending")
                             .header("Authorization", "Bearer " + accessToken))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.data.pendingNotifications.length()").value(2));
+                    .andExpect(jsonPath("$.data.list.length()").value(2));
         }
     }
 
