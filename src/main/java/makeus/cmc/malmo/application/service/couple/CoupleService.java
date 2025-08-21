@@ -206,9 +206,14 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
                         }
                 );
 
-        sendSseEventPort.sendToMember(
-                partnerId,
-                new SendSseEventPort.NotificationEvent(COUPLE_CONNECTED, couple.getId())
-        );
+        if (validateSsePort.isMemberOnline(partnerId)) {
+            sendSseEventPort.sendToMember(
+                    partnerId,
+                    new SendSseEventPort.NotificationEvent(COUPLE_CONNECTED, couple.getId())
+            );
+        } else {
+            memberNotificationCommandHelper.createAndSaveCoupleConnectedNotification(partnerId);
+        }
+        
     }
 }

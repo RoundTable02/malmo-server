@@ -36,4 +36,7 @@ public class MemberNotificationCommandHelper {
         saveNotificationPort.readNotifications(notificationIds);
     }
 
+    public MemberNotification createAndSaveCoupleConnectedNotification(MemberId memberId) {
+        return createAndSavePendingNotification(memberId, NotificationType.COUPLE_CONNECTED, null);
+    }
 }

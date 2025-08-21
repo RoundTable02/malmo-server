@@ -1,5 +1,5 @@
 package makeus.cmc.malmo.domain.value.type;
 
 public enum NotificationType {
-    COUPLE_DISCONNECTED
+    COUPLE_CONNECTED, COUPLE_DISCONNECTED
 }
