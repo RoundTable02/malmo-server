@@ -44,12 +44,13 @@ public class CoupleQuestionStrategy implements QuestionHandlingStrategy{
     public GetQuestionUseCase.GetQuestionResponse getTodayQuestion(GetQuestionUseCase.GetTodayQuestionCommand command) {
         // 커플 사용자에게는 오늘의 커플 질문을 제공
         // 멤버가 속한 Couple의 가장 레벨이 높은 CoupleQuestion을 조회
-        CoupleId coupleId = coupleQueryHelper.getCoupleIdByMemberId(MemberId.of(command.getUserId()));
+        Couple couple = coupleQueryHelper.getCoupleByMemberIdOrThrow(MemberId.of(command.getUserId()));
+        CoupleId coupleId = CoupleId.of(couple.getId());
         CoupleQuestionQueryHelper.CoupleQuestionDto maxLevelQuestion =
                 coupleQuestionQueryHelper.getMaxLevelQuestionDto(MemberId.of(command.getUserId()), coupleId);
 
         // CoupleQuestion의 bothAnsweredAt이 now()의 전날인 경우 (날짜만 비교), 다음 단계의 CoupleQuestion을 생성
-        if (coupleQuestionDomainService.needsNextQuestion(maxLevelQuestion.getBothAnsweredAt())) {
+        if (!couple.isBroken() && coupleQuestionDomainService.needsNextQuestion(maxLevelQuestion.getBothAnsweredAt())) {
             CoupleQuestion coupleQuestion = coupleQuestionQueryHelper.getMaxLevelQuestionOrThrow(coupleId);
             coupleQuestion.expire();
             coupleQuestionCommandHelper.saveCoupleQuestion(coupleQuestion);
@@ -60,7 +61,6 @@ public class CoupleQuestionStrategy implements QuestionHandlingStrategy{
             CoupleQuestion savedCoupleQuestion = coupleQuestionCommandHelper.saveCoupleQuestion(nextCoupleQuestion);
 
             // 사용자 & 파트너 답변으로부터 각각 메타데이터 추출 요청
-            Couple couple = coupleQueryHelper.getCoupleByMemberIdOrThrow(MemberId.of(command.getUserId()));
             publishStreamMessagePort.publish(
                     StreamMessageType.REQUEST_EXTRACT_METADATA,
                     new RequestExtractMetadataMessage(
