@@ -157,6 +157,15 @@ jobs:
                 networks:
                   - malmo-net
                 restart: always
+            
+              redis-exporter:
+                image: oliver006/redis_exporter:latest
+                ports:
+                  - "9121:9121"
+                environment:
+                  REDIS_ADDR: "redis:6379"
+                depends_on:
+                  - redis
 
             networks:
               malmo-net:
