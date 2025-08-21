@@ -1,7 +1,7 @@
 package makeus.cmc.malmo.application.service.chat;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.application.port.out.SendSseEventPort;
+import makeus.cmc.malmo.application.port.out.sse.SendSseEventPort;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;
 

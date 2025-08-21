@@ -3,8 +3,9 @@ package makeus.cmc.malmo.adaptor.out;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.out.exception.SseConnectionException;
-import makeus.cmc.malmo.application.port.out.ConnectSsePort;
-import makeus.cmc.malmo.application.port.out.SendSseEventPort;
+import makeus.cmc.malmo.application.port.out.sse.ConnectSsePort;
+import makeus.cmc.malmo.application.port.out.sse.SendSseEventPort;
+import makeus.cmc.malmo.application.port.out.sse.ValidateSsePort;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.metric.SseMetrics;
 import org.springframework.stereotype.Component;
@@ -17,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class SseEmitterAdapter implements SendSseEventPort, ConnectSsePort {
+public class SseEmitterAdapter implements SendSseEventPort, ConnectSsePort, ValidateSsePort {
     private static final long TIMEOUT = 60 * 1000L; // 1분
     private static final int MAX_SIZE = 1000;
     public static final long RECONNECT_TIME_MILLIS = 3000L;
@@ -89,5 +90,10 @@ public class SseEmitterAdapter implements SendSseEventPort, ConnectSsePort {
             log.error("Failed to send SSE event to member: {}. Removing emitter.", memberIdValue, e);
             emitter.complete();
         }
+    }
+
+    @Override
+    public boolean isMemberOnline(MemberId memberId) {
+        return emitters.containsKey(memberId.getValue());
     }
 }

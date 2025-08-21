@@ -1,7 +1,7 @@
 package makeus.cmc.malmo.application.service.notification;
 
 import lombok.RequiredArgsConstructor;
-import makeus.cmc.malmo.application.helper.memory.MemberNotificationQueryHelper;
+import makeus.cmc.malmo.application.helper.notification.MemberNotificationQueryHelper;
 import makeus.cmc.malmo.application.port.in.notification.GetPendingNotificationUseCase;
 import makeus.cmc.malmo.domain.model.notification.MemberNotification;
 import makeus.cmc.malmo.domain.value.id.MemberId;

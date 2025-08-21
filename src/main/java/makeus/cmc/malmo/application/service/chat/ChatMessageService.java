@@ -9,7 +9,7 @@ import makeus.cmc.malmo.application.helper.member.MemberMemoryCommandHelper;
 import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.application.helper.question.CoupleQuestionQueryHelper;
 import makeus.cmc.malmo.application.port.in.chat.ProcessMessageUseCase;
-import makeus.cmc.malmo.application.port.out.SendSseEventPort;
+import makeus.cmc.malmo.application.port.out.sse.SendSseEventPort;
 import makeus.cmc.malmo.application.port.out.chat.SaveChatMessageSummaryPort;
 import makeus.cmc.malmo.application.port.out.member.ValidateMemberPort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;

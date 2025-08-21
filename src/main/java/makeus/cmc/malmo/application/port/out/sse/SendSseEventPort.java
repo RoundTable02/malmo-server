@@ -1,4 +1,4 @@
-package makeus.cmc.malmo.application.port.out;
+package makeus.cmc.malmo.application.port.out.sse;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

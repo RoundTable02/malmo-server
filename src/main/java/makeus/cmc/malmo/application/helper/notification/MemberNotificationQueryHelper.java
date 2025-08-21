@@ -1,4 +1,4 @@
-package makeus.cmc.malmo.application.helper.memory;
+package makeus.cmc.malmo.application.helper.notification;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.application.port.out.notification.LoadNotificationPort;
