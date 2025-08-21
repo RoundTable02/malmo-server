@@ -74,6 +74,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return true;
         }
 
+        if (request.getRequestURI().equals("/actuator/prometheus")) {
+            // Prometheus 엔드포인트는 필터링하지 않음
+            return true;
+        }
+
         log.info("[{}] [{} {}] REQUEST_ID : {}", LocalDateTime.now(), request.getMethod(), request.getRequestURI(), MDC.get("request_id"));
 
         String path = request.getRequestURI();
@@ -85,7 +90,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 path.startsWith("/login") ||
                 path.equals("/refresh") ||
                 path.equals("/terms") ||
-                path.equals("/actuator/prometheus") ||
                 path.equals("/love-types") ||
                 path.equals("/test");
         

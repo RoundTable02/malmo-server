@@ -166,6 +166,8 @@ jobs:
                   REDIS_ADDR: "redis:6379"
                 depends_on:
                   - redis
+                networks:
+                  - malmo-net
 
             networks:
               malmo-net:
