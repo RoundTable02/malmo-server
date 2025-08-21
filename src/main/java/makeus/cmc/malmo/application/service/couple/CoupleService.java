@@ -214,6 +214,6 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
         } else {
             memberNotificationCommandHelper.createAndSaveCoupleConnectedNotification(partnerId);
         }
-        
+
     }
 }
