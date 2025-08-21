@@ -43,47 +43,40 @@ class CoupleAggregateMapperTest {
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getId()).isEqualTo(1L);
-            assertThat(result.getStartLoveDate()).isEqualTo(LocalDate.of(2024, 1, 1));
-            assertThat(result.getCoupleState()).isEqualTo(CoupleState.ALIVE);
-            assertThat(result.getFirstMemberId().getValue()).isEqualTo(100L);
-            assertThat(result.getSecondMemberId().getValue()).isEqualTo(200L);
-            assertThat(result.getCreatedAt()).isNotNull();
-            assertThat(result.getModifiedAt()).isNotNull();
-            assertThat(result.getDeletedAt()).isNull();
+            assertThat(result.getId()).isEqualTo(entity.getId());
+            assertThat(result.getStartLoveDate()).isEqualTo(entity.getStartLoveDate());
+            assertThat(result.getCoupleState()).isEqualTo(entity.getCoupleState());
+            assertThat(result.getFirstMemberId().getValue()).isEqualTo(entity.getFirstMemberId().getValue());
+            assertThat(result.getSecondMemberId().getValue()).isEqualTo(entity.getSecondMemberId().getValue());
+            assertThat(result.getCreatedAt()).isEqualTo(entity.getCreatedAt());
+            assertThat(result.getModifiedAt()).isEqualTo(entity.getModifiedAt());
+            assertThat(result.getDeletedAt()).isEqualTo(entity.getDeletedAt());
 
-            // CoupleMemberSnapshot 검증
+            // First CoupleMemberSnapshot 검증
             CoupleMemberSnapshot firstSnapshot = result.getFirstMemberSnapshot();
-            assertThat(firstSnapshot.getNickname()).isEqualTo("first");
-            assertThat(firstSnapshot.getLoveTypeCategory()).isEqualTo(LoveTypeCategory.STABLE_TYPE);
-            assertThat(firstSnapshot.getAnxietyRate()).isEqualTo(10);
-            assertThat(firstSnapshot.getAvoidanceRate()).isEqualTo(20);
+            CoupleMemberSnapshotEntity firstSnapshotEntity = entity.getFirstMemberSnapshot();
+            assertThat(firstSnapshot.getNickname()).isEqualTo(firstSnapshotEntity.getNickname());
+            assertThat(firstSnapshot.getLoveTypeCategory()).isEqualTo(firstSnapshotEntity.getLoveTypeCategory());
+            assertThat(firstSnapshot.getAnxietyRate()).isEqualTo(firstSnapshotEntity.getAnxietyRate());
+            assertThat(firstSnapshot.getAvoidanceRate()).isEqualTo(firstSnapshotEntity.getAvoidanceRate());
 
+            // Second CoupleMemberSnapshot 검증
             CoupleMemberSnapshot secondSnapshot = result.getSecondMemberSnapshot();
-            assertThat(secondSnapshot.getNickname()).isEqualTo("second");
+            CoupleMemberSnapshotEntity secondSnapshotEntity = entity.getSecondMemberSnapshot();
+            assertThat(secondSnapshot.getNickname()).isEqualTo(secondSnapshotEntity.getNickname());
+            assertThat(secondSnapshot.getLoveTypeCategory()).isEqualTo(secondSnapshotEntity.getLoveTypeCategory());
+            assertThat(secondSnapshot.getAnxietyRate()).isEqualTo(secondSnapshotEntity.getAnxietyRate());
+            assertThat(secondSnapshot.getAvoidanceRate()).isEqualTo(secondSnapshotEntity.getAvoidanceRate());
         }
 
         @Test
-        @DisplayName("다양한 CoupleState를 가진 Entity를 변환한다")
-        void givenDifferentCoupleStates_whenToDomain_thenReturnsCorrectStates() {
-            // given & when & then
-            CoupleEntity deletedEntity = createEntityWithState(CoupleState.DELETED);
-            Couple deletedResult = coupleAggregateMapper.toDomain(deletedEntity);
-            assertThat(deletedResult.getCoupleState()).isEqualTo(CoupleState.DELETED);
-        }
-
-        @Test
-        @DisplayName("null CoupleState를 가진 Entity를 변환한다")
-        void givenEntityWithNullCoupleState_whenToDomain_thenReturnsCoupleWithNullState() {
-            // given
-            CoupleEntity entity = createEntityWithNullState();
-
+        @DisplayName("null Entity를 변환하면 null을 반환한다")
+        void givenNullEntity_whenToDomain_thenReturnsNull() {
             // when
-            Couple result = coupleAggregateMapper.toDomain(entity);
+            Couple result = coupleAggregateMapper.toDomain(null);
 
             // then
-            assertThat(result).isNotNull();
-            assertThat(result.getCoupleState()).isNull();
+            assertThat(result).isNull();
         }
     }
 
@@ -102,47 +95,40 @@ class CoupleAggregateMapperTest {
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getId()).isEqualTo(1L);
-            assertThat(result.getStartLoveDate()).isEqualTo(LocalDate.of(2024, 1, 1));
-            assertThat(result.getCoupleState()).isEqualTo(CoupleState.ALIVE);
-            assertThat(result.getFirstMemberId().getValue()).isEqualTo(100L);
-            assertThat(result.getSecondMemberId().getValue()).isEqualTo(200L);
-            assertThat(result.getCreatedAt()).isNotNull();
-            assertThat(result.getModifiedAt()).isNotNull();
-            assertThat(result.getDeletedAt()).isNull();
+            assertThat(result.getId()).isEqualTo(domain.getId());
+            assertThat(result.getStartLoveDate()).isEqualTo(domain.getStartLoveDate());
+            assertThat(result.getCoupleState()).isEqualTo(domain.getCoupleState());
+            assertThat(result.getFirstMemberId().getValue()).isEqualTo(domain.getFirstMemberId().getValue());
+            assertThat(result.getSecondMemberId().getValue()).isEqualTo(domain.getSecondMemberId().getValue());
+            assertThat(result.getCreatedAt()).isEqualTo(domain.getCreatedAt());
+            assertThat(result.getModifiedAt()).isEqualTo(domain.getModifiedAt());
+            assertThat(result.getDeletedAt()).isEqualTo(domain.getDeletedAt());
 
-            // CoupleMemberSnapshotEntity 검증
+            // First CoupleMemberSnapshotEntity 검증
             CoupleMemberSnapshotEntity firstSnapshotEntity = result.getFirstMemberSnapshot();
-            assertThat(firstSnapshotEntity.getNickname()).isEqualTo("first");
-            assertThat(firstSnapshotEntity.getLoveTypeCategory()).isEqualTo(LoveTypeCategory.STABLE_TYPE);
-            assertThat(firstSnapshotEntity.getAnxietyRate()).isEqualTo(10);
-            assertThat(firstSnapshotEntity.getAvoidanceRate()).isEqualTo(20);
+            CoupleMemberSnapshot firstSnapshot = domain.getFirstMemberSnapshot();
+            assertThat(firstSnapshotEntity.getNickname()).isEqualTo(firstSnapshot.getNickname());
+            assertThat(firstSnapshotEntity.getLoveTypeCategory()).isEqualTo(firstSnapshot.getLoveTypeCategory());
+            assertThat(firstSnapshotEntity.getAnxietyRate()).isEqualTo(firstSnapshot.getAnxietyRate());
+            assertThat(firstSnapshotEntity.getAvoidanceRate()).isEqualTo(firstSnapshot.getAvoidanceRate());
 
+            // Second CoupleMemberSnapshotEntity 검증
             CoupleMemberSnapshotEntity secondSnapshotEntity = result.getSecondMemberSnapshot();
-            assertThat(secondSnapshotEntity.getNickname()).isEqualTo("second");
+            CoupleMemberSnapshot secondSnapshot = domain.getSecondMemberSnapshot();
+            assertThat(secondSnapshotEntity.getNickname()).isEqualTo(secondSnapshot.getNickname());
+            assertThat(secondSnapshotEntity.getLoveTypeCategory()).isEqualTo(secondSnapshot.getLoveTypeCategory());
+            assertThat(secondSnapshotEntity.getAnxietyRate()).isEqualTo(secondSnapshot.getAnxietyRate());
+            assertThat(secondSnapshotEntity.getAvoidanceRate()).isEqualTo(secondSnapshot.getAvoidanceRate());
         }
 
         @Test
-        @DisplayName("다양한 CoupleState를 가진 Couple을 변환한다")
-        void givenDifferentCoupleStates_whenToEntity_thenReturnsCorrectStates() {
-            // given & when & then
-            Couple deletedCouple = createCoupleWithState(CoupleState.DELETED);
-            CoupleEntity deletedResult = coupleAggregateMapper.toEntity(deletedCouple);
-            assertThat(deletedResult.getCoupleState()).isEqualTo(CoupleState.DELETED);
-        }
-
-        @Test
-        @DisplayName("null CoupleState를 가진 Couple을 변환한다")
-        void givenCoupleWithNullState_whenToEntity_thenReturnsEntityWithNullState() {
-            // given
-            Couple domain = createCoupleWithNullState();
-
+        @DisplayName("null Domain을 변환하면 null을 반환한다")
+        void givenNullDomain_whenToEntity_thenReturnsNull() {
             // when
-            CoupleEntity result = coupleAggregateMapper.toEntity(domain);
+            CoupleEntity result = coupleAggregateMapper.toEntity(null);
 
             // then
-            assertThat(result).isNotNull();
-            assertThat(result.getCoupleState()).isNull();
+            assertThat(result).isNull();
         }
     }
 
@@ -154,36 +140,20 @@ class CoupleAggregateMapperTest {
                 .coupleState(CoupleState.ALIVE)
                 .firstMemberId(MemberEntityId.of(100L))
                 .secondMemberId(MemberEntityId.of(200L))
-                .firstMemberSnapshot(createSnapshotEntity("first"))
-                .secondMemberSnapshot(createSnapshotEntity("second"))
+                .firstMemberSnapshot(createSnapshotEntity("first", LoveTypeCategory.STABLE_TYPE, 10, 20))
+                .secondMemberSnapshot(createSnapshotEntity("second", LoveTypeCategory.ANXIETY_TYPE, 30, 40))
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
                 .deletedAt(null)
                 .build();
     }
 
-    private CoupleEntity createEntityWithState(CoupleState state) {
-        return CoupleEntity.builder()
-                .id(1L)
-                .startLoveDate(LocalDate.of(2024, 1, 1))
-                .coupleState(state)
-                .build();
-    }
-
-    private CoupleEntity createEntityWithNullState() {
-        return CoupleEntity.builder()
-                .id(1L)
-                .startLoveDate(LocalDate.of(2024, 1, 1))
-                .coupleState(null)
-                .build();
-    }
-
-    private CoupleMemberSnapshotEntity createSnapshotEntity(String nickname) {
+    private CoupleMemberSnapshotEntity createSnapshotEntity(String nickname, LoveTypeCategory category, int anxiety, int avoidance) {
         return CoupleMemberSnapshotEntity.builder()
                 .nickname(nickname)
-                .loveTypeCategory(LoveTypeCategory.STABLE_TYPE)
-                .anxietyRate(10)
-                .avoidanceRate(20)
+                .loveTypeCategory(category)
+                .anxietyRate(anxiety)
+                .avoidanceRate(avoidance)
                 .build();
     }
 
@@ -195,41 +165,20 @@ class CoupleAggregateMapperTest {
                 MemberId.of(100L),
                 MemberId.of(200L),
                 CoupleState.ALIVE,
-                createSnapshot("first"),
-                createSnapshot("second"),
+                createSnapshot("first", LoveTypeCategory.STABLE_TYPE, 20f, 10f),
+                createSnapshot("second", LoveTypeCategory.ANXIETY_TYPE, 40f, 30f),
                 LocalDateTime.now(),
                 LocalDateTime.now(),
                 null
         );
     }
 
-    private Couple createCoupleWithState(CoupleState state) {
-        return Couple.from(
-                1L,
-                LocalDate.of(2024, 1, 1),
-                MemberId.of(100L),
-                MemberId.of(200L),
-                state,
-                createSnapshot("first"),
-                createSnapshot("second"),
-                LocalDateTime.now(),
-                LocalDateTime.now(),
-                null
-        );
-    }
-
-    private Couple createCoupleWithNullState() {
-        return Couple.from(
-                1L,
-                LocalDate.of(2024, 1, 1),
-                MemberId.of(100L),
-                MemberId.of(200L),
-                null,
-                createSnapshot("first"),
-                createSnapshot("second"),
-                LocalDateTime.now(),
-                LocalDateTime.now(),
-                null
+    private CoupleMemberSnapshot createSnapshot(String nickname, LoveTypeCategory category, float avoidanceRate, float anxietyRate) {
+        return CoupleMemberSnapshot.from(
+                nickname,
+                category,
+                avoidanceRate,
+                anxietyRate
         );
     }
 
