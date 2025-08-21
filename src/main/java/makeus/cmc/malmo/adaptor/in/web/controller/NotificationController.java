@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
+import makeus.cmc.malmo.adaptor.in.web.dto.BaseListResponse;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
 import makeus.cmc.malmo.application.port.in.notification.GetPendingNotificationUseCase;
 import makeus.cmc.malmo.application.port.in.notification.ProcessReadNotificationsUseCase;
@@ -42,13 +43,15 @@ public class NotificationController {
     )
     @ApiCommonResponses.RequireAuth
     @GetMapping("/pending")
-    public BaseResponse<GetPendingNotificationUseCase.GetPendingNotificationResponse> getMemberPendingNotification(
+    public BaseResponse<BaseListResponse<GetPendingNotificationUseCase.PendingNotificationData>> getMemberPendingNotification(
             @AuthenticationPrincipal User user
     ) {
         GetPendingNotificationUseCase.GetPendingNotificationCommand command = GetPendingNotificationUseCase.GetPendingNotificationCommand.builder()
                 .userId(Long.valueOf(user.getUsername()))
                 .build();
-        return BaseResponse.success(getPendingNotificationUseCase.getPendingNotifications(command));
+
+        List<GetPendingNotificationUseCase.PendingNotificationData> pendingNotifications = getPendingNotificationUseCase.getPendingNotifications(command).getPendingNotifications();
+        return BaseListResponse.success(pendingNotifications, (long) pendingNotifications.size());
     }
 
     @Operation(
