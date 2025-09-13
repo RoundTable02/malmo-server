@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.AESGCMConverter;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.ChatRoomEntityId;
 import makeus.cmc.malmo.domain.value.type.SenderType;
@@ -24,6 +25,7 @@ public class ChatMessageEntity extends BaseTimeEntity {
     private ChatRoomEntityId chatRoomEntityId;
 
     @Column(columnDefinition = "TEXT")
+    @Convert(converter = AESGCMConverter.class)
     private String content;
 
     @Enumerated(EnumType.STRING)

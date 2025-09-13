@@ -2,12 +2,13 @@ name: Deploy to AWS EC2
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ release ]
   pull_request:
-    branches: [ develop ]
+    branches: [ release ]
 
 jobs:
   build-and-deploy:
+    if: contains(github.event.head_commit.message, 'release-test-green') || contains(github.event.head_commit.message, 'release-test-blue')
     runs-on: ubuntu-latest
 
     services:
@@ -63,15 +64,27 @@ jobs:
       - name: Run tests with Gradle
         run: ./gradlew test --no-daemon
 
-      # 5. 빌드 (develop 브랜치 push일 경우에만 실행)
-      # Pull Request가 아닌 develop 브랜치 푸시일 때만 아래 스텝들이 실행됩니다.
+      # 5. 빌드 (release 브랜치 push일 경우에만 실행)
       - name: Build with Gradle
-        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/release' && github.event_name == 'push'
         run: ./gradlew bootJar --no-daemon
+
+      # 6. 커밋 메시지에 따라 포트 번호 설정
+      - name: Set Port based on Commit Message
+        id: set_port
+        if: github.ref == 'refs/heads/release' && github.event_name == 'push'
+        run: |
+          if [[ "${{ github.event.head_commit.message }}" == *"release-green"* ]]; then
+            echo "port=8080" >> $GITHUB_OUTPUT
+            echo "Port set to 8080 for green deployment."
+          elif [[ "${{ github.event.head_commit.message }}" == *"release-blue"* ]]; then
+            echo "port=8081" >> $GITHUB_OUTPUT
+            echo "Port set to 8081 for blue deployment."
+          fi
 
       # 6. Docker Hub 로그인 (배포 시에만)
       - name: Login to Docker Hub
-        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/release' && github.event_name == 'push'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -79,7 +92,7 @@ jobs:
 
       # 7. Docker 이미지 빌드 및 푸시
       - name: Build and push Docker image
-        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/release' && github.event_name == 'push'
         env:
           IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/malmo-test
         run: |
@@ -89,7 +102,7 @@ jobs:
 
       # 8. EC2에 배포
       - name: Deploy to EC2
-        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/release' && github.event_name == 'push'
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.TEST_EC2_HOST }}
@@ -117,7 +130,7 @@ jobs:
                 image: ${{ secrets.DOCKERHUB_USERNAME }}/malmo-test:latest
                 container_name: malmo-test
                 ports:
-                  - "8081:8080"
+                  - "${{ steps.set_port.outputs.port }}:8080"
                 environment:
                   - TZ=Asia/Seoul
                   - SPRING_PROFILES_ACTIVE=prod
@@ -141,6 +154,7 @@ jobs:
                   - SECURITY_CLIENT_URL_DEVELOPMENT=${{ secrets.SECURITY_CLIENT_URL_DEVELOPMENT }}
                   - SECURITY_SERVER_URL_PRODUCTION=${{ secrets.SECURITY_SERVER_URL_PRODUCTION }}
                   - SECURITY_SERVER_URL_DEVELOPMENT=${{ secrets.SECURITY_SERVER_URL_DEVELOPMENT }}
+                  - AES_ENCRYPTION_KEY=${{ secrets.AES_ENCRYPTION_KEY }}
                 restart: unless-stopped
                 networks:
                   - malmo-net

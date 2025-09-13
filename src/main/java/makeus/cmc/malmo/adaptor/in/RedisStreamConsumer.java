@@ -174,6 +174,9 @@ public class RedisStreamConsumer {
 
                 redisTemplate.opsForStream().add(dlqRecord);
             }
+
+            // 기존 메시지는 ACK 처리해서 PEL에서 제거
+            redisTemplate.opsForStream().acknowledge(streamKey, consumerGroup, record.getId());
         } catch (Exception e) {
             log.error("Error handling failed message: {}", record.getId(), e);
         }
