@@ -44,7 +44,9 @@ public class AESGCMConverter implements AttributeConverter<String, String> {
 
             return Base64.getEncoder().encodeToString(result);
         } catch (Exception e) {
-            throw new RuntimeException("AES-GCM 암호화 실패", e);
+            // 암호화 도입 이전 데이터도 정상 처리
+            return attribute;
+//            throw new RuntimeException("AES-GCM 암호화 실패", e);
         }
     }
 
