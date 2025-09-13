@@ -8,14 +8,14 @@ import makeus.cmc.malmo.application.helper.member.MemberCommandHelper;
 import makeus.cmc.malmo.application.helper.member.MemberMemoryCommandHelper;
 import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.application.helper.member.OauthTokenHelper;
-import makeus.cmc.malmo.application.port.in.couple.CoupleUnlinkUseCase;
+import makeus.cmc.malmo.application.helper.notification.MemberNotificationCommandHelper;
 import makeus.cmc.malmo.application.port.in.member.DeleteMemberUseCase;
 import makeus.cmc.malmo.application.port.in.member.UpdateMemberUseCase;
 import makeus.cmc.malmo.application.port.in.member.UpdateStartLoveDateUseCase;
-import makeus.cmc.malmo.application.port.out.SendSseEventPort;
+import makeus.cmc.malmo.application.port.out.sse.SendSseEventPort;
+import makeus.cmc.malmo.application.port.out.sse.ValidateSsePort;
 import makeus.cmc.malmo.domain.model.couple.Couple;
 import makeus.cmc.malmo.domain.model.member.Member;
-import makeus.cmc.malmo.domain.value.id.CoupleId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.type.Provider;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
-import static makeus.cmc.malmo.application.port.out.SendSseEventPort.SseEventType.COUPLE_DISCONNECTED;
+import static makeus.cmc.malmo.application.port.out.sse.SendSseEventPort.SseEventType.COUPLE_DISCONNECTED;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +36,10 @@ public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLov
     private final MemberCommandHelper memberCommandHelper;
     private final OauthTokenHelper oauthTokenHelper;
     private final MemberMemoryCommandHelper memberMemoryCommandHelper;
+
     private final SendSseEventPort sendSseEventPort;
+    private final ValidateSsePort validateSsePort;
+    private final MemberNotificationCommandHelper memberNotificationCommandHelper;
 
     @Override
     @CheckValidMember
@@ -115,8 +118,13 @@ public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLov
         memberCommandHelper.saveMember(member);
 
         // 상대방에게 커플 해지됨 알림
-        sendSseEventPort.sendToMember(partnerId,
-                new SendSseEventPort.NotificationEvent(COUPLE_DISCONNECTED, couple.getId())
-        );
+        if (validateSsePort.isMemberOnline(partnerId)) {
+            sendSseEventPort.sendToMember(partnerId,
+                    new SendSseEventPort.NotificationEvent(COUPLE_DISCONNECTED, couple.getId())
+            );
+        } else {
+            // 상대방이 온라인이 아닐 경우 알림 생성
+            memberNotificationCommandHelper.createAndSaveCoupleDisconnectedNotification(partnerId);
+        }
     }
 }

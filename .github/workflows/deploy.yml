@@ -2,12 +2,13 @@ name: Deploy to AWS EC2
 
 on:
   push:
-    branches: [ main ]
+    branches: [ release ]
   pull_request:
-    branches: [ main ]
+    branches: [ release ]
 
 jobs:
   build-and-deploy:
+    if: contains(github.event.head_commit.message, 'release-green') || contains(github.event.head_commit.message, 'release-blue')
     runs-on: ubuntu-latest
 
     services:
@@ -63,15 +64,27 @@ jobs:
       - name: Run tests with Gradle
         run: ./gradlew test --no-daemon
 
-      # 5. 빌드 (main 브랜치 push일 경우에만 실행)
-      # Pull Request가 아닌 main 브랜치 푸시일 때만 아래 스텝들이 실행됩니다.
+      # 5. 빌드 (release 브랜치 push일 경우에만 실행)
       - name: Build with Gradle
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/release' && github.event_name == 'push'
         run: ./gradlew bootJar --no-daemon
+
+      # 6. 커밋 메시지에 따라 포트 번호 설정
+      - name: Set Port based on Commit Message
+        id: set_port
+        if: github.ref == 'refs/heads/release' && github.event_name == 'push'
+        run: |
+          if [[ "${{ github.event.head_commit.message }}" == *"release-green"* ]]; then
+            echo "port=8080" >> $GITHUB_OUTPUT
+            echo "Port set to 8080 for green deployment."
+          elif [[ "${{ github.event.head_commit.message }}" == *"release-blue"* ]]; then
+            echo "port=8081" >> $GITHUB_OUTPUT
+            echo "Port set to 8081 for blue deployment."
+          fi
 
       # 6. Docker Hub 로그인 (배포 시에만)
       - name: Login to Docker Hub
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/release' && github.event_name == 'push'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -79,9 +92,9 @@ jobs:
 
       # 7. Docker 이미지 빌드 및 푸시
       - name: Build and push Docker image
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/release' && github.event_name == 'push'
         env:
-          IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/malmo-app
+          IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/malmo-test
         run: |
           docker build --platform linux/amd64 -t $IMAGE_NAME:${{ github.sha }} -t $IMAGE_NAME:latest .
           docker push $IMAGE_NAME:${{ github.sha }}
@@ -89,12 +102,12 @@ jobs:
 
       # 8. EC2에 배포
       - name: Deploy to EC2
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/release' && github.event_name == 'push'
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.EC2_HOST }}
+          host: ${{ secrets.TEST_EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          key: ${{ secrets.TEST_EC2_PRIVATE_KEY }}
           script: |
             echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
             
@@ -105,30 +118,26 @@ jobs:
             fi
 
             # 기존 컨테이너 중지 및 삭제
-            docker stop malmo-app || true
-            docker rm malmo-app || true
+            docker stop malmo-test || true
+            docker rm malmo-test || true
 
             # docker-compose.yml 파일 생성
-            cat << 'EOF' > docker-compose.yml
+            cat << 'EOF' > docker-compose.test.yml
             version: '3.8'
 
             services:
-              malmo-app:
-                image: ${{ secrets.DOCKERHUB_USERNAME }}/malmo-app:latest
-                container_name: malmo-app
-                depends_on:
-                  - redis
+              malmo-test:
+                image: ${{ secrets.DOCKERHUB_USERNAME }}/malmo-test:latest
+                container_name: malmo-test
                 ports:
-                  - "8080:8080"
-                networks:
-                  - malmo-net
+                  - "${{ steps.set_port.outputs.port }}:8080"
                 environment:
                   - TZ=Asia/Seoul
                   - SPRING_PROFILES_ACTIVE=prod
                   - SPRING_DATASOURCE_URL=${{ secrets.DB_URL }}
                   - SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }}
                   - SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}
-                  - SPRING_DATA_REDIS_HOST=redis
+                  - SPRING_DATA_REDIS_HOST=malmo-redis
                   - REDIS_STREAM_KEY=${{ secrets.REDIS_STREAM_KEY }}
                   - REDIS_CONSUMER_GROUP=${{ secrets.REDIS_CONSUMER_GROUP }}
                   - JWT_SECRET=${{ secrets.JWT_SECRET }}
@@ -140,38 +149,27 @@ jobs:
                   - APPLE_CLIENT_ID=${{ secrets.APPLE_CLIENT_ID }}
                   - KAKAO_ADMIN_KEY=${{ secrets.KAKAO_ADMIN_KEY }}
                   - OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
-                  - SWAGGER_SERVER_PRODUCTION_URL=${{ secrets.SWAGGER_SERVER_PRODUCTION_URL }}
+                  - SWAGGER_SERVER_PRODUCTION_URL=${{ secrets.TEST_SWAGGER_SERVER_PRODUCTION_URL }}
                   - SECURITY_CLIENT_URL_PRODUCTION=${{ secrets.SECURITY_CLIENT_URL_PRODUCTION }}
                   - SECURITY_CLIENT_URL_DEVELOPMENT=${{ secrets.SECURITY_CLIENT_URL_DEVELOPMENT }}
                   - SECURITY_SERVER_URL_PRODUCTION=${{ secrets.SECURITY_SERVER_URL_PRODUCTION }}
                   - SECURITY_SERVER_URL_DEVELOPMENT=${{ secrets.SECURITY_SERVER_URL_DEVELOPMENT }}
+                  - AES_ENCRYPTION_KEY=${{ secrets.AES_ENCRYPTION_KEY }}
                 restart: unless-stopped
-
-              redis:
-                image: "redis:7-alpine"
-                container_name: malmo-redis
-                ports:
-                  - "6379:6379"
-                volumes:
-                  - redis-data:/data
                 networks:
                   - malmo-net
-                restart: always
 
             networks:
               malmo-net:
                 external: true
-
-            volumes:
-              redis-data:
             EOF
 
             # Docker Hub 로그인
             echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
             # docker-compose로 애플리케이션 실행
-            docker-compose pull
-            docker-compose up -d
+            docker-compose -f docker-compose.test.yml pull
+            docker-compose -f docker-compose.test.yml up -d
 
             # 불필요한 Docker 이미지 정리
             docker image prune -f

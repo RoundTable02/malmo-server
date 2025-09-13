@@ -10,11 +10,13 @@ import makeus.cmc.malmo.application.helper.couple.CoupleQueryHelper;
 import makeus.cmc.malmo.application.helper.member.MemberCommandHelper;
 import makeus.cmc.malmo.application.helper.member.MemberMemoryCommandHelper;
 import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
+import makeus.cmc.malmo.application.helper.notification.MemberNotificationCommandHelper;
 import makeus.cmc.malmo.application.helper.question.CoupleQuestionCommandHelper;
 import makeus.cmc.malmo.application.helper.question.CoupleQuestionQueryHelper;
 import makeus.cmc.malmo.application.port.in.couple.CoupleLinkUseCase;
 import makeus.cmc.malmo.application.port.in.couple.CoupleUnlinkUseCase;
-import makeus.cmc.malmo.application.port.out.SendSseEventPort;
+import makeus.cmc.malmo.application.port.out.sse.SendSseEventPort;
+import makeus.cmc.malmo.application.port.out.sse.ValidateSsePort;
 import makeus.cmc.malmo.domain.model.couple.Couple;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
@@ -30,8 +32,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
-import static makeus.cmc.malmo.application.port.out.SendSseEventPort.SseEventType.COUPLE_CONNECTED;
-import static makeus.cmc.malmo.application.port.out.SendSseEventPort.SseEventType.COUPLE_DISCONNECTED;
+import static makeus.cmc.malmo.application.port.out.sse.SendSseEventPort.SseEventType.COUPLE_CONNECTED;
+import static makeus.cmc.malmo.application.port.out.sse.SendSseEventPort.SseEventType.COUPLE_DISCONNECTED;
 import static makeus.cmc.malmo.util.GlobalConstants.FIRST_QUESTION_LEVEL;
 
 @Service
@@ -48,11 +50,14 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
     private final MemberQueryHelper memberQueryHelper;
 
     private final SendSseEventPort sendSseEventPort;
+    private final ValidateSsePort validateSsePort;
+
     private final ChatRoomQueryHelper chatRoomQueryHelper;
     private final ChatRoomCommandHelper chatRoomCommandHelper;
 
     private final MemberMemoryCommandHelper memberMemoryCommandHelper;
     private final MemberCommandHelper memberCommandHelper;
+    private final MemberNotificationCommandHelper memberNotificationCommandHelper;
 
     @Override
     @CheckValidMember
@@ -126,9 +131,15 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
         memberCommandHelper.saveMember(member);
 
         // 상대방에게 커플 해지됨 알림
-        sendSseEventPort.sendToMember(partnerId,
-                new SendSseEventPort.NotificationEvent(COUPLE_DISCONNECTED, couple.getId())
-        );
+        if (validateSsePort.isMemberOnline(partnerId)) {
+            sendSseEventPort.sendToMember(partnerId,
+                    new SendSseEventPort.NotificationEvent(COUPLE_DISCONNECTED, couple.getId())
+            );
+        } else {
+            // 상대방이 온라인이 아닐 경우 알림 생성
+            memberNotificationCommandHelper.createAndSaveCoupleDisconnectedNotification(partnerId);
+        }
+
     }
 
     private Couple reconnectCouple(Couple brokenCouple) {
@@ -195,9 +206,14 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
                         }
                 );
 
-        sendSseEventPort.sendToMember(
-                partnerId,
-                new SendSseEventPort.NotificationEvent(COUPLE_CONNECTED, couple.getId())
-        );
+        if (validateSsePort.isMemberOnline(partnerId)) {
+            sendSseEventPort.sendToMember(
+                    partnerId,
+                    new SendSseEventPort.NotificationEvent(COUPLE_CONNECTED, couple.getId())
+            );
+        } else {
+            memberNotificationCommandHelper.createAndSaveCoupleConnectedNotification(partnerId);
+        }
+
     }
 }

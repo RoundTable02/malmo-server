@@ -3,10 +3,12 @@ package makeus.cmc.malmo.adaptor.out;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.out.exception.SseConnectionException;
-import makeus.cmc.malmo.application.port.out.ConnectSsePort;
-import makeus.cmc.malmo.application.port.out.SendSseEventPort;
+import makeus.cmc.malmo.application.port.out.sse.ConnectSsePort;
+import makeus.cmc.malmo.application.port.out.sse.SendSseEventPort;
+import makeus.cmc.malmo.application.port.out.sse.ValidateSsePort;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.metric.SseMetrics;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -17,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class SseEmitterAdapter implements SendSseEventPort, ConnectSsePort {
+public class SseEmitterAdapter implements SendSseEventPort, ConnectSsePort, ValidateSsePort {
     private static final long TIMEOUT = 60 * 1000L; // 1분
     private static final int MAX_SIZE = 1000;
     public static final long RECONNECT_TIME_MILLIS = 3000L;
@@ -89,5 +91,25 @@ public class SseEmitterAdapter implements SendSseEventPort, ConnectSsePort {
             log.error("Failed to send SSE event to member: {}. Removing emitter.", memberIdValue, e);
             emitter.complete();
         }
+    }
+
+    @Override
+    public boolean isMemberOnline(MemberId memberId) {
+        return emitters.containsKey(memberId.getValue());
+    }
+
+    @Scheduled(fixedRate = 15_000)
+    public void sendHeartbeat() {
+        // 현재 연결된 모든 Emitter에 대해 반복
+        emitters.forEach((memberId, emitter) -> {
+            try {
+                emitter.send(SseEmitter.event()
+                        .comment("sse heartbeat"));
+            } catch (IOException | IllegalStateException e) {
+                // IO 에러 발생 시, 클라이언트 연결이 끊어진 것으로 간주하고 정리
+                log.warn("Failed to send heartbeat to member: {}. Removing emitter.", memberId, e);
+                emitter.complete();
+            }
+        });
     }
 }
