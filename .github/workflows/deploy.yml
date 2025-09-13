@@ -87,12 +87,12 @@ jobs:
         run: |
           if [[ "${{ github.event.head_commit.message }}" == *"release-green"* ]]; then
             echo "port=8080" >> $GITHUB_OUTPUT
-            echo "container_name=malmo-test-green" >> $GITHUB_OUTPUT
-            echo "Green deployment: port=8080, container=malmo-test-green"
+            echo "container_name=malmo-green" >> $GITHUB_OUTPUT
+            echo "Green deployment: port=8080, container=malmo-green"
           elif [[ "${{ github.event.head_commit.message }}" == *"release-blue"* ]]; then
             echo "port=8081" >> $GITHUB_OUTPUT
-            echo "container_name=malmo-test-blue" >> $GITHUB_OUTPUT
-            echo "Blue deployment: port=8081, container=malmo-test-blue"
+            echo "container_name=malmo-blue" >> $GITHUB_OUTPUT
+            echo "Blue deployment: port=8081, container=malmo-blue"
           fi
 
       - name: Login to Docker Hub
@@ -126,11 +126,11 @@ jobs:
             fi
 
             # 기존 컨테이너 중지 및 삭제
-            docker stop malmo-test || true
-            docker rm malmo-test || true
-
+            docker stop ${{ steps.set_config.outputs.container_name }} || true
+            docker rm ${{ steps.set_config.outputs.container_name }} || true
+      
             # docker-compose.yml 파일 생성
-            cat << 'EOF' > docker-compose.test.yml
+            cat << 'EOF' > docker-compose.yml
             version: '3.8'
 
             services:
