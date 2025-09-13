@@ -83,3 +83,7 @@ security:
     url:
       production: test.prod.com
       development:  test.dev.com
+
+encryption:
+  aes:
+    key: testaeskeyrZktAgxX77DA==
