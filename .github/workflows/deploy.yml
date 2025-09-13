@@ -43,15 +43,6 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Wait for Redis
-        run: |
-          sudo apt-get update && sudo apt-get install -y redis-tools
-          until redis-cli -h localhost -p 6379 ping; do
-            echo "Waiting for Redis..."
-            sleep 2
-          done
-          echo "Redis is ready!"
-
       - name: Run tests with Gradle
         run: ./gradlew test --no-daemon
 
@@ -91,13 +82,17 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew bootJar --no-daemon
 
-      - name: Set Port based on Commit Message
-        id: set_port
+      - name: Set Port and Container Name based on Commit Message
+        id: set_config
         run: |
           if [[ "${{ github.event.head_commit.message }}" == *"release-green"* ]]; then
             echo "port=8080" >> $GITHUB_OUTPUT
+            echo "container_name=malmo-test-green" >> $GITHUB_OUTPUT
+            echo "Green deployment: port=8080, container=malmo-test-green"
           elif [[ "${{ github.event.head_commit.message }}" == *"release-blue"* ]]; then
             echo "port=8081" >> $GITHUB_OUTPUT
+            echo "container_name=malmo-test-blue" >> $GITHUB_OUTPUT
+            echo "Blue deployment: port=8081, container=malmo-test-blue"
           fi
 
       - name: Login to Docker Hub
@@ -141,9 +136,9 @@ jobs:
             services:
               malmo-test:
                 image: ${{ secrets.DOCKERHUB_USERNAME }}/malmo-test:latest
-                container_name: malmo-test
+                container_name: ${{ steps.set_config.outputs.container_name }}
                 ports:
-                  - "${{ steps.set_port.outputs.port }}:8080"
+                  - "${{ steps.set_config.outputs.port }}:8080"
                 environment:
                   - TZ=Asia/Seoul
                   - SPRING_PROFILES_ACTIVE=prod
@@ -178,8 +173,8 @@ jobs:
             EOF
 
             # docker-compose로 애플리케이션 실행
-            docker-compose -f docker-compose.test.yml pull
-            docker-compose -f docker-compose.test.yml up -d
+            docker-compose -f docker-compose.yml pull
+            docker-compose -f docker-compose.yml up -d
 
             # 불필요한 Docker 이미지 정리
             docker image prune -f
