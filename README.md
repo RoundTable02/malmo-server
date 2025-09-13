@@ -69,8 +69,69 @@ MZ세대는 연인과의 갈등 원인으로 '의사소통 방식'과 '성향 �
 
 ## 📈 DataBase Schema
 
-<img width="3840" height="2566" alt="malmo-erd" src="https://github.com/user-attachments/assets/c848c59a-910d-48e1-9078-7ed61c2bc211" />
+<div align="center">
+   <img width="3581" height="2403" alt="Image" src="https://github.com/user-attachments/assets/6d3b8996-8916-4e46-aa66-87ed04b0d676" />
+</div>
 
+*https://dbdiagram.io/d/malmoerd-669f3b458b4bb5230e11b2d0*
+
+---
+
+좋습니다 👍 말씀해주신 내용을 기반으로 **레포지토리의 README**에 들어갈 수 있도록 논리적이고 읽기 쉽게 정리해드릴게요. 아래 내용은 팀원이나 협업자가 읽었을 때 바로 이해할 수 있도록 단계별로 작성했습니다.
+
+---
+
+# 배포 브랜치 전략 및 CI/CD 가이드
+
+## 브랜치 전략 (Git Flow 기반)
+
+본 레포지토리는 Git Flow 전략을 변형하여 다음과 같이 브랜치를 운영합니다.
+
+* **main** : 운영 환경에 배포된 최종 코드
+* **release** : 배포 대상이 되는 안정화 브랜치
+* **develop** : 기능 개발 통합 브랜치
+* **feature/**\* : 단일 기능 개발 브랜치
+
+## 기능 개발 및 병합 규칙
+
+1. 기능 개발은 `feature/*` 브랜치에서 진행합니다.
+2. 기능이 완료되면 `develop` 브랜치에 먼저 병합합니다.
+3. 배포 대상 기능이 확정되면 `release` 브랜치로 병합합니다.
+
+## 배포를 위한 Commit 규칙
+
+배포 시점에 `release` 브랜치에 커밋할 때는 **Commit 메시지 규칙**을 반드시 따라야 합니다.
+해당 메시지는 GitHub Actions CI/CD 과정에서 **Blue/Green 배포 방식**을 결정하는 기준이 됩니다.
+
+* **형식**
+
+  ```
+  <type>: <subject>
+  ```
+
+* **type**
+  
+  이전 커밋의 타입 명의 반대 타입으로 배포해주세요.
+
+  * `release-blue` : Blue 환경으로 배포
+  * `release-green` : Green 환경으로 배포
+
+* **subject**
+
+  * 배포할 기능/개발 내용을 간략히 작성
+
+예시:
+
+```
+release-blue: 로그인 기능 개선 및 에러 처리 추가
+release-green: 결제 모듈 업데이트
+```
+
+## CI/CD 및 배포 과정
+
+1. `release` 브랜치에 커밋(Push) → GitHub Actions가 실행됩니다.
+2. 커밋 메시지의 `type` 값(`release-blue` 또는 `release-green`)에 따라 Blue/Green 중 하나로 배포됩니다.
+3. CI/CD 과정이 완료되면 Nginx 설정 파일을 Blue/Green에 맞게 업데이트하여 최종 배포를 마무리합니다.
 
 ---
 
