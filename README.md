@@ -130,3 +130,47 @@ release-green: 결제 모듈 업데이트
 3. CI/CD 과정이 완료되면 Nginx 설정 파일을 Blue/Green에 맞게 업데이트하여 최종 배포를 마무리합니다.
 
 ---
+
+## 개발 내용 (트러블 슈팅)
+
+- 애착 유형과 연애 질문 등 사용자의 메타 데이터를 바탕으로 한 **AI 연애 상담 챗봇 구현**
+  
+- 단계별 상담 구조 설계 및 프롬프트 엔지니어링
+  
+- **SSE 통신** 방식을 이용한 GPT 응답 스트리밍
+  
+  [[VELOG : SSE로 GPT 응답 스트리밍하기]](https://velog.io/@_roundtable/%EB%A7%90%EB%AA%A8-SSE%EB%A1%9C-GPT-%EC%9D%91%EB%8B%B5-%EC%8A%A4%ED%8A%B8%EB%A6%AC%EB%B0%8D%ED%95%98%EA%B8%B0) 
+  
+- **Redis Stream**을 도입으로 안정적인 외부 API 호출 관리
+
+  [[VELOG : 좀 더 안정적인 API 호출 with Redis Stream]](https://velog.io/@_roundtable/%EB%A7%90%EB%AA%A8-%EC%A2%80-%EB%8D%94-%EC%95%88%EC%A0%95%EC%A0%81%EC%9D%B8-API-%ED%98%B8%EC%B6%9C-with-Redis-Stream)
+
+- 외부 API의 도메인 영역 침범을 분리하기 위해 **헥사고날 아키텍처**를 적용, 확장 가능성 확보
+
+  [[VELOG : 헥사고날의 선택, 그리고 후기]](https://velog.io/@_roundtable/%EB%A7%90%EB%AA%A8-%ED%97%A5%EC%82%AC%EA%B3%A0%EB%82%A0%EC%9D%98-%EC%84%A0%ED%83%9D-%EA%B7%B8%EB%A6%AC%EA%B3%A0-%ED%9B%84%EA%B8%B0)
+
+- 사용자 프라이버시 보호를 위한 AI채팅 기능 DB 암호화 도입
+
+  [[VELOG : DB 데이터 암호화 전략 (feat. AES-NI 성능 테스트)]](https://velog.io/@_roundtable/%EB%A7%90%EB%AA%A8-DB-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%95%94%ED%98%B8%ED%99%94-%EC%A0%84%EB%9E%B5-feat.-AES-NI-%EC%84%B1%EB%8A%A5-%ED%85%8C%EC%8A%A4%ED%8A%B8)
+  
+- 도메인 독립성을 검증하고 외부 어댑터 의존성을 제거하기 위한 Mockito 단위 테스트 및 기획 검증을 위한 통합 테스트 코드 작성으로 **코드 커버리지 77% 달성**
+  
+- 사용자와 애인의 연동을 통한 애착 유형 검사, 연애 질문 기능 개발
+  
+- Prometheus Grafana **모니터링 대시보드** 구축
+  
+- 단일 인스턴스에서 nginx와 도커 컨테이너를 이용해 **블루-그린 배포**
+
+  [[VELOG : nginx로 블루-그린 배포 흉내내기]](https://velog.io/@_roundtable/%EB%A7%90%EB%AA%A8-nginx%EB%A1%9C-%EB%B8%94%EB%A3%A8-%EA%B7%B8%EB%A6%B0-%EB%B0%B0%ED%8F%AC-%ED%9D%89%EB%82%B4%EB%82%B4%EA%B8%B0)
+
+- 코드 중복을 줄이고 유지보수성을 확보하기 위해 **Spring AOP** 도입
+
+  [[VELOG : 거의 모든 서비스 로직이 사용자를 검증한다 (AOP 적용기)]](https://velog.io/@_roundtable/%EA%B1%B0%EC%9D%98-%EB%AA%A8%EB%93%A0-%EC%84%9C%EB%B9%84%EC%8A%A4-%EB%A1%9C%EC%A7%81%EC%9D%B4-%EC%82%AC%EC%9A%A9%EC%9E%90%EB%A5%BC-%EA%B2%80%EC%A6%9D%ED%95%9C%EB%8B%A4-AOP-%EC%A0%81%EC%9A%A9%EA%B8%B0)
+  
+- 도메인 순수성 유지를 위해 생성자 접근을 제한
+
+  [[VELOG : 메인 모델 생성자에 대한 고민]](https://velog.io/@_roundtable/%EB%A7%90%EB%AA%A8-%EB%8F%84%EB%A9%94%EC%9D%B8-%EB%AA%A8%EB%8D%B8%EC%9D%98-%EC%83%9D%EC%84%B1%EC%9E%90%EC%97%90-%EB%8C%80%ED%95%9C-%EA%B3%A0%EB%AF%BC)
+
+
+
+---
