@@ -44,9 +44,7 @@ public class AESGCMConverter implements AttributeConverter<String, String> {
 
             return Base64.getEncoder().encodeToString(result);
         } catch (Exception e) {
-            // 암호화 도입 이전 데이터도 정상 처리
-            return attribute;
-//            throw new RuntimeException("AES-GCM 암호화 실패", e);
+            throw new RuntimeException("AES-GCM 암호화 실패", e);
         }
     }
 
@@ -69,7 +67,9 @@ public class AESGCMConverter implements AttributeConverter<String, String> {
             byte[] decrypted = cipher.doFinal(encrypted);
             return new String(decrypted);
         } catch (Exception e) {
-            throw new RuntimeException("AES-GCM 복호화 실패", e);
+            // 암호화 도입 이전 데이터도 정상 처리
+            return dbData;
+//            throw new RuntimeException("AES-GCM 복호화 실패", e);
         }
     }
 }
