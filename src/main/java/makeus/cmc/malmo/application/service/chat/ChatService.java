@@ -9,6 +9,7 @@ import makeus.cmc.malmo.adaptor.message.StreamMessageType;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomCommandHelper;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomQueryHelper;
 import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
+import makeus.cmc.malmo.application.helper.outbox.OutboxHelper;
 import makeus.cmc.malmo.application.port.in.chat.SendChatMessageUseCase;
 import makeus.cmc.malmo.application.port.out.chat.PublishStreamMessagePort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
@@ -36,7 +37,7 @@ public class ChatService implements SendChatMessageUseCase {
     private final ChatRoomQueryHelper chatRoomQueryHelper;
     private final ChatRoomCommandHelper chatRoomCommandHelper;
 
-    private final PublishStreamMessagePort publishStreamMessagePort;
+    private final OutboxHelper outboxHelper;
 
     @Override
     @Transactional
@@ -64,7 +65,7 @@ public class ChatService implements SendChatMessageUseCase {
         ChatMessage savedUserMessage = saveUserMessage(chatRoom, command.getMessage());
 
         // 채팅 응답 API 요청 스트림에 추가
-        publishStreamMessagePort.publish(
+        outboxHelper.publish(
                 StreamMessageType.REQUEST_CHAT_MESSAGE,
                 new StreamChatMessage(
                         member.getId(),
@@ -100,7 +101,7 @@ public class ChatService implements SendChatMessageUseCase {
             saveAiMessage(chatRoom.getMemberId(), ChatRoomId.of(chatRoom.getId()), LAST_PROMPT_LEVEL, FINAL_MESSAGE);
         } else {
             // 다음 단계로 업그레이드된 경우, AI 응답 요청 스트림에 추가
-            publishStreamMessagePort.publish(
+            outboxHelper.publish(
                     StreamMessageType.REQUEST_CHAT_MESSAGE,
                     new StreamChatMessage(
                             member.getId(),
@@ -112,7 +113,7 @@ public class ChatService implements SendChatMessageUseCase {
         }
 
         // 현재 단계 채팅에 대한 전체 요약 요청 스트림에 추가
-        publishStreamMessagePort.publish(
+        outboxHelper.publish(
                 StreamMessageType.REQUEST_SUMMARY,
                 new RequestSummaryMessage(chatRoom.getId(), nowChatRoomLevel)
         );

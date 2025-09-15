@@ -3,7 +3,6 @@ package makeus.cmc.malmo.integration_test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import makeus.cmc.malmo.adaptor.message.StreamMessage;
-import makeus.cmc.malmo.adaptor.message.StreamMessageType;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatMessageEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatMessageSummaryEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatRoomEntity;
@@ -11,7 +10,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.member.MemberEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.ChatRoomEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
-import makeus.cmc.malmo.application.port.out.chat.PublishStreamMessagePort;
+import makeus.cmc.malmo.application.helper.outbox.OutboxHelper;
 import makeus.cmc.malmo.application.port.out.member.GenerateTokenPort;
 import makeus.cmc.malmo.application.service.chat.ChatProcessor;
 import makeus.cmc.malmo.domain.value.state.ChatRoomState;
@@ -70,7 +69,7 @@ public class ChatRoomIntegrationTest {
     private ChatProcessor chatProcessor;
 
     @MockBean
-    private PublishStreamMessagePort publishStreamMessagePort;
+    private OutboxHelper outboxHelper;
 
     private String accessToken;
     private String otherAccessToken;
@@ -362,7 +361,7 @@ public class ChatRoomIntegrationTest {
 
             // Mock publishStreamMessagePort - ArgumentCaptor로 호출 검증
             ArgumentCaptor<Object> messageCaptor = ArgumentCaptor.forClass(Object.class);
-            doNothing().when(publishStreamMessagePort).publish(any(), (StreamMessage) messageCaptor.capture());
+            doNothing().when(outboxHelper).publish(any(), (StreamMessage) messageCaptor.capture());
 
             // when & then
             mockMvc.perform(post("/chatrooms/current/upgrade")
@@ -374,7 +373,7 @@ public class ChatRoomIntegrationTest {
             Assertions.assertThat(updatedChatRoom.getChatRoomState()).isEqualTo(ChatRoomState.ALIVE);
 
             // publishStreamMessagePort가 2번 호출되었는지 검증
-            verify(publishStreamMessagePort, times(2)).publish(any(), any());
+            verify(outboxHelper, times(2)).publish(any(), any());
 
             // 첫 번째 호출은 REQUEST_SUMMARY, 두 번째 호출은 REQUEST_CHAT_MESSAGE인지 검증
             List<Object> capturedMessages = messageCaptor.getAllValues();
@@ -469,7 +468,7 @@ public class ChatRoomIntegrationTest {
 
             ChatRoomEntity completedChatRoom = em.find(ChatRoomEntity.class, chatRoom.getId());
             Assertions.assertThat(completedChatRoom.getChatRoomState()).isEqualTo(ChatRoomState.COMPLETED);
-            verify(publishStreamMessagePort, times(1)).publish(any(), any());
+            verify(outboxHelper, times(1)).publish(any(), any());
         }
 
         @Test

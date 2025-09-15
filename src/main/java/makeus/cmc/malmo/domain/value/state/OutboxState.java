@@ -1,4 +1,4 @@
-package makeus.cmc.malmo.adaptor.out.persistence.entity;
+package makeus.cmc.malmo.domain.value.state;
 
 public enum OutboxState {
     PENDING, // 메시지 발행 대기

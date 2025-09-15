@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import makeus.cmc.malmo.domain.value.state.OutboxState;
 
 @Getter
 @SuperBuilder
@@ -25,5 +26,8 @@ public class OutboxEntity extends BaseTimeEntity {
 
     private int retryCount;
 
+    @Enumerated(EnumType.STRING)
     private OutboxState state;
+
+    private String messageId;
 }

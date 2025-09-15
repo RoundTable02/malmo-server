@@ -7,19 +7,25 @@ import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.message.StreamMessage;
 import makeus.cmc.malmo.adaptor.message.StreamMessageType;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.OutboxEntity;
-import makeus.cmc.malmo.adaptor.out.persistence.entity.OutboxState;
+import makeus.cmc.malmo.domain.model.Outbox;
+import makeus.cmc.malmo.domain.value.state.OutboxState;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.OutboxRepository;
 import makeus.cmc.malmo.application.port.out.chat.PublishStreamMessagePort;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.connection.stream.RecordId;
+import org.springframework.data.redis.connection.stream.StreamRecords;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StreamOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -32,49 +38,45 @@ public class RedisStreamAdapter implements PublishStreamMessagePort {
     private String streamKey;
 
     private final StringRedisTemplate redisTemplate;
-    private final ObjectMapper objectMapper;
 
-    private final OutboxRepository outboxRepository;
+    @Override
+    public String publish(StreamMessageType type, String payload, Long outboxId) {
+        Map<String, String> map = new HashMap<>();
+        map.put("type", type.name());
+        map.put("payload", payload);
+        map.put("retry", "0");
+        map.put("outboxId", String.valueOf(outboxId));
 
-    public void publish(StreamMessageType type, StreamMessage payload) {
-        try {
-            String jsonPayload = objectMapper.writeValueAsString(payload);
+        StreamOperations<String, String, String> ops = redisTemplate.opsForStream();
+        RecordId id = ops.add(MapRecord.create(streamKey, map));
 
-            TransactionSynchronizationManager.registerSynchronization(
-                    new TransactionSynchronization() {
-                        @Override
-                        public void beforeCommit(boolean readOnly) {
-                            // 트랜잭션 커밋 전에 Outbox 테이블에 메시지 저장
-                            OutboxEntity outbox = OutboxEntity.builder()
-                                    .type(type.name())
-                                    .payload(jsonPayload)
-                                    .retryCount(0)
-                                    .state(OutboxState.PENDING)
-                                    .build();
+        return id != null ? id.getValue() : null;
+    }
 
-                            outboxRepository.save(outbox);
-                        }
+    @Override
+    public List<String> publishBatch(List<Outbox> outboxList) {
+        return redisTemplate.executePipelined(
+                        (RedisCallback<Object>) connection -> {
+                            for (Outbox outbox : outboxList) {
+                                Map<byte[], byte[]> map = new HashMap<>();
+                                map.put("type".getBytes(), outbox.getType().getBytes());
+                                map.put("payload".getBytes(), outbox.getPayload().getBytes());
+                                map.put("retry".getBytes(), "0".getBytes());
+                                map.put("outboxId".getBytes(), outbox.getId().toString().getBytes());
 
-                        @Override
-                        public void afterCommit() {
-                            try {
-                                Map<String, String> map = new HashMap<>();
-                                map.put("type", type.name());
-                                map.put("payload", jsonPayload);
-                                map.put("retry", "0");
-
-                                StreamOperations<String, String, String> ops = redisTemplate.opsForStream();
-                                RecordId id = ops.add(MapRecord.create(streamKey, map));
-
-                                log.info("Published message to Redis Stream: type={}, payload={}, id={}", type, payload, id);
-                            } catch (Exception e) {
-                                throw new RuntimeException("Failed to serialize payload", e);
+                                // byte[]로 변환하여 add
+                                MapRecord<byte[], byte[], byte[]> record = StreamRecords.rawBytes(map).withStreamKey(streamKey.getBytes());
+                                connection.streamCommands().xAdd(record);
                             }
-                        }
+                            return null;
+                        })
+                .stream().map(result -> {
+                    if (result instanceof RecordId) {
+                        return ((RecordId) result).getValue();
+                    } else {
+                        return null;
                     }
-            );
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+                })
+                .toList();
     }
 }
