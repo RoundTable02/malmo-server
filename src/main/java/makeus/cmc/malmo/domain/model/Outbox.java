@@ -29,6 +29,10 @@ public class Outbox {
         return this.state == OutboxState.PENDING;
     }
 
+    public boolean isDone() {
+        return this.state == OutboxState.DONE;
+    }
+
     public void incrementRetryCount() {
         this.retryCount++;
     }

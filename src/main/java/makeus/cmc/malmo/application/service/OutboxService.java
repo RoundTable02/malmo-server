@@ -3,19 +3,25 @@ package makeus.cmc.malmo.application.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.message.StreamMessageType;
+import makeus.cmc.malmo.adaptor.out.PendingMessageDto;
 import makeus.cmc.malmo.application.port.in.MarkOutboxUseCase;
 import makeus.cmc.malmo.application.port.in.PublishStreamMessageUseCase;
 import makeus.cmc.malmo.application.port.in.RetryPublishingUseCase;
 import makeus.cmc.malmo.application.port.out.CheckOpenAIHealth;
 import makeus.cmc.malmo.application.port.out.LoadOutboxPort;
 import makeus.cmc.malmo.application.port.out.SaveOutboxPort;
+import makeus.cmc.malmo.application.port.out.chat.LoadPendingMessagePort;
 import makeus.cmc.malmo.application.port.out.chat.PublishStreamMessagePort;
 import makeus.cmc.malmo.domain.model.Outbox;
 import makeus.cmc.malmo.domain.value.state.OutboxState;
+import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -24,11 +30,13 @@ public class OutboxService implements PublishStreamMessageUseCase, RetryPublishi
 
 
     private final PublishStreamMessagePort publishStreamMessagePort;
+    private final LoadPendingMessagePort loadPendingMessagePort;
     private final LoadOutboxPort loadOutboxPort;
     private final SaveOutboxPort saveOutboxPort;
     private final CheckOpenAIHealth checkOpenAIHealth;
 
     @Override
+    @Transactional
     public void publish(Long outboxId) {
         log.debug("Handling event for outboxId: {}", outboxId);
 
@@ -60,6 +68,7 @@ public class OutboxService implements PublishStreamMessageUseCase, RetryPublishi
     }
 
     @Override
+    @Transactional
     public void retryPublishing() {
         // PENDING 상태인 메시지 중 5초 이상 지난 메시지를 재시도 처리
         List<Outbox> outboxList = loadOutboxPort.findByStateAndModifiedAtBefore(
@@ -100,6 +109,7 @@ public class OutboxService implements PublishStreamMessageUseCase, RetryPublishi
     }
 
     @Override
+    @Transactional
     public void retryFailedMessages() {
         // OpenAI Health Check
         boolean isUp = checkOpenAIHealth.checkHealth();
@@ -117,8 +127,33 @@ public class OutboxService implements PublishStreamMessageUseCase, RetryPublishi
     }
 
     @Override
+    @Transactional
     public void retryPendingMessages() {
+        Duration minIdleTime = Duration.ofMinutes(5); // 5분 동안 ACK 없는 메시지 회수
 
+        List<PendingMessageDto> records = loadPendingMessagePort.loadPendingMessages(minIdleTime);
+
+        if (records == null || records.isEmpty()) {
+            return;
+        }
+
+        for (PendingMessageDto record : records) {
+            String messageId = record.getMessageId();
+            Map<Object, Object> payload = record.getPayload();
+
+            log.info("Reclaimed message: id={}, payload={}", messageId, payload);
+
+            // Outbox 멱등성 체크
+            Long outboxId = Long.valueOf(payload.get("outboxId").toString());
+            loadOutboxPort.findById(outboxId).ifPresent(outbox -> {
+                if (!outbox.isDone()) {
+                    outbox.markAsFailed();
+                    saveOutboxPort.save(outbox);
+                    log.info("Marked Outbox message as FAILED due to pending retry: outboxId={}", outbox.getId());
+                }
+                publishStreamMessagePort.acknowledge(messageId);
+            });
+        }
     }
 
     @Override

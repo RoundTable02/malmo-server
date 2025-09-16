@@ -9,4 +9,6 @@ import java.util.List;
 public interface PublishStreamMessagePort {
     String publish(StreamMessageType type, String payload, Long outboxId);
     List<String> publishBatch(List<Outbox> outboxList);
+
+    void acknowledge(String messageId);
 }
