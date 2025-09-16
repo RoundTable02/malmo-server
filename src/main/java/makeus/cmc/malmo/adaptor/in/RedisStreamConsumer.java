@@ -6,7 +6,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.message.StreamMessageType;
-import makeus.cmc.malmo.application.port.in.CompleteOutboxUseCase;
+import makeus.cmc.malmo.application.port.in.MarkOutboxUseCase;
 import makeus.cmc.malmo.application.port.in.chat.ProcessMessageUseCase;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.connection.stream.MapRecord;
@@ -24,7 +24,6 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class RedisStreamConsumer {
 
-    private final CompleteOutboxUseCase completeOutboxUseCase;
     @Value("${spring.data.redis.stream-key}")
     private String streamKey;
 
@@ -34,6 +33,8 @@ public class RedisStreamConsumer {
     private final RedisTemplate<String, Object> redisTemplate;
     private final ProcessMessageUseCase processMessageUseCase;
     private final ObjectMapper objectMapper;
+
+    private final MarkOutboxUseCase markOutboxUseCase;
 
     @PostConstruct
     public void init() {
@@ -88,7 +89,7 @@ public class RedisStreamConsumer {
                 } else {
                     // 성공적으로 완료 시 ACK
                     redisTemplate.opsForStream().acknowledge(streamKey, consumerGroup, record.getId());
-                    completeOutboxUseCase.completeOutbox(Long.valueOf(record.getValue().get("outboxId")));
+                    markOutboxUseCase.markOutboxDone(Long.valueOf(record.getValue().get("outboxId")));
                     log.info("Successfully processed and acknowledged record id={}", record.getId());
                 }
             });
@@ -177,6 +178,7 @@ public class RedisStreamConsumer {
                 dlqRecord.getValue().put("originalId", record.getId().getValue());
 
                 redisTemplate.opsForStream().add(dlqRecord);
+                markOutboxUseCase.markOutboxFailed(Long.valueOf(record.getValue().get("outboxId")));
             }
 
             // 기존 메시지는 ACK 처리해서 PEL에서 제거

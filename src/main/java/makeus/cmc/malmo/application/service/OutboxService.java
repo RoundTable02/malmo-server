@@ -3,7 +3,7 @@ package makeus.cmc.malmo.application.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.message.StreamMessageType;
-import makeus.cmc.malmo.application.port.in.CompleteOutboxUseCase;
+import makeus.cmc.malmo.application.port.in.MarkOutboxUseCase;
 import makeus.cmc.malmo.application.port.in.PublishStreamMessageUseCase;
 import makeus.cmc.malmo.application.port.in.RetryPublishingUseCase;
 import makeus.cmc.malmo.application.port.out.CheckOpenAIHealth;
@@ -20,7 +20,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class OutboxService implements PublishStreamMessageUseCase, RetryPublishingUseCase, CompleteOutboxUseCase {
+public class OutboxService implements PublishStreamMessageUseCase, RetryPublishingUseCase, MarkOutboxUseCase {
 
 
     private final PublishStreamMessagePort publishStreamMessagePort;
@@ -95,7 +95,6 @@ public class OutboxService implements PublishStreamMessageUseCase, RetryPublishi
                 }
             }
         }
-
         // 변경된 모든 Outbox 상태를 단일 트랜잭션으로 DB에 저장
         saveOutboxPort.saveAll(outboxList);
     }
@@ -107,9 +106,7 @@ public class OutboxService implements PublishStreamMessageUseCase, RetryPublishi
         if (isUp) {
             // OpenAI가 정상 상태일 때
             // FAILED 상태인 메시지를 재시도 처리
-            List<Outbox> failedOutboxList = loadOutboxPort.findByStateAndModifiedAtBefore(
-                    OutboxState.FAILED,
-                    LocalDateTime.now().minusMinutes(5));
+            List<Outbox> failedOutboxList = loadOutboxPort.findByState(OutboxState.FAILED);
 
             if (failedOutboxList == null || failedOutboxList.isEmpty()) {
                 return;
@@ -120,13 +117,29 @@ public class OutboxService implements PublishStreamMessageUseCase, RetryPublishi
     }
 
     @Override
-    public void completeOutbox(Long outboxId) {
+    public void retryPendingMessages() {
+
+    }
+
+    @Override
+    public void markOutboxDone(Long outboxId) {
         // 메시지 처리가 완료된 경우 DONE 상태로 업데이트
         loadOutboxPort.findById(outboxId)
                 .ifPresent(outbox -> {
                     outbox.markAsDone();
                     saveOutboxPort.save(outbox);
                     log.info("Marked Outbox message as DONE: outboxId={}", outbox.getId());
+                });
+    }
+
+    @Override
+    public void markOutboxFailed(Long outboxId) {
+        // 메시지 처리가 완료된 경우 DONE 상태로 업데이트
+        loadOutboxPort.findById(outboxId)
+                .ifPresent(outbox -> {
+                    outbox.markAsFailed();
+                    saveOutboxPort.save(outbox);
+                    log.info("Marked Outbox message as FAILED: outboxId={}", outbox.getId());
                 });
     }
 }

@@ -30,6 +30,11 @@ public class OutboxPersistenceAdapter implements LoadOutboxPort, SaveOutboxPort 
     }
 
     @Override
+    public List<Outbox> findByState(OutboxState state) {
+        return List.of();
+    }
+
+    @Override
     public Optional<Outbox> findById(Long outboxId) {
         return outboxRepository.findById(outboxId)
                 .map(outboxMapper::toDomain);

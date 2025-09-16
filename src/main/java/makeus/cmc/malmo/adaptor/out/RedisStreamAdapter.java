@@ -65,7 +65,10 @@ public class RedisStreamAdapter implements PublishStreamMessagePort {
                                 map.put("outboxId".getBytes(), outbox.getId().toString().getBytes());
 
                                 // byte[]로 변환하여 add
-                                MapRecord<byte[], byte[], byte[]> record = StreamRecords.rawBytes(map).withStreamKey(streamKey.getBytes());
+                                MapRecord<byte[], byte[], byte[]> record = StreamRecords
+                                        .rawBytes(map)
+                                        .withStreamKey(streamKey.getBytes());
+
                                 connection.streamCommands().xAdd(record);
                             }
                             return null;

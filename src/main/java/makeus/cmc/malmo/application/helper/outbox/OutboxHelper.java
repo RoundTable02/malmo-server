@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.message.StreamMessage;
 import makeus.cmc.malmo.adaptor.message.StreamMessageType;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.OutboxEntity;
+import makeus.cmc.malmo.application.port.out.SaveOutboxPort;
+import makeus.cmc.malmo.domain.model.Outbox;
 import makeus.cmc.malmo.domain.value.state.OutboxState;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.OutboxRepository;
 import org.springframework.context.ApplicationEventPublisher;
@@ -20,8 +22,8 @@ public class OutboxHelper {
 
     private final ObjectMapper objectMapper;
 
-    private final OutboxRepository outboxRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final SaveOutboxPort saveOutboxPort;
 
     @Transactional
     public void publish(StreamMessageType type, StreamMessage payload) {
@@ -32,13 +34,8 @@ public class OutboxHelper {
             throw new RuntimeException("Failed to serialize payload", e);
         }
 
-        OutboxEntity outbox = OutboxEntity.builder()
-                .type(type.name())
-                .payload(jsonPayload)
-                .state(OutboxState.PENDING)
-                .retryCount(0)
-                .build();
-        outboxRepository.save(outbox);
+        Outbox outbox = Outbox.create(type.name(), jsonPayload);
+        saveOutboxPort.save(outbox);
 
         // 트랜잭션이 성공적으로 커밋되면 OutboxEvent를 발행하도록 요청
         eventPublisher.publishEvent(new OutboxMessageSavedEvent(this, outbox.getId()));

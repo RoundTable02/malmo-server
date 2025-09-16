@@ -20,11 +20,11 @@ public class OutboxScheduler {
         retryPublishingUseCase.retryPublishing();
     }
 
-    @Scheduled(fixedRate = 60000) // FAILED 상태의 메시지를 재발행, 1분마다 실행
+    @Scheduled(fixedRate = 300000) // FAILED 상태의 메시지를 재발행, 5분마다 실행
     @Transactional
     public void processFailedMessages() {
         retryPublishingUseCase.retryFailedMessages();
     }
 
-
+    
 }

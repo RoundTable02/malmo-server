@@ -9,5 +9,6 @@ import java.util.List;
 
 public interface OutboxRepository extends JpaRepository<OutboxEntity, Long> {
 
+    List<OutboxEntity> findByState(OutboxState state);
     List<OutboxEntity> findByStateAndModifiedAtBefore(OutboxState state, LocalDateTime before);
 }

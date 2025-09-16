@@ -162,14 +162,14 @@ public class OpenAiApiClient implements RequestChatApiPort, CheckOpenAIHealth {
             String description = (String) status.get("description");
 
             if ("none".equalsIgnoreCase(indicator)) {
-                log.info("✅ OpenAI API is UP: {}", description);
+                log.info("OpenAI API is UP: {}", description);
                 return true;
             } else {
-                log.warn("⚠️ OpenAI API Issue: {} ({})", description, indicator);
+                log.warn(" OpenAI API Issue: {} ({})", description, indicator);
                 return false;
             }
         } catch (Exception e) {
-            log.error("❌ OpenAI HealthCheck failed", e);
+            log.error("OpenAI HealthCheck failed", e);
             return false;
         }
     }
