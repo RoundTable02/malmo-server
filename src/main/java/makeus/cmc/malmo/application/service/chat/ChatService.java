@@ -57,11 +57,14 @@ public class ChatService implements SendChatMessageUseCase {
         // 채팅방이 초기화되지 않은 상태인 경우 초기화
         if (chatRoom.getChatRoomState() == ChatRoomState.BEFORE_INIT) {
             chatRoom.updateChatRoomStateAlive();
-            chatRoomCommandHelper.saveChatRoom(chatRoom);
         }
 
         // 현재 유저 메시지를 저장
         ChatMessage savedUserMessage = saveUserMessage(chatRoom, command.getMessage());
+
+        // 채팅방의 마지막 메시지 전송 시간 갱신
+        chatRoom.updateLastMessageSentTime();
+        chatRoomCommandHelper.saveChatRoom(chatRoom);
 
         // 채팅 응답 API 요청 스트림에 추가
         publishStreamMessagePort.publish(
