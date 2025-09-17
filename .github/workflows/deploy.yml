@@ -88,10 +88,14 @@ jobs:
           if [[ "${{ github.event.head_commit.message }}" == *"release-green"* ]]; then
             echo "port=8080" >> $GITHUB_OUTPUT
             echo "container_name=malmo-green" >> $GITHUB_OUTPUT
+            echo "redis_stream_key=${{ secrets.REDIS_STREAM_KEY_GREEN }}" >> $GITHUB_OUTPUT
+            echo "redis_consumer_group=${{ secrets.REDIS_CONSUMER_GROUP_GREEN }}" >> $GITHUB_OUTPUT
             echo "Green deployment: port=8080, container=malmo-green"
           elif [[ "${{ github.event.head_commit.message }}" == *"release-blue"* ]]; then
             echo "port=8081" >> $GITHUB_OUTPUT
             echo "container_name=malmo-blue" >> $GITHUB_OUTPUT
+            echo "redis_stream_key=${{ secrets.REDIS_STREAM_KEY_BLUE }}" >> $GITHUB_OUTPUT
+            echo "redis_consumer_group=${{ secrets.REDIS_CONSUMER_GROUP_BLUE }}" >> $GITHUB_OUTPUT
             echo "Blue deployment: port=8081, container=malmo-blue"
           fi
 
@@ -146,8 +150,8 @@ jobs:
                   - SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }}
                   - SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}
                   - SPRING_DATA_REDIS_HOST=malmo-redis
-                  - REDIS_STREAM_KEY=${{ secrets.REDIS_STREAM_KEY }}
-                  - REDIS_CONSUMER_GROUP=${{ secrets.REDIS_CONSUMER_GROUP }}
+                  - REDIS_STREAM_KEY=${{ steps.set_config.outputs.redis_stream_key }}
+                  - REDIS_CONSUMER_GROUP=${{ steps.set_config.outputs.redis_consumer_group }}
                   - JWT_SECRET=${{ secrets.JWT_SECRET }}
                   - KAKAO_REST_API_KEY=${{ secrets.KAKAO_REST_API_KEY }}
                   - APPLE_REST_API_KEY=${{ secrets.APPLE_REST_API_KEY }}

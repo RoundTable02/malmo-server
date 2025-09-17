@@ -79,6 +79,10 @@ public class ChatRoom {
         this.solutionKeyword = solutionKeyword;
     }
 
+    public void updateLastMessageSentTime() {
+        this.lastMessageSentTime = LocalDateTime.now();
+    }
+
     public void complete() {
         this.chatRoomState = ChatRoomState.COMPLETED;
         this.totalSummary = COMPLETED_ROOM_CREATING_SUMMARY_LINE;
