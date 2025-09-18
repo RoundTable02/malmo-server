@@ -145,6 +145,10 @@ release-green: 결제 모듈 업데이트
 
   [[VELOG : 좀 더 안정적인 API 호출 with Redis Stream]](https://velog.io/@_roundtable/%EB%A7%90%EB%AA%A8-%EC%A2%80-%EB%8D%94-%EC%95%88%EC%A0%95%EC%A0%81%EC%9D%B8-API-%ED%98%B8%EC%B6%9C-with-Redis-Stream)
 
+- **트랜잭션 아웃박스 (Transactional Outbox)** 패턴 적용으로 메시지 발행 보장
+  
+   [[트랜잭션 아웃박스 패턴으로 메시지 발행 보장하기]](https://velog.io/@_roundtable/%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98-%EC%95%84%EC%9B%83%EB%B0%95%EC%8A%A4-%ED%8C%A8%ED%84%B4%EC%9C%BC%EB%A1%9C-%EB%A9%94%EC%8B%9C%EC%A7%80-%EB%B0%9C%ED%96%89-%EB%B3%B4%EC%9E%A5%ED%95%98%EA%B8%B0)
+
 - 외부 API의 도메인 영역 침범을 분리하기 위해 **헥사고날 아키텍처**를 적용, 확장 가능성 확보
 
   [[VELOG : 헥사고날의 선택, 그리고 후기]](https://velog.io/@_roundtable/%EB%A7%90%EB%AA%A8-%ED%97%A5%EC%82%AC%EA%B3%A0%EB%82%A0%EC%9D%98-%EC%84%A0%ED%83%9D-%EA%B7%B8%EB%A6%AC%EA%B3%A0-%ED%9B%84%EA%B8%B0)
