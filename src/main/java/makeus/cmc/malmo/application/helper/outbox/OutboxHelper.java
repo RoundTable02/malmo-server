@@ -35,10 +35,10 @@ public class OutboxHelper {
         }
 
         Outbox outbox = Outbox.create(type.name(), jsonPayload);
-        saveOutboxPort.save(outbox);
+        Outbox savedOutbox = saveOutboxPort.save(outbox);
 
         // 트랜잭션이 성공적으로 커밋되면 OutboxEvent를 발행하도록 요청
-        eventPublisher.publishEvent(new OutboxMessageSavedEvent(this, outbox.getId()));
+        eventPublisher.publishEvent(new OutboxMessageSavedEvent(this, savedOutbox.getId()));
         log.info("Saved message to Outbox and published event for outboxId: {}", outbox.getId());
     }
 }
