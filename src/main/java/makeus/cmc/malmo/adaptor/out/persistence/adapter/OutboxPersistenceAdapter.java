@@ -31,7 +31,9 @@ public class OutboxPersistenceAdapter implements LoadOutboxPort, SaveOutboxPort 
 
     @Override
     public List<Outbox> findByState(OutboxState state) {
-        return List.of();
+        return outboxRepository.findByState(state).stream()
+                .map(outboxMapper::toDomain)
+                .toList();
     }
 
     @Override
