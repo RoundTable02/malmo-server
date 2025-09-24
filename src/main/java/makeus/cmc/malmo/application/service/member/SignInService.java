@@ -38,17 +38,18 @@ public class SignInService implements SignInUseCase, LogOutUseCase {
     public SignInResponse signInKakao(SignInKakaoCommand command) {
         String providerId = oauthTokenHelper.getKakaoIdTokenOrThrow(command.getIdToken());
         Provider provider = Provider.KAKAO;
+        String email = oauthTokenHelper.fetchKakaoEmailOrThrow(command.getAccessToken());
 
         Member member = memberQueryHelper.getMemberByProviderId(provider, providerId)
                 .orElseGet(() -> {
                     // 카카오 Access Token을 이용해 OAuth로 이메일을 가져옴
-                    String email = oauthTokenHelper.fetchKakaoEmailOrThrow(command.getAccessToken());
                     return createNewMember(provider, providerId, email, null);
                 });
 
         // 어플리케이션 토큰 생성
         TokenInfo tokenInfo = accessTokenHelper.generateToken(member.getId(), member.getMemberRole());
         member.refreshMemberToken(tokenInfo.getRefreshToken());
+        member.updateEmail(email);
         memberCommandHelper.saveMember(member);
 
         // 3. 최종 응답 생성
