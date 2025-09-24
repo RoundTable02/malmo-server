@@ -15,7 +15,7 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.question.TempCoupleQuesti
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.CoupleQuestionEntityId;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.InviteCodeEntityValue;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
-import makeus.cmc.malmo.application.port.out.chat.PublishStreamMessagePort;
+import makeus.cmc.malmo.application.helper.outbox.OutboxHelper;
 import makeus.cmc.malmo.application.port.out.member.GenerateTokenPort;
 import makeus.cmc.malmo.domain.value.state.CoupleQuestionState;
 import makeus.cmc.malmo.domain.value.state.MemberAnswerState;
@@ -57,7 +57,7 @@ public class CoupleQuestionIntegrationTest {
     private MockMvc mockMvc;
 
     @MockBean
-    PublishStreamMessagePort publishStreamMessagePort;
+    OutboxHelper outboxHelper;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -342,7 +342,7 @@ public class CoupleQuestionIntegrationTest {
                     .setParameter("id", coupleQuestion.getId())
                     .executeUpdate();
 
-            doNothing().when(publishStreamMessagePort).publish(any(), any());
+            doNothing().when(outboxHelper).publish(any(), any());
 
             // when
             MvcResult mvcResult = mockMvc.perform(get("/questions/today")
@@ -370,7 +370,7 @@ public class CoupleQuestionIntegrationTest {
             Assertions.assertThat(data.partnerAnswered).isFalse();
 
             // publishStreamMessagePort 호출 검증
-            verify(publishStreamMessagePort, times(2)).publish(any(), any());
+            verify(outboxHelper, times(2)).publish(any(), any());
         }
     }
 

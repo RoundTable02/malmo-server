@@ -6,6 +6,7 @@ import makeus.cmc.malmo.adaptor.message.StreamMessageType;
 import makeus.cmc.malmo.application.exception.MemberAccessDeniedException;
 import makeus.cmc.malmo.application.helper.couple.CoupleQueryHelper;
 import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
+import makeus.cmc.malmo.application.helper.outbox.OutboxHelper;
 import makeus.cmc.malmo.application.helper.question.CoupleQuestionCommandHelper;
 import makeus.cmc.malmo.application.helper.question.CoupleQuestionQueryHelper;
 import makeus.cmc.malmo.application.port.in.question.AnswerQuestionUseCase;
@@ -35,9 +36,7 @@ public class CoupleQuestionStrategy implements QuestionHandlingStrategy{
 
     private final CoupleQueryHelper coupleQueryHelper;
 
-    private final MemberQueryHelper memberQueryHelper;
-
-    private final PublishStreamMessagePort publishStreamMessagePort;
+    private final OutboxHelper outboxHelper;
 
     @Override
     @Transactional
@@ -61,7 +60,7 @@ public class CoupleQuestionStrategy implements QuestionHandlingStrategy{
             CoupleQuestion savedCoupleQuestion = coupleQuestionCommandHelper.saveCoupleQuestion(nextCoupleQuestion);
 
             // 사용자 & 파트너 답변으로부터 각각 메타데이터 추출 요청
-            publishStreamMessagePort.publish(
+            outboxHelper.publish(
                     StreamMessageType.REQUEST_EXTRACT_METADATA,
                     new RequestExtractMetadataMessage(
                             couple.getId(),
@@ -70,7 +69,7 @@ public class CoupleQuestionStrategy implements QuestionHandlingStrategy{
                     )
             );
 
-            publishStreamMessagePort.publish(
+            outboxHelper.publish(
                     StreamMessageType.REQUEST_EXTRACT_METADATA,
                     new RequestExtractMetadataMessage(
                             couple.getId(),

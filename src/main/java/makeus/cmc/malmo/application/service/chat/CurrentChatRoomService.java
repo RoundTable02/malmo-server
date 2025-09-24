@@ -9,6 +9,7 @@ import makeus.cmc.malmo.application.helper.chat_room.ChatRoomCommandHelper;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomQueryHelper;
 import makeus.cmc.malmo.application.helper.chat_room.PromptQueryHelper;
 import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
+import makeus.cmc.malmo.application.helper.outbox.OutboxHelper;
 import makeus.cmc.malmo.application.port.in.chat.CompleteChatRoomUseCase;
 import makeus.cmc.malmo.application.port.in.chat.GetCurrentChatRoomMessagesUseCase;
 import makeus.cmc.malmo.application.port.in.chat.GetCurrentChatRoomUseCase;
@@ -44,7 +45,7 @@ public class CurrentChatRoomService
     private final MemberQueryHelper memberQueryHelper;
     private final ChatRoomCommandHelper chatRoomCommandHelper;
 
-    private final PublishStreamMessagePort publishStreamMessagePort;
+    private final OutboxHelper outboxHelper;
 
     @Override
     @Transactional
@@ -57,7 +58,7 @@ public class CurrentChatRoomService
                         // 마지막 채팅 이후 하루가 지난 경우 채팅방 종료 처리
                         chatRoom.expire();
                         ChatRoom savedChatRoom = chatRoomCommandHelper.saveChatRoom(chatRoom);
-                        publishStreamMessagePort.publish(
+                        outboxHelper.publish(
                                 StreamMessageType.REQUEST_TOTAL_SUMMARY,
                                 new RequestTotalSummaryMessage(savedChatRoom.getId())
                         );
@@ -128,7 +129,7 @@ public class CurrentChatRoomService
 
         // 완료된 채팅방의 요약을 요청
         log.info("채팅방 요약 요청 스트림 추가: chatRoomId={}", chatRoom.getId());
-        publishStreamMessagePort.publish(
+        outboxHelper.publish(
                 StreamMessageType.REQUEST_TOTAL_SUMMARY,
                 new RequestTotalSummaryMessage(chatRoom.getId())
         );
