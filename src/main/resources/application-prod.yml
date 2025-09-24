@@ -29,9 +29,10 @@ jwt:
 
 logging:
   level:
-    com.zaxxer.hikari.HikariConfig: DEBUG
-    org.hibernate.SQL: TRACE
-    makeus.cmc.malmo: DEBUG
+    com.zaxxer.hikari.HikariConfig: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: INFO
+    makeus.cmc.malmo: INFO
 
 kakao:
   oidc:
