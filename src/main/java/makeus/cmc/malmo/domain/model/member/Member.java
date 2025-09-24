@@ -123,6 +123,10 @@ public class Member {
         this.startLoveDate = startLoveDate;
     }
 
+    public void updateEmail(String email) {
+        this.email = email;
+    }
+
     public void delete() {
         this.memberState = MemberState.DELETED;
         this.deletedAt = LocalDateTime.now();
