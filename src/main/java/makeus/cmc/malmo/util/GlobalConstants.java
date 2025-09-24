@@ -27,5 +27,6 @@ public class GlobalConstants {
 
     public static final String OPENAI_CHAT_URL = "https://api.openai.com/v1";
 
+    public static final String OPENAI_STATUS_URL = "https://status.openai.com/api/v2/status.json";
 
 }
