@@ -73,7 +73,7 @@ dependencies {
 
 	// Sentry
 	implementation 'io.sentry:sentry-spring-boot-starter-jakarta:8.23.0'
-
+	implementation 'io.sentry:sentry-jdbc:8.23.0'
 }
 
 // QueryDSL Q클래스 생성 경로 설정

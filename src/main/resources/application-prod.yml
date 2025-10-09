@@ -83,8 +83,9 @@ sentry:
   dsn: ${SENTRY_DSN}
   traces-sample-rate: 1.0
   profiles-sample-rate: 1.0
-  environment: server-prod
+  environment: server-dev
   exception-resolver-order: 0
   logging:
     minimum-event-level: ERROR
   send-default-pii: true
+  max-request-body-size: medium
