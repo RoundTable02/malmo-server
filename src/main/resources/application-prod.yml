@@ -29,9 +29,9 @@ jwt:
 
 logging:
   level:
-    com.zaxxer.hikari.HikariConfig: DEBUG
-    org.hibernate.SQL: TRACE
-    makeus.cmc.malmo: DEBUG
+    com.zaxxer.hikari: WARN
+    org.hibernate: WARN
+    makeus.cmc.malmo: INFO
 
 kakao:
   oidc:
@@ -78,3 +78,13 @@ security:
 encryption:
   aes:
     key: ${AES_ENCRYPTION_KEY}
+
+sentry:
+  dsn: ${SENTRY_DSN}
+  traces-sample-rate: 1.0
+  profiles-sample-rate: 1.0
+  environment: server-prod
+  exception-resolver-order: 0
+  logging:
+    minimum-event-level: ERROR
+  send-default-pii: true
