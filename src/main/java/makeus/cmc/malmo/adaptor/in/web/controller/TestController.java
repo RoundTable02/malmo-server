@@ -1,5 +1,6 @@
 package makeus.cmc.malmo.adaptor.in.web.controller;
 
+import io.sentry.Sentry;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -82,5 +83,17 @@ public class TestController {
     @GetMapping("/admin/test")
     public String adminTest() {
         return "Admin Test Success";
+    }
+
+    @GetMapping("/sentry-test")
+    public String sentryTest() {
+        log.info("Sentry test endpoint hit");
+        try {
+            throw new RuntimeException("This is a test exception for Sentry");
+        } catch (Exception e) {
+            // Sentry에 예외 전송
+            Sentry.captureException(e);
+        }
+        return "Sentry test completed. Check Sentry dashboard for the logged exception.";
     }
 }
