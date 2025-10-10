@@ -83,7 +83,7 @@ sentry:
   dsn: ${SENTRY_DSN}
   traces-sample-rate: 1.0
   profiles-sample-rate: 1.0
-  environment: server-dev
+  environment: server-prod
   exception-resolver-order: 0
   logging:
     minimum-event-level: ERROR
