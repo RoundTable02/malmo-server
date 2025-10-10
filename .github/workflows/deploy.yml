@@ -88,12 +88,14 @@ jobs:
           if [[ "${{ github.event.head_commit.message }}" == *"release-green"* ]]; then
             echo "port=8080" >> $GITHUB_OUTPUT
             echo "container_name=malmo-green" >> $GITHUB_OUTPUT
+            echo "compose_file=docker-compose-green.yml" >> $GITHUB_OUTPUT
             echo "redis_stream_key=${{ secrets.REDIS_STREAM_KEY_GREEN }}" >> $GITHUB_OUTPUT
             echo "redis_consumer_group=${{ secrets.REDIS_CONSUMER_GROUP_GREEN }}" >> $GITHUB_OUTPUT
             echo "Green deployment: port=8080, container=malmo-green"
           elif [[ "${{ github.event.head_commit.message }}" == *"release-blue"* ]]; then
             echo "port=8081" >> $GITHUB_OUTPUT
             echo "container_name=malmo-blue" >> $GITHUB_OUTPUT
+            echo "compose_file=docker-compose-blue.yml" >> $GITHUB_OUTPUT
             echo "redis_stream_key=${{ secrets.REDIS_STREAM_KEY_BLUE }}" >> $GITHUB_OUTPUT
             echo "redis_consumer_group=${{ secrets.REDIS_CONSUMER_GROUP_BLUE }}" >> $GITHUB_OUTPUT
             echo "Blue deployment: port=8081, container=malmo-blue"
@@ -107,7 +109,7 @@ jobs:
 
       - name: Build and push Docker image
         env:
-          IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/malmo-test
+          IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/${{ steps.set_config.outputs.container_name }}
         run: |
           docker build --platform linux/amd64 -t $IMAGE_NAME:${{ github.sha }} -t $IMAGE_NAME:latest .
           docker push $IMAGE_NAME:${{ github.sha }}
@@ -134,12 +136,12 @@ jobs:
             docker rm ${{ steps.set_config.outputs.container_name }} || true
       
             # docker-compose.yml 파일 생성
-            cat << 'EOF' > docker-compose.yml
+            cat << 'EOF' > ${{ steps.set_config.outputs.compose_file }}
             version: '3.8'
 
             services:
-              malmo-test:
-                image: ${{ secrets.DOCKERHUB_USERNAME }}/malmo-test:latest
+              ${{ steps.set_config.outputs.container_name }}:
+                image: ${{ secrets.DOCKERHUB_USERNAME }}/${{ steps.set_config.outputs.container_name }}:latest
                 container_name: ${{ steps.set_config.outputs.container_name }}
                 ports:
                   - "${{ steps.set_config.outputs.port }}:8080"
@@ -178,8 +180,8 @@ jobs:
             EOF
 
             # docker-compose로 애플리케이션 실행
-            docker-compose -f docker-compose.yml pull
-            docker-compose -f docker-compose.yml up -d
+            docker-compose -f ${{ steps.set_config.outputs.compose_file }} pull
+            docker-compose -f ${{ steps.set_config.outputs.compose_file }} up -d
 
             # 불필요한 Docker 이미지 정리
             docker image prune -f
