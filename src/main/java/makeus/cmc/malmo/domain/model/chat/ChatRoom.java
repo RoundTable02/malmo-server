@@ -43,7 +43,7 @@ public class ChatRoom {
     public static ChatRoom from(Long id, MemberId memberId, ChatRoomState chatRoomState,
                                 int level, LocalDateTime lastMessageSentTime,
                                 String totalSummary, String situationKeyword, String solutionKeyword,
-                                ChatRoomCompletedReason chatRoomCompletedReason,
+                                ChatRoomCompletedReason chatRoomCompletedReason, String counselingType,
                                 LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
         return ChatRoom.builder()
                 .id(id)
@@ -55,6 +55,7 @@ public class ChatRoom {
                 .situationKeyword(situationKeyword)
                 .solutionKeyword(solutionKeyword)
                 .chatRoomCompletedReason(chatRoomCompletedReason)
+                .counselingType(counselingType)
                 .createdAt(createdAt)
                 .modifiedAt(modifiedAt)
                 .deletedAt(deletedAt)

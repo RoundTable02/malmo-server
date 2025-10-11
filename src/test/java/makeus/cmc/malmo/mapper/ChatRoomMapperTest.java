@@ -74,6 +74,7 @@ class ChatRoomMapperTest {
                 "situation",
                 "solution",
                 null,
+                null,
                 now,
                 now,
                 null

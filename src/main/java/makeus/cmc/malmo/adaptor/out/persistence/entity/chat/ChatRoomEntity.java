@@ -44,4 +44,7 @@ public class ChatRoomEntity extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     private ChatRoomCompletedReason chatRoomCompletedReason;
+
+    @Column(columnDefinition = "TEXT")
+    private String counselingType;
 }
