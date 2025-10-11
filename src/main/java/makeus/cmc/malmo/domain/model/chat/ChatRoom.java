@@ -24,6 +24,7 @@ public class ChatRoom {
     private String situationKeyword;
     private String solutionKeyword;
     private ChatRoomCompletedReason chatRoomCompletedReason;
+    private String counselingType;
 
     // BaseTimeEntity fields
     private LocalDateTime createdAt;
@@ -42,7 +43,7 @@ public class ChatRoom {
     public static ChatRoom from(Long id, MemberId memberId, ChatRoomState chatRoomState,
                                 int level, LocalDateTime lastMessageSentTime,
                                 String totalSummary, String situationKeyword, String solutionKeyword,
-                                ChatRoomCompletedReason chatRoomCompletedReason,
+                                ChatRoomCompletedReason chatRoomCompletedReason, String counselingType,
                                 LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
         return ChatRoom.builder()
                 .id(id)
@@ -54,6 +55,7 @@ public class ChatRoom {
                 .situationKeyword(situationKeyword)
                 .solutionKeyword(solutionKeyword)
                 .chatRoomCompletedReason(chatRoomCompletedReason)
+                .counselingType(counselingType)
                 .createdAt(createdAt)
                 .modifiedAt(modifiedAt)
                 .deletedAt(deletedAt)
@@ -77,10 +79,11 @@ public class ChatRoom {
         this.chatRoomState = ChatRoomState.ALIVE;
     }
 
-    public void updateChatRoomSummary(String totalSummary, String situationKeyword, String solutionKeyword) {
+    public void updateChatRoomSummary(String totalSummary, String situationKeyword, String solutionKeyword, String counselingType) {
         this.totalSummary = totalSummary;
         this.situationKeyword = situationKeyword;
         this.solutionKeyword = solutionKeyword;
+        this.counselingType = counselingType;
     }
 
     public void updateLastMessageSentTime() {

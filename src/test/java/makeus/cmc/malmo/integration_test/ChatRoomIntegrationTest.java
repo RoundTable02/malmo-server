@@ -177,7 +177,8 @@ public class ChatRoomIntegrationTest {
             ChatProcessor.CounselingSummary mockSummary = new ChatProcessor.CounselingSummary(
                     "만료된 채팅방 요약",
                     "상황 키워드",
-                    "솔루션 키워드"
+                    "솔루션 키워드",
+                    "재회 고민"
             );
             when(chatProcessor.requestTotalSummary(any(), any(), any())).thenReturn(CompletableFuture.completedFuture(mockSummary));
 
@@ -458,7 +459,7 @@ public class ChatRoomIntegrationTest {
             em.persist(ChatMessageSummaryEntity.builder().chatRoomEntityId(ChatRoomEntityId.of(chatRoom.getId())).content("요약2").level(2).build());
             em.flush();
 
-            ChatProcessor.CounselingSummary summary = new ChatProcessor.CounselingSummary("최종 요약", "상황 키워드", "솔루션 키워드");
+            ChatProcessor.CounselingSummary summary = new ChatProcessor.CounselingSummary("최종 요약", "상황 키워드", "솔루션 키워드", "재회 고민");
             when(chatProcessor.requestTotalSummary(any(), any(), any())).thenReturn(CompletableFuture.completedFuture(summary));
 
             // when & then
