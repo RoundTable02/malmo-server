@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import makeus.cmc.malmo.domain.value.id.MemberId;
+import makeus.cmc.malmo.domain.value.state.ChatRoomCompletedReason;
 import makeus.cmc.malmo.domain.value.state.ChatRoomState;
 
 import java.time.LocalDateTime;
@@ -22,6 +23,7 @@ public class ChatRoom {
     private String totalSummary;
     private String situationKeyword;
     private String solutionKeyword;
+    private ChatRoomCompletedReason chatRoomCompletedReason;
 
     // BaseTimeEntity fields
     private LocalDateTime createdAt;
@@ -40,6 +42,7 @@ public class ChatRoom {
     public static ChatRoom from(Long id, MemberId memberId, ChatRoomState chatRoomState,
                                 int level, LocalDateTime lastMessageSentTime,
                                 String totalSummary, String situationKeyword, String solutionKeyword,
+                                ChatRoomCompletedReason chatRoomCompletedReason,
                                 LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
         return ChatRoom.builder()
                 .id(id)
@@ -50,6 +53,7 @@ public class ChatRoom {
                 .totalSummary(totalSummary)
                 .situationKeyword(situationKeyword)
                 .solutionKeyword(solutionKeyword)
+                .chatRoomCompletedReason(chatRoomCompletedReason)
                 .createdAt(createdAt)
                 .modifiedAt(modifiedAt)
                 .deletedAt(deletedAt)
@@ -83,9 +87,17 @@ public class ChatRoom {
         this.lastMessageSentTime = LocalDateTime.now();
     }
 
-    public void complete() {
+    public void completeByUser() {
         this.chatRoomState = ChatRoomState.COMPLETED;
         this.totalSummary = COMPLETED_ROOM_CREATING_SUMMARY_LINE;
+
+        if (this.level == LAST_PROMPT_LEVEL) {
+            // 사용자가 마지막 단계에서 종료한 경우
+            this.chatRoomCompletedReason = ChatRoomCompletedReason.CHAT_PROCESS_DONE;
+        } else {
+            // 사용자가 중간 단계에서 종료한 경우
+            this.chatRoomCompletedReason = ChatRoomCompletedReason.COMPLETED_BY_USER;
+        }
     }
 
     public boolean isChatRoomValid() {
@@ -95,6 +107,7 @@ public class ChatRoom {
     public void expire() {
         this.chatRoomState = ChatRoomState.COMPLETED;
         this.totalSummary = EXPIRED_ROOM_CREATING_SUMMARY_LINE;
+        this.chatRoomCompletedReason = ChatRoomCompletedReason.EXPIRED;
     }
 
     public boolean isStarted() {
