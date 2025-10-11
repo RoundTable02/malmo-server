@@ -24,6 +24,7 @@ public class ChatRoom {
     private String situationKeyword;
     private String solutionKeyword;
     private ChatRoomCompletedReason chatRoomCompletedReason;
+    private String counselingType;
 
     // BaseTimeEntity fields
     private LocalDateTime createdAt;
@@ -77,10 +78,11 @@ public class ChatRoom {
         this.chatRoomState = ChatRoomState.ALIVE;
     }
 
-    public void updateChatRoomSummary(String totalSummary, String situationKeyword, String solutionKeyword) {
+    public void updateChatRoomSummary(String totalSummary, String situationKeyword, String solutionKeyword, String counselingType) {
         this.totalSummary = totalSummary;
         this.situationKeyword = situationKeyword;
         this.solutionKeyword = solutionKeyword;
+        this.counselingType = counselingType;
     }
 
     public void updateLastMessageSentTime() {

@@ -124,7 +124,8 @@ public class ChatMessageService implements ProcessMessageUseCase {
                     chatRoom.updateChatRoomSummary(
                             summary.getTotalSummary(),
                             summary.getSituationKeyword(),
-                            summary.getSolutionKeyword()
+                            summary.getSolutionKeyword(),
+                            summary.getCounselingType()
                     );
                     chatRoomCommandHelper.saveChatRoom(chatRoom);
                     log.info("Successfully processed and saved total summary for chatRoomId: {}", command.getChatRoomId());
