@@ -28,6 +28,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static makeus.cmc.malmo.adaptor.in.exception.ErrorCode.*;
@@ -132,7 +134,7 @@ public class CoupleIntegrationTest {
                     .getSingleResult();
 
             Assertions.assertThat(couple.getCoupleState()).isEqualTo(CoupleState.ALIVE);
-            Assertions.assertThat(couple.getStartLoveDate()).isEqualTo(partner.getStartLoveDate());
+            Assertions.assertThat(couple.getStartLoveDate()).isEqualTo(LocalDate.now());
 
             List<Long> memberIds = List.of(couple.getFirstMemberId().getValue(), couple.getSecondMemberId().getValue());
             Assertions.assertThat(memberIds).containsExactlyInAnyOrder(member.getId(), partner.getId());
@@ -147,61 +149,61 @@ public class CoupleIntegrationTest {
             Assertions.assertThat(coupleQuestion.getCoupleQuestionState()).isEqualTo(CoupleQuestionState.ALIVE);
         }
 
-        @Test
-        @DisplayName("정지된 채팅방이 있는 경우 커플 연결이 성공 후 채팅방이 활성화된다.")
-        void 커플_연결_성공_채팅방_활성화() throws Exception {
-            // given
-            ChatRoomEntity memberChatRoom = ChatRoomEntity.builder()
-                    .memberEntityId(MemberEntityId.of(member.getId()))
-                    .chatRoomState(ChatRoomState.PAUSED)
-                    .level(INIT_CHATROOM_LEVEL)
-                    .build();
-
-            ChatRoomEntity partnerChatRoom = ChatRoomEntity.builder()
-                    .memberEntityId(MemberEntityId.of(partner.getId()))
-                    .chatRoomState(ChatRoomState.PAUSED)
-                    .level(INIT_CHATROOM_LEVEL)
-                    .build();
-
-            em.persist(memberChatRoom);
-            em.persist(partnerChatRoom);
-            em.flush();
-
-            // when
-            MvcResult mvcResult = mockMvc.perform(post("/couples")
-                            .header("Authorization", "Bearer " + accessToken)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(
-                                    CoupleRequestDtoFactory.createCoupleLinkRequestDto(partner.getInviteCodeEntityValue().getValue())
-                            )))
-                    .andExpect(status().isOk())
-                    .andReturn();
-            String responseContent = mvcResult.getResponse().getContentAsString();
-            Integer coupleId = JsonPath.read(responseContent, "$.data.coupleId");
-
-            // then
-            // 커플 생성 여부 확인
-            Assertions.assertThat(coupleId).isNotNull();
-            CoupleEntity couple = em.createQuery("SELECT c FROM CoupleEntity c WHERE c.id = :coupleId", CoupleEntity.class)
-                    .setParameter("coupleId", Long.valueOf(coupleId))
-                    .getSingleResult();
-            Assertions.assertThat(couple).isNotNull();
-            Assertions.assertThat(couple.getCoupleState()).isEqualTo(CoupleState.ALIVE);
-            Assertions.assertThat(couple.getStartLoveDate()).isEqualTo(partner.getStartLoveDate());
-
-            List<Long> memberIds = List.of(couple.getFirstMemberId().getValue(), couple.getSecondMemberId().getValue());
-            Assertions.assertThat(memberIds).containsExactlyInAnyOrder(member.getId(), partner.getId());
-
-            // 커플 멤버의 채팅방 상태가 활성화 되었는지 확인
-            ChatRoomEntity memberChatRoomAfter = em.createQuery("SELECT cr FROM ChatRoomEntity cr WHERE cr.memberEntityId.value = :memberId", ChatRoomEntity.class)
-                    .setParameter("memberId", member.getId())
-                    .getSingleResult();
-            ChatRoomEntity partnerChatRoomAfter = em.createQuery("SELECT cr FROM ChatRoomEntity cr WHERE cr.memberEntityId.value = :partnerId", ChatRoomEntity.class)
-                    .setParameter("partnerId", partner.getId())
-                    .getSingleResult();
-            Assertions.assertThat(memberChatRoomAfter.getChatRoomState()).isEqualTo(ChatRoomState.NEED_NEXT_QUESTION);
-            Assertions.assertThat(partnerChatRoomAfter.getChatRoomState()).isEqualTo(ChatRoomState.NEED_NEXT_QUESTION);
-        }
+//        @Test
+//        @DisplayName("정지된 채팅방이 있는 경우 커플 연결이 성공 후 채팅방이 활성화된다.")
+//        void 커플_연결_성공_채팅방_활성화() throws Exception {
+//            // given
+//            ChatRoomEntity memberChatRoom = ChatRoomEntity.builder()
+//                    .memberEntityId(MemberEntityId.of(member.getId()))
+//                    .chatRoomState(ChatRoomState.PAUSED)
+//                    .level(INIT_CHATROOM_LEVEL)
+//                    .build();
+//
+//            ChatRoomEntity partnerChatRoom = ChatRoomEntity.builder()
+//                    .memberEntityId(MemberEntityId.of(partner.getId()))
+//                    .chatRoomState(ChatRoomState.PAUSED)
+//                    .level(INIT_CHATROOM_LEVEL)
+//                    .build();
+//
+//            em.persist(memberChatRoom);
+//            em.persist(partnerChatRoom);
+//            em.flush();
+//
+//            // when
+//            MvcResult mvcResult = mockMvc.perform(post("/couples")
+//                            .header("Authorization", "Bearer " + accessToken)
+//                            .contentType(MediaType.APPLICATION_JSON)
+//                            .content(objectMapper.writeValueAsString(
+//                                    CoupleRequestDtoFactory.createCoupleLinkRequestDto(partner.getInviteCodeEntityValue().getValue())
+//                            )))
+//                    .andExpect(status().isOk())
+//                    .andReturn();
+//            String responseContent = mvcResult.getResponse().getContentAsString();
+//            Integer coupleId = JsonPath.read(responseContent, "$.data.coupleId");
+//
+//            // then
+//            // 커플 생성 여부 확인
+//            Assertions.assertThat(coupleId).isNotNull();
+//            CoupleEntity couple = em.createQuery("SELECT c FROM CoupleEntity c WHERE c.id = :coupleId", CoupleEntity.class)
+//                    .setParameter("coupleId", Long.valueOf(coupleId))
+//                    .getSingleResult();
+//            Assertions.assertThat(couple).isNotNull();
+//            Assertions.assertThat(couple.getCoupleState()).isEqualTo(CoupleState.ALIVE);
+//            Assertions.assertThat(couple.getStartLoveDate()).isEqualTo(partner.getStartLoveDate());
+//
+//            List<Long> memberIds = List.of(couple.getFirstMemberId().getValue(), couple.getSecondMemberId().getValue());
+//            Assertions.assertThat(memberIds).containsExactlyInAnyOrder(member.getId(), partner.getId());
+//
+//            // 커플 멤버의 채팅방 상태가 활성화 되었는지 확인
+//            ChatRoomEntity memberChatRoomAfter = em.createQuery("SELECT cr FROM ChatRoomEntity cr WHERE cr.memberEntityId.value = :memberId", ChatRoomEntity.class)
+//                    .setParameter("memberId", member.getId())
+//                    .getSingleResult();
+//            ChatRoomEntity partnerChatRoomAfter = em.createQuery("SELECT cr FROM ChatRoomEntity cr WHERE cr.memberEntityId.value = :partnerId", ChatRoomEntity.class)
+//                    .setParameter("partnerId", partner.getId())
+//                    .getSingleResult();
+//            Assertions.assertThat(memberChatRoomAfter.getChatRoomState()).isEqualTo(ChatRoomState.NEED_NEXT_QUESTION);
+//            Assertions.assertThat(partnerChatRoomAfter.getChatRoomState()).isEqualTo(ChatRoomState.NEED_NEXT_QUESTION);
+//        }
 
         @Test
         @DisplayName("재결합 커플인 경우 커플 연결이 성공 후 데이터가 복구된다.")

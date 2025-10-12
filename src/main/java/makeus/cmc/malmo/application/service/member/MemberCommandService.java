@@ -1,6 +1,7 @@
 package makeus.cmc.malmo.application.service.member;
 
 import lombok.RequiredArgsConstructor;
+import makeus.cmc.malmo.adaptor.in.aop.CheckCoupleMember;
 import makeus.cmc.malmo.adaptor.in.aop.CheckValidMember;
 import makeus.cmc.malmo.application.helper.couple.CoupleCommandHelper;
 import makeus.cmc.malmo.application.helper.couple.CoupleQueryHelper;
@@ -57,25 +58,20 @@ public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLov
     }
 
     @Override
-    @CheckValidMember
+    @CheckCoupleMember
     @Transactional
-    public UpdateStartLoveDateResponse updateStartLoveDate(UpdateStartLoveDateCommand command) {
+    public UpdateStartLoveDateUseCase.UpdateStartLoveDateResponse updateStartLoveDate(UpdateStartLoveDateUseCase.UpdateStartLoveDateCommand command) {
         Member member = memberQueryHelper.getMemberByIdOrThrow(MemberId.of(command.getMemberId()));
+
         LocalDate startLoveDate = command.getStartLoveDate();
 
-        member.updateStartLoveDate(startLoveDate);
-        Member savedMember = memberCommandHelper.saveMember(member);
+        // 커플의 startLoveDate만 업데이트 (개인의 startLoveDate는 업데이트하지 않음)
+        Couple couple = coupleQueryHelper.getCoupleByIdOrThrow(member.getCoupleId());
+        couple.updateStartLoveDate(startLoveDate);
+        coupleCommandHelper.saveCouple(couple);
 
-        if (member.isCoupleLinked()) {
-            coupleQueryHelper.getCoupleById(member.getCoupleId())
-                    .ifPresent(couple -> {
-                        couple.updateStartLoveDate(startLoveDate);
-                        coupleCommandHelper.saveCouple(couple);
-                    });
-        }
-
-        return UpdateStartLoveDateResponse.builder()
-                .startLoveDate(savedMember.getStartLoveDate())
+        return UpdateStartLoveDateUseCase.UpdateStartLoveDateResponse.builder()
+                .startLoveDate(couple.getStartLoveDate())
                 .build();
     }
 
