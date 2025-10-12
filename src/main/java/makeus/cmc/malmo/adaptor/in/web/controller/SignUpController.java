@@ -14,14 +14,12 @@ import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
 import makeus.cmc.malmo.application.port.in.member.SignUpUseCase;
-import makeus.cmc.malmo.application.port.in.member.SignUpUseCaseV2;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Tag(name = "회원가입 API", description = "사용자 회원가입 관련 API")
@@ -30,11 +28,10 @@ import java.util.List;
 public class SignUpController {
 
     private final SignUpUseCase signUpUseCase;
-    private final SignUpUseCaseV2 signUpUseCaseV2;
 
     @Operation(
             summary = "회원가입",
-            description = "인증된 사용자의 추가 정보를 입력받아 회원가입을 완료합니다. JWT 토큰이 필요합니다.",
+            description = "인증된 사용자의 추가 정보를 입력받아 회원가입을 완료합니다. 연애 시작일은 커플 연동 시 자동으로 설정됩니다. JWT 토큰이 필요합니다.",
             security = @SecurityRequirement(name = "Bearer Authentication")
     )
     @ApiResponse(
@@ -60,8 +57,7 @@ public class SignUpController {
                 .memberId(Long.valueOf(user.getUsername()))
                 .terms(termsCommandList)
                 .nickname(requestDto.getNickname())
-                .loveStartDate(requestDto.getLoveStartDate())
-                .loveTypeId(requestDto.getLoveTypeId()) // Optional, 애착 유형 결과를 매핑하기 위한 ID
+                .loveTypeId(requestDto.getLoveTypeId())
                 .build();
 
         signUpUseCase.signUp(command);
@@ -69,61 +65,8 @@ public class SignUpController {
         return BaseResponse.success();
     }
 
-    @Operation(
-            summary = "회원가입 V2",
-            description = "인증된 사용자의 추가 정보를 입력받아 회원가입을 완료합니다. V2에서는 연애 시작일을 입력받지 않습니다. JWT 토큰이 필요합니다.",
-            security = @SecurityRequirement(name = "Bearer Authentication")
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "회원가입 성공",
-            content = @Content(schema = @Schema(implementation = SwaggerResponses.SignUpSuccessResponse.class))
-    )
-    @ApiCommonResponses.RequireAuth
-    @ApiCommonResponses.SignUp
-    @PostMapping("/v2/members/onboarding")
-    public BaseResponse<Void> signUpV2(
-            @AuthenticationPrincipal User user,
-            @Valid @RequestBody SignUpRequestDtoV2 requestDto
-    ) {
-        List<SignUpUseCaseV2.TermsCommand> termsCommandList = requestDto.getTerms().stream()
-                .map(term -> SignUpUseCaseV2.TermsCommand.builder()
-                        .termsId(term.getTermsId())
-                        .isAgreed(term.getIsAgreed())
-                        .build())
-                .toList();
-
-        SignUpUseCaseV2.SignUpCommand command = SignUpUseCaseV2.SignUpCommand.builder()
-                .memberId(Long.valueOf(user.getUsername()))
-                .terms(termsCommandList)
-                .nickname(requestDto.getNickname())
-                .loveTypeId(requestDto.getLoveTypeId())
-                .build();
-
-        signUpUseCaseV2.signUp(command);
-
-        return BaseResponse.success();
-    }
-
     @Data
     public static class SignUpRequestDto {
-        @Valid
-        private List<TermsDto> terms;
-
-        @NotBlank(message = "닉네임은 필수 입력값입니다.")
-        @Size(min = 1, max = 10, message = "닉네임은 1자 이상 10자 이하여야 합니다.")
-        @Pattern(regexp = "^[가-힣a-zA-Z0-9]+$", message = "닉네임은 한글, 영문, 숫자만 사용 가능합니다.")
-        private String nickname;
-
-        @NotNull(message = "시작일은 필수 입력값입니다.")
-        @PastOrPresent(message = "시작일은 오늘 또는 과거 날짜여야 합니다.")
-        private LocalDate loveStartDate;
-
-        private Long loveTypeId; // Optional, 애착 유형 결과를 매핑하기 위한 ID
-    }
-
-    @Data
-    public static class SignUpRequestDtoV2 {
         @Valid
         private List<TermsDto> terms;
 

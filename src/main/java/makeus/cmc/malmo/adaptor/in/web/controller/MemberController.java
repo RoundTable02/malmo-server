@@ -16,7 +16,6 @@ import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseListResponse;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
 import makeus.cmc.malmo.application.port.in.member.*;
-import makeus.cmc.malmo.application.port.in.member.UpdateStartLoveDateUseCaseV2;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +37,6 @@ public class MemberController {
     private final UpdateTermsAgreementUseCase updateTermsAgreementUseCase;
     private final UpdateMemberLoveTypeUseCase updateMemberLoveTypeUseCase;
     private final UpdateStartLoveDateUseCase updateStartLoveDateUseCase;
-    private final UpdateStartLoveDateUseCaseV2 updateStartLoveDateUseCaseV2;
     private final DeleteMemberUseCase deleteMemberUseCase;
 
     @Operation(
@@ -219,7 +217,7 @@ public class MemberController {
 
     @Operation(
             summary = "연애 시작일 변경",
-            description = "연애 시작일을 변경합니다. JWT 토큰이 필요합니다.",
+            description = "커플로 연동된 사용자의 연애 시작일을 변경합니다. 커플이 아닌 사용자는 사용할 수 없습니다. JWT 토큰이 필요합니다.",
             security = @SecurityRequirement(name = "Bearer Authentication")
     )
     @ApiResponse(
@@ -228,6 +226,7 @@ public class MemberController {
             content = @Content(schema = @Schema(implementation = SwaggerResponses.UpdateStartLoveDateSuccessResponse.class))
     )
     @ApiCommonResponses.RequireAuth
+    @ApiCommonResponses.OnlyCouple
     @PatchMapping("/start-love-date")
     public BaseResponse<UpdateStartLoveDateUseCase.UpdateStartLoveDateResponse> updateStartLoveDate(
             @AuthenticationPrincipal User user,
@@ -239,31 +238,6 @@ public class MemberController {
                 .build();
 
         return BaseResponse.success(updateStartLoveDateUseCase.updateStartLoveDate(command));
-    }
-
-    @Operation(
-            summary = "연애 시작일 변경 V2",
-            description = "커플로 연동된 사용자의 연애 시작일을 변경합니다. 커플이 아닌 사용자는 사용할 수 없습니다. JWT 토큰이 필요합니다.",
-            security = @SecurityRequirement(name = "Bearer Authentication")
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "연애 시작일 갱신 성공",
-            content = @Content(schema = @Schema(implementation = SwaggerResponses.UpdateStartLoveDateSuccessResponse.class))
-    )
-    @ApiCommonResponses.RequireAuth
-    @ApiCommonResponses.OnlyCouple
-    @PatchMapping("/v2/start-love-date")
-    public BaseResponse<UpdateStartLoveDateUseCaseV2.UpdateStartLoveDateResponse> updateStartLoveDateV2(
-            @AuthenticationPrincipal User user,
-            @Valid @RequestBody UpdateStartLoveDateRequestDto requestDto
-    ) {
-        UpdateStartLoveDateUseCaseV2.UpdateStartLoveDateCommand command = UpdateStartLoveDateUseCaseV2.UpdateStartLoveDateCommand.builder()
-                .memberId(Long.valueOf(user.getUsername()))
-                .startLoveDate(requestDto.getStartLoveDate())
-                .build();
-
-        return BaseResponse.success(updateStartLoveDateUseCaseV2.updateStartLoveDate(command));
     }
 
     @Data

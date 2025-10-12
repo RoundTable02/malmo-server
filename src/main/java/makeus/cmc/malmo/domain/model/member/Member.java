@@ -121,7 +121,7 @@ public class Member {
      * V2 회원가입 - startLoveDate 없이 회원가입
      * 커플 연동 후 별도로 연애 시작일을 설정합니다.
      */
-    public void signUpV2(String nickname) {
+    public void signUp(String nickname) {
         this.nickname = nickname;
         this.memberState = MemberState.ALIVE;
     }
