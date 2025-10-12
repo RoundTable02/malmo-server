@@ -12,6 +12,7 @@ import makeus.cmc.malmo.application.helper.notification.MemberNotificationComman
 import makeus.cmc.malmo.application.port.in.member.DeleteMemberUseCase;
 import makeus.cmc.malmo.application.port.in.member.UpdateMemberUseCase;
 import makeus.cmc.malmo.application.port.in.member.UpdateStartLoveDateUseCase;
+import makeus.cmc.malmo.application.port.in.member.UpdateStartLoveDateUseCaseV2;
 import makeus.cmc.malmo.application.port.out.sse.SendSseEventPort;
 import makeus.cmc.malmo.application.port.out.sse.ValidateSsePort;
 import makeus.cmc.malmo.domain.model.couple.Couple;
@@ -27,7 +28,7 @@ import static makeus.cmc.malmo.application.port.out.sse.SendSseEventPort.SseEven
 
 @Service
 @RequiredArgsConstructor
-public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLoveDateUseCase, DeleteMemberUseCase {
+public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLoveDateUseCase, UpdateStartLoveDateUseCaseV2, DeleteMemberUseCase {
 
     private final CoupleQueryHelper coupleQueryHelper;
     private final CoupleCommandHelper coupleCommandHelper;
@@ -59,7 +60,7 @@ public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLov
     @Override
     @CheckValidMember
     @Transactional
-    public UpdateStartLoveDateResponse updateStartLoveDate(UpdateStartLoveDateCommand command) {
+    public UpdateStartLoveDateUseCase.UpdateStartLoveDateResponse updateStartLoveDate(UpdateStartLoveDateUseCase.UpdateStartLoveDateCommand command) {
         Member member = memberQueryHelper.getMemberByIdOrThrow(MemberId.of(command.getMemberId()));
         LocalDate startLoveDate = command.getStartLoveDate();
 
@@ -74,8 +75,31 @@ public class MemberCommandService implements UpdateMemberUseCase, UpdateStartLov
                     });
         }
 
-        return UpdateStartLoveDateResponse.builder()
+        return UpdateStartLoveDateUseCase.UpdateStartLoveDateResponse.builder()
                 .startLoveDate(savedMember.getStartLoveDate())
+                .build();
+    }
+
+    @Override
+    @CheckValidMember
+    @Transactional
+    public UpdateStartLoveDateUseCaseV2.UpdateStartLoveDateResponse updateStartLoveDate(UpdateStartLoveDateUseCaseV2.UpdateStartLoveDateCommand command) {
+        Member member = memberQueryHelper.getMemberByIdOrThrow(MemberId.of(command.getMemberId()));
+
+        // V2에서는 커플 연동 여부를 필수로 확인
+        if (!member.isCoupleLinked()) {
+            throw new IllegalStateException("커플로 연동된 사용자만 연애 시작일을 변경할 수 있습니다.");
+        }
+
+        LocalDate startLoveDate = command.getStartLoveDate();
+
+        // 커플의 startLoveDate만 업데이트 (개인의 startLoveDate는 업데이트하지 않음)
+        Couple couple = coupleQueryHelper.getCoupleByIdOrThrow(member.getCoupleId());
+        couple.updateStartLoveDate(startLoveDate);
+        coupleCommandHelper.saveCouple(couple);
+
+        return UpdateStartLoveDateUseCaseV2.UpdateStartLoveDateResponse.builder()
+                .startLoveDate(couple.getStartLoveDate())
                 .build();
     }
 

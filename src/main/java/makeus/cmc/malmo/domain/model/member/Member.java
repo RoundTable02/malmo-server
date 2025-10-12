@@ -30,6 +30,13 @@ public class Member {
     private String nickname;
     private String email;
     private InviteCodeValue inviteCode;
+
+    /**
+     * @deprecated 개인의 startLoveDate는 더 이상 사용하지 않습니다.
+     * 커플의 startLoveDate를 사용하도록 변경되었습니다.
+     * Entity 호환성을 위해 필드는 유지됩니다.
+     */
+    @Deprecated
     private LocalDate startLoveDate;
     private String oauthToken;
     private CoupleId coupleId;
@@ -99,9 +106,23 @@ public class Member {
     }
 
 
+    /**
+     * V1 회원가입 - startLoveDate를 개인 정보로 저장
+     * @deprecated v2에서는 signUpV2(String nickname) 사용
+     */
+    @Deprecated
     public void signUp(String nickname, LocalDate startLoveDate) {
         this.nickname = nickname;
         this.startLoveDate = startLoveDate;
+        this.memberState = MemberState.ALIVE;
+    }
+
+    /**
+     * V2 회원가입 - startLoveDate 없이 회원가입
+     * 커플 연동 후 별도로 연애 시작일을 설정합니다.
+     */
+    public void signUpV2(String nickname) {
+        this.nickname = nickname;
         this.memberState = MemberState.ALIVE;
     }
 
@@ -119,6 +140,12 @@ public class Member {
         this.refreshToken = refreshToken;
     }
 
+    /**
+     * 개인의 startLoveDate 업데이트
+     * @deprecated v2에서는 더 이상 개인의 startLoveDate를 업데이트하지 않습니다.
+     * 커플의 startLoveDate만 업데이트합니다.
+     */
+    @Deprecated
     public void updateStartLoveDate(LocalDate startLoveDate) {
         this.startLoveDate = startLoveDate;
     }
