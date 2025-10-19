@@ -149,6 +149,7 @@ jobs:
                   - SECURITY_SERVER_URL_DEVELOPMENT=${{ secrets.SECURITY_SERVER_URL_DEVELOPMENT }}
                   - AES_ENCRYPTION_KEY=${{ secrets.AES_ENCRYPTION_KEY }}
                   - SENTRY_DSN=${{ secrets.SENTRY_DSN }}
+                  - AMPLITUDE_API_KEY=${{ secrets.AMPLITUDE_API_KEY }}
                 restart: unless-stopped
                 networks:
                   - malmo-net
