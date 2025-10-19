@@ -9,6 +9,7 @@ import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.application.helper.member.OauthTokenHelper;
 import makeus.cmc.malmo.application.port.in.member.LogOutUseCase;
 import makeus.cmc.malmo.application.port.in.member.SignInUseCase;
+import makeus.cmc.malmo.application.port.out.amplitude.AmplitudePort;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.service.InviteCodeDomainService;
 import makeus.cmc.malmo.domain.service.MemberDomainService;
@@ -30,6 +31,7 @@ public class SignInService implements SignInUseCase, LogOutUseCase {
 
     private final OauthTokenHelper oauthTokenHelper;
     private final AccessTokenHelper accessTokenHelper;
+    private final AmplitudePort amplitudePort;
 
     private static final int MAX_RETRY = 10;
 
@@ -51,6 +53,16 @@ public class SignInService implements SignInUseCase, LogOutUseCase {
         member.refreshMemberToken(tokenInfo.getRefreshToken());
         member.updateEmail(email);
         memberCommandHelper.saveMember(member);
+
+        // Amplitude 연동 (deviceId가 있는 경우에만)
+        if (command.getDeviceId() != null && !command.getDeviceId().trim().isEmpty()) {
+            amplitudePort.identifyUser(AmplitudePort.IdentifyUserCommand.builder()
+                    .userId(member.getId().toString())
+                    .deviceId(command.getDeviceId())
+                    .email(email)
+                    .nickname(member.getNickname())
+                    .build());
+        }
 
         // 3. 최종 응답 생성
         return buildSignInResponse(member, tokenInfo);
@@ -79,6 +91,16 @@ public class SignInService implements SignInUseCase, LogOutUseCase {
         TokenInfo tokenInfo = accessTokenHelper.generateToken(member.getId(), member.getMemberRole());
         member.refreshMemberToken(tokenInfo.getRefreshToken());
         memberCommandHelper.saveMember(member);
+
+        // Amplitude 연동 (deviceId가 있는 경우에만)
+        if (command.getDeviceId() != null && !command.getDeviceId().trim().isEmpty()) {
+            amplitudePort.identifyUser(AmplitudePort.IdentifyUserCommand.builder()
+                    .userId(member.getId().toString())
+                    .deviceId(command.getDeviceId())
+                    .email(member.getEmail())
+                    .nickname(member.getNickname())
+                    .build());
+        }
 
         return buildSignInResponse(member, tokenInfo);
     }
