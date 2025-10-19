@@ -1,12 +1,10 @@
-name: Test and Deploy to AWS EC2
-
-# TODO : 테스트 클라이언트 개발 완료 시 수정
+name: Test and Deploy to Test Environment
 
 on:
   push:
-    branches: [ release-test ]
+    branches: [ qa ]
   pull_request:
-    branches: [ release-test ]
+    branches: [ qa ]
 
 jobs:
   # 1. 테스트 작업 (PR, Push 시 항상 실행)
@@ -52,10 +50,8 @@ jobs:
   deploy:
     # 'test' 작업이 성공해야만 실행됩니다.
     needs: test
-    # 'push' 이벤트이고, 커밋 메시지에 특정 키워드가 있을 때만 실행됩니다.
-    if: |
-      github.event_name == 'push' && 
-      (contains(github.event.head_commit.message, 'release-green') || contains(github.event.head_commit.message, 'release-blue'))
+    # 'push' 이벤트일 때만 실행됩니다.
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
@@ -84,19 +80,6 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew bootJar --no-daemon
 
-      - name: Set Port and Container Name based on Commit Message
-        id: set_config
-        run: |
-          if [[ "${{ github.event.head_commit.message }}" == *"release-green"* ]]; then
-            echo "port=8080" >> $GITHUB_OUTPUT
-            echo "container_name=malmo-test-green" >> $GITHUB_OUTPUT
-            echo "Green deployment: port=8080, container=malmo-test-green"
-          elif [[ "${{ github.event.head_commit.message }}" == *"release-blue"* ]]; then
-            echo "port=8081" >> $GITHUB_OUTPUT
-            echo "container_name=malmo-test-blue" >> $GITHUB_OUTPUT
-            echo "Blue deployment: port=8081, container=malmo-test-blue"
-          fi
-
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -111,12 +94,12 @@ jobs:
           docker push $IMAGE_NAME:${{ github.sha }}
           docker push $IMAGE_NAME:latest
 
-      - name: Deploy to EC2
+      - name: Deploy to Test EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          host: ${{ secrets.TEST_EC2_HOST }}
+          username: ${{ secrets.TEST_EC2_USERNAME }}
+          key: ${{ secrets.TEST_EC2_PRIVATE_KEY }}
           script: |
             # Docker Hub 로그인
             echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
@@ -128,19 +111,19 @@ jobs:
             fi
 
             # 기존 컨테이너 중지 및 삭제
-            docker stop ${{ steps.set_config.outputs.container_name }} || true
-            docker rm ${{ steps.set_config.outputs.container_name }} || true
+            docker stop malmo-test || true
+            docker rm malmo-test || true
       
             # docker-compose.yml 파일 생성
-            cat << 'EOF' > docker-compose.test.yml
+            cat << 'EOF' > docker-compose-test.yml
             version: '3.8'
 
             services:
               malmo-test:
                 image: ${{ secrets.DOCKERHUB_USERNAME }}/malmo-test:latest
-                container_name: ${{ steps.set_config.outputs.container_name }}
+                container_name: malmo-test
                 ports:
-                  - "${{ steps.set_config.outputs.port }}:8080"
+                  - "8080:8080"
                 environment:
                   - TZ=Asia/Seoul
                   - SPRING_PROFILES_ACTIVE=prod
@@ -148,8 +131,8 @@ jobs:
                   - SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }}
                   - SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}
                   - SPRING_DATA_REDIS_HOST=malmo-redis
-                  - REDIS_STREAM_KEY=${{ secrets.TEST_REDIS_STREAM_KEY }}
-                  - REDIS_CONSUMER_GROUP=${{ secrets.TEST_REDIS_CONSUMER_GROUP }}
+                  - REDIS_STREAM_KEY=${{ secrets.REDIS_STREAM_KEY_GREEN }}
+                  - REDIS_CONSUMER_GROUP=${{ secrets.REDIS_CONSUMER_GROUP_GREEN }}
                   - JWT_SECRET=${{ secrets.JWT_SECRET }}
                   - KAKAO_REST_API_KEY=${{ secrets.KAKAO_REST_API_KEY }}
                   - APPLE_REST_API_KEY=${{ secrets.APPLE_REST_API_KEY }}
@@ -165,6 +148,7 @@ jobs:
                   - SECURITY_SERVER_URL_PRODUCTION=${{ secrets.SECURITY_SERVER_URL_PRODUCTION }}
                   - SECURITY_SERVER_URL_DEVELOPMENT=${{ secrets.SECURITY_SERVER_URL_DEVELOPMENT }}
                   - AES_ENCRYPTION_KEY=${{ secrets.AES_ENCRYPTION_KEY }}
+                  - SENTRY_DSN=${{ secrets.SENTRY_DSN }}
                 restart: unless-stopped
                 networks:
                   - malmo-net
@@ -175,8 +159,8 @@ jobs:
             EOF
 
             # docker-compose로 애플리케이션 실행
-            docker-compose -f docker-compose.test.yml pull
-            docker-compose -f docker-compose.test.yml up -d
+            docker-compose -f docker-compose-test.yml pull
+            docker-compose -f docker-compose-test.yml up -d
 
             # 불필요한 Docker 이미지 정리
             docker image prune -f
