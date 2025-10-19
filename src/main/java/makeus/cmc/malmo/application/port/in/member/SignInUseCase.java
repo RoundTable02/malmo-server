@@ -13,6 +13,7 @@ public interface SignInUseCase {
     class SignInKakaoCommand {
         private String idToken;
         private String accessToken;
+        private String deviceId;
     }
 
     @Data
@@ -20,6 +21,7 @@ public interface SignInUseCase {
     class SignInAppleCommand {
         private String idToken;
         private String authorizationCode;
+        private String deviceId;
     }
 
     @Data

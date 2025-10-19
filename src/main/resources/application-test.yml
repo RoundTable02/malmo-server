@@ -87,3 +87,8 @@ security:
 encryption:
   aes:
     key: testaeskeyrZktAgxX77DA==
+
+amplitude:
+  api:
+    key: amplitude_key_sample
+    url: https://api2.amplitude.com/identify
