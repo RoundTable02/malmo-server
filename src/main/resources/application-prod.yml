@@ -79,6 +79,11 @@ encryption:
   aes:
     key: ${AES_ENCRYPTION_KEY}
 
+amplitude:
+  api:
+    key: ${AMPLITUDE_API_KEY}
+    url: https://api2.amplitude.com/identify
+
 sentry:
   dsn: ${SENTRY_DSN}
   traces-sample-rate: 1.0
