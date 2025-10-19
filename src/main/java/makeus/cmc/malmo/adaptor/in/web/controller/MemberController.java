@@ -217,7 +217,7 @@ public class MemberController {
 
     @Operation(
             summary = "연애 시작일 변경",
-            description = "연애 시작일을 변경합니다. JWT 토큰이 필요합니다.",
+            description = "커플로 연동된 사용자의 연애 시작일을 변경합니다. 커플이 아닌 사용자는 사용할 수 없습니다. JWT 토큰이 필요합니다.",
             security = @SecurityRequirement(name = "Bearer Authentication")
     )
     @ApiResponse(
@@ -226,6 +226,7 @@ public class MemberController {
             content = @Content(schema = @Schema(implementation = SwaggerResponses.UpdateStartLoveDateSuccessResponse.class))
     )
     @ApiCommonResponses.RequireAuth
+    @ApiCommonResponses.OnlyCouple
     @PatchMapping("/start-love-date")
     public BaseResponse<UpdateStartLoveDateUseCase.UpdateStartLoveDateResponse> updateStartLoveDate(
             @AuthenticationPrincipal User user,

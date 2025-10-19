@@ -105,5 +105,6 @@ public class ChatProcessor {
         private String totalSummary;
         private String situationKeyword;
         private String solutionKeyword;
+        private String counselingType;
     }
 }

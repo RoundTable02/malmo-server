@@ -42,7 +42,7 @@ public class ChatMessageService implements ProcessMessageUseCase {
     private final PromptQueryHelper promptQueryHelper;
     private final ChatPromptBuilder chatPromptBuilder;
     private final ChatProcessor chatProcessor;
-    private final ValidateMemberPort validateMemberPort;
+//    private final ValidateMemberPort validateMemberPort;
     private final ChatSseSender chatSseSender;
 
     private final ChatRoomCommandHelper chatRoomCommandHelper;
@@ -63,7 +63,9 @@ public class ChatMessageService implements ProcessMessageUseCase {
 
         Prompt systemPrompt = promptQueryHelper.getSystemPrompt();
         Prompt prompt = promptQueryHelper.getPromptByLevel(command.getPromptLevel());
-        boolean isMemberCouple = validateMemberPort.isCoupleMember(memberId);
+        /* 상담 지속 조건: 커플 연동이 있는 경우 */
+//        boolean isMemberCouple = validateMemberPort.isCoupleMember(memberId);
+        boolean isMemberCouple = true;
 
         AtomicBoolean isOkDetected = new AtomicBoolean(false);
 
@@ -122,7 +124,8 @@ public class ChatMessageService implements ProcessMessageUseCase {
                     chatRoom.updateChatRoomSummary(
                             summary.getTotalSummary(),
                             summary.getSituationKeyword(),
-                            summary.getSolutionKeyword()
+                            summary.getSolutionKeyword(),
+                            summary.getCounselingType()
                     );
                     chatRoomCommandHelper.saveChatRoom(chatRoom);
                     log.info("Successfully processed and saved total summary for chatRoomId: {}", command.getChatRoomId());
@@ -164,26 +167,28 @@ public class ChatMessageService implements ProcessMessageUseCase {
     - 2단계 이상에서는 현재 단계가 완료되었다는 메시지를 전송
      */
     private void handleLevelFinished(MemberId memberId, ChatRoomId chatRoomId, Prompt prompt, boolean isMemberCoupled) {
-        if (prompt.isLastPromptForNotCoupleMember() && !isMemberCoupled) {
-            // 커플 연동이 되지 않은 상태에서 1단계가 종료된 경우
-            // 채팅방 상태를 일시정지로 변경하고 커플 연동 요청
-            ChatRoom chatRoom = chatRoomQueryHelper.getChatRoomByIdOrThrow(chatRoomId);
-            chatRoom.updateChatRoomStatePaused();
-            chatRoomCommandHelper.saveChatRoom(chatRoom);
-            chatSseSender.sendFlowEvent(
-                    memberId,
-                    SendSseEventPort.SseEventType.CHAT_ROOM_PAUSED,
-                    "커플 연동 전 대화가 종료되었습니다. 커플 연동을 해주세요."
-            );
-        } else {
-            // 2단계 이상이거나 커플 연동이 된 상태에서 현재 단계가 완료된 경우
-            // 현재 단계가 완료되었다는 메시지를 전송
-            chatSseSender.sendFlowEvent(
-                    memberId,
-                    SendSseEventPort.SseEventType.CURRENT_LEVEL_FINISHED,
-                    "현재 단계가 완료되었습니다. upgrade를 요청해주세요."
-            );
-        }
+        /* 상담 지속 조건: 커플 연동이 있는 경우 */
+//        if (prompt.isLastPromptForNotCoupleMember() && !isMemberCoupled) {
+//            // 커플 연동이 되지 않은 상태에서 1단계가 종료된 경우
+//            // 채팅방 상태를 일시정지로 변경하고 커플 연동 요청
+//            ChatRoom chatRoom = chatRoomQueryHelper.getChatRoomByIdOrThrow(chatRoomId);
+//            chatRoom.updateChatRoomStatePaused();
+//            chatRoomCommandHelper.saveChatRoom(chatRoom);
+//            chatSseSender.sendFlowEvent(
+//                    memberId,
+//                    SendSseEventPort.SseEventType.CHAT_ROOM_PAUSED,
+//                    "커플 연동 전 대화가 종료되었습니다. 커플 연동을 해주세요."
+//            );
+//        } else {
+//            // 2단계 이상이거나 커플 연동이 된 상태에서 현재 단계가 완료된 경우
+//            // 현재 단계가 완료되었다는 메시지를 전송
+//        }
+
+        chatSseSender.sendFlowEvent(
+                memberId,
+                SendSseEventPort.SseEventType.CURRENT_LEVEL_FINISHED,
+                "현재 단계가 완료되었습니다. upgrade를 요청해주세요."
+        );
     }
 
     private void saveAiMessage(MemberId memberId, ChatRoomId chatRoomId, int level, String fullAnswer) {

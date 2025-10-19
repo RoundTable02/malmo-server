@@ -21,6 +21,8 @@ public class ChatRoomMapper {
                 entity.getTotalSummary(),
                 entity.getSituationKeyword(),
                 entity.getSolutionKeyword(),
+                entity.getChatRoomCompletedReason(),
+                entity.getCounselingType(),
                 entity.getCreatedAt(),
                 entity.getModifiedAt(),
                 entity.getDeletedAt()
@@ -41,6 +43,8 @@ public class ChatRoomMapper {
                 .totalSummary(domain.getTotalSummary())
                 .situationKeyword(domain.getSituationKeyword())
                 .solutionKeyword(domain.getSolutionKeyword())
+                .chatRoomCompletedReason(domain.getChatRoomCompletedReason())
+                .counselingType(domain.getCounselingType())
                 .createdAt(domain.getCreatedAt())
                 .modifiedAt(domain.getModifiedAt())
                 .deletedAt(domain.getDeletedAt())

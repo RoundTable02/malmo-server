@@ -73,6 +73,8 @@ class ChatRoomMapperTest {
                 "total summary",
                 "situation",
                 "solution",
+                null,
+                null,
                 now,
                 now,
                 null
