@@ -243,6 +243,122 @@ public class CoupleIntegrationTest {
         }
 
         @Test
+        @DisplayName("30일 이내 재연결 시 기존 커플이 복구된다.")
+        void 삼십일_이내_재연결_기존_커플_복구() throws Exception {
+            // given
+            mockMvc.perform(post("/couples")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    CoupleRequestDtoFactory.createCoupleLinkRequestDto(partner.getInviteCodeEntityValue().getValue())
+                            )))
+                    .andExpect(status().isOk());
+
+            mockMvc.perform(delete("/couples")
+                            .header("Authorization", "Bearer " + accessToken))
+                    .andExpect(status().isOk());
+
+            // when - 즉시 재연결 (30일 이내)
+            MvcResult mvcResult = mockMvc.perform(post("/couples")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    CoupleRequestDtoFactory.createCoupleLinkRequestDto(partner.getInviteCodeEntityValue().getValue())
+                            )))
+                    .andExpect(status().isOk())
+                    .andReturn();
+            String responseContent = mvcResult.getResponse().getContentAsString();
+            Integer coupleId = JsonPath.read(responseContent, "$.data.coupleId");
+
+            // then
+            CoupleEntity couple = em.createQuery("SELECT c FROM CoupleEntity c WHERE c.id = :coupleId", CoupleEntity.class)
+                    .setParameter("coupleId", Long.valueOf(coupleId))
+                    .getSingleResult();
+
+            Assertions.assertThat(couple).isNotNull();
+            Assertions.assertThat(couple.getCoupleState()).isEqualTo(CoupleState.ALIVE);
+            Assertions.assertThat(couple.getDeletedAt()).isNull(); // 복구 시 deletedAt이 null로 초기화
+        }
+
+        @Test
+        @DisplayName("30일 초과 재연결 시 새로운 커플이 생성된다.")
+        void 삼십일_초과_재연결_새로운_커플_생성() throws Exception {
+            // given
+            mockMvc.perform(post("/couples")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    CoupleRequestDtoFactory.createCoupleLinkRequestDto(partner.getInviteCodeEntityValue().getValue())
+                            )))
+                    .andExpect(status().isOk());
+
+            mockMvc.perform(delete("/couples")
+                            .header("Authorization", "Bearer " + accessToken))
+                    .andExpect(status().isOk());
+
+            // deletedAt을 31일 전으로 수정
+            em.createQuery("UPDATE CoupleEntity c SET c.deletedAt = :deletedAt WHERE c.coupleState = 'DELETED'")
+                    .setParameter("deletedAt", java.time.LocalDateTime.now().minusDays(31))
+                    .executeUpdate();
+            em.flush();
+
+            // when
+            MvcResult mvcResult = mockMvc.perform(post("/couples")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    CoupleRequestDtoFactory.createCoupleLinkRequestDto(partner.getInviteCodeEntityValue().getValue())
+                            )))
+                    .andExpect(status().isOk())
+                    .andReturn();
+            String responseContent = mvcResult.getResponse().getContentAsString();
+            Integer coupleId = JsonPath.read(responseContent, "$.data.coupleId");
+
+            // then
+            CoupleEntity newCouple = em.createQuery("SELECT c FROM CoupleEntity c WHERE c.id = :coupleId", CoupleEntity.class)
+                    .setParameter("coupleId", Long.valueOf(coupleId))
+                    .getSingleResult();
+
+            Assertions.assertThat(newCouple).isNotNull();
+            Assertions.assertThat(newCouple.getCoupleState()).isEqualTo(CoupleState.ALIVE);
+            Assertions.assertThat(newCouple.getDeletedAt()).isNull();
+
+            // 기존 DELETED 커플이 여전히 존재하는지 확인
+            List<CoupleEntity> deletedCouples = em.createQuery("SELECT c FROM CoupleEntity c WHERE c.coupleState = 'DELETED'", CoupleEntity.class)
+                    .getResultList();
+            Assertions.assertThat(deletedCouples).hasSize(1);
+            Assertions.assertThat(deletedCouples.get(0).getDeletedAt()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("커플 해지 시 deletedAt이 현재 시간으로 설정된다.")
+        void 커플_해지_시_deletedAt_설정() throws Exception {
+            // given
+            mockMvc.perform(post("/couples")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    CoupleRequestDtoFactory.createCoupleLinkRequestDto(partner.getInviteCodeEntityValue().getValue())
+                            )))
+                    .andExpect(status().isOk());
+
+            // when
+            LocalDateTime beforeUnlink = LocalDateTime.now();
+            mockMvc.perform(delete("/couples")
+                            .header("Authorization", "Bearer " + accessToken))
+                    .andExpect(status().isOk());
+            LocalDateTime afterUnlink = LocalDateTime.now();
+
+            // then
+            CoupleEntity deletedCouple = em.createQuery("SELECT c FROM CoupleEntity c WHERE c.coupleState = 'DELETED'", CoupleEntity.class)
+                    .getSingleResult();
+
+            Assertions.assertThat(deletedCouple.getDeletedAt()).isNotNull();
+            Assertions.assertThat(deletedCouple.getDeletedAt()).isAfterOrEqualTo(beforeUnlink);
+            Assertions.assertThat(deletedCouple.getDeletedAt()).isBeforeOrEqualTo(afterUnlink);
+        }
+
+        @Test
         @DisplayName("탈퇴한 사용자의 경우 커플 연결이 실패한다.")
         void 탈퇴한_사용자_커플_연결_실패() throws Exception {
             // given

@@ -88,6 +88,7 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
         // 과거 두 사용자가 커플이었던 경우 재연결, 아니라면 새로 생성
         // V2: 커플 연동 시 startLoveDate를 당일로 초기화
         Couple couple = coupleQueryHelper.getCoupleByMemberAndPartnerId(MemberId.of(member.getId()), MemberId.of(partner.getId()))
+                .filter(Couple::canRecover)
                 .map(this::reconnectCouple)
                 .orElseGet(() -> createNewCouple(
                         MemberId.of(member.getId()),

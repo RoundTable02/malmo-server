@@ -89,7 +89,8 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                                                 .when(coupleEntity.firstMemberId.value.eq(memberId))
                                                 .then(coupleEntity.secondMemberSnapshot.nickname)
                                                 .otherwise(coupleEntity.firstMemberSnapshot.nickname)
-                                )
+                                ),
+                        coupleEntity.isStartLoveDateUpdated
                 ))
                 .from(memberEntity)
                 .join(coupleEntity).on(memberEntity.coupleEntityId.value.eq(coupleEntity.id))
