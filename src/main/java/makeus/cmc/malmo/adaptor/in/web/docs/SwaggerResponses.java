@@ -289,6 +289,9 @@ public class SwaggerResponses {
 
         @Schema(description = "닉네임", example = "김영희")
         private String nickname;
+
+        @Schema(description = "디데이 변경 이력 여부", example = "false")
+        private Boolean isStartLoveDateUpdated;
     }
 
     @Getter
