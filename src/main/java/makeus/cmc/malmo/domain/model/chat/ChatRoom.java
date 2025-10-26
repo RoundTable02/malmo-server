@@ -10,7 +10,9 @@ import makeus.cmc.malmo.domain.value.state.ChatRoomState;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-import static makeus.cmc.malmo.util.GlobalConstants.*;
+import static makeus.cmc.malmo.util.GlobalConstants.INIT_CHATROOM_LEVEL;
+import static makeus.cmc.malmo.util.GlobalConstants.COMPLETED_ROOM_CREATING_SUMMARY_LINE;
+import static makeus.cmc.malmo.util.GlobalConstants.EXPIRED_ROOM_CREATING_SUMMARY_LINE;
 
 @Getter
 @Builder(access = AccessLevel.PRIVATE)
@@ -19,6 +21,7 @@ public class ChatRoom {
     private MemberId memberId;
     private ChatRoomState chatRoomState;
     private int level;
+    private int detailedLevel;
     private LocalDateTime lastMessageSentTime;
     private String totalSummary;
     private String situationKeyword;
@@ -35,13 +38,14 @@ public class ChatRoom {
         return ChatRoom.builder()
                 .memberId(memberId)
                 .level(INIT_CHATROOM_LEVEL)
+                .detailedLevel(1)
                 .chatRoomState(ChatRoomState.BEFORE_INIT)
                 .lastMessageSentTime(LocalDateTime.now())
                 .build();
     }
 
     public static ChatRoom from(Long id, MemberId memberId, ChatRoomState chatRoomState,
-                                int level, LocalDateTime lastMessageSentTime,
+                                int level, int detailedLevel, LocalDateTime lastMessageSentTime,
                                 String totalSummary, String situationKeyword, String solutionKeyword,
                                 ChatRoomCompletedReason chatRoomCompletedReason, String counselingType,
                                 LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
@@ -50,6 +54,7 @@ public class ChatRoom {
                 .memberId(memberId)
                 .chatRoomState(chatRoomState)
                 .level(level)
+                .detailedLevel(detailedLevel)
                 .lastMessageSentTime(lastMessageSentTime)
                 .totalSummary(totalSummary)
                 .situationKeyword(situationKeyword)
@@ -62,17 +67,13 @@ public class ChatRoom {
                 .build();
     }
 
-    public void updateChatRoomStatePaused() {
-        this.chatRoomState = ChatRoomState.PAUSED;
+    public void upgradeDetailedLevel() {
+        this.detailedLevel += 1;
     }
 
-    public void upgradeChatRoom() {
+    public void upgradeToNextStage() {
         this.level += 1;
-        this.chatRoomState = ChatRoomState.NEED_NEXT_QUESTION;
-    }
-
-    public void updateChatRoomStateNeedNextQuestion() {
-        this.chatRoomState = ChatRoomState.NEED_NEXT_QUESTION;
+        this.detailedLevel = 1;
     }
 
     public void updateChatRoomStateAlive() {
@@ -93,14 +94,7 @@ public class ChatRoom {
     public void completeByUser() {
         this.chatRoomState = ChatRoomState.COMPLETED;
         this.totalSummary = COMPLETED_ROOM_CREATING_SUMMARY_LINE;
-
-        if (this.level == LAST_PROMPT_LEVEL) {
-            // 사용자가 마지막 단계에서 종료한 경우
-            this.chatRoomCompletedReason = ChatRoomCompletedReason.CHAT_PROCESS_DONE;
-        } else {
-            // 사용자가 중간 단계에서 종료한 경우
-            this.chatRoomCompletedReason = ChatRoomCompletedReason.COMPLETED_BY_USER;
-        }
+        this.chatRoomCompletedReason = ChatRoomCompletedReason.COMPLETED_BY_USER;
     }
 
     public boolean isChatRoomValid() {

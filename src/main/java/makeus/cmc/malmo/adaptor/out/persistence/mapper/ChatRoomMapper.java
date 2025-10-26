@@ -17,6 +17,7 @@ public class ChatRoomMapper {
                 entity.getMemberEntityId() != null ? MemberId.of(entity.getMemberEntityId().getValue()) : null,
                 entity.getChatRoomState(),
                 entity.getLevel(),
+                entity.getDetailedLevel(),
                 entity.getLastMessageSentTime(),
                 entity.getTotalSummary(),
                 entity.getSituationKeyword(),
@@ -40,6 +41,7 @@ public class ChatRoomMapper {
                 .chatRoomState(domain.getChatRoomState())
                 .lastMessageSentTime(domain.getLastMessageSentTime())
                 .level(domain.getLevel())
+                .detailedLevel(domain.getDetailedLevel())
                 .totalSummary(domain.getTotalSummary())
                 .situationKeyword(domain.getSituationKeyword())
                 .solutionKeyword(domain.getSolutionKeyword())

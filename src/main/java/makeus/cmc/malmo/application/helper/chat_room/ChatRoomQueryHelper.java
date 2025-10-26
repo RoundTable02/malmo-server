@@ -12,6 +12,7 @@ import makeus.cmc.malmo.application.port.out.member.LoadMemberMemoryPort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
+import makeus.cmc.malmo.domain.model.chat.MemberChatRoomMetadata;
 import makeus.cmc.malmo.domain.model.member.MemberMemory;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
@@ -55,10 +56,6 @@ public class ChatRoomQueryHelper {
 
     public Page<ChatRoom> getCompletedChatRoomsByMemberId(MemberId memberId, String keyword, Pageable pageable) {
         return loadChatRoomPort.loadAliveChatRoomsByMemberId(memberId, keyword, pageable);
-    }
-
-    public Optional<ChatRoom> getPausedChatRoomByMemberId(MemberId memberId) {
-        return loadChatRoomPort.loadPausedChatRoomByMemberId(memberId);
     }
 
     public void validateChatRoomOwnership(MemberId memberId, ChatRoomId chatRoomId) {
@@ -111,6 +108,10 @@ public class ChatRoomQueryHelper {
 
     public List<ChatMessage> getChatRoomLevelMessages(ChatRoomId chatRoomId, int level) {
         return loadMessagesPort.loadChatRoomMessagesByLevel(chatRoomId, level);
+    }
+
+    public List<ChatMessage> getChatRoomLevelAndDetailedLevelMessages(ChatRoomId chatRoomId, int level, int detailedLevel) {
+        return loadMessagesPort.loadChatRoomLevelAndDetailedLevelMessages(chatRoomId, level, detailedLevel);
     }
 
     public List<MemberMemory> getMemberMemoriesByMemberId(MemberId memberId) {

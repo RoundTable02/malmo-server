@@ -7,8 +7,6 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntity;
 
 import java.time.LocalDateTime;
 
-import static makeus.cmc.malmo.util.GlobalConstants.LAST_PROMPT_LEVEL;
-import static makeus.cmc.malmo.util.GlobalConstants.NOT_COUPLE_MEMBER_LAST_PROMPT_LEVEL;
 
 @Getter
 @Builder(access = AccessLevel.PRIVATE)
@@ -17,6 +15,12 @@ public class Prompt extends BaseTimeEntity {
     private Long id;
     private int level;
     private String content;
+    private boolean isForSystem;
+    private boolean isForSummary;
+    private boolean isForCompletedResponse;
+    private boolean isForTotalSummary;
+    private boolean isForGuideline;
+    private boolean isForAnswerMetadata;
 
     // BaseTimeEntity fields
     private LocalDateTime createdAt;
@@ -24,22 +28,22 @@ public class Prompt extends BaseTimeEntity {
     private LocalDateTime deletedAt;
 
     public static Prompt from(Long id, int level, String content,
-                                 LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
+                             boolean isForSystem, boolean isForSummary, boolean isForCompletedResponse,
+                             boolean isForTotalSummary, boolean isForGuideline, boolean isForAnswerMetadata,
+                             LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
         return Prompt.builder()
                 .id(id)
                 .level(level)
                 .content(content)
+                .isForSystem(isForSystem)
+                .isForSummary(isForSummary)
+                .isForCompletedResponse(isForCompletedResponse)
+                .isForTotalSummary(isForTotalSummary)
+                .isForGuideline(isForGuideline)
+                .isForAnswerMetadata(isForAnswerMetadata)
                 .createdAt(createdAt)
                 .modifiedAt(modifiedAt)
                 .deletedAt(deletedAt)
                 .build();
-    }
-
-    public boolean isLastPromptForNotCoupleMember() {
-        return level == NOT_COUPLE_MEMBER_LAST_PROMPT_LEVEL;
-    }
-
-    public boolean isLastPrompt() {
-        return level == LAST_PROMPT_LEVEL;
     }
 }
