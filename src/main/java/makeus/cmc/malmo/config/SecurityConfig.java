@@ -96,10 +96,10 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         // 여기에서 허용할 도메인만 설정
-        config.setAllowedOrigins(List.of("*"));
+        config.setAllowedOrigins(List.of(PRODUCTION_SERVER_URL, DEVELOPMENT_SERVER_URL, PRODUCTION_CLIENT_URL, DEVELOPMENT_CLIENT_URL, "http://localhost:3000", "http://localhost:8080"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(false);
+        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
