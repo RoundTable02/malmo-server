@@ -96,7 +96,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         // 여기에서 허용할 도메인만 설정
-        config.setAllowedOrigins(List.of(PRODUCTION_SERVER_URL, DEVELOPMENT_SERVER_URL, PRODUCTION_CLIENT_URL, DEVELOPMENT_CLIENT_URL, "http://localhost:3000", "http://localhost:8080"));
+        config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:8080", "https://test-front.malmo.io.kr", PRODUCTION_SERVER_URL, DEVELOPMENT_SERVER_URL, PRODUCTION_CLIENT_URL, DEVELOPMENT_CLIENT_URL));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
