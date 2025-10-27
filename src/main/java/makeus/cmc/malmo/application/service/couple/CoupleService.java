@@ -193,20 +193,20 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
     }
 
     private void activateCoupleFeatures(MemberId memberId, MemberId partnerId, Couple couple) {
-        chatRoomQueryHelper.getPausedChatRoomByMemberId(memberId)
-                        .ifPresent(
-                                chatRoom -> {
-                                    chatRoom.updateChatRoomStateNeedNextQuestion();
-                                    chatRoomCommandHelper.saveChatRoom(chatRoom);
-                                }
-                        );
-        chatRoomQueryHelper.getPausedChatRoomByMemberId(partnerId)
-                .ifPresent(
-                        chatRoom -> {
-                            chatRoom.updateChatRoomStateNeedNextQuestion();
-                            chatRoomCommandHelper.saveChatRoom(chatRoom);
-                        }
-                );
+//        chatRoomQueryHelper.getPausedChatRoomByMemberId(memberId)
+//                        .ifPresent(
+//                                chatRoom -> {
+//                                    chatRoom.updateChatRoomStateNeedNextQuestion();
+//                                    chatRoomCommandHelper.saveChatRoom(chatRoom);
+//                                }
+//                        );
+//        chatRoomQueryHelper.getPausedChatRoomByMemberId(partnerId)
+//                .ifPresent(
+//                        chatRoom -> {
+//                            chatRoom.updateChatRoomStateNeedNextQuestion();
+//                            chatRoomCommandHelper.saveChatRoom(chatRoom);
+//                        }
+//                );
 
         if (validateSsePort.isMemberOnline(partnerId)) {
             sendSseEventPort.sendToMember(

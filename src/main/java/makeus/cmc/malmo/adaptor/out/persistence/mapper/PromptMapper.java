@@ -16,6 +16,12 @@ public class PromptMapper {
                 entity.getId(),
                 entity.getLevel(),
                 entity.getContent(),
+                entity.isForSystem(),
+                entity.isForSummary(),
+                entity.isForCompletedResponse(),
+                entity.isForTotalSummary(),
+                entity.isForGuideline(),
+                entity.isForAnswerMetadata(),
                 entity.getCreatedAt(),
                 entity.getModifiedAt(),
                 entity.getDeletedAt()
@@ -31,6 +37,12 @@ public class PromptMapper {
                 .id(domain.getId())
                 .level(domain.getLevel())
                 .content(domain.getContent())
+                .isForSystem(domain.isForSystem())
+                .isForSummary(domain.isForSummary())
+                .isForCompletedResponse(domain.isForCompletedResponse())
+                .isForTotalSummary(domain.isForTotalSummary())
+                .isForGuideline(domain.isForGuideline())
+                .isForAnswerMetadata(domain.isForAnswerMetadata())
                 .createdAt(domain.getCreatedAt())
                 .modifiedAt(domain.getModifiedAt())
                 .deletedAt(domain.getDeletedAt())

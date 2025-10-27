@@ -16,6 +16,8 @@ public interface LoadMessagesPort {
     Page<ChatRoomMessageRepositoryDto> loadMessagesDtoAsc(ChatRoomId chatRoomId, Pageable pageable);
     List<ChatMessage> loadChatRoomMessagesByLevel(ChatRoomId chatRoomId, int level);
 
+    List<ChatMessage> loadChatRoomLevelAndDetailedLevelMessages(ChatRoomId chatRoomId, int level, int detailedLevel);
+
     @Data
     @AllArgsConstructor
     class ChatRoomMessageRepositoryDto {

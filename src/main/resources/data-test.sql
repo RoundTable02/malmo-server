@@ -11,12 +11,12 @@ VALUES ('지금 연애를 시작하게 된 계기는 무엇인가요?', '지금 
        ('연애 중 가장 고마웠던 순간은 어떤 상황이었나요?', '연애 중 가장 고마웠던 순간은 어떤 상황이었나요?', 4),
        ('연인이 서운한 마음을 표현할 때, 나는 어떤 마음이 드나요?', '연인이 서운한 마음을 표현할 때, 나는 어떤 마음이 드나요?', 5);
 
-INSERT INTO prompt_entity (level, content)
+INSERT INTO prompt_entity (level, content, is_for_answer_metadata, is_for_completed_response, is_for_guideline, is_for_summary, is_for_system, is_for_total_summary)
 VALUES
-    (-3, '요약용 프롬프트'),
-    (-2, '시스템 프롬프트'),
-    (-1, '중간 요약용 프롬프트'),
-    (1, '1단계 프롬프트'),
-    (2, '2단계 프롬프트'),
-    (3, '3단계 프롬프트'),
-    (4, '마지막 프롬프트');
+    (-3, '요약용 프롬프트', true, false, false, true, false, true),
+    (-2, '시스템 프롬프트' , false, false, false, false, true, false),
+    (-1, '중간 요약용 프롬프트', true, false, false, true, false, false),
+    (1, '1단계 프롬프트', false, true, true, false, false, false),
+    (2, '2단계 프롬프트', false, true, true, false, false, false),
+    (3, '3단계 프롬프트', false, true, true, false, false, false),
+    (4, '마지막 프롬프트', false, true, true, false, false, false);

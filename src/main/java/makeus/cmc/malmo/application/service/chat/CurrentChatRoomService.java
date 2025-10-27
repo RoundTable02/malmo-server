@@ -83,6 +83,7 @@ public class CurrentChatRoomService
         ChatMessage initMessage = chatRoomDomainService.createAiMessage(
                 ChatRoomId.of(savedChatRoom.getId()),
                 INIT_CHATROOM_LEVEL,
+                1,
                 JosaUtils.아야(member.getNickname())
                         + INIT_CHAT_MESSAGE);
         chatRoomCommandHelper.saveChatMessage(initMessage);

@@ -31,6 +31,8 @@ public class ChatRoomEntity extends BaseTimeEntity {
 
     private int level;
 
+    private int detailedLevel;
+
     private LocalDateTime lastMessageSentTime;
 
     @Column(columnDefinition = "TEXT")
