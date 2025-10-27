@@ -293,6 +293,7 @@ public class MemberIntegrationTest {
             couple = CoupleEntity.builder()
                     .startLoveDate(LocalDate.now())
                     .coupleState(CoupleState.ALIVE)
+                    .isStartLoveDateUpdated(false)
                     .firstMemberId(makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId.of(member.getId()))
                     .secondMemberId(makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId.of(partner.getId()))
                     .build();
@@ -447,6 +448,7 @@ public class MemberIntegrationTest {
             couple = CoupleEntity.builder()
                     .startLoveDate(coupleStartDate)
                     .coupleState(CoupleState.ALIVE)
+                    .isStartLoveDateUpdated(false)
                     .firstMemberId(makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId.of(member.getId()))
                     .secondMemberId(makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId.of(partner.getId()))
                     .build();
