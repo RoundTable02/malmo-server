@@ -12,4 +12,5 @@ public class StreamChatMessage implements StreamMessage {
     private Long chatRoomId;
     private String nowMessage;
     private Integer promptLevel;
+    private Integer detailedLevel;
 }

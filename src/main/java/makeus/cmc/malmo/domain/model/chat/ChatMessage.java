@@ -14,6 +14,7 @@ public class ChatMessage {
     private Long id;
     private ChatRoomId chatRoomId;
     private int level;
+    private int detailedLevel;
     private String content;
     private SenderType senderType;
 
@@ -22,29 +23,32 @@ public class ChatMessage {
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
 
-    public static ChatMessage createUserTextMessage(ChatRoomId chatRoomId, int level, String content) {
+    public static ChatMessage createUserTextMessage(ChatRoomId chatRoomId, int level, int detailedLevel, String content) {
         return ChatMessage.builder()
                 .chatRoomId(chatRoomId)
                 .level(level)
+                .detailedLevel(detailedLevel)
                 .content(content)
                 .senderType(SenderType.USER)
                 .build();
     }
 
-    public static ChatMessage createAssistantTextMessage(ChatRoomId chatRoomId, int level, String content) {
+    public static ChatMessage createAssistantTextMessage(ChatRoomId chatRoomId, int level, int detailedLevel, String content) {
         return ChatMessage.builder()
                 .chatRoomId(chatRoomId)
                 .level(level)
+                .detailedLevel(detailedLevel)
                 .content(content)
                 .senderType(SenderType.ASSISTANT)
                 .build();
     }
 
-    public static ChatMessage from(Long id, ChatRoomId chatRoomId, int level, String content, SenderType senderType, LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
+    public static ChatMessage from(Long id, ChatRoomId chatRoomId, int level, int detailedLevel, String content, SenderType senderType, LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
         return ChatMessage.builder()
                 .id(id)
                 .chatRoomId(chatRoomId)
                 .level(level)
+                .detailedLevel(detailedLevel)
                 .content(content)
                 .senderType(senderType)
                 .createdAt(createdAt)

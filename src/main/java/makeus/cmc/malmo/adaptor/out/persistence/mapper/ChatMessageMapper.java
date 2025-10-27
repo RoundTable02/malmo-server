@@ -15,6 +15,7 @@ public class ChatMessageMapper {
                 entity.getChatRoomEntityId() != null ?
                         ChatRoomId.of(entity.getChatRoomEntityId().getValue()) : null,
                 entity.getLevel(),
+                entity.getDetailedLevel(),
                 entity.getContent(),
                 entity.getSenderType(),
                 entity.getCreatedAt(),
@@ -33,6 +34,7 @@ public class ChatMessageMapper {
                 .chatRoomEntityId(domain.getChatRoomId() != null ?
                         ChatRoomEntityId.of(domain.getChatRoomId().getValue()) : null)
                 .level(domain.getLevel())
+                .detailedLevel(domain.getDetailedLevel())
                 .content(domain.getContent())
                 .senderType(domain.getSenderType())
                 .createdAt(domain.getCreatedAt())

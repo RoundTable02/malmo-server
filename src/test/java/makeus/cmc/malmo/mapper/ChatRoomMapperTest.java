@@ -33,10 +33,13 @@ class ChatRoomMapperTest {
                 .memberEntityId(MemberEntityId.of(100L))
                 .chatRoomState(ChatRoomState.ALIVE)
                 .level(1)
+                .detailedLevel(2)
                 .lastMessageSentTime(now)
                 .totalSummary("total summary")
                 .situationKeyword("situation")
                 .solutionKeyword("solution")
+                .chatRoomCompletedReason(null)
+                .counselingType("상담유형")
                 .createdAt(now)
                 .modifiedAt(now)
                 .deletedAt(null)
@@ -50,10 +53,13 @@ class ChatRoomMapperTest {
         assertThat(domain.getMemberId().getValue()).isEqualTo(entity.getMemberEntityId().getValue());
         assertThat(domain.getChatRoomState()).isEqualTo(entity.getChatRoomState());
         assertThat(domain.getLevel()).isEqualTo(entity.getLevel());
+        assertThat(domain.getDetailedLevel()).isEqualTo(entity.getDetailedLevel());
         assertThat(domain.getLastMessageSentTime()).isEqualTo(entity.getLastMessageSentTime());
         assertThat(domain.getTotalSummary()).isEqualTo(entity.getTotalSummary());
         assertThat(domain.getSituationKeyword()).isEqualTo(entity.getSituationKeyword());
         assertThat(domain.getSolutionKeyword()).isEqualTo(entity.getSolutionKeyword());
+        assertThat(domain.getChatRoomCompletedReason()).isEqualTo(entity.getChatRoomCompletedReason());
+        assertThat(domain.getCounselingType()).isEqualTo(entity.getCounselingType());
         assertThat(domain.getCreatedAt()).isEqualTo(entity.getCreatedAt());
         assertThat(domain.getModifiedAt()).isEqualTo(entity.getModifiedAt());
         assertThat(domain.getDeletedAt()).isEqualTo(entity.getDeletedAt());
@@ -69,12 +75,13 @@ class ChatRoomMapperTest {
                 MemberId.of(100L),
                 ChatRoomState.ALIVE,
                 1,
+                2,
                 now,
                 "total summary",
                 "situation",
                 "solution",
                 null,
-                null,
+                "상담유형",
                 now,
                 now,
                 null
@@ -88,10 +95,13 @@ class ChatRoomMapperTest {
         assertThat(entity.getMemberEntityId().getValue()).isEqualTo(domain.getMemberId().getValue());
         assertThat(entity.getChatRoomState()).isEqualTo(domain.getChatRoomState());
         assertThat(entity.getLevel()).isEqualTo(domain.getLevel());
+        assertThat(entity.getDetailedLevel()).isEqualTo(domain.getDetailedLevel());
         assertThat(entity.getLastMessageSentTime()).isEqualTo(domain.getLastMessageSentTime());
         assertThat(entity.getTotalSummary()).isEqualTo(domain.getTotalSummary());
         assertThat(entity.getSituationKeyword()).isEqualTo(domain.getSituationKeyword());
         assertThat(entity.getSolutionKeyword()).isEqualTo(domain.getSolutionKeyword());
+        assertThat(entity.getChatRoomCompletedReason()).isEqualTo(domain.getChatRoomCompletedReason());
+        assertThat(entity.getCounselingType()).isEqualTo(domain.getCounselingType());
         assertThat(entity.getCreatedAt()).isEqualTo(domain.getCreatedAt());
         assertThat(entity.getModifiedAt()).isEqualTo(domain.getModifiedAt());
         assertThat(entity.getDeletedAt()).isEqualTo(domain.getDeletedAt());

@@ -27,6 +27,9 @@ public class CoupleEntity extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private CoupleState coupleState;
 
+    @Column(name = "is_start_love_date_updated", nullable = false)
+    private Boolean isStartLoveDateUpdated = false;
+
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "value", column = @Column(name = "first_member_id"))

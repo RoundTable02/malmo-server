@@ -831,6 +831,7 @@ public class MemberIntegrationTest {
             private float avoidanceRate;
             private float anxietyRate;
             private String nickname;
+            private Boolean isStartLoveDateUpdated;
         }
 
         void assertMemberInfo(MemberResponseDto memberResponse, MemberEntity member, LocalDate startLoveDate, int coupleQuestionCount, int totalChatRoomCount) {
@@ -1012,6 +1013,52 @@ public class MemberIntegrationTest {
             Assertions.assertThat(partnerDto.avoidanceRate).isEqualTo(partner.getAvoidanceRate());
             Assertions.assertThat(partnerDto.anxietyRate).isEqualTo(partner.getAnxietyRate());
             Assertions.assertThat(partnerDto.nickname).isEqualTo(partner.getNickname());
+            // 새로 생성된 커플이므로 isStartLoveDateUpdated는 false여야 함
+            Assertions.assertThat(partnerDto.isStartLoveDateUpdated).isFalse();
+        }
+
+        @Test
+        @DisplayName("디데이 변경 후 파트너 정보 조회 시 isStartLoveDateUpdated가 true인지 확인")
+        void 디데이_변경_후_파트너_정보_조회_시_isStartLoveDateUpdated_확인() throws Exception {
+            // given
+            MemberEntity partner = createAndSavePartner();
+
+            // 커플 연결
+            mockMvc.perform(post("/couples")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    CoupleRequestDtoFactory.createCoupleLinkRequestDto(partner.getInviteCodeEntityValue().getValue())
+                            )))
+                    .andExpect(status().isOk());
+
+            // 디데이 변경
+            LocalDate newDday = LocalDate.of(2025, 1, 1);
+            mockMvc.perform(patch("/members/start-love-date")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(
+                                    MemberRequestDtoFactory.createUpdateStartLoveDateRequestDto(newDday)
+                            )))
+                    .andExpect(status().isOk());
+
+            // when
+            MvcResult mvcResult = mockMvc.perform(get("/members/partner")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            // then
+            String responseContent = mvcResult.getResponse().getContentAsString();
+            ResponseDto<PartnerResponseDto> responseDto = objectMapper.readValue(
+                    responseContent,
+                    new TypeReference<>() {}
+            );
+
+            // 디데이 변경 후 isStartLoveDateUpdated가 true인지 확인
+            PartnerResponseDto partnerDto = responseDto.data;
+            Assertions.assertThat(partnerDto.isStartLoveDateUpdated).isTrue();
         }
 
         @Test
