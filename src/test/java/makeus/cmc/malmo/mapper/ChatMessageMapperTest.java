@@ -32,6 +32,7 @@ class ChatMessageMapperTest {
                 .id(1L)
                 .chatRoomEntityId(ChatRoomEntityId.of(100L))
                 .level(1)
+                .detailedLevel(2)
                 .content("test content")
                 .senderType(SenderType.USER)
                 .createdAt(now)
@@ -46,6 +47,7 @@ class ChatMessageMapperTest {
         assertThat(domain.getId()).isEqualTo(entity.getId());
         assertThat(domain.getChatRoomId().getValue()).isEqualTo(entity.getChatRoomEntityId().getValue());
         assertThat(domain.getLevel()).isEqualTo(entity.getLevel());
+        assertThat(domain.getDetailedLevel()).isEqualTo(entity.getDetailedLevel());
         assertThat(domain.getContent()).isEqualTo(entity.getContent());
         assertThat(domain.getSenderType()).isEqualTo(entity.getSenderType());
         assertThat(domain.getCreatedAt()).isEqualTo(entity.getCreatedAt());
@@ -62,6 +64,7 @@ class ChatMessageMapperTest {
                 1L,
                 ChatRoomId.of(100L),
                 1,
+                2,
                 "test content",
                 SenderType.USER,
                 now,
@@ -76,6 +79,7 @@ class ChatMessageMapperTest {
         assertThat(entity.getId()).isEqualTo(domain.getId());
         assertThat(entity.getChatRoomEntityId().getValue()).isEqualTo(domain.getChatRoomId().getValue());
         assertThat(entity.getLevel()).isEqualTo(domain.getLevel());
+        assertThat(entity.getDetailedLevel()).isEqualTo(domain.getDetailedLevel());
         assertThat(entity.getContent()).isEqualTo(domain.getContent());
         assertThat(entity.getSenderType()).isEqualTo(domain.getSenderType());
         assertThat(entity.getCreatedAt()).isEqualTo(domain.getCreatedAt());

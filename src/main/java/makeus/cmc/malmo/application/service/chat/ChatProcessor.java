@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.application.port.out.chat.RequestChatApiPort;
+import makeus.cmc.malmo.application.port.in.chat.SufficiencyCheckResult;
+import makeus.cmc.malmo.domain.model.chat.DetailedPrompt;
 import makeus.cmc.malmo.domain.model.chat.Prompt;
 import makeus.cmc.malmo.domain.value.type.SenderType;
 import org.springframework.stereotype.Service;
@@ -29,17 +31,22 @@ public class ChatProcessor {
     public Mono<Void> streamChat(List<Map<String, String>> messages,
                                  Prompt systemPrompt,
                                  Prompt prompt,
+                                 DetailedPrompt detailedPrompt,
                                  Consumer<String> onChunk,
                                  Consumer<String> onComplete,
                                  Consumer<String> onError) {
 
         messages.add(createMessageMap(SenderType.SYSTEM, systemPrompt.getContent()));
         messages.add(createMessageMap(SenderType.SYSTEM, prompt.getContent()));
+        messages.add(createMessageMap(SenderType.SYSTEM, detailedPrompt.getContent()));
+
+        log.info("Starting streamChat with messages: {}", messages);
 
         return requestChatApiPort.requestStreamResponse(messages, onChunk) // onChunk 콜백만 넘김
                 .flatMap(fullAnswer -> {
                     // 스트림이 성공적으로 완료되고 전체 응답(fullAnswer)이 오면 onComplete 로직 실행
                     onComplete.accept(fullAnswer);
+                    log.info("Stream completed with full answer: {}", fullAnswer);
                     return Mono.empty(); // 성공적으로 완료했음을 알리기 위해 비어있는 Mono 반환
                 })
                 .doOnError(throwable -> onError.accept(throwable.getMessage())) // 에러 발생 시 onError 콜백 실행
@@ -88,6 +95,40 @@ public class ChatProcessor {
                 createMessageMap(SenderType.USER, "[답변] " + memberAnswer)
         );
 
+        return requestChatApiPort.requestResponse(messages);
+    }
+
+    public CompletableFuture<SufficiencyCheckResult> requestSufficiencyCheck(List<Map<String, String>> messages,
+                                                                             DetailedPrompt validationPrompt) {
+        messages.add(createMessageMap(SenderType.SYSTEM, validationPrompt.getContent()));
+
+        log.info("Requesting sufficiency check with messages: {}", messages);
+
+        return requestChatApiPort.requestJsonResponse(messages)
+                .thenApply(jsonResponse -> {
+                    try {
+                        log.info("Received sufficiency check JSON: {}", jsonResponse);
+                        return objectMapper.readValue(jsonResponse, SufficiencyCheckResult.class);
+                    } catch (JsonProcessingException e) {
+                        log.error("Failed to parse sufficiency check JSON: {}", jsonResponse, e);
+                        throw new RuntimeException("Failed to parse sufficiency check JSON", e);
+                    }
+                });
+    }
+
+    public CompletableFuture<String> requestDetailedSummary(List<Map<String, String>> messages,
+                                                           DetailedPrompt summaryPrompt) {
+        messages.add(createMessageMap(SenderType.SYSTEM, summaryPrompt.getContent()));
+        return requestChatApiPort.requestResponse(messages);
+    }
+
+    public CompletableFuture<String> requestStageSummary(List<Map<String, String>> messages,
+                                                        Prompt systemPrompt,
+                                                        Prompt prompt,
+                                                        Prompt summaryPrompt) {
+        messages.add(createMessageMap(SenderType.SYSTEM, systemPrompt.getContent()));
+        messages.add(createMessageMap(SenderType.SYSTEM, prompt.getContent()));
+        messages.add(createMessageMap(SenderType.SYSTEM, summaryPrompt.getContent()));
         return requestChatApiPort.requestResponse(messages);
     }
 

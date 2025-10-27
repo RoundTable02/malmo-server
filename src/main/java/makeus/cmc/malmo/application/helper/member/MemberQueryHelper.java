@@ -109,6 +109,7 @@ public class MemberQueryHelper {
         private float avoidanceRate;
         private float anxietyRate;
         private String nickname;
+        private Boolean isStartLoveDateUpdated;
     }
 
 }

@@ -46,6 +46,7 @@ public class MemberInfoService implements GetMemberUseCase, GetPartnerUseCase {
                 .avoidanceRate(partner.getAvoidanceRate())
                 .anxietyRate(partner.getAnxietyRate())
                 .nickname(partner.getNickname())
+                .isStartLoveDateUpdated(partner.getIsStartLoveDateUpdated())
                 .build();
     }
 }

@@ -11,28 +11,24 @@ import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntity;
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class PromptEntity extends BaseTimeEntity {
+@Table(name = "member_chat_room_metadata")
+public class MemberChatRoomMetadataEntity extends BaseTimeEntity {
 
-    @Column(name = "promptId")
+    @Column(name = "memberChatRoomMetadataId")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long chatRoomId;
+
+    private Long memberId;
+
     private int level;
 
+    private int detailedLevel;
+
+    private String title;
+
     @Column(columnDefinition = "TEXT")
-    private String content;
-
-    private boolean isForSystem;
-
-    private boolean isForSummary;
-
-    private boolean isForCompletedResponse;
-
-    private boolean isForTotalSummary;
-
-    private boolean isForGuideline;
-
-    private boolean isForAnswerMetadata;
-
+    private String summary;
 }
