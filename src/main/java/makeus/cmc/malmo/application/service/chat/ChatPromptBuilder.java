@@ -125,8 +125,8 @@ public class ChatPromptBuilder {
         metadataBuilder.append("[사용자 메타데이터] \n");
         String nickname = member.getNickname();
         metadataBuilder.append("- 사용자 이름: ").append(nickname).append("\n");
-        String dDayState = memberDomainService.getMemberDDayState(member.getStartLoveDate());
-        metadataBuilder.append("- 연애 기간: ").append(dDayState).append("\n");
+//        String dDayState = memberDomainService.getMemberDDayState(member.getStartLoveDate());
+//        metadataBuilder.append("- 연애 기간: ").append(dDayState).append("\n");
 
         LoadChatRoomMetadataPort.ChatRoomMetadataDto chatRoomMetadataDto = chatRoomQueryHelper.getChatRoomMetadata(MemberId.of(member.getId()));
         String memberLoveTypeTitle = chatRoomMetadataDto.memberLoveType() != null ? chatRoomMetadataDto.memberLoveType().getTitle() : "알 수 없음";
