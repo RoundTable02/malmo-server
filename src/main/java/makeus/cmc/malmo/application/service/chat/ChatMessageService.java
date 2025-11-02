@@ -65,7 +65,7 @@ public class ChatMessageService implements ProcessMessageUseCase {
         ChatRoom chatRoom = chatRoomQueryHelper.getChatRoomByIdOrThrow(ChatRoomId.of(command.getChatRoomId()));
 
         // 1. 유저 메시지 저장
-        saveUserMessage(chatRoom, command);
+//        saveUserMessage(chatRoom, command);
 
         // 2. 충분성 조건 검사
         CompletableFuture<SufficiencyCheckResult> sufficiencyCheck = 

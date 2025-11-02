@@ -65,7 +65,7 @@ public class ChatService implements SendChatMessageUseCase {
         }
 
         // 현재 유저 메시지를 저장
-//        ChatMessage savedUserMessage = saveUserMessage(chatRoom, command.getMessage());
+        ChatMessage savedUserMessage = saveUserMessage(chatRoom, command.getMessage());
 
         // 채팅방의 마지막 메시지 전송 시간 갱신
         chatRoom.updateLastMessageSentTime();
@@ -84,7 +84,7 @@ public class ChatService implements SendChatMessageUseCase {
         );
 
         return SendChatMessageResponse.builder()
-                .messageId(null) // TODO: 이후 제거 예정
+                .messageId(savedUserMessage.getId())
                 .build();
     }
 
