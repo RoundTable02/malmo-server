@@ -184,7 +184,7 @@ public class ChatMessageService implements ProcessMessageUseCase {
         
         // advice를 포함한 프롬프트 추가
         if (advice != null && !advice.isEmpty()) {
-            messages.add(Map.of("role", "system", "content", "현재 사용자의 상황 정보가 부족합니다. " + advice));
+            messages.add(Map.of("role", "system", "content", "상담 검수자의 Advice: " + advice));
         }
         
         Prompt systemPrompt = promptQueryHelper.getSystemPrompt();
