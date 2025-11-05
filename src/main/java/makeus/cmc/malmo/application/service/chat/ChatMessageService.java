@@ -269,6 +269,7 @@ public class ChatMessageService implements ProcessMessageUseCase {
             String finalMessage = nextPrompt.getContent();
             saveAiMessage(MemberId.of(member.getId()), ChatRoomId.of(chatRoom.getId()),
                     command.getPromptLevel(), command.getDetailedLevel(), finalMessage);
+            chatSseSender.sendLastResponse(chatRoom.getMemberId(), finalMessage);
 
             return CompletableFuture.completedFuture(null);
         }
