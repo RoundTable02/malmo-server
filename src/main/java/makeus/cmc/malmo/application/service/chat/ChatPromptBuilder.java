@@ -214,9 +214,9 @@ public class ChatPromptBuilder {
         }
 
         // 4. 현재 단계 메시지들 (이전 detailedLevel까지)
-        List<ChatMessage> currentChatRoomMessages = chatRoomQueryHelper.getChatRoomLevelAndDetailedLevelMessages(ChatRoomId.of(chatRoom.getId()), level, nextDetailedLevel - 1);
+//        List<ChatMessage> currentChatRoomMessages = chatRoomQueryHelper.getChatRoomLevelAndDetailedLevelMessages(ChatRoomId.of(chatRoom.getId()), level, nextDetailedLevel - 1);
         // fixed: 현재 단계 메시지들 context 전체 전달(level 기준)
-//        List<ChatMessage> currentChatRoomMessages = chatRoomQueryHelper.getChatRoomLevelMessages(ChatRoomId.of(chatRoom.getId()), level);
+        List<ChatMessage> currentChatRoomMessages = chatRoomQueryHelper.getChatRoomLevelMessages(ChatRoomId.of(chatRoom.getId()), level);
         for (ChatMessage chatMessage : currentChatRoomMessages) {
             messages.add(createMessageMap(chatMessage.getSenderType(), chatMessage.getContent()));
         }
