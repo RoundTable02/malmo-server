@@ -145,6 +145,12 @@ jobs:
                 container_name: ${{ steps.set_config.outputs.container_name }}
                 ports:
                   - "${{ steps.set_config.outputs.port }}:8080"
+                logging:
+                  driver: awslogs
+                    options:
+                        awslogs-group: malmo_logs
+                        awslogs-multiline-pattern: "^(INFO|ERROR)"
+                        awslogs-region: ap-northeast-2
                 environment:
                   - TZ=Asia/Seoul
                   - SPRING_PROFILES_ACTIVE=prod

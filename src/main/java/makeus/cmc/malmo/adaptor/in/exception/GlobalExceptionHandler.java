@@ -22,19 +22,19 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({MemberNotFoundException.class})
     public ResponseEntity<ErrorResponse> handleMemberNotFoundException(MemberNotFoundException e) {
-        log.warn("[GlobalExceptionHandler: handleMemberNotFoundException 호출]", e);
+        log.warn("[GlobalExceptionHandler: handleMemberNotFoundException 호출] {}", e.getMessage());
         return ErrorResponse.of(ErrorCode.NO_SUCH_MEMBER);
     }
 
     @ExceptionHandler({InviteCodeNotFoundException.class})
     public ResponseEntity<ErrorResponse> handleCoupleCodeNotFoundException(InviteCodeNotFoundException e) {
-        log.info("[GlobalExceptionHandler: handleCoupleCodeNotFoundException 호출]", e);
+        log.info("[GlobalExceptionHandler: handleCoupleCodeNotFoundException 호출] {}", e.getMessage());
         return ErrorResponse.of(ErrorCode.NO_SUCH_COUPLE_CODE);
     }
 
     @ExceptionHandler({OidcIdTokenException.class})
     public ResponseEntity<ErrorResponse> handleOidcIdTokenException(OidcIdTokenException e) {
-        log.warn("[GlobalExceptionHandler: handleOidcIdTokenException 호출]", e);
+        log.warn("[GlobalExceptionHandler: handleOidcIdTokenException 호출] {}", e.getMessage());
         return ErrorResponse.of(ErrorCode.INVALID_ID_TOKEN);
     }
 
@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({InvalidRefreshTokenException.class})
     public ResponseEntity<ErrorResponse> handleInvalidRefreshTokenException(InvalidRefreshTokenException e) {
-        log.info("[GlobalExceptionHandler: handleInvalidRefreshTokenException 호출]", e);
+        log.info("[GlobalExceptionHandler: handleInvalidRefreshTokenException 호출] {}", e.getMessage());
         return ErrorResponse.of(ErrorCode.INVALID_REFRESH_TOKEN);
     }
 
@@ -60,37 +60,37 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({TermsNotFoundException.class})
     public ResponseEntity<ErrorResponse> handleTermsNotFoundException(TermsNotFoundException e) {
-        log.warn("[GlobalExceptionHandler: handleTermsNotFoundException 호출]", e);
+        log.warn("[GlobalExceptionHandler: handleTermsNotFoundException 호출] {}", e.getMessage());
         return ErrorResponse.of(ErrorCode.NO_SUCH_TERMS);
     }
 
     @ExceptionHandler({LoveTypeNotFoundException.class})
     public ResponseEntity<ErrorResponse> handleLoveTypeNotFoundException(LoveTypeNotFoundException e) {
-        log.warn("[GlobalExceptionHandler: handleLoveTypeNotFoundException 호출]", e);
+        log.warn("[GlobalExceptionHandler: handleLoveTypeNotFoundException 호출] {}", e.getMessage());
         return ErrorResponse.of(ErrorCode.NO_SUCH_LOVE_TYPE);
     }
 
     @ExceptionHandler({LoveTypeQuestionNotFoundException.class})
     public ResponseEntity<ErrorResponse> handleLoveTypeQuestionNotFoundException(LoveTypeQuestionNotFoundException e) {
-        log.warn("[GlobalExceptionHandler: handleLoveTypeQuestionNotFoundException 호출]", e);
+        log.warn("[GlobalExceptionHandler: handleLoveTypeQuestionNotFoundException 호출] {}", e.getMessage());
         return ErrorResponse.of(ErrorCode.NO_SUCH_LOVE_TYPE_QUESTION);
     }
 
     @ExceptionHandler({NotCoupleMemberException.class})
     public ResponseEntity<ErrorResponse> handleNotCoupleMemberException(NotCoupleMemberException e) {
-        log.info("[GlobalExceptionHandler: handleNotCoupleMemberException 호출]", e);
+        log.info("[GlobalExceptionHandler: handleNotCoupleMemberException 호출] {}", e.getMessage());
         return ErrorResponse.of(ErrorCode.NOT_COUPLE_MEMBER);
     }
 
     @ExceptionHandler({UsedInviteCodeException.class})
     public ResponseEntity<ErrorResponse> handleUsedCoupleCodeException(UsedInviteCodeException e) {
-        log.info("[GlobalExceptionHandler: handleUsedCoupleCodeException 호출]", e);
+        log.info("[GlobalExceptionHandler: handleUsedCoupleCodeException 호출] {}", e.getMessage());
         return ErrorResponse.of(ErrorCode.USED_COUPLE_CODE);
     }
 
     @ExceptionHandler({AlreadyCoupledMemberException.class})
     public ResponseEntity<ErrorResponse> handleAlreadyCoupledMemberException(AlreadyCoupledMemberException e) {
-        log.info("[GlobalExceptionHandler: handleAlreadyCoupledMemberException 호출]", e);
+        log.info("[GlobalExceptionHandler: handleAlreadyCoupledMemberException 호출] {}", e.getMessage());
         return ErrorResponse.of(ErrorCode.ALREADY_COUPLED_MEMBER);
     }
 
@@ -103,37 +103,37 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({MemberNotTestedException.class})
     public ResponseEntity<ErrorResponse> handleMemberNotTestedException(MemberNotTestedException e) {
-        log.info("[GlobalExceptionHandler: handleMemberNotTestedException 호출]", e);
+        log.info("[GlobalExceptionHandler: handleMemberNotTestedException 호출] {}", e.getMessage());
         return ErrorResponse.of(ErrorCode.MEMBER_NOT_TESTED);
     }
 
     @ExceptionHandler({ChatRoomNotFoundException.class})
     public ResponseEntity<ErrorResponse> handleChatRoomNotFoundException(ChatRoomNotFoundException e) {
-        log.warn("[GlobalExceptionHandler: handleChatRoomNotFoundException 호출]", e);
+        log.warn("[GlobalExceptionHandler: handleChatRoomNotFoundException 호출] {}", e.getMessage());
         return ErrorResponse.of(ErrorCode.NO_SUCH_CHAT_ROOM);
     }
 
     @ExceptionHandler({NotValidChatRoomException.class})
     public ResponseEntity<ErrorResponse> handleNotValidChatRoomException(NotValidChatRoomException e) {
-        log.warn("[GlobalExceptionHandler: handleNotValidChatRoomException 호출]", e);
+        log.warn("[GlobalExceptionHandler: handleNotValidChatRoomException 호출] {}", e.getMessage());
         return ErrorResponse.of(ErrorCode.NOT_VALID_CHAT_ROOM);
     }
 
     @ExceptionHandler({MemberAccessDeniedException.class})
     public ResponseEntity<ErrorResponse> handleMemberAccessDeniedException(MemberAccessDeniedException e) {
-        log.warn("[GlobalExceptionHandler: handleMemberAccessDeniedException 호출]", e);
+        log.warn("[GlobalExceptionHandler: handleMemberAccessDeniedException 호출] {}", e.getMessage());
         return ErrorResponse.of(ErrorCode.MEMBER_ACCESS_DENIED);
     }
 
     @ExceptionHandler({NotValidCoupleCodeException.class})
     public ResponseEntity<ErrorResponse> handleNotValidCoupleCodeException(NotValidCoupleCodeException e) {
-        log.info("[GlobalExceptionHandler: handleNotValidCoupleCodeException 호출]", e);
+        log.info("[GlobalExceptionHandler: handleNotValidCoupleCodeException 호출] {}", e.getMessage());
         return ErrorResponse.of(ErrorCode.NOT_VALID_COUPLE_CODE);
     }
 
     @ExceptionHandler({CoupleQuestionNotFoundException.class})
     public ResponseEntity<ErrorResponse> handleCoupleQuestionNotFoundException(CoupleQuestionNotFoundException e) {
-        log.warn("[GlobalExceptionHandler: handleCoupleQuestionNotFoundException 호출]", e);
+        log.warn("[GlobalExceptionHandler: handleCoupleQuestionNotFoundException 호출] {}", e.getMessage());
         return ErrorResponse.of(ErrorCode.NO_SUCH_COUPLE_QUESTION);
     }
 
@@ -146,10 +146,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({TempLoveTypeNotFoundException.class})
     public ResponseEntity<ErrorResponse> handleTempLoveTypeNotFoundException(TempLoveTypeNotFoundException e) {
-        log.warn("[GlobalExceptionHandler: handleTempLoveTypeNotFoundException 호출]", e);
+        log.warn("[GlobalExceptionHandler: handleTempLoveTypeNotFoundException 호출] {}", e.getMessage());
         return ErrorResponse.of(ErrorCode.NO_SUCH_TEMP_LOVE_TYPE);
     }
-
 
 
 
@@ -158,13 +157,13 @@ public class GlobalExceptionHandler {
       */
     @ExceptionHandler({NoHandlerFoundException.class, TypeMismatchException.class})
     public ResponseEntity<ErrorResponse> handleBadRequestException(Exception e) {
-        log.warn("[CommonExceptionHandler: handleBadRequestException 호출]", e);
+        log.warn("[CommonExceptionHandler: handleBadRequestException 호출] {}", e.getMessage());
         return ErrorResponse.of(ErrorCode.BAD_REQUEST);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
-        log.warn("[CommonExceptionHandler: handleHttpRequestMethodNotSupportedException 호출]", e);
+        log.warn("[CommonExceptionHandler: handleHttpRequestMethodNotSupportedException 호출] {}", e.getMessage());
         return ErrorResponse.of(ErrorCode.METHOD_NOT_ALLOWED);
     }
 
@@ -184,7 +183,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        log.warn("[CommonExceptionHandler: handleMethodArgumentNotValidException 호출]", e);
+        log.warn("[CommonExceptionHandler: handleMethodArgumentNotValidException 호출] {}", e.getMessage());
         return ErrorResponse.of(ErrorCode.BAD_REQUEST);
     }
 }
