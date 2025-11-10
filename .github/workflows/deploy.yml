@@ -46,7 +46,7 @@ jobs:
       - name: Run tests with Gradle
         run: ./gradlew test --no-daemon
 
-  # 2. 배포 작업 (Push 시 & 테스트 성공 시 실행)
+  # 2. 배포 작업 (Push & 테스트 성공 시 실행)
   deploy:
     # 'test' 작업이 성공해야만 실행됩니다.
     needs: test
