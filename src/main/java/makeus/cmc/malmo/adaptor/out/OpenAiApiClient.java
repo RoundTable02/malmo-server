@@ -30,7 +30,7 @@ import static makeus.cmc.malmo.util.GlobalConstants.OPENAI_STATUS_URL;
 @RequiredArgsConstructor
 public class OpenAiApiClient implements RequestChatApiPort, CheckOpenAIHealth {
 
-    public static final String GPT_VERSION = "gpt-4o";
+    public static final String GPT_VERSION = "gpt-4.1";
     public static final double GPT_TEMPERATURE = 0.5;
 
     @Value("${openai.api.key}")

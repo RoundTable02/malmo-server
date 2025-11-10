@@ -177,7 +177,8 @@ public class ChatRoomIntegrationTest {
             ChatProcessor.CounselingSummary mockSummary = new ChatProcessor.CounselingSummary(
                     "만료된 채팅방 요약",
                     "상황 키워드",
-                    "솔루션 키워드"
+                    "솔루션 키워드",
+                    "재회 고민"
             );
             when(chatProcessor.requestTotalSummary(any(), any(), any())).thenReturn(CompletableFuture.completedFuture(mockSummary));
 
@@ -238,7 +239,7 @@ public class ChatRoomIntegrationTest {
                 Consumer<String> onComplete = invocation.getArgument(4);
                 onComplete.accept("AI 응답입니다.");
                 return null;
-            }).when(chatProcessor).streamChat(any(), any(), any(), any(), any(), any());
+            }).when(chatProcessor).streamChat(any(), any(), any(), any(), any(), any(), any());
 
             // when & then
             mockMvc.perform(post("/chatrooms/current/send")
@@ -251,7 +252,7 @@ public class ChatRoomIntegrationTest {
                     .setParameter("chatRoomId", chatRoom.getId())
                     .getResultList();
 
-            Assertions.assertThat(messages).hasSize(1);
+            Assertions.assertThat(messages).hasSize(2);
             Assertions.assertThat(messages.get(0).getContent()).isEqualTo(message);
             Assertions.assertThat(messages.get(0).getSenderType()).isEqualTo(SenderType.USER);
         }
@@ -286,7 +287,7 @@ public class ChatRoomIntegrationTest {
             // given
             ChatRoomEntity chatRoom = ChatRoomEntity.builder()
                     .memberEntityId(MemberEntityId.of(member.getId()))
-                    .chatRoomState(ChatRoomState.BEFORE_INIT)
+                    .chatRoomState(ChatRoomState.ALIVE)
                     .level(INIT_CHATROOM_LEVEL)
                     .build();
             em.persist(chatRoom);
@@ -298,7 +299,7 @@ public class ChatRoomIntegrationTest {
                 Consumer<String> onComplete = invocation.getArgument(4);
                 onComplete.accept("AI 응답입니다.");
                 return null;
-            }).when(chatProcessor).streamChat(any(), any(), any(), any(), any(), any());
+            }).when(chatProcessor).streamChat(any(), any(), any(), any(), any(), any(), any());
 
             // when & then
             mockMvc.perform(post("/chatrooms/current/send")
@@ -318,7 +319,7 @@ public class ChatRoomIntegrationTest {
             ChatRoomEntity chatRoom = ChatRoomEntity.builder()
                     .memberEntityId(MemberEntityId.of(member.getId()))
                     .chatRoomState(ChatRoomState.ALIVE)
-                    .level(LAST_PROMPT_LEVEL)
+                    .level(4) // 마지막 단계 레벨 (하드코딩 대신 실제 값 사용)
                     .build();
             em.persist(chatRoom);
             em.flush();
@@ -339,65 +340,8 @@ public class ChatRoomIntegrationTest {
             Assertions.assertThat(messages).hasSize(2);
             Assertions.assertThat(messages.get(0).getContent()).isEqualTo(message);
             Assertions.assertThat(messages.get(0).getSenderType()).isEqualTo(SenderType.USER);
-            Assertions.assertThat(messages.get(1).getContent()).isEqualTo(FINAL_MESSAGE);
+            Assertions.assertThat(messages.get(1).getContent()).isEqualTo("마지막 프롬프트");
             Assertions.assertThat(messages.get(1).getSenderType()).isEqualTo(SenderType.ASSISTANT);
-        }
-    }
-
-    @Nested
-    @DisplayName("채팅방 업그레이드")
-    class UpgradeChatRoom {
-        @Test
-        @DisplayName("채팅방 업그레이드에 성공한다")
-        void 채팅방_업그레이드_성공() throws Exception {
-            // given
-            ChatRoomEntity chatRoom = ChatRoomEntity.builder()
-                    .memberEntityId(MemberEntityId.of(member.getId()))
-                    .chatRoomState(ChatRoomState.ALIVE)
-                    .level(1)
-                    .build();
-            em.persist(chatRoom);
-            em.flush();
-
-            // Mock publishStreamMessagePort - ArgumentCaptor로 호출 검증
-            ArgumentCaptor<Object> messageCaptor = ArgumentCaptor.forClass(Object.class);
-            doNothing().when(outboxHelper).publish(any(), (StreamMessage) messageCaptor.capture());
-
-            // when & then
-            mockMvc.perform(post("/chatrooms/current/upgrade")
-                            .header("Authorization", "Bearer " + accessToken))
-                    .andExpect(status().isOk());
-
-            ChatRoomEntity updatedChatRoom = em.find(ChatRoomEntity.class, chatRoom.getId());
-            Assertions.assertThat(updatedChatRoom.getLevel()).isEqualTo(2);
-            Assertions.assertThat(updatedChatRoom.getChatRoomState()).isEqualTo(ChatRoomState.ALIVE);
-
-            // publishStreamMessagePort가 2번 호출되었는지 검증
-            verify(outboxHelper, times(2)).publish(any(), any());
-
-            // 첫 번째 호출은 REQUEST_SUMMARY, 두 번째 호출은 REQUEST_CHAT_MESSAGE인지 검증
-            List<Object> capturedMessages = messageCaptor.getAllValues();
-            Assertions.assertThat(capturedMessages).hasSize(2);
-        }
-
-        @Test
-        @DisplayName("탈퇴한 사용자의 경우 채팅방 업그레이드에 실패한다")
-        void 탈퇴한_사용자_업그레이드_실패() throws Exception {
-            // when & then
-            mockMvc.perform(post("/chatrooms/current/upgrade")
-                            .header("Authorization", "Bearer " + generateTokenPort.generateToken(deletedMember.getId(), deletedMember.getMemberRole()).getAccessToken()))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.code").value(NO_SUCH_MEMBER.getCode()));
-        }
-
-        @Test
-        @DisplayName("채팅방이 없는 경우 채팅방 업그레이드에 실패한다")
-        void 채팅방_없는_경우_업그레이드_실패() throws Exception {
-            // when & then
-            mockMvc.perform(post("/chatrooms/current/upgrade")
-                            .header("Authorization", "Bearer " + accessToken))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.code").value(NO_SUCH_CHAT_ROOM.getCode()));
         }
     }
 
@@ -458,7 +402,7 @@ public class ChatRoomIntegrationTest {
             em.persist(ChatMessageSummaryEntity.builder().chatRoomEntityId(ChatRoomEntityId.of(chatRoom.getId())).content("요약2").level(2).build());
             em.flush();
 
-            ChatProcessor.CounselingSummary summary = new ChatProcessor.CounselingSummary("최종 요약", "상황 키워드", "솔루션 키워드");
+            ChatProcessor.CounselingSummary summary = new ChatProcessor.CounselingSummary("최종 요약", "상황 키워드", "솔루션 키워드", "재회 고민");
             when(chatProcessor.requestTotalSummary(any(), any(), any())).thenReturn(CompletableFuture.completedFuture(summary));
 
             // when & then

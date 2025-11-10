@@ -21,6 +21,7 @@ public class Couple {
     private CoupleMemberSnapshot firstMemberSnapshot;
     private CoupleMemberSnapshot secondMemberSnapshot;
     private CoupleState coupleState;
+    private Boolean isStartLoveDateUpdated;
 
     // BaseTimeEntity fields
     private LocalDateTime createdAt;
@@ -33,6 +34,7 @@ public class Couple {
                 .secondMemberId(MemberId.of(partnerId))
                 .startLoveDate(startLoveDate)
                 .coupleState(coupleState)
+                .isStartLoveDateUpdated(false)
                 .build();
     }
 
@@ -40,7 +42,7 @@ public class Couple {
                               MemberId firstMemberId, MemberId secondMemberId,
                               CoupleState coupleState,
                           CoupleMemberSnapshot firstMemberSnapshot, CoupleMemberSnapshot secondMemberSnapshot,
-                          LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
+                          LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt, Boolean isStartLoveDateUpdated) {
         return Couple.builder()
                 .id(id)
                 .startLoveDate(startLoveDate)
@@ -49,6 +51,7 @@ public class Couple {
                 .firstMemberSnapshot(firstMemberSnapshot)
                 .secondMemberSnapshot(secondMemberSnapshot)
                 .coupleState(coupleState)
+                .isStartLoveDateUpdated(isStartLoveDateUpdated)
                 .createdAt(createdAt)
                 .modifiedAt(modifiedAt)
                 .deletedAt(deletedAt)
@@ -59,6 +62,14 @@ public class Couple {
         this.firstMemberSnapshot = null;
         this.secondMemberSnapshot = null;
         this.coupleState = CoupleState.ALIVE;
+        this.deletedAt = null;
+    }
+
+    public boolean canRecover() {
+        if (this.deletedAt == null) {
+            return false;
+        }
+        return this.deletedAt.isAfter(LocalDateTime.now().minusDays(30));
     }
 
     public boolean isBroken() {
@@ -75,6 +86,7 @@ public class Couple {
 
     public void unlink(MemberId memberId, String nickname, LoveTypeCategory loveTypeCategory, float anxietyRate, float avoidanceRate) {
         this.coupleState = CoupleState.DELETED;
+        this.deletedAt = LocalDateTime.now();
 
         CoupleMemberSnapshot coupleMemberSnapshot = new CoupleMemberSnapshot(nickname, loveTypeCategory, anxietyRate, avoidanceRate);
         if (Objects.equals(memberId, firstMemberId)) {
@@ -86,5 +98,6 @@ public class Couple {
 
     public void updateStartLoveDate(LocalDate startLoveDate) {
         this.startLoveDate = startLoveDate;
+        this.isStartLoveDateUpdated = true;
     }
 }

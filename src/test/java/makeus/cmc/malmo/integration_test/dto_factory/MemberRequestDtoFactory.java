@@ -9,12 +9,10 @@ import java.util.List;
 
 public class MemberRequestDtoFactory {
     public static SignUpController.SignUpRequestDto createSignUpRequestDto(List<SignUpController.TermsDto> terms,
-                                                                           String nickname,
-                                                                           LocalDate startLoveDate) {
+                                                                           String nickname) {
         SignUpController.SignUpRequestDto dto = new SignUpController.SignUpRequestDto();
         dto.setTerms(terms);
         dto.setNickname(nickname);
-        dto.setLoveStartDate(startLoveDate);
 
         return dto;
     }
@@ -22,12 +20,10 @@ public class MemberRequestDtoFactory {
     public static SignUpController.SignUpRequestDto createSignUpWithLoveTypeIdRequestDto(
             List<SignUpController.TermsDto> terms,
             String nickname,
-            LocalDate startLoveDate,
             Long loveTypeId) {
         SignUpController.SignUpRequestDto dto = new SignUpController.SignUpRequestDto();
         dto.setTerms(terms);
         dto.setNickname(nickname);
-        dto.setLoveStartDate(startLoveDate);
         dto.setLoveTypeId(loveTypeId);
 
         return dto;

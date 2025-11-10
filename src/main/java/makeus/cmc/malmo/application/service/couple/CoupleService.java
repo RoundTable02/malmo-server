@@ -86,12 +86,14 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
 
         // 커플 생성 또는 재연결
         // 과거 두 사용자가 커플이었던 경우 재연결, 아니라면 새로 생성
+        // V2: 커플 연동 시 startLoveDate를 당일로 초기화
         Couple couple = coupleQueryHelper.getCoupleByMemberAndPartnerId(MemberId.of(member.getId()), MemberId.of(partner.getId()))
+                .filter(Couple::canRecover)
                 .map(this::reconnectCouple)
                 .orElseGet(() -> createNewCouple(
                         MemberId.of(member.getId()),
                         MemberId.of(partner.getId()),
-                        partner.getStartLoveDate()
+                        LocalDate.now() // V2: 당일로 초기화
                 ));
 
         // 사용자 커플 연결 처리
@@ -191,20 +193,20 @@ public class CoupleService implements CoupleLinkUseCase, CoupleUnlinkUseCase {
     }
 
     private void activateCoupleFeatures(MemberId memberId, MemberId partnerId, Couple couple) {
-        chatRoomQueryHelper.getPausedChatRoomByMemberId(memberId)
-                        .ifPresent(
-                                chatRoom -> {
-                                    chatRoom.updateChatRoomStateNeedNextQuestion();
-                                    chatRoomCommandHelper.saveChatRoom(chatRoom);
-                                }
-                        );
-        chatRoomQueryHelper.getPausedChatRoomByMemberId(partnerId)
-                .ifPresent(
-                        chatRoom -> {
-                            chatRoom.updateChatRoomStateNeedNextQuestion();
-                            chatRoomCommandHelper.saveChatRoom(chatRoom);
-                        }
-                );
+//        chatRoomQueryHelper.getPausedChatRoomByMemberId(memberId)
+//                        .ifPresent(
+//                                chatRoom -> {
+//                                    chatRoom.updateChatRoomStateNeedNextQuestion();
+//                                    chatRoomCommandHelper.saveChatRoom(chatRoom);
+//                                }
+//                        );
+//        chatRoomQueryHelper.getPausedChatRoomByMemberId(partnerId)
+//                .ifPresent(
+//                        chatRoom -> {
+//                            chatRoom.updateChatRoomStateNeedNextQuestion();
+//                            chatRoomCommandHelper.saveChatRoom(chatRoom);
+//                        }
+//                );
 
         if (validateSsePort.isMemberOnline(partnerId)) {
             sendSseEventPort.sendToMember(

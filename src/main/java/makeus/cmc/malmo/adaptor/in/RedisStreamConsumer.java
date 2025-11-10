@@ -64,9 +64,6 @@ public class RedisStreamConsumer {
                 case REQUEST_CHAT_MESSAGE:
                     future = processChatMessage(payloadNode);
                     break;
-                case REQUEST_SUMMARY:
-                    future = processSummary(payloadNode);
-                    break;
                 case REQUEST_TOTAL_SUMMARY:
                     future = processTotalSummary(payloadNode);
                     break;
@@ -108,15 +105,7 @@ public class RedisStreamConsumer {
                         .chatRoomId(payloadNode.get("chatRoomId").asLong())
                         .nowMessage(payloadNode.get("nowMessage").asText())
                         .promptLevel(payloadNode.get("promptLevel").asInt())
-                        .build()
-        );
-    }
-
-    private CompletableFuture<Void> processSummary(JsonNode payloadNode) {
-        return processMessageUseCase.processSummary(
-                ProcessMessageUseCase.ProcessSummaryCommand.builder()
-                        .chatRoomId(payloadNode.get("chatRoomId").asLong())
-                        .promptLevel(payloadNode.get("promptLevel").asInt())
+                        .detailedLevel(payloadNode.get("detailedLevel").asInt())
                         .build()
         );
     }

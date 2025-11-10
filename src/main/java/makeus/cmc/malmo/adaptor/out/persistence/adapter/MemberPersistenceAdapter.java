@@ -127,6 +127,7 @@ public class MemberPersistenceAdapter implements
         private float avoidanceRate;
         private float anxietyRate;
         private String nickname;
+        private Boolean isStartLoveDateUpdated;
 
         public MemberQueryHelper.PartnerMemberDto toDto() {
             return MemberQueryHelper.PartnerMemberDto.builder()
@@ -135,6 +136,7 @@ public class MemberPersistenceAdapter implements
                     .avoidanceRate(avoidanceRate)
                     .anxietyRate(anxietyRate)
                     .nickname(nickname)
+                    .isStartLoveDateUpdated(isStartLoveDateUpdated)
                     .build();
         }
     }

@@ -46,6 +46,7 @@ class CoupleAggregateMapperTest {
             assertThat(result.getId()).isEqualTo(entity.getId());
             assertThat(result.getStartLoveDate()).isEqualTo(entity.getStartLoveDate());
             assertThat(result.getCoupleState()).isEqualTo(entity.getCoupleState());
+            assertThat(result.getIsStartLoveDateUpdated()).isEqualTo(entity.getIsStartLoveDateUpdated());
             assertThat(result.getFirstMemberId().getValue()).isEqualTo(entity.getFirstMemberId().getValue());
             assertThat(result.getSecondMemberId().getValue()).isEqualTo(entity.getSecondMemberId().getValue());
             assertThat(result.getCreatedAt()).isEqualTo(entity.getCreatedAt());
@@ -98,6 +99,7 @@ class CoupleAggregateMapperTest {
             assertThat(result.getId()).isEqualTo(domain.getId());
             assertThat(result.getStartLoveDate()).isEqualTo(domain.getStartLoveDate());
             assertThat(result.getCoupleState()).isEqualTo(domain.getCoupleState());
+            assertThat(result.getIsStartLoveDateUpdated()).isEqualTo(domain.getIsStartLoveDateUpdated());
             assertThat(result.getFirstMemberId().getValue()).isEqualTo(domain.getFirstMemberId().getValue());
             assertThat(result.getSecondMemberId().getValue()).isEqualTo(domain.getSecondMemberId().getValue());
             assertThat(result.getCreatedAt()).isEqualTo(domain.getCreatedAt());
@@ -138,6 +140,7 @@ class CoupleAggregateMapperTest {
                 .id(1L)
                 .startLoveDate(LocalDate.of(2024, 1, 1))
                 .coupleState(CoupleState.ALIVE)
+                .isStartLoveDateUpdated(false)
                 .firstMemberId(MemberEntityId.of(100L))
                 .secondMemberId(MemberEntityId.of(200L))
                 .firstMemberSnapshot(createSnapshotEntity("first", LoveTypeCategory.STABLE_TYPE, 10, 20))
@@ -169,7 +172,8 @@ class CoupleAggregateMapperTest {
                 createSnapshot("second", LoveTypeCategory.ANXIETY_TYPE, 40f, 30f),
                 LocalDateTime.now(),
                 LocalDateTime.now(),
-                null
+                null,
+                false
         );
     }
 

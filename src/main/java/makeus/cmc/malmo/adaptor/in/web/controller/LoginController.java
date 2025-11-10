@@ -47,6 +47,7 @@ public class LoginController {
         SignInUseCase.SignInKakaoCommand command = SignInUseCase.SignInKakaoCommand.builder()
                 .idToken(requestDto.idToken)
                 .accessToken(requestDto.accessToken)
+                .deviceId(requestDto.deviceId)
                 .build();
         return BaseResponse.success(signInUseCase.signInKakao(command));
     }
@@ -68,6 +69,7 @@ public class LoginController {
         SignInUseCase.SignInAppleCommand command = SignInUseCase.SignInAppleCommand.builder()
                 .idToken(requestDto.idToken)
                 .authorizationCode(requestDto.authorizationCode)
+                .deviceId(requestDto.deviceId)
                 .build();
         return BaseResponse.success(signInUseCase.signInApple(command));
     }
@@ -100,6 +102,7 @@ public class LoginController {
         private String idToken;
         @NotEmpty(message = "accessToken은 필수 입력값입니다.")
         private String accessToken;
+        private String deviceId;
     }
 
     @Data
@@ -107,5 +110,6 @@ public class LoginController {
         @NotEmpty(message = "idToken은 필수 입력값입니다.")
         private String idToken;
         private String authorizationCode;
+        private String deviceId;
     }
 }

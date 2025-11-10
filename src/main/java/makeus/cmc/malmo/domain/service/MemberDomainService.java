@@ -15,6 +15,9 @@ import static java.time.temporal.ChronoUnit.DAYS;
 public class MemberDomainService {
 
     public Member createMember(Provider provider, String providerId, String email, InviteCodeValue inviteCode, String oauthToken) {
+        if (email == null || email.isEmpty()) {
+            email = (Provider.APPLE.equals(provider)) ? "apple@example.com" : "kakao@example.com";
+        }
         return Member.createMember(
                 provider,
                 providerId,
