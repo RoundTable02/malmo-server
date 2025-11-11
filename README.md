@@ -137,6 +137,8 @@ release-green: 결제 모듈 업데이트
   
 - 단계별 상담 구조 설계 및 프롬프트 엔지니어링
   
+  안정적인 단계 전환을 위해 **'LLM-as-a-Judge'** 방식 도입
+  
 - **SSE 통신** 방식을 이용한 GPT 응답 스트리밍
   
   [[VELOG : SSE로 GPT 응답 스트리밍하기]](https://velog.io/@_roundtable/%EB%A7%90%EB%AA%A8-SSE%EB%A1%9C-GPT-%EC%9D%91%EB%8B%B5-%EC%8A%A4%ED%8A%B8%EB%A6%AC%EB%B0%8D%ED%95%98%EA%B8%B0) 
@@ -148,6 +150,8 @@ release-green: 결제 모듈 업데이트
 - **트랜잭션 아웃박스 (Transactional Outbox)** 패턴 적용으로 메시지 발행 보장
   
    [[트랜잭션 아웃박스 패턴으로 메시지 발행 보장하기]](https://velog.io/@_roundtable/%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98-%EC%95%84%EC%9B%83%EB%B0%95%EC%8A%A4-%ED%8C%A8%ED%84%B4%EC%9C%BC%EB%A1%9C-%EB%A9%94%EC%8B%9C%EC%A7%80-%EB%B0%9C%ED%96%89-%EB%B3%B4%EC%9E%A5%ED%95%98%EA%B8%B0)
+
+  [[트랜잭션 아웃박스 패턴 성능 테스트]](https://velog.io/@_roundtable/%EB%A7%90%EB%AA%A8-%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98-%EC%95%84%EC%9B%83%EB%B0%95%EC%8A%A4-%ED%8C%A8%ED%84%B4-%EC%84%B1%EB%8A%A5-%ED%85%8C%EC%8A%A4%ED%8A%B8-AI-%EC%B1%84%ED%8C%85-3-1)
 
 - 외부 API의 도메인 영역 침범을 분리하기 위해 **헥사고날 아키텍처**를 적용, 확장 가능성 확보
 
