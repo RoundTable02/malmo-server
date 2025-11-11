@@ -6,6 +6,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.message.StreamMessageType;
+import makeus.cmc.malmo.application.port.in.MarkOutboxUseCase;
 import makeus.cmc.malmo.application.port.in.chat.ProcessMessageUseCase;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.connection.stream.MapRecord;
@@ -32,6 +33,8 @@ public class RedisStreamConsumer {
     private final RedisTemplate<String, Object> redisTemplate;
     private final ProcessMessageUseCase processMessageUseCase;
     private final ObjectMapper objectMapper;
+
+    private final MarkOutboxUseCase markOutboxUseCase;
 
     @PostConstruct
     public void init() {
@@ -61,9 +64,6 @@ public class RedisStreamConsumer {
                 case REQUEST_CHAT_MESSAGE:
                     future = processChatMessage(payloadNode);
                     break;
-                case REQUEST_SUMMARY:
-                    future = processSummary(payloadNode);
-                    break;
                 case REQUEST_TOTAL_SUMMARY:
                     future = processTotalSummary(payloadNode);
                     break;
@@ -86,6 +86,7 @@ public class RedisStreamConsumer {
                 } else {
                     // 성공적으로 완료 시 ACK
                     redisTemplate.opsForStream().acknowledge(streamKey, consumerGroup, record.getId());
+                    markOutboxUseCase.markOutboxDone(Long.valueOf(record.getValue().get("outboxId")));
                     log.info("Successfully processed and acknowledged record id={}", record.getId());
                 }
             });
@@ -104,15 +105,7 @@ public class RedisStreamConsumer {
                         .chatRoomId(payloadNode.get("chatRoomId").asLong())
                         .nowMessage(payloadNode.get("nowMessage").asText())
                         .promptLevel(payloadNode.get("promptLevel").asInt())
-                        .build()
-        );
-    }
-
-    private CompletableFuture<Void> processSummary(JsonNode payloadNode) {
-        return processMessageUseCase.processSummary(
-                ProcessMessageUseCase.ProcessSummaryCommand.builder()
-                        .chatRoomId(payloadNode.get("chatRoomId").asLong())
-                        .promptLevel(payloadNode.get("promptLevel").asInt())
+                        .detailedLevel(payloadNode.get("detailedLevel").asInt())
                         .build()
         );
     }
@@ -155,14 +148,15 @@ public class RedisStreamConsumer {
                 // retryCount 필드 추가/업데이트
                 retryRecord.getValue().put("type", record.getValue().get("type"));
                 retryRecord.getValue().put("payload", record.getValue().get("payload"));
+                retryRecord.getValue().put("outboxId", record.getValue().get("outboxId"));
                 retryRecord.getValue().put("retry", String.valueOf(retryCount));
                 retryRecord.getValue().put("originalId", record.getId().getValue());
 
                 // Stream에 다시 publish
                 redisTemplate.opsForStream().add(retryRecord);
 
-                log.info("Retry message published - originalId: {}, retryCount: {}",
-                        record.getId(), retryCount);
+                log.info("Retry message published - originalId: {}, retryCount: {}, outboxId: {}",
+                        record.getId(), retryCount, record.getValue().get("outboxId"));
             } else {
                 log.error("Maximum retry count exceeded for message: {}", record.getId());
                 // DLQ에 실패한 메시지 추가
@@ -173,6 +167,7 @@ public class RedisStreamConsumer {
                 dlqRecord.getValue().put("originalId", record.getId().getValue());
 
                 redisTemplate.opsForStream().add(dlqRecord);
+                markOutboxUseCase.markOutboxFailed(Long.valueOf(record.getValue().get("outboxId")));
             }
 
             // 기존 메시지는 ACK 처리해서 PEL에서 제거

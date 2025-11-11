@@ -29,7 +29,8 @@ public class CoupleAggregateMapper {
                 secondSnapshot,
                 entity.getCreatedAt(),
                 entity.getModifiedAt(),
-                entity.getDeletedAt()
+                entity.getDeletedAt(),
+                entity.getIsStartLoveDateUpdated()
         );
     }
 
@@ -44,6 +45,7 @@ public class CoupleAggregateMapper {
                 .id(domain.getId())
                 .startLoveDate(domain.getStartLoveDate())
                 .coupleState(domain.getCoupleState())
+                .isStartLoveDateUpdated(domain.getIsStartLoveDateUpdated())
                 .firstMemberId(domain.getFirstMemberId() != null ? MemberEntityId.of(domain.getFirstMemberId().getValue()) : null)
                 .secondMemberId(domain.getSecondMemberId() != null ? MemberEntityId.of(domain.getSecondMemberId().getValue()) : null)
                 .firstMemberSnapshot(firstSnapshotEntity)

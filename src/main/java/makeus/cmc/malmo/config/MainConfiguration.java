@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import static makeus.cmc.malmo.util.GlobalConstants.OPENAI_CHAT_URL;
@@ -26,5 +27,10 @@ public class MainConfiguration {
         return WebClient.builder()
                 .baseUrl(OPENAI_CHAT_URL)
                 .build();
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 }

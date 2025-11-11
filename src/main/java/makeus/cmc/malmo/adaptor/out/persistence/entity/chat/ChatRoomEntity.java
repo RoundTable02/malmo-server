@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.BaseTimeEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.value.MemberEntityId;
+import makeus.cmc.malmo.domain.value.state.ChatRoomCompletedReason;
 import makeus.cmc.malmo.domain.value.state.ChatRoomState;
 
 import java.time.LocalDateTime;
@@ -30,6 +31,8 @@ public class ChatRoomEntity extends BaseTimeEntity {
 
     private int level;
 
+    private int detailedLevel;
+
     private LocalDateTime lastMessageSentTime;
 
     @Column(columnDefinition = "TEXT")
@@ -40,4 +43,10 @@ public class ChatRoomEntity extends BaseTimeEntity {
 
     @Column(columnDefinition = "TEXT")
     private String solutionKeyword;
+
+    @Enumerated(EnumType.STRING)
+    private ChatRoomCompletedReason chatRoomCompletedReason;
+
+    @Column(columnDefinition = "TEXT")
+    private String counselingType;
 }

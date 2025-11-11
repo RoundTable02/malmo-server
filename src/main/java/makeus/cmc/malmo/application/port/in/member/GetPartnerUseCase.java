@@ -23,5 +23,6 @@ public interface GetPartnerUseCase {
         private float avoidanceRate;
         private float anxietyRate;
         private String nickname;
+        private Boolean isStartLoveDateUpdated;
     }
 }

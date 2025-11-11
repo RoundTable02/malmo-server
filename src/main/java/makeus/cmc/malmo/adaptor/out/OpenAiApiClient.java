@@ -6,11 +6,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.adaptor.out.exception.OpenAiRequestException;
+import makeus.cmc.malmo.application.port.out.CheckOpenAIHealth;
 import makeus.cmc.malmo.application.port.out.chat.RequestChatApiPort;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
@@ -21,12 +23,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static makeus.cmc.malmo.util.GlobalConstants.OPENAI_STATUS_URL;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class OpenAiApiClient implements RequestChatApiPort {
+public class OpenAiApiClient implements RequestChatApiPort, CheckOpenAIHealth {
 
-    public static final String GPT_VERSION = "gpt-4o";
+    public static final String GPT_VERSION = "gpt-4.1";
     public static final double GPT_TEMPERATURE = 0.5;
 
     @Value("${openai.api.key}")
@@ -34,6 +38,8 @@ public class OpenAiApiClient implements RequestChatApiPort {
 
     private final WebClient webClient;
     private final ObjectMapper objectMapper;
+
+    private final RestTemplate restTemplate;
 
     @Override
     public Mono<String> requestStreamResponse(List<Map<String, String>> messages, Consumer<String> onData) {
@@ -140,6 +146,32 @@ public class OpenAiApiClient implements RequestChatApiPort {
                 "temperature", GPT_TEMPERATURE,
                 "stream", false
         );
+    }
+
+    @Override
+    public boolean checkHealth() {
+        try {
+            Map response = restTemplate.getForObject(OPENAI_STATUS_URL, Map.class);
+            if (response == null) {
+                log.warn("OpenAI HealthCheck: Empty response");
+                return false;
+            }
+
+            Map status = (Map) response.get("status");
+            String indicator = (String) status.get("indicator");
+            String description = (String) status.get("description");
+
+            if ("none".equalsIgnoreCase(indicator)) {
+                log.info("OpenAI API is UP: {}", description);
+                return true;
+            } else {
+                log.warn(" OpenAI API Issue: {} ({})", description, indicator);
+                return false;
+            }
+        } catch (Exception e) {
+            log.error("OpenAI HealthCheck failed", e);
+            return false;
+        }
     }
 }
 

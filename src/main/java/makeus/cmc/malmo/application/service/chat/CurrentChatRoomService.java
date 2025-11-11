@@ -7,16 +7,14 @@ import makeus.cmc.malmo.adaptor.message.RequestTotalSummaryMessage;
 import makeus.cmc.malmo.adaptor.message.StreamMessageType;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomCommandHelper;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomQueryHelper;
-import makeus.cmc.malmo.application.helper.chat_room.PromptQueryHelper;
 import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
+import makeus.cmc.malmo.application.helper.outbox.OutboxHelper;
 import makeus.cmc.malmo.application.port.in.chat.CompleteChatRoomUseCase;
 import makeus.cmc.malmo.application.port.in.chat.GetCurrentChatRoomMessagesUseCase;
 import makeus.cmc.malmo.application.port.in.chat.GetCurrentChatRoomUseCase;
 import makeus.cmc.malmo.application.port.out.chat.LoadMessagesPort;
-import makeus.cmc.malmo.application.port.out.chat.PublishStreamMessagePort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
-import makeus.cmc.malmo.domain.model.chat.Prompt;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.service.ChatRoomDomainService;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
@@ -27,8 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 import static makeus.cmc.malmo.util.GlobalConstants.INIT_CHATROOM_LEVEL;
 import static makeus.cmc.malmo.util.GlobalConstants.INIT_CHAT_MESSAGE;
@@ -44,7 +40,7 @@ public class CurrentChatRoomService
     private final MemberQueryHelper memberQueryHelper;
     private final ChatRoomCommandHelper chatRoomCommandHelper;
 
-    private final PublishStreamMessagePort publishStreamMessagePort;
+    private final OutboxHelper outboxHelper;
 
     @Override
     @Transactional
@@ -57,7 +53,7 @@ public class CurrentChatRoomService
                         // 마지막 채팅 이후 하루가 지난 경우 채팅방 종료 처리
                         chatRoom.expire();
                         ChatRoom savedChatRoom = chatRoomCommandHelper.saveChatRoom(chatRoom);
-                        publishStreamMessagePort.publish(
+                        outboxHelper.publish(
                                 StreamMessageType.REQUEST_TOTAL_SUMMARY,
                                 new RequestTotalSummaryMessage(savedChatRoom.getId())
                         );
@@ -87,6 +83,7 @@ public class CurrentChatRoomService
         ChatMessage initMessage = chatRoomDomainService.createAiMessage(
                 ChatRoomId.of(savedChatRoom.getId()),
                 INIT_CHATROOM_LEVEL,
+                1,
                 JosaUtils.아야(member.getNickname())
                         + INIT_CHAT_MESSAGE);
         chatRoomCommandHelper.saveChatMessage(initMessage);
@@ -123,12 +120,12 @@ public class CurrentChatRoomService
     @CheckValidMember
     public CompleteChatRoomResponse completeChatRoom(CompleteChatRoomCommand command) {
         ChatRoom chatRoom = chatRoomQueryHelper.getCurrentChatRoomByMemberIdOrThrow(MemberId.of(command.getUserId()));
-        chatRoom.complete();
+        chatRoom.completeByUser();
         chatRoomCommandHelper.saveChatRoom(chatRoom);
 
         // 완료된 채팅방의 요약을 요청
         log.info("채팅방 요약 요청 스트림 추가: chatRoomId={}", chatRoom.getId());
-        publishStreamMessagePort.publish(
+        outboxHelper.publish(
                 StreamMessageType.REQUEST_TOTAL_SUMMARY,
                 new RequestTotalSummaryMessage(chatRoom.getId())
         );

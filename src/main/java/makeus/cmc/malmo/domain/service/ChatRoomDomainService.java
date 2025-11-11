@@ -15,12 +15,12 @@ public class ChatRoomDomainService {
         return ChatRoom.createChatRoom(memberId);
     }
 
-    public ChatMessage createUserMessage(ChatRoomId chatRoomId, int level, String content) {
-        return ChatMessage.createUserTextMessage(chatRoomId, level, content);
+    public ChatMessage createUserMessage(ChatRoomId chatRoomId, int level, int detailedLevel, String content) {
+        return ChatMessage.createUserTextMessage(chatRoomId, level, detailedLevel, content);
     }
 
-    public ChatMessage createAiMessage(ChatRoomId chatRoomId, int level, String content) {
-        return ChatMessage.createAssistantTextMessage(chatRoomId, level, content);
+    public ChatMessage createAiMessage(ChatRoomId chatRoomId, int level, int detailedLevel, String content) {
+        return ChatMessage.createAssistantTextMessage(chatRoomId, level, detailedLevel, content);
     }
 
     public boolean isChatRoomExpired(LocalDateTime lastMessageSentTime) {

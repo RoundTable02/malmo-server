@@ -3,7 +3,6 @@ package makeus.cmc.malmo.application.port.in.member;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDate;
 import java.util.List;
 
 public interface SignUpUseCase {
@@ -16,7 +15,6 @@ public interface SignUpUseCase {
         private Long memberId;
         private List<TermsCommand> terms;
         private String nickname;
-        private LocalDate loveStartDate;
         private Long loveTypeId;
     }
 
