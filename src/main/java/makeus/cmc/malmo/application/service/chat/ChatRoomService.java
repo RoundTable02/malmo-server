@@ -64,7 +64,7 @@ public class ChatRoomService
                         .totalSummary(chatRoom.getTotalSummary())
                         .situationKeyword(chatRoom.getSituationKeyword())
                         .solutionKeyword(chatRoom.getSolutionKeyword())
-                        .createdAt(chatRoom.getCreatedAt())
+                        .createdAt(chatRoom.getLastMessageSentTime())
                         .build())
                 .toList();
 

@@ -49,6 +49,14 @@ public class ChatRoomPersistenceAdapter
     }
 
     @Override
+    public List<ChatMessage> loadChatRoomLevelAndDetailedLevelMessages(ChatRoomId chatRoomId, int level, int detailedLevel) {
+        return chatMessageRepository.findByChatRoomIdAndLevelAndDetailedLevel(chatRoomId.getValue(), level, detailedLevel)
+                .stream()
+                .map(chatMessageMapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public Optional<ChatRoom> loadCurrentChatRoomByMemberId(MemberId memberId) {
         return chatRoomRepository.findCurrentChatRoomByMemberEntityId(memberId.getValue())
                 .map(chatRoomMapper::toDomain);

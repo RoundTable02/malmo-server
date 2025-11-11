@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 @Component
 public class SseEmitterAdapter implements SendSseEventPort, ConnectSsePort, ValidateSsePort {
-    private static final long TIMEOUT = 60 * 1000L; // 1분
+    private static final long TIMEOUT = 3 * 60 * 1000L; // 3분
     private static final int MAX_SIZE = 1000;
     public static final long RECONNECT_TIME_MILLIS = 3000L;
 

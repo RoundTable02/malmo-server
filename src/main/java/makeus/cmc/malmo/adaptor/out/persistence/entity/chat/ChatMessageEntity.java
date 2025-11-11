@@ -32,4 +32,6 @@ public class ChatMessageEntity extends BaseTimeEntity {
     private SenderType senderType;
 
     private int level;
+
+    private int detailedLevel;
 }

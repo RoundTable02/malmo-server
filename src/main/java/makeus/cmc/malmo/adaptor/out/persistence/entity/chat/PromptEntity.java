@@ -23,4 +23,16 @@ public class PromptEntity extends BaseTimeEntity {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    private boolean isForSystem;
+
+    private boolean isForSummary;
+
+    private boolean isForCompletedResponse;
+
+    private boolean isForTotalSummary;
+
+    private boolean isForGuideline;
+
+    private boolean isForAnswerMetadata;
+
 }

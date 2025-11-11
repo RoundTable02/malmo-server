@@ -1,0 +1,96 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 5000
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    open-in-view: false
+  data:
+    redis:
+      port: 6379
+      host: redis
+      stream-key: ${REDIS_STREAM_KEY}
+      consumer-group: ${REDIS_CONSUMER_GROUP}
+      repositories:
+        enabled: false
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-expiration-seconds: 3600 # 1시간
+  refresh-token-expiration-seconds: 2592000 # 30일
+
+logging:
+  level:
+    com.zaxxer.hikari: WARN
+    org.hibernate: WARN
+    makeus.cmc.malmo: INFO
+
+kakao:
+  oidc:
+    iss: https://kauth.kakao.com
+    aud: ${KAKAO_REST_API_KEY}
+    jwks-uri: https://kauth.kakao.com/.well-known/jwks.json
+    user-info-uri: https://kapi.kakao.com/v1/oidc/userinfo
+  oauth:
+    unlink-uri: https://kapi.kakao.com/v1/user/unlink
+    admin-key: ${KAKAO_ADMIN_KEY}
+
+apple:
+  oidc:
+    iss: https://appleid.apple.com
+    aud: ${APPLE_REST_API_KEY}
+    jwks-uri: https://appleid.apple.com/auth/keys
+  oauth:
+    team-id: ${APPLE_TEAM_ID}
+    client-id: ${APPLE_CLIENT_ID}
+    key-id: ${APPLE_KEY_ID}
+    private-key: ${APPLE_PRIVATE_KEY}
+    revoke-uri: https://appleid.apple.com/auth/revoke
+    token-uri: https://appleid.apple.com/auth/token
+
+swagger:
+  server:
+    production:
+      url: ${SWAGGER_SERVER_PRODUCTION_URL}
+
+openai:
+  api:
+    key: ${OPENAI_API_KEY}
+
+security:
+  server:
+    url:
+      production: ${SECURITY_SERVER_URL_PRODUCTION}
+      development: ${SECURITY_SERVER_URL_DEVELOPMENT}
+  client:
+    url:
+      production: ${SECURITY_CLIENT_URL_PRODUCTION}
+      development: ${SECURITY_CLIENT_URL_DEVELOPMENT}
+
+encryption:
+  aes:
+    key: ${AES_ENCRYPTION_KEY}
+
+amplitude:
+  api:
+    key: ${AMPLITUDE_API_KEY}
+    url: https://api2.amplitude.com/identify
+
+sentry:
+  dsn: ${SENTRY_DSN}
+  traces-sample-rate: 1.0
+  profiles-sample-rate: 1.0
+  environment: server-prod
+  exception-resolver-order: 0
+  logging:
+    minimum-event-level: ERROR
+  send-default-pii: true
+  max-request-body-size: medium

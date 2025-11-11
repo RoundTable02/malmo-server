@@ -106,26 +106,6 @@ public class CurrentChatController {
     }
 
     @Operation(
-            summary = "채팅방 단계 변경",
-            description = "현재 채팅방의 단계를 업그레이드합니다. 다음 단계의 오프닝 멘트를 SSE로 전달됩니다. JWT 토큰이 필요합니다.",
-            security = @SecurityRequirement(name = "Bearer Authentication")
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "채팅방 단계 변경 성공; 데이터 응답 값은 없음",
-            content = @Content(schema = @Schema(implementation = SwaggerResponses.BaseSwaggerResponse.class))
-    )
-    @ApiCommonResponses.RequireAuth
-    @PostMapping("/upgrade")
-    public BaseResponse sendChatMessage(@AuthenticationPrincipal User user) {
-        sendChatMessageUseCase.upgradeChatRoom(SendChatMessageUseCase.SendChatMessageCommand.builder()
-                        .userId(Long.valueOf(user.getUsername()))
-                        .build());
-
-        return BaseResponse.success(null);
-    }
-
-    @Operation(
             summary = "채팅방 종료",
             description = "현재 채팅방을 종료합니다. JWT 토큰이 필요합니다.",
             security = @SecurityRequirement(name = "Bearer Authentication")

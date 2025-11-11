@@ -29,6 +29,12 @@ class PromptMapperTest {
                 .id(1L)
                 .level(1)
                 .content("prompt content")
+                .isForSystem(true)
+                .isForSummary(false)
+                .isForCompletedResponse(false)
+                .isForTotalSummary(false)
+                .isForGuideline(false)
+                .isForAnswerMetadata(false)
                 .createdAt(now)
                 .modifiedAt(now)
                 .deletedAt(null)
@@ -41,6 +47,12 @@ class PromptMapperTest {
         assertThat(domain.getId()).isEqualTo(entity.getId());
         assertThat(domain.getLevel()).isEqualTo(entity.getLevel());
         assertThat(domain.getContent()).isEqualTo(entity.getContent());
+        assertThat(domain.isForSystem()).isEqualTo(entity.isForSystem());
+        assertThat(domain.isForSummary()).isEqualTo(entity.isForSummary());
+        assertThat(domain.isForCompletedResponse()).isEqualTo(entity.isForCompletedResponse());
+        assertThat(domain.isForTotalSummary()).isEqualTo(entity.isForTotalSummary());
+        assertThat(domain.isForGuideline()).isEqualTo(entity.isForGuideline());
+        assertThat(domain.isForAnswerMetadata()).isEqualTo(entity.isForAnswerMetadata());
         assertThat(domain.getCreatedAt()).isEqualTo(entity.getCreatedAt());
         assertThat(domain.getModifiedAt()).isEqualTo(entity.getModifiedAt());
         assertThat(domain.getDeletedAt()).isEqualTo(entity.getDeletedAt());
@@ -55,6 +67,12 @@ class PromptMapperTest {
                 1L,
                 1,
                 "prompt content",
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
                 now,
                 now,
                 null
@@ -67,6 +85,12 @@ class PromptMapperTest {
         assertThat(entity.getId()).isEqualTo(domain.getId());
         assertThat(entity.getLevel()).isEqualTo(domain.getLevel());
         assertThat(entity.getContent()).isEqualTo(domain.getContent());
+        assertThat(entity.isForSystem()).isEqualTo(domain.isForSystem());
+        assertThat(entity.isForSummary()).isEqualTo(domain.isForSummary());
+        assertThat(entity.isForCompletedResponse()).isEqualTo(domain.isForCompletedResponse());
+        assertThat(entity.isForTotalSummary()).isEqualTo(domain.isForTotalSummary());
+        assertThat(entity.isForGuideline()).isEqualTo(domain.isForGuideline());
+        assertThat(entity.isForAnswerMetadata()).isEqualTo(domain.isForAnswerMetadata());
         assertThat(entity.getCreatedAt()).isEqualTo(domain.getCreatedAt());
         assertThat(entity.getModifiedAt()).isEqualTo(domain.getModifiedAt());
         assertThat(entity.getDeletedAt()).isEqualTo(domain.getDeletedAt());

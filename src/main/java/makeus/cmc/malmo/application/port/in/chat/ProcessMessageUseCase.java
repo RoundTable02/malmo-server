@@ -8,7 +8,6 @@ import java.util.concurrent.CompletableFuture;
 public interface ProcessMessageUseCase {
 
     CompletableFuture<Void> processStreamChatMessage(ProcessMessageCommand command);
-    CompletableFuture<Void> processSummary(ProcessSummaryCommand command);
     CompletableFuture<Void> processTotalSummary(ProcessTotalSummaryCommand command);
     CompletableFuture<Void> processAnswerMetadata(ProcessAnswerCommand command);
 
@@ -19,13 +18,7 @@ public interface ProcessMessageUseCase {
         private Long chatRoomId;
         private String nowMessage;
         private int promptLevel;
-    }
-
-    @Data
-    @Builder
-    class ProcessSummaryCommand {
-        private Long chatRoomId;
-        private Integer promptLevel;
+        private int detailedLevel;
     }
 
     @Data
