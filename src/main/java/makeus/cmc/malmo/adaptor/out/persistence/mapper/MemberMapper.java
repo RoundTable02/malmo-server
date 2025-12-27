@@ -28,6 +28,7 @@ public class MemberMapper {
                 entity.getAnxietyRate(),
                 entity.getNickname(),
                 entity.getEmail(),
+                entity.getEmailForwardingStatus(),
                 entity.getInviteCodeEntityValue() != null ? InviteCodeValue.of(entity.getInviteCodeEntityValue().getValue()) : null,
                 entity.getStartLoveDate(),
                 entity.getOauthToken(),
@@ -52,6 +53,7 @@ public class MemberMapper {
                 .avoidanceRate(domain.getAvoidanceRate())
                 .anxietyRate(domain.getAnxietyRate())
                 .email(domain.getEmail())
+                .emailForwardingStatus(domain.getEmailForwardingStatus())
                 .nickname(domain.getNickname())
                 .inviteCodeEntityValue(
                         domain.getInviteCode() != null ? InviteCodeEntityValue.of(domain.getInviteCode().getValue()) : null

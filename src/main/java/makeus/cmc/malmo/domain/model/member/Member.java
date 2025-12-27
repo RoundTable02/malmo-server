@@ -6,6 +6,7 @@ import lombok.Getter;
 import makeus.cmc.malmo.domain.value.id.CoupleId;
 import makeus.cmc.malmo.domain.value.id.InviteCodeValue;
 import makeus.cmc.malmo.domain.value.state.MemberState;
+import makeus.cmc.malmo.domain.value.type.EmailForwardingStatus;
 import makeus.cmc.malmo.domain.value.type.LoveTypeCategory;
 import makeus.cmc.malmo.domain.value.type.MemberRole;
 import makeus.cmc.malmo.domain.value.type.Provider;
@@ -29,6 +30,7 @@ public class Member {
     private float anxietyRate;
     private String nickname;
     private String email;
+    private EmailForwardingStatus emailForwardingStatus;
     private InviteCodeValue inviteCode;
 
     /**
@@ -54,6 +56,7 @@ public class Member {
                 .memberRole(memberRole)
                 .memberState(memberState)
                 .email(email)
+                .emailForwardingStatus(EmailForwardingStatus.ENABLED) // 기본값 ENABLED
                 .inviteCode(inviteCode)
                 .oauthToken(oauthToken)
                 .build();
@@ -73,6 +76,7 @@ public class Member {
             float anxietyRate,
             String nickname,
             String email,
+            EmailForwardingStatus emailForwardingStatus,
             InviteCodeValue inviteCode,
             LocalDate startLoveDate,
             String oauthToken,
@@ -95,6 +99,7 @@ public class Member {
                 .anxietyRate(anxietyRate)
                 .nickname(nickname)
                 .email(email)
+                .emailForwardingStatus(emailForwardingStatus)
                 .inviteCode(inviteCode)
                 .startLoveDate(startLoveDate)
                 .oauthToken(oauthToken)
@@ -152,6 +157,13 @@ public class Member {
 
     public void updateEmail(String email) {
         this.email = email;
+    }
+
+    /**
+     * Apple 이메일 포워딩 상태를 업데이트합니다.
+     */
+    public void updateEmailForwardingStatus(EmailForwardingStatus status) {
+        this.emailForwardingStatus = status;
     }
 
     public void delete() {

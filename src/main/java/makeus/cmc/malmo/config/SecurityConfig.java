@@ -59,7 +59,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/login/**", "/refresh", "/terms", "/test", "/love-types/**").permitAll()
+                        .requestMatchers("/login/**", "/refresh", "/terms", "/test", "/love-types/**", "/webhook/apple/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**", 
                                         "/v3/api-docs/**", "/v3/api-docs", "/webjars/**", "/actuator/prometheus").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
