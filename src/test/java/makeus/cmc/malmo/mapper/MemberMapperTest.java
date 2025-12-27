@@ -154,6 +154,7 @@ class MemberMapperTest {
                 0.3f,
                 "testuser",
                 "test@example.com",
+                null, // emailForwardingStatus
                 InviteCodeValue.of("invite_code"),
                 LocalDate.now(),
                 "oauth_token",
