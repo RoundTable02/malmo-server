@@ -94,10 +94,11 @@ public class CurrentChatRoomService
     @CheckValidMember
     public GetCurrentChatRoomMessagesResponse getCurrentChatRoomMessages(GetCurrentChatRoomMessagesCommand command) {
         // 현재 채팅방 가져오기
-        ChatRoom currentChatRoom = chatRoomQueryHelper.getCurrentChatRoomByMemberIdOrThrow(MemberId.of(command.getUserId()));
+        MemberId memberId = MemberId.of(command.getUserId());
+        ChatRoom currentChatRoom = chatRoomQueryHelper.getCurrentChatRoomByMemberIdOrThrow(memberId);
 
         Page<LoadMessagesPort.ChatRoomMessageRepositoryDto> result =
-                chatRoomQueryHelper.getChatMessagesDtoDesc(ChatRoomId.of(currentChatRoom.getId()), command.getPageable());
+                chatRoomQueryHelper.getChatMessagesDtoDesc(ChatRoomId.of(currentChatRoom.getId()), memberId, command.getPageable());
 
         List<ChatRoomMessageDto> list = result.stream().map(cm ->
                         ChatRoomMessageDto.builder()
