@@ -94,12 +94,12 @@ public class ChatRoomQueryHelper {
      채팅방 메시지 Query Methods
      */
 
-    public Page<LoadMessagesPort.ChatRoomMessageRepositoryDto> getChatMessagesDtoDesc(ChatRoomId chatRoomId, Pageable pageable) {
-        return loadMessagesPort.loadMessagesDto(chatRoomId, pageable);
+    public Page<LoadMessagesPort.ChatRoomMessageRepositoryDto> getChatMessagesDtoDesc(ChatRoomId chatRoomId, MemberId memberId, Pageable pageable) {
+        return loadMessagesPort.loadMessagesDto(chatRoomId, memberId, pageable);
     }
 
-    public Page<LoadMessagesPort.ChatRoomMessageRepositoryDto> getChatMessagesDtoAsc(ChatRoomId chatRoomId, Pageable pageable) {
-        return loadMessagesPort.loadMessagesDtoAsc(chatRoomId, pageable);
+    public Page<LoadMessagesPort.ChatRoomMessageRepositoryDto> getChatMessagesDtoAsc(ChatRoomId chatRoomId, MemberId memberId, Pageable pageable) {
+        return loadMessagesPort.loadMessagesDtoAsc(chatRoomId, memberId, pageable);
     }
 
     public List<ChatMessageSummary> getSummarizedMessages(ChatRoomId chatRoomId) {

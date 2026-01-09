@@ -77,10 +77,11 @@ public class ChatRoomService
     @Override
     @CheckValidMember
     public GetCurrentChatRoomMessagesResponse getChatRoomMessages(GetChatRoomMessagesCommand command) {
-        chatRoomQueryHelper.validateChatRoomOwnership(MemberId.of(command.getUserId()), ChatRoomId.of(command.getChatRoomId()));
+        MemberId memberId = MemberId.of(command.getUserId());
+        chatRoomQueryHelper.validateChatRoomOwnership(memberId, ChatRoomId.of(command.getChatRoomId()));
 
         Page<LoadMessagesPort.ChatRoomMessageRepositoryDto> result =
-                chatRoomQueryHelper.getChatMessagesDtoAsc(ChatRoomId.of(command.getChatRoomId()), command.getPageable());
+                chatRoomQueryHelper.getChatMessagesDtoAsc(ChatRoomId.of(command.getChatRoomId()), memberId, command.getPageable());
 
         List<GetChatRoomMessagesUseCase.ChatRoomMessageDto> list = result.stream().map(cm ->
                         GetChatRoomMessagesUseCase.ChatRoomMessageDto.builder()

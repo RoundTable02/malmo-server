@@ -23,6 +23,9 @@ public enum ErrorCode {
     NOT_VALID_COUPLE_CODE(HttpStatus.BAD_REQUEST, 40011, "유효하지 않은 커플 코드입니다."),
     NO_SUCH_COUPLE_QUESTION(HttpStatus.BAD_REQUEST, 40012, "커플 질문이 존재하지 않습니다."),
     NO_SUCH_TEMP_LOVE_TYPE(HttpStatus.BAD_REQUEST, 40013, "애착 유형 결과가 존재하지 않습니다."),
+    NO_SUCH_BOOKMARK(HttpStatus.BAD_REQUEST, 40014, "북마크가 존재하지 않습니다."),
+    BOOKMARK_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, 40015, "이미 북마크된 메시지입니다."),
+    NO_SUCH_MESSAGE(HttpStatus.BAD_REQUEST, 40016, "메시지가 존재하지 않습니다."),
 
     // 401 Unauthorized
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, 40100, "인증되지 않은 사용자입니다."),
