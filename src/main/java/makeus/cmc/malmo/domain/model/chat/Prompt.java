@@ -21,6 +21,7 @@ public class Prompt extends BaseTimeEntity {
     private boolean isForTotalSummary;
     private boolean isForGuideline;
     private boolean isForAnswerMetadata;
+    private boolean isForTitleGeneration;
 
     // BaseTimeEntity fields
     private LocalDateTime createdAt;
@@ -30,6 +31,7 @@ public class Prompt extends BaseTimeEntity {
     public static Prompt from(Long id, int level, String content,
                              boolean isForSystem, boolean isForSummary, boolean isForCompletedResponse,
                              boolean isForTotalSummary, boolean isForGuideline, boolean isForAnswerMetadata,
+                             boolean isForTitleGeneration,
                              LocalDateTime createdAt, LocalDateTime modifiedAt, LocalDateTime deletedAt) {
         return Prompt.builder()
                 .id(id)
@@ -41,6 +43,7 @@ public class Prompt extends BaseTimeEntity {
                 .isForTotalSummary(isForTotalSummary)
                 .isForGuideline(isForGuideline)
                 .isForAnswerMetadata(isForAnswerMetadata)
+                .isForTitleGeneration(isForTitleGeneration)
                 .createdAt(createdAt)
                 .modifiedAt(modifiedAt)
                 .deletedAt(deletedAt)

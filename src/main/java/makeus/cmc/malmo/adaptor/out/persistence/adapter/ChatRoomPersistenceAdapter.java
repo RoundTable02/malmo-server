@@ -63,9 +63,11 @@ public class ChatRoomPersistenceAdapter
     }
 
     @Override
-    public Optional<ChatRoom> loadCurrentChatRoomByMemberId(MemberId memberId) {
-        return chatRoomRepository.findCurrentChatRoomByMemberEntityId(memberId.getValue())
-                .map(chatRoomMapper::toDomain);
+    public List<ChatRoom> loadActiveChatRoomsByMemberId(MemberId memberId) {
+        return chatRoomRepository.findActiveChatRoomsByMemberEntityId(memberId.getValue())
+                .stream()
+                .map(chatRoomMapper::toDomain)
+                .toList();
     }
 
     @Override
@@ -103,13 +105,7 @@ public class ChatRoomPersistenceAdapter
     }
 
     @Override
-    public Optional<ChatRoom> loadPausedChatRoomByMemberId(MemberId memberId) {
-        return chatRoomRepository.findPausedChatRoomByMemberEntityId(memberId.getValue())
-                .map(chatRoomMapper::toDomain);
-    }
-
-    @Override
-    public Page<ChatRoom> loadAliveChatRoomsByMemberId(MemberId memberId, String keyword, Pageable pageable) {
+    public Page<ChatRoom> loadChatRoomsByMemberId(MemberId memberId, String keyword, Pageable pageable) {
         Page<ChatRoomEntity> chatRoomEntities = chatRoomRepository.loadChatRoomListByMemberId(memberId.getValue(), keyword, pageable);
         return new PageImpl<>(chatRoomEntities.stream().map(chatRoomMapper::toDomain).toList(),
                 pageable,

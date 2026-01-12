@@ -10,11 +10,15 @@ import java.util.List;
 import java.util.Optional;
 
 public interface LoadChatRoomPort {
-    Optional<ChatRoom> loadCurrentChatRoomByMemberId(MemberId memberId);
+    // 진행 중인 채팅방 목록 조회 (복수)
+    List<ChatRoom> loadActiveChatRoomsByMemberId(MemberId memberId);
+    
+    // ID로 채팅방 조회 (유지)
     Optional<ChatRoom> loadChatRoomById(ChatRoomId chatRoomId);
-    Optional<ChatRoom> loadPausedChatRoomByMemberId(MemberId memberId);
-
-    Page<ChatRoom> loadAliveChatRoomsByMemberId(MemberId memberId, String keyword, Pageable pageable);
-
+    
+    // 삭제되지 않은 모든 채팅방 조회 (페이지네이션)
+    Page<ChatRoom> loadChatRoomsByMemberId(MemberId memberId, String keyword, Pageable pageable);
+    
+    // 소유권 검증 (유지)
     boolean isMemberOwnerOfChatRooms(MemberId memberId, List<ChatRoomId> chatRoomIds);
 }

@@ -54,17 +54,18 @@ public class ChatRoomService
     @Override
     @CheckValidMember
     public GetChatRoomListResponse getChatRoomList(GetChatRoomListCommand command) {
-        Page<ChatRoom> chatRoomList = chatRoomQueryHelper.getCompletedChatRoomsByMemberId(
+        Page<ChatRoom> chatRoomList = chatRoomQueryHelper.getChatRoomsByMemberId(
                 MemberId.of(command.getUserId()), command.getKeyword(), command.getPageable()
         );
 
         List<GetChatRoomResponse> response = chatRoomList.getContent().stream()
                 .map(chatRoom -> GetChatRoomResponse.builder()
                         .chatRoomId(chatRoom.getId())
-                        .totalSummary(chatRoom.getTotalSummary())
-                        .situationKeyword(chatRoom.getSituationKeyword())
-                        .solutionKeyword(chatRoom.getSolutionKeyword())
-                        .createdAt(chatRoom.getLastMessageSentTime())
+                        .title(chatRoom.getTitle())  // 제목 (null일 수 있음)
+                        .chatRoomState(chatRoom.getChatRoomState())  // 상태 포함
+                        .level(chatRoom.getLevel())  // 현재 단계
+                        .lastMessageSentTime(chatRoom.getLastMessageSentTime())
+                        .createdAt(chatRoom.getCreatedAt())
                         .build())
                 .toList();
 
