@@ -66,7 +66,12 @@ public class ChatMessageService implements ProcessMessageUseCase {
         // 1. 유저 메시지 저장
 //        saveUserMessage(chatRoom, command);
 
-        // 2. 충분성 조건 검사
+        // 4단계 이상: 충분성 검사 없이 자유 대화 응답
+        if (command.getPromptLevel() >= 4) {
+            return processFreeConversation(member, chatRoom, command);
+        }
+
+        // 2. 충분성 조건 검사 (1~3단계)
         CompletableFuture<SufficiencyCheckResult> sufficiencyCheck = 
             requestSufficiencyCheck(member, chatRoom, command);
 
@@ -135,6 +140,29 @@ public class ChatMessageService implements ProcessMessageUseCase {
                 });
     }
 
+
+    /**
+     * 4단계 이상: 자유 대화 처리
+     * - 충분성 검사 없이 바로 응답 생성
+     * - 단계 전환 없이 현재 level 유지
+     * - 메타데이터 저장 스킵
+     */
+    private CompletableFuture<Void> processFreeConversation(Member member, ChatRoom chatRoom, ProcessMessageCommand command) {
+        List<Map<String, String>> messages = chatPromptBuilder.createForProcessUserMessage(
+                member, chatRoom, command.getNowMessage());
+        
+        Prompt systemPrompt = promptQueryHelper.getSystemPrompt();
+        Prompt prompt = promptQueryHelper.getGuidelinePromptWithFallback(command.getPromptLevel());
+        DetailedPrompt detailedPrompt = detailedPromptQueryHelper.getGuidelinePromptWithFallback(
+                command.getPromptLevel(), command.getDetailedLevel());
+        
+        return chatProcessor.streamChat(messages, systemPrompt, prompt, detailedPrompt,
+                chunk -> chatSseSender.sendResponseChunk(MemberId.of(member.getId()), chunk),
+                fullAnswer -> saveAiMessage(MemberId.of(member.getId()), ChatRoomId.of(chatRoom.getId()),
+                        command.getPromptLevel(), command.getDetailedLevel(), fullAnswer),
+                errorMessage -> chatSseSender.sendError(MemberId.of(member.getId()), errorMessage)
+        ).toFuture();
+    }
 
     private CompletableFuture<SufficiencyCheckResult> requestSufficiencyCheck(Member member, ChatRoom chatRoom, ProcessMessageCommand command) {
         List<Map<String, String>> messages = chatPromptBuilder.createForSufficiencyCheck(

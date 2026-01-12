@@ -110,6 +110,7 @@ VALUES (4, '대화를 바탕으로 핵심적인 내용을 요약해줘.
 -- 4단계는 단일 세부 단계로 구성 (detailedLevel = 1)
 
 -- 4단계 가이드라인 상세 프롬프트
+-- 4단계는 충분성 검사를 하지 않으므로 검증 프롬프트는 불필요
 INSERT INTO detailed_prompt (level, detailed_level, content, is_for_validation, is_for_summary,
                              metadata_title, is_last_detailed_prompt, is_for_guideline)
 VALUES (4, 1, '[응답 생성 규칙]
@@ -137,31 +138,6 @@ VALUES (4, 1, '[응답 생성 규칙]
 - 사용자가 만족스러운 답변을 받을 때까지 성의 있게 응답
 - 이전 상담 내용을 단순 반복하지 말고, 새로운 관점이나 구체적인 예시 추가', 
         false, false, '자유 대화 응답', true, true);
-
--- 4단계 검증 프롬프트 (isForValidation)
--- 4단계는 자유 대화이므로 검증 없이 항상 completed: true 반환
-INSERT INTO detailed_prompt (level, detailed_level, content, is_for_validation, is_for_summary,
-                             metadata_title, is_last_detailed_prompt, is_for_guideline)
-VALUES (4, 1, '당신은 User와 Assistant의 대화를 읽고 <조건>을 만족하는지 판정하는 검수원입니다.
-응답 양식은 <응답 양식>에 따르세요.
-
-<조건> 
-4단계는 자유 대화 단계이므로, 별도의 충분성 조건 검증 없이 항상 completed를 true로 반환하세요.
-단, Assistant의 응답이 사용자의 질문에 적절하게 답변했는지만 확인하세요.
-
-<응답 양식>
-당신은 JSON으로 응답해야 하며, 세 가지 필드가 존재해야 합니다.
-- completed: 4단계는 항상 true
-- summary: Assistant가 사용자의 질문에 대해 어떤 조언이나 답변을 제공했는지 간단히 요약하세요.
-- advice: 4단계는 항상 null
-
-[예시]
-{
-	"completed": "true",
-	"summary": "이전 상담에서 논의한 회피형 남자친구와의 소통 방법에 대해 추가로 구체적인 대화 예시를 제공함",
-	"advice": null
-}', 
-        true, false, null, true, false);
 
 -- 마이그레이션 확인 쿼리 (실행 후 확인용)
 -- SELECT level, content, is_for_guideline, is_for_summary
