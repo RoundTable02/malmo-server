@@ -21,6 +21,10 @@ public interface LoadMessagesPort {
 
     List<ChatMessage> loadChatRoomLevelAndDetailedLevelMessages(ChatRoomId chatRoomId, int level, int detailedLevel);
 
+    List<ChatMessage> loadRecentMessagesByLevel(ChatRoomId chatRoomId, int level, int limit);
+
+    long countMessagesByLevel(ChatRoomId chatRoomId, int level);
+
     @Data
     @AllArgsConstructor
     class ChatRoomMessageRepositoryDto {

@@ -12,6 +12,9 @@ public interface ProcessMessageUseCase {
     
     // 제목 생성 처리
     CompletableFuture<Void> processTitleGeneration(ProcessTitleGenerationCommand command);
+    
+    // 4단계 대화 요약 처리
+    CompletableFuture<Void> processConversationSummary(ProcessConversationSummaryCommand command);
 
     @Data
     @Builder
@@ -35,5 +38,12 @@ public interface ProcessMessageUseCase {
     @Builder
     class ProcessTitleGenerationCommand {
         private Long chatRoomId;
+    }
+
+    @Data
+    @Builder
+    class ProcessConversationSummaryCommand {
+        private Long chatRoomId;
+        private int level;
     }
 }

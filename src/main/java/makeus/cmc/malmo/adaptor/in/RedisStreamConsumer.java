@@ -70,6 +70,9 @@ public class RedisStreamConsumer {
                 case REQUEST_TITLE_GENERATION:
                     future = processTitleGeneration(payloadNode);
                     break;
+                case REQUEST_CONVERSATION_SUMMARY:
+                    future = processConversationSummary(payloadNode);
+                    break;
                 default:
                     log.warn("Unknown message type: {}", type);
                     // 알 수 없는 타입은 바로 ACK 처리
@@ -124,6 +127,15 @@ public class RedisStreamConsumer {
         return processMessageUseCase.processTitleGeneration(
                 ProcessMessageUseCase.ProcessTitleGenerationCommand.builder()
                         .chatRoomId(payloadNode.get("chatRoomId").asLong())
+                        .build()
+        );
+    }
+
+    private CompletableFuture<Void> processConversationSummary(JsonNode payloadNode) {
+        return processMessageUseCase.processConversationSummary(
+                ProcessMessageUseCase.ProcessConversationSummaryCommand.builder()
+                        .chatRoomId(payloadNode.get("chatRoomId").asLong())
+                        .level(payloadNode.get("level").asInt())
                         .build()
         );
     }

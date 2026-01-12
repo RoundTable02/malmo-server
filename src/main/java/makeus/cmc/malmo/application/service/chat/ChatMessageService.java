@@ -2,6 +2,7 @@ package makeus.cmc.malmo.application.service.chat;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import makeus.cmc.malmo.adaptor.message.RequestConversationSummaryMessage;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomCommandHelper;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomQueryHelper;
 import makeus.cmc.malmo.application.helper.chat_room.PromptQueryHelper;
@@ -13,10 +14,12 @@ import makeus.cmc.malmo.application.helper.question.CoupleQuestionQueryHelper;
 import makeus.cmc.malmo.application.port.in.chat.ProcessMessageUseCase;
 import makeus.cmc.malmo.application.port.in.chat.SufficiencyCheckResult;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
+import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
 import makeus.cmc.malmo.domain.model.chat.Prompt;
 import makeus.cmc.malmo.domain.model.chat.DetailedPrompt;
 import makeus.cmc.malmo.domain.model.chat.MemberChatRoomMetadata;
+import makeus.cmc.malmo.util.ChatTokenConstants;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.member.MemberMemory;
 import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
@@ -29,10 +32,13 @@ import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.util.ChatMessageSplitter;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+
+import static makeus.cmc.malmo.adaptor.message.StreamMessageType.REQUEST_CONVERSATION_SUMMARY;
 
 @Slf4j
 @Service
@@ -146,9 +152,22 @@ public class ChatMessageService implements ProcessMessageUseCase {
      * - 충분성 검사 없이 바로 응답 생성
      * - 단계 전환 없이 현재 level 유지
      * - 메타데이터 저장 스킵
+     * - 토큰 관리를 위한 요약 트리거 포함
      */
     private CompletableFuture<Void> processFreeConversation(Member member, ChatRoom chatRoom, ProcessMessageCommand command) {
-        List<Map<String, String>> messages = chatPromptBuilder.createForProcessUserMessage(
+        ChatRoomId chatRoomId = ChatRoomId.of(chatRoom.getId());
+        int level = chatRoom.getLevel();
+        
+        // 메시지 개수 체크 및 요약 트리거
+        long messageCount = chatRoomQueryHelper.countMessagesByLevel(chatRoomId, level);
+        if (messageCount > ChatTokenConstants.FREE_CONVERSATION_SUMMARY_THRESHOLD 
+                && messageCount % ChatTokenConstants.FREE_CONVERSATION_SUMMARY_INTERVAL == 0) {
+            // 비동기로 요약 생성 요청 (20개 단위로)
+            requestConversationSummaryAsync(chatRoom);
+        }
+        
+        // createForFreeConversation 사용 (최근 20개 + 요약 포함)
+        List<Map<String, String>> messages = chatPromptBuilder.createForFreeConversation(
                 member, chatRoom, command.getNowMessage());
         
         Prompt systemPrompt = promptQueryHelper.getSystemPrompt();
@@ -287,6 +306,65 @@ public class ChatMessageService implements ProcessMessageUseCase {
                     chatRoomCommandHelper.saveChatRoom(chatRoom);
                     log.info("Title generated for chatRoomId: {}, title: {}", command.getChatRoomId(), title);
                 });
+    }
+
+    @Override
+    public CompletableFuture<Void> processConversationSummary(ProcessConversationSummaryCommand command) {
+        ChatRoomId chatRoomId = ChatRoomId.of(command.getChatRoomId());
+        int level = command.getLevel();
+        
+        // 최신 요약 이후의 메시지들을 가져와서 요약
+        // 최근 요약이 있다면 그 이후의 메시지, 없다면 전체 메시지 중 최근 요약 주기만큼
+        List<ChatMessage> messagesToSummarize = chatRoomQueryHelper.getRecentMessages(
+                chatRoomId, level, ChatTokenConstants.FREE_CONVERSATION_SUMMARY_INTERVAL);
+        
+        if (messagesToSummarize.isEmpty()) {
+            log.debug("No messages to summarize for chatRoomId: {}, level: {}", chatRoomId.getValue(), level);
+            return CompletableFuture.completedFuture(null);
+        }
+        
+        // 요약할 메시지들을 프롬프트 형식으로 변환
+        List<Map<String, String>> summaryMessages = new ArrayList<>();
+        for (ChatMessage chatMessage : messagesToSummarize) {
+            summaryMessages.add(Map.of(
+                    "role", chatMessage.getSenderType().getApiName(),
+                    "content", chatMessage.getContent()
+            ));
+        }
+        
+        // 요약 프롬프트 조회 (4단계 요약 프롬프트 사용)
+        Prompt summaryPrompt = promptQueryHelper.getSummaryPromptByLevel(level)
+                .orElseGet(() -> {
+                    log.warn("Summary prompt not found for level: {}, using default", level);
+                    return promptQueryHelper.getSummaryPromptByLevel(3)
+                            .orElseThrow(() -> new RuntimeException("Summary prompt not found"));
+                });
+        
+        // 비동기 요약 생성 및 저장
+        return chatProcessor.requestConversationSummary(summaryMessages, summaryPrompt)
+                .thenAcceptAsync(summaryContent -> {
+                    ChatMessageSummary chatMessageSummary = ChatMessageSummary.createChatMessageSummary(
+                            chatRoomId, summaryContent, level);
+                    chatRoomCommandHelper.saveChatMessageSummary(chatMessageSummary);
+                    log.info("Conversation summary saved for chatRoomId: {}, level: {}", chatRoomId.getValue(), level);
+                })
+                .exceptionally(throwable -> {
+                    log.error("Failed to generate conversation summary for chatRoomId: {}, level: {}",
+                            chatRoomId.getValue(), level, throwable);
+                    return null;
+                });
+    }
+
+    /**
+     * 비동기 4단계 대화 요약 생성 요청
+     * Redis Stream을 통해 요약 생성 워커에 전달
+     */
+    private void requestConversationSummaryAsync(ChatRoom chatRoom) {
+        outboxHelper.publish(
+                REQUEST_CONVERSATION_SUMMARY,
+                new RequestConversationSummaryMessage(chatRoom.getId(), chatRoom.getLevel())
+        );
+        log.info("Conversation summary requested for chatRoomId: {}, level: {}", chatRoom.getId(), chatRoom.getLevel());
     }
 
     private void saveAiMessage(MemberId memberId, ChatRoomId chatRoomId, int level, int detailedLevel, String fullAnswer) {

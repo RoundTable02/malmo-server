@@ -9,6 +9,7 @@ import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Component
@@ -24,5 +25,11 @@ public class ChatMessageSummaryPersistenceAdapter
                 .stream()
                 .map(chatMessageSummaryMapper::toDomain)
                 .toList();
+    }
+
+    @Override
+    public Optional<ChatMessageSummary> loadLatestSummaryByLevel(ChatRoomId chatRoomId, int level) {
+        return chatMessageSummaryRepository.findLatestByChatRoomIdAndLevel(chatRoomId.getValue(), level)
+                .map(chatMessageSummaryMapper::toDomain);
     }
 }

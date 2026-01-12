@@ -100,6 +100,17 @@ public class ChatProcessor {
         return requestChatApiPort.requestResponse(messages);
     }
 
+    /**
+     * 4단계 자유 대화 요약 생성
+     * @param messages 요약할 메시지 목록
+     * @param summaryPrompt 요약 프롬프트
+     * @return 생성된 요약 문자열
+     */
+    public CompletableFuture<String> requestConversationSummary(List<Map<String, String>> messages,
+                                                                 Prompt summaryPrompt) {
+        messages.add(createMessageMap(SenderType.SYSTEM, summaryPrompt.getContent()));
+        return requestChatApiPort.requestResponse(messages);
+    }
 
     /**
      * 제목 생성 요청

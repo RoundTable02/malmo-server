@@ -6,6 +6,8 @@ import makeus.cmc.malmo.application.port.out.chat.LoadPromptPort;
 import makeus.cmc.malmo.domain.model.chat.Prompt;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 
 @Component
 @RequiredArgsConstructor
@@ -56,5 +58,12 @@ public class PromptQueryHelper {
     public Prompt getTitleGenerationPrompt() {
         return loadPromptPort.loadTitleGenerationPrompt()
                 .orElseThrow(() -> new RuntimeException("Title generation prompt not found"));
+    }
+
+    /**
+     * 레벨별 요약 프롬프트 조회
+     */
+    public Optional<Prompt> getSummaryPromptByLevel(int level) {
+        return loadPromptPort.loadSummaryPromptByLevel(level);
     }
 }

@@ -2,13 +2,17 @@ package makeus.cmc.malmo.adaptor.out.persistence.adapter;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatMessageEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatMessageSummaryEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatRoomEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.ChatMessageMapper;
+import makeus.cmc.malmo.adaptor.out.persistence.mapper.ChatMessageSummaryMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.ChatRoomMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.chat.ChatMessageRepository;
+import makeus.cmc.malmo.adaptor.out.persistence.repository.chat.ChatMessageSummaryRepository;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.chat.ChatRoomRepository;
 import makeus.cmc.malmo.application.port.out.chat.*;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
+import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
@@ -23,12 +27,14 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class ChatRoomPersistenceAdapter
-        implements LoadMessagesPort, SaveChatRoomPort, LoadChatRoomPort, SaveChatMessagePort, DeleteChatRoomPort {
+        implements LoadMessagesPort, SaveChatRoomPort, LoadChatRoomPort, SaveChatMessagePort, DeleteChatRoomPort, SaveChatMessageSummaryPort {
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final ChatMessageSummaryRepository chatMessageSummaryRepository;
     private final ChatRoomMapper chatRoomMapper;
     private final ChatMessageMapper chatMessageMapper;
+    private final ChatMessageSummaryMapper chatMessageSummaryMapper;
 
     @Override
     public Optional<ChatMessage> loadMessageById(Long messageId) {
@@ -60,6 +66,21 @@ public class ChatRoomPersistenceAdapter
                 .stream()
                 .map(chatMessageMapper::toDomain)
                 .toList();
+    }
+
+    @Override
+    public List<ChatMessage> loadRecentMessagesByLevel(ChatRoomId chatRoomId, int level, int limit) {
+        List<ChatMessageEntity> entities = chatMessageRepository.findByChatRoomIdAndLevelOrderByCreatedAtDesc(
+                chatRoomId.getValue(), level);
+        return entities.stream()
+                .limit(limit)
+                .map(chatMessageMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public long countMessagesByLevel(ChatRoomId chatRoomId, int level) {
+        return chatMessageRepository.countByChatRoomIdAndLevel(chatRoomId.getValue(), level);
     }
 
     @Override
@@ -124,5 +145,12 @@ public class ChatRoomPersistenceAdapter
         chatRoomRepository.deleteChatRooms(
                 chatRoomIds.stream().map(ChatRoomId::getValue).toList()
         );
+    }
+
+    @Override
+    public ChatMessageSummary saveChatMessageSummary(ChatMessageSummary chatMessageSummary) {
+        ChatMessageSummaryEntity entity = chatMessageSummaryMapper.toEntity(chatMessageSummary);
+        ChatMessageSummaryEntity savedEntity = chatMessageSummaryRepository.save(entity);
+        return chatMessageSummaryMapper.toDomain(savedEntity);
     }
 }
