@@ -34,8 +34,8 @@ public class DetailedPromptQueryHelper {
                 .map(detailedPromptMapper::toDomain);
         
         if (prompt.isEmpty()) {
-            // 4단계 이상: 3단계 1번 프롬프트 재사용
-            return detailedPromptRepository.findByLevelAndDetailedLevelAndIsForGuidelineTrue(3, 1)
+            // 5단계 이상: 4단계 1번 프롬프트 재사용
+            return detailedPromptRepository.findByLevelAndDetailedLevelAndIsForGuidelineTrue(4, 1)
                     .map(detailedPromptMapper::toDomain)
                     .orElseThrow(() -> new RuntimeException("Fallback prompt not found"));
         }

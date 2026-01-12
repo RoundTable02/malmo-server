@@ -31,14 +31,14 @@ public class PromptQueryHelper {
         Prompt prompt = loadPromptPort.loadGuidelinePrompt(level).orElse(null);
         
         if (prompt == null) {
-            // 4단계 이상: 3단계 프롬프트 재사용
-            return loadPromptPort.loadGuidelinePrompt(3)
+            // 5단계 이상: 4단계 프롬프트 재사용
+            return loadPromptPort.loadGuidelinePrompt(4)
                     .orElseThrow(PromptNotFoundException::new);
         }
         
-        // isForCompletedResponse가 true인 경우도 무시하고 3단계 반환
+        // isForCompletedResponse가 true인 경우도 무시하고 4단계 반환
         if (prompt.isForCompletedResponse()) {
-            return loadPromptPort.loadGuidelinePrompt(3)
+            return loadPromptPort.loadGuidelinePrompt(4)
                     .orElseThrow(PromptNotFoundException::new);
         }
         
