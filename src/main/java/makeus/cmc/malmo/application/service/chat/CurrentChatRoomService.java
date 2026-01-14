@@ -69,6 +69,7 @@ public class CurrentChatRoomService
                 });
 
         return GetCurrentChatRoomResponse.builder()
+                .chatRoomId(currentChatRoom.getId())
                 .chatRoomState(currentChatRoom.getChatRoomState())
                 .build();
     }

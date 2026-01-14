@@ -540,6 +540,9 @@ public class SwaggerResponses {
     @Getter
     @Schema(description = "채팅방 상태 응답 데이터")
     public static class ChatRoomStateData {
+        @Schema(description = "현재 채팅방의 ID", example = "1")
+        private Long chatRoomId;
+
         @Schema(description = "현재 채팅방의 상태", example = "BEFORE_INIT")
         private ChatRoomState chatRoomState;
     }
