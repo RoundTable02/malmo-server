@@ -30,11 +30,13 @@ import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.CoupleId;
 import makeus.cmc.malmo.domain.value.id.CoupleQuestionId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
+import makeus.cmc.malmo.util.ChatMessageSplitter;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -287,8 +289,23 @@ public class ChatMessageService implements ProcessMessageUseCase {
     }
 
     private void saveAiMessage(MemberId memberId, ChatRoomId chatRoomId, int level, int detailedLevel, String fullAnswer) {
-        ChatMessage aiTextMessage = chatRoomDomainService.createAiMessage(chatRoomId, level, detailedLevel, fullAnswer);
-        ChatMessage savedMessage = chatRoomCommandHelper.saveChatMessage(aiTextMessage);
-        chatSseSender.sendAiResponseId(memberId, savedMessage.getId());
+        // fullAnswer를 문장 단위로 분할하고 세 문장씩 그룹화
+        List<String> groupedTexts = ChatMessageSplitter.splitIntoGroups(fullAnswer);
+        
+        // 각 그룹을 ChatMessage로 생성
+        List<ChatMessage> chatMessages = groupedTexts.stream()
+                .map(groupText -> chatRoomDomainService.createAiMessage(chatRoomId, level, detailedLevel, groupText))
+                .collect(Collectors.toList());
+        
+        // bulk 저장
+        List<ChatMessage> savedMessages = chatRoomCommandHelper.saveChatMessages(chatMessages);
+        
+        // 저장된 메시지들의 ID 리스트 추출
+        List<Long> messageIds = savedMessages.stream()
+                .map(ChatMessage::getId)
+                .collect(Collectors.toList());
+        
+        // SSE로 ID 리스트 전송
+        chatSseSender.sendAiResponseIds(memberId, messageIds);
     }
 }
