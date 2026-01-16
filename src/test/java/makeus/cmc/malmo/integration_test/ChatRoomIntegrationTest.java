@@ -140,8 +140,9 @@ public class ChatRoomIntegrationTest {
             List<ChatMessageEntity> messages = em.createQuery("SELECT m FROM ChatMessageEntity m WHERE m.chatRoomEntityId.value = :chatRoomId", ChatMessageEntity.class)
                     .setParameter("chatRoomId", chatRoom.getId())
                     .getResultList();
-            Assertions.assertThat(messages).hasSize(1);
-            Assertions.assertThat(messages.get(0).getContent()).isEqualTo(member.getNickname() + "아" + INIT_CHAT_MESSAGE);
+            Assertions.assertThat(messages).hasSize(2);
+            String contentCombined = messages.get(0).getContent() + messages.get(1).getContent();
+            Assertions.assertThat(contentCombined).isEqualTo(member.getNickname() + "아" + INIT_CHAT_MESSAGE);
         }
 
         @Test
@@ -201,8 +202,10 @@ public class ChatRoomIntegrationTest {
             List<ChatMessageEntity> messages = em.createQuery("SELECT m FROM ChatMessageEntity m WHERE m.chatRoomEntityId.value = :chatRoomId", ChatMessageEntity.class)
                     .setParameter("chatRoomId", newChatRoom.getId())
                     .getResultList();
-            Assertions.assertThat(messages).hasSize(1);
-            Assertions.assertThat(messages.get(0).getContent()).isEqualTo(member.getNickname() + "아" + INIT_CHAT_MESSAGE);
+
+            Assertions.assertThat(messages).hasSize(2);
+            String contentCombined = messages.get(0).getContent() + messages.get(1).getContent();
+            Assertions.assertThat(contentCombined).isEqualTo(member.getNickname() + "아" + INIT_CHAT_MESSAGE);
         }
 
         @Test

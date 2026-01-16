@@ -19,12 +19,14 @@ import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.service.ChatRoomDomainService;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
+import makeus.cmc.malmo.util.ChatMessageSplitter;
 import makeus.cmc.malmo.util.JosaUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static makeus.cmc.malmo.util.GlobalConstants.INIT_CHATROOM_LEVEL;
 import static makeus.cmc.malmo.util.GlobalConstants.INIT_CHAT_MESSAGE;
@@ -81,13 +83,18 @@ public class CurrentChatRoomService
         ChatRoom savedChatRoom = chatRoomCommandHelper.saveChatRoom(chatRoom);
 
         // 초기 메시지 생성 및 저장
-        ChatMessage initMessage = chatRoomDomainService.createAiMessage(
-                ChatRoomId.of(savedChatRoom.getId()),
-                INIT_CHATROOM_LEVEL,
-                1,
-                JosaUtils.아야(member.getNickname())
-                        + INIT_CHAT_MESSAGE);
-        chatRoomCommandHelper.saveChatMessage(initMessage);
+        String initMessageContent = JosaUtils.아야(member.getNickname()) + INIT_CHAT_MESSAGE;
+        List<String> groupedTexts = ChatMessageSplitter.splitIntoGroups(initMessageContent);
+        List<ChatMessage> chatMessages = groupedTexts.stream()
+                .map(groupText -> chatRoomDomainService.createAiMessage(
+                        ChatRoomId.of(savedChatRoom.getId()),
+                        INIT_CHATROOM_LEVEL,
+                        1,
+                        groupText))
+                .collect(Collectors.toList());
+
+        chatRoomCommandHelper.saveChatMessages(chatMessages);
+
         return savedChatRoom;
     }
 
