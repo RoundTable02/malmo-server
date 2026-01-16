@@ -31,4 +31,8 @@ public class ChatRoomCommandHelper {
     public ChatMessage saveChatMessage(ChatMessage chatMessage) {
         return saveChatMessagePort.saveChatMessage(chatMessage);
     }
+
+    public List<ChatMessage> saveChatMessages(List<ChatMessage> chatMessages) {
+        return saveChatMessagePort.saveChatMessages(chatMessages);
+    }
 }

@@ -83,6 +83,20 @@ public class ChatRoomPersistenceAdapter
     }
 
     @Override
+    public List<ChatMessage> saveChatMessages(List<ChatMessage> chatMessages) {
+        if (chatMessages == null || chatMessages.isEmpty()) {
+            return List.of();
+        }
+        List<ChatMessageEntity> entities = chatMessages.stream()
+                .map(chatMessageMapper::toEntity)
+                .toList();
+        List<ChatMessageEntity> savedEntities = chatMessageRepository.saveAll(entities);
+        return savedEntities.stream()
+                .map(chatMessageMapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public Optional<ChatRoom> loadChatRoomById(ChatRoomId chatRoomId) {
         return chatRoomRepository.findById(chatRoomId.getValue())
                 .map(chatRoomMapper::toDomain);
