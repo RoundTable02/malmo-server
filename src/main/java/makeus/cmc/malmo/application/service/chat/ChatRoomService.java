@@ -89,7 +89,7 @@ public class ChatRoomService
                                 .senderType(cm.getSenderType())
                                 .content(cm.getContent())
                                 .createdAt(cm.getCreatedAt())
-                                .isSaved(cm.isSaved())
+                                .bookmarkId(cm.getBookmarkId())
                                 .build())
                 .toList();
 

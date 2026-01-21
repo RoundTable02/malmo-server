@@ -1,6 +1,5 @@
 package makeus.cmc.malmo.application.port.in.chat;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 import makeus.cmc.malmo.domain.value.type.SenderType;
@@ -37,7 +36,6 @@ public interface GetMessagesByBookmarkUseCase {
         private String content;
         private SenderType senderType;
         private LocalDateTime createdAt;
-        @JsonProperty("isSaved")
-        private boolean isSaved;
+        private Long bookmarkId;
     }
 }

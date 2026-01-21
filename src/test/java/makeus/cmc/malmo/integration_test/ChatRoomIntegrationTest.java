@@ -352,8 +352,8 @@ public class ChatRoomIntegrationTest {
     @DisplayName("현재 채팅방 메시지 조회")
     class GetCurrentChatRoomMessages {
         @Test
-        @DisplayName("현재 채팅방 메시지 조회에 성공한다")
-        void 현재_채팅방_메시지_조회_성공() throws Exception {
+        @DisplayName("현재 채팅방 메시지 조회에 성공하고 bookmarkId가 포함되지 않는다")
+        void 현재_채팅방_메시지_조회_성공_bookmarkId_없음() throws Exception {
             // given
             ChatRoomEntity chatRoom = ChatRoomEntity.builder().memberEntityId(MemberEntityId.of(member.getId())).chatRoomState(ChatRoomState.ALIVE).build();
             em.persist(chatRoom);
@@ -368,7 +368,9 @@ public class ChatRoomIntegrationTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data.totalCount").value(2))
                     .andExpect(jsonPath("$.data.list[0].content").value("메시지2")) // 최신순
-                    .andExpect(jsonPath("$.data.list[1].content").value("메시지1"));
+                    .andExpect(jsonPath("$.data.list[1].content").value("메시지1"))
+                    .andExpect(jsonPath("$.data.list[0].bookmarkId").doesNotExist())
+                    .andExpect(jsonPath("$.data.list[1].bookmarkId").doesNotExist());
         }
 
         @Test

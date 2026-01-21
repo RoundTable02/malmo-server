@@ -26,7 +26,7 @@ public class ChatMessageRepositoryCustomImpl implements ChatMessageRepositoryCus
                         chatMessageEntity.senderType,
                         chatMessageEntity.content,
                         chatMessageEntity.createdAt,
-                        bookmarkEntity.isNotNull()
+                        bookmarkEntity.id
                 ))
                 .from(chatMessageEntity)
                 .leftJoin(bookmarkEntity)
@@ -54,7 +54,7 @@ public class ChatMessageRepositoryCustomImpl implements ChatMessageRepositoryCus
                         chatMessageEntity.senderType,
                         chatMessageEntity.content,
                         chatMessageEntity.createdAt,
-                        bookmarkEntity.isNotNull()
+                        bookmarkEntity.id
                 ))
                 .from(chatMessageEntity)
                 .leftJoin(bookmarkEntity)

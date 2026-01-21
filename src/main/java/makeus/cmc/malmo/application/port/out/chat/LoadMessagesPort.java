@@ -28,6 +28,6 @@ public interface LoadMessagesPort {
         private SenderType senderType;
         private String content;
         private LocalDateTime createdAt;
-        private boolean isSaved;
+        private Long bookmarkId;
     }
 }

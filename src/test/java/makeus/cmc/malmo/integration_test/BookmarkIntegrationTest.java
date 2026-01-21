@@ -434,15 +434,16 @@ public class BookmarkIntegrationTest {
     class GetChatRoomMessagesWithBookmarkStatus {
 
         @Test
-        @DisplayName("북마크된 메시지의 isSaved가 true로 반환된다")
-        void 북마크된_메시지_isSaved_true() throws Exception {
+        @DisplayName("북마크된 메시지의 bookmarkId가 응답에 포함된다")
+        void 북마크된_메시지_bookmarkId_포함() throws Exception {
             // Given
-            em.persist(BookmarkEntity.builder()
+            BookmarkEntity bookmark = BookmarkEntity.builder()
                     .chatRoomEntityId(ChatRoomEntityId.of(chatRoom.getId()))
                     .chatMessageEntityId(ChatMessageEntityId.of(chatMessage.getId()))
                     .memberEntityId(MemberEntityId.of(member.getId()))
                     .bookmarkState(BookmarkState.ALIVE)
-                    .build());
+                    .build();
+            em.persist(bookmark);
             em.flush();
 
             mockMvc.perform(get("/chatrooms/{chatRoomId}/messages", chatRoom.getId())
@@ -450,23 +451,23 @@ public class BookmarkIntegrationTest {
                             .param("page", "0")
                             .param("size", "10"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.data.list[?(@.messageId == " + chatMessage.getId() + ")].isSaved").value(true));
+                    .andExpect(jsonPath("$.data.list[0].bookmarkId").value(bookmark.getId()));
         }
 
         @Test
-        @DisplayName("북마크되지 않은 메시지의 isSaved가 false로 반환된다")
-        void 북마크되지_않은_메시지_isSaved_false() throws Exception {
+        @DisplayName("북마크되지 않은 메시지의 bookmarkId는 응답에 포함되지 않는다")
+        void 북마크되지_않은_메시지_bookmarkId_없음() throws Exception {
             mockMvc.perform(get("/chatrooms/{chatRoomId}/messages", chatRoom.getId())
                             .header("Authorization", "Bearer " + accessToken)
                             .param("page", "0")
                             .param("size", "10"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.data.list[0].isSaved").value(false));
+                    .andExpect(jsonPath("$.data.list[0].bookmarkId").doesNotExist());
         }
 
         @Test
-        @DisplayName("삭제된 북마크는 isSaved가 false로 반환된다")
-        void 삭제된_북마크_isSaved_false() throws Exception {
+        @DisplayName("삭제된 북마크의 메시지 bookmarkId는 응답에 포함되지 않는다")
+        void 삭제된_북마크_bookmarkId_없음() throws Exception {
             // Given: 삭제된 북마크
             em.persist(BookmarkEntity.builder()
                     .chatRoomEntityId(ChatRoomEntityId.of(chatRoom.getId()))
@@ -481,7 +482,7 @@ public class BookmarkIntegrationTest {
                             .param("page", "0")
                             .param("size", "10"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.data.list[0].isSaved").value(false));
+                    .andExpect(jsonPath("$.data.list[0].bookmarkId").doesNotExist());
         }
     }
 

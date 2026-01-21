@@ -153,7 +153,7 @@ public class BookmarkService implements CreateBookmarkUseCase, DeleteBookmarksUs
                         .content(m.getContent())
                         .senderType(m.getSenderType())
                         .createdAt(m.getCreatedAt())
-                        .isSaved(m.isSaved())
+                        .bookmarkId(m.getBookmarkId())
                         .build())
                 .toList();
 

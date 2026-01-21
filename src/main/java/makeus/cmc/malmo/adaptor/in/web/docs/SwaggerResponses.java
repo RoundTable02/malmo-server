@@ -558,8 +558,8 @@ public class SwaggerResponses {
         private String content;
         @Schema(description = "채팅 생성 시간", example = "2025-07-20T10:15:30")
         private LocalDateTime createdAt;
-        @Schema(description = "채팅 저장 여부", example = "true")
-        private boolean isSaved;
+        @Schema(description = "해당 메시지에 대한 북마크 ID (없으면 null)", example = "10")
+        private Long bookmarkId;
     }
 
     @Getter
