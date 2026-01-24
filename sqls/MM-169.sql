@@ -1,6 +1,6 @@
 CREATE TABLE bookmark_entity
 (
-    bookmark_id     BIGINT       NOT NULL,
+    bookmark_id     BIGINT       NOT NULL AUTO_INCREMENT,
     created_at      datetime     NULL,
     modified_at     datetime     NULL,
     deleted_at      datetime     NULL,
