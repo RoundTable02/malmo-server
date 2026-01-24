@@ -64,4 +64,10 @@ public class PromptPersistenceAdapter implements LoadPromptPort {
         return promptRepository.findByLevelAndIsForSummaryTrue(level)
                 .map(promptMapper::toDomain);
     }
+
+    @Override
+    public Optional<Prompt> loadTitleGenerationPrompt() {
+        return promptRepository.findByIsForTitleGenerationTrue()
+                .map(promptMapper::toDomain);
+    }
 }

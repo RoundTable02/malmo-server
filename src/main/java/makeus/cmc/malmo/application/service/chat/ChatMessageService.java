@@ -2,25 +2,24 @@ package makeus.cmc.malmo.application.service.chat;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import makeus.cmc.malmo.adaptor.message.RequestConversationSummaryMessage;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomCommandHelper;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomQueryHelper;
 import makeus.cmc.malmo.application.helper.chat_room.PromptQueryHelper;
 import makeus.cmc.malmo.application.helper.chat_room.DetailedPromptQueryHelper;
-import makeus.cmc.malmo.application.helper.chat_room.MemberChatRoomMetadataQueryHelper;
 import makeus.cmc.malmo.application.helper.chat_room.MemberChatRoomMetadataCommandHelper;
 import makeus.cmc.malmo.application.helper.member.MemberMemoryCommandHelper;
 import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.application.helper.question.CoupleQuestionQueryHelper;
 import makeus.cmc.malmo.application.port.in.chat.ProcessMessageUseCase;
 import makeus.cmc.malmo.application.port.in.chat.SufficiencyCheckResult;
-import makeus.cmc.malmo.application.port.out.sse.SendSseEventPort;
-import makeus.cmc.malmo.application.port.out.chat.SaveChatMessageSummaryPort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
 import makeus.cmc.malmo.domain.model.chat.Prompt;
 import makeus.cmc.malmo.domain.model.chat.DetailedPrompt;
 import makeus.cmc.malmo.domain.model.chat.MemberChatRoomMetadata;
+import makeus.cmc.malmo.util.ChatTokenConstants;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.member.MemberMemory;
 import makeus.cmc.malmo.domain.model.question.CoupleQuestion;
@@ -33,10 +32,13 @@ import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.util.ChatMessageSplitter;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+
+import static makeus.cmc.malmo.adaptor.message.StreamMessageType.REQUEST_CONVERSATION_SUMMARY;
 
 @Slf4j
 @Service
@@ -54,11 +56,12 @@ public class ChatMessageService implements ProcessMessageUseCase {
 
     private final ChatRoomCommandHelper chatRoomCommandHelper;
     private final ChatRoomDomainService chatRoomDomainService;
-    private final SaveChatMessageSummaryPort saveChatMessageSummaryPort;
 
     private final CoupleQuestionQueryHelper coupleQuestionQueryHelper;
 
     private final MemberMemoryCommandHelper memberMemoryCommandHelper;
+
+    private final makeus.cmc.malmo.application.helper.outbox.OutboxHelper outboxHelper;
 
     @Override
     public CompletableFuture<Void> processStreamChatMessage(ProcessMessageCommand command) {
@@ -69,7 +72,12 @@ public class ChatMessageService implements ProcessMessageUseCase {
         // 1. 유저 메시지 저장
 //        saveUserMessage(chatRoom, command);
 
-        // 2. 충분성 조건 검사
+        // 4단계 이상: 충분성 검사 없이 자유 대화 응답
+        if (command.getPromptLevel() >= 4) {
+            return processFreeConversation(member, chatRoom, command);
+        }
+
+        // 2. 충분성 조건 검사 (1~3단계)
         CompletableFuture<SufficiencyCheckResult> sufficiencyCheck = 
             requestSufficiencyCheck(member, chatRoom, command);
 
@@ -95,8 +103,10 @@ public class ChatMessageService implements ProcessMessageUseCase {
             }
 
             // 마지막 충분성 조건인 경우
-            // 단계 요약 요청 (비동기)
-            requestStageSummaryAsync(chatRoom, command);
+            // 1단계 종료 시 제목 생성 요청
+            if (command.getPromptLevel() == 1) {
+                requestTitleGenerationAsync(chatRoom);
+            }
 
             // 다음 단계 오프닝 생성 요청
             chatRoom.upgradeToNextStage();
@@ -105,27 +115,6 @@ public class ChatMessageService implements ProcessMessageUseCase {
         });
     }
 
-    @Override
-    public CompletableFuture<Void> processTotalSummary(ProcessTotalSummaryCommand command) {
-        ChatRoom chatRoom = chatRoomQueryHelper.getChatRoomByIdOrThrow(ChatRoomId.of(command.getChatRoomId()));
-
-        Prompt systemPrompt = promptQueryHelper.getSystemPrompt();
-        Prompt totalSummaryPrompt = promptQueryHelper.getTotalSummaryPrompt();
-
-        List<Map<String, String>> messages = chatPromptBuilder.createForTotalSummary(chatRoom);
-
-        return chatProcessor.requestTotalSummary(messages, systemPrompt, totalSummaryPrompt)
-                .thenAcceptAsync(summary -> { // CounselingSummary 객체를 받음
-                    chatRoom.updateChatRoomSummary(
-                            summary.getTotalSummary(),
-                            summary.getSituationKeyword(),
-                            summary.getSolutionKeyword(),
-                            summary.getCounselingType()
-                    );
-                    chatRoomCommandHelper.saveChatRoom(chatRoom);
-                    log.info("Successfully processed and saved total summary for chatRoomId: {}", command.getChatRoomId());
-                });
-    }
 
     @Override
     public CompletableFuture<Void> processAnswerMetadata(ProcessAnswerCommand command) {
@@ -157,14 +146,41 @@ public class ChatMessageService implements ProcessMessageUseCase {
                 });
     }
 
-    private void saveUserMessage(ChatRoom chatRoom, ProcessMessageCommand command) {
-        ChatMessage userMessage = chatRoomDomainService.createUserMessage(
-                ChatRoomId.of(chatRoom.getId()), 
-                command.getPromptLevel(), 
-                command.getDetailedLevel(),
-                command.getNowMessage()
-        );
-        chatRoomCommandHelper.saveChatMessage(userMessage);
+
+    /**
+     * 4단계 이상: 자유 대화 처리
+     * - 충분성 검사 없이 바로 응답 생성
+     * - 단계 전환 없이 현재 level 유지
+     * - 메타데이터 저장 스킵
+     * - 토큰 관리를 위한 요약 트리거 포함
+     */
+    private CompletableFuture<Void> processFreeConversation(Member member, ChatRoom chatRoom, ProcessMessageCommand command) {
+        ChatRoomId chatRoomId = ChatRoomId.of(chatRoom.getId());
+        int level = chatRoom.getLevel();
+        
+        // 메시지 개수 체크 및 요약 트리거
+        long messageCount = chatRoomQueryHelper.countMessagesByLevel(chatRoomId, level);
+        if (messageCount > ChatTokenConstants.FREE_CONVERSATION_SUMMARY_THRESHOLD 
+                && messageCount % ChatTokenConstants.FREE_CONVERSATION_SUMMARY_INTERVAL == 0) {
+            // 비동기로 요약 생성 요청 (20개 단위로)
+            requestConversationSummaryAsync(chatRoom);
+        }
+        
+        // createForFreeConversation 사용 (최근 20개 + 요약 포함)
+        List<Map<String, String>> messages = chatPromptBuilder.createForFreeConversation(
+                member, chatRoom, command.getNowMessage());
+        
+        Prompt systemPrompt = promptQueryHelper.getSystemPrompt();
+        Prompt prompt = promptQueryHelper.getGuidelinePromptWithFallback(command.getPromptLevel());
+        DetailedPrompt detailedPrompt = detailedPromptQueryHelper.getGuidelinePromptWithFallback(
+                command.getPromptLevel(), command.getDetailedLevel());
+        
+        return chatProcessor.streamChat(messages, systemPrompt, prompt, detailedPrompt,
+                chunk -> chatSseSender.sendResponseChunk(MemberId.of(member.getId()), chunk),
+                fullAnswer -> saveAiMessage(MemberId.of(member.getId()), ChatRoomId.of(chatRoom.getId()),
+                        command.getPromptLevel(), command.getDetailedLevel(), fullAnswer),
+                errorMessage -> chatSseSender.sendError(MemberId.of(member.getId()), errorMessage)
+        ).toFuture();
     }
 
     private CompletableFuture<SufficiencyCheckResult> requestSufficiencyCheck(Member member, ChatRoom chatRoom, ProcessMessageCommand command) {
@@ -190,10 +206,9 @@ public class ChatMessageService implements ProcessMessageUseCase {
         }
         
         Prompt systemPrompt = promptQueryHelper.getSystemPrompt();
-        Prompt prompt = promptQueryHelper.getGuidelinePrompt(command.getPromptLevel());
-        DetailedPrompt detailedPrompt = detailedPromptQueryHelper.getGuidelinePrompt(
-                        command.getPromptLevel(), command.getDetailedLevel())
-                .orElseThrow(() -> new RuntimeException("Guideline prompt not found"));
+        Prompt prompt = promptQueryHelper.getGuidelinePromptWithFallback(command.getPromptLevel());
+        DetailedPrompt detailedPrompt = detailedPromptQueryHelper.getGuidelinePromptWithFallback(
+                        command.getPromptLevel(), command.getDetailedLevel());
         
         return chatProcessor.streamChat(messages, systemPrompt, prompt, detailedPrompt,
                 chunk -> chatSseSender.sendResponseChunk(MemberId.of(member.getId()), chunk),
@@ -229,10 +244,9 @@ public class ChatMessageService implements ProcessMessageUseCase {
 
         // 시스템 프롬프트 + 현재 단계 프롬프트 + 다음 충분성 조건 프롬프트
         Prompt systemPrompt = promptQueryHelper.getSystemPrompt();
-        Prompt prompt = promptQueryHelper.getGuidelinePrompt(chatRoom.getLevel());
-        DetailedPrompt nextDetailedPrompt = detailedPromptQueryHelper.getGuidelinePrompt(
-                command.getPromptLevel(), command.getDetailedLevel() + 1)
-                .orElseThrow(() -> new RuntimeException("Next guideline prompt not found"));
+        Prompt prompt = promptQueryHelper.getGuidelinePromptWithFallback(chatRoom.getLevel());
+        DetailedPrompt nextDetailedPrompt = detailedPromptQueryHelper.getGuidelinePromptWithFallback(
+                command.getPromptLevel(), command.getDetailedLevel() + 1);
         
         return chatProcessor.streamChat(messages, systemPrompt, prompt, nextDetailedPrompt,
                 chunk -> chatSseSender.sendResponseChunk(memberId, chunk),
@@ -242,50 +256,115 @@ public class ChatMessageService implements ProcessMessageUseCase {
         ).toFuture();
     }
 
-    private void requestStageSummaryAsync(ChatRoom chatRoom, ProcessMessageCommand command) {
-        List<Map<String, String>> messages = chatPromptBuilder.createForStageSummary(
-                chatRoom, command.getPromptLevel());
-        
-        Prompt systemPrompt = promptQueryHelper.getSystemPrompt();
-        Prompt prompt = promptQueryHelper.getGuidelinePrompt(command.getPromptLevel());
-        Prompt summaryPrompt = promptQueryHelper.getSummaryPrompt(command.getPromptLevel());
-        
-        chatProcessor.requestStageSummary(messages, systemPrompt, prompt, summaryPrompt)
-                .thenAcceptAsync(summary -> {
-                    ChatMessageSummary chatMessageSummary = ChatMessageSummary.createChatMessageSummary(
-                            ChatRoomId.of(chatRoom.getId()), summary, command.getPromptLevel());
-                    saveChatMessageSummaryPort.saveChatMessageSummary(chatMessageSummary);
-                    log.info("Stage summary completed for chatRoomId: {}, level: {}", 
-                            chatRoom.getId(), command.getPromptLevel());
-                });
-    }
-
     private CompletableFuture<Void> requestNextStageOpening(Member member, ChatRoom chatRoom, ProcessMessageCommand command) {
-        List<Map<String, String>> messages = chatPromptBuilder.createForNextStage(
-                member, chatRoom, command.getPromptLevel() + 1);
+        int nextLevel = command.getPromptLevel() + 1;
+        
+        // 단계별 요약 없이 컨텍스트 구성
+        List<Map<String, String>> messages = chatPromptBuilder.createForNextStage(member, chatRoom, nextLevel);
         
         Prompt systemPrompt = promptQueryHelper.getSystemPrompt();
-        Prompt nextPrompt = promptQueryHelper.getGuidelinePrompt(command.getPromptLevel() + 1);
-
-        if (nextPrompt.isForCompletedResponse()) {
-            String finalMessage = nextPrompt.getContent();
-            saveAiMessage(MemberId.of(member.getId()), ChatRoomId.of(chatRoom.getId()),
-                    command.getPromptLevel(), command.getDetailedLevel(), finalMessage);
-            chatSseSender.sendLastResponse(chatRoom.getMemberId(), finalMessage);
-
-            return CompletableFuture.completedFuture(null);
-        }
-
-        DetailedPrompt nextDetailedPrompt = detailedPromptQueryHelper.getGuidelinePrompt(
-                        command.getPromptLevel() + 1, 1)
-                .orElseThrow(() -> new RuntimeException("Next stage guideline prompt not found"));
+        
+        // 4단계 이상에서는 3단계 프롬프트 재사용
+        Prompt nextPrompt = promptQueryHelper.getGuidelinePromptWithFallback(nextLevel);
+        
+        // DetailedPrompt도 fallback 로직 적용
+        DetailedPrompt nextDetailedPrompt = detailedPromptQueryHelper.getGuidelinePromptWithFallback(nextLevel, 1);
         
         return chatProcessor.streamChat(messages, systemPrompt, nextPrompt, nextDetailedPrompt,
                 chunk -> chatSseSender.sendResponseChunk(MemberId.of(member.getId()), chunk),
                 fullAnswer -> saveAiMessage(MemberId.of(member.getId()), ChatRoomId.of(chatRoom.getId()),
-                        command.getPromptLevel() + 1, 1, fullAnswer),
+                        nextLevel, 1, fullAnswer),
                 errorMessage -> chatSseSender.sendError(MemberId.of(member.getId()), errorMessage)
         ).toFuture();
+    }
+
+    /**
+     * 비동기 제목 생성 요청
+     * Redis Stream을 통해 제목 생성 워커에 전달
+     */
+    private void requestTitleGenerationAsync(ChatRoom chatRoom) {
+        outboxHelper.publish(
+                makeus.cmc.malmo.adaptor.message.StreamMessageType.REQUEST_TITLE_GENERATION,
+                new makeus.cmc.malmo.adaptor.message.RequestTitleGenerationMessage(chatRoom.getId())
+        );
+        log.info("Title generation requested for chatRoomId: {}", chatRoom.getId());
+    }
+
+    @Override
+    public CompletableFuture<Void> processTitleGeneration(ProcessTitleGenerationCommand command) {
+        ChatRoom chatRoom = chatRoomQueryHelper.getChatRoomByIdOrThrow(ChatRoomId.of(command.getChatRoomId()));
+        
+        // 1단계 대화 내용 조회
+        List<Map<String, String>> messages = chatPromptBuilder.createForTitleGeneration(chatRoom);
+        
+        // 제목 생성 프롬프트 조회
+        Prompt titlePrompt = promptQueryHelper.getTitleGenerationPrompt();
+        
+        return chatProcessor.requestTitleGeneration(messages, titlePrompt)
+                .thenAcceptAsync(title -> {
+                    chatRoom.updateTitle(title);
+                    chatRoomCommandHelper.saveChatRoom(chatRoom);
+                    log.info("Title generated for chatRoomId: {}, title: {}", command.getChatRoomId(), title);
+                });
+    }
+
+    @Override
+    public CompletableFuture<Void> processConversationSummary(ProcessConversationSummaryCommand command) {
+        ChatRoomId chatRoomId = ChatRoomId.of(command.getChatRoomId());
+        int level = command.getLevel();
+        
+        // 최신 요약 이후의 메시지들을 가져와서 요약
+        // 최근 요약이 있다면 그 이후의 메시지, 없다면 전체 메시지 중 최근 요약 주기만큼
+        List<ChatMessage> messagesToSummarize = chatRoomQueryHelper.getRecentMessages(
+                chatRoomId, level, ChatTokenConstants.FREE_CONVERSATION_SUMMARY_INTERVAL);
+        
+        if (messagesToSummarize.isEmpty()) {
+            log.debug("No messages to summarize for chatRoomId: {}, level: {}", chatRoomId.getValue(), level);
+            return CompletableFuture.completedFuture(null);
+        }
+        
+        // 요약할 메시지들을 프롬프트 형식으로 변환
+        List<Map<String, String>> summaryMessages = new ArrayList<>();
+        for (ChatMessage chatMessage : messagesToSummarize) {
+            summaryMessages.add(Map.of(
+                    "role", chatMessage.getSenderType().getApiName(),
+                    "content", chatMessage.getContent()
+            ));
+        }
+        
+        // 요약 프롬프트 조회 (4단계 요약 프롬프트 사용)
+        Prompt summaryPrompt = promptQueryHelper.getSummaryPromptByLevel(level)
+                .orElseGet(() -> {
+                    log.warn("Summary prompt not found for level: {}, using default", level);
+                    return promptQueryHelper.getSummaryPromptByLevel(3)
+                            .orElseThrow(() -> new RuntimeException("Summary prompt not found"));
+                });
+        
+        // 비동기 요약 생성 및 저장
+        return chatProcessor.requestConversationSummary(summaryMessages, summaryPrompt)
+                .thenAcceptAsync(summaryContent -> {
+                    ChatMessageSummary chatMessageSummary = ChatMessageSummary.createChatMessageSummary(
+                            chatRoomId, summaryContent, level);
+                    chatRoomCommandHelper.saveChatMessageSummary(chatMessageSummary);
+                    log.info("Conversation summary saved for chatRoomId: {}, level: {}", chatRoomId.getValue(), level);
+                })
+                .exceptionally(throwable -> {
+                    log.error("Failed to generate conversation summary for chatRoomId: {}, level: {}",
+                            chatRoomId.getValue(), level, throwable);
+                    return null;
+                });
+    }
+
+    /**
+     * 비동기 4단계 대화 요약 생성 요청
+     * Redis Stream을 통해 요약 생성 워커에 전달
+     */
+    private void requestConversationSummaryAsync(ChatRoom chatRoom) {
+        outboxHelper.publish(
+                REQUEST_CONVERSATION_SUMMARY,
+                new RequestConversationSummaryMessage(chatRoom.getId(), chatRoom.getLevel())
+        );
+        log.info("Conversation summary requested for chatRoomId: {}, level: {}", chatRoom.getId(), chatRoom.getLevel());
     }
 
     private void saveAiMessage(MemberId memberId, ChatRoomId chatRoomId, int level, int detailedLevel, String fullAnswer) {

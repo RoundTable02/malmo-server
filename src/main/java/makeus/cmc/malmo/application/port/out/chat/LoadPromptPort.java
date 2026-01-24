@@ -21,4 +21,6 @@ public interface LoadPromptPort {
     Optional<Prompt> loadAnswerMetadataPrompt();
 
     Optional<Prompt> loadSummaryPromptByLevel(int level);
+
+    Optional<Prompt> loadTitleGenerationPrompt();
 }

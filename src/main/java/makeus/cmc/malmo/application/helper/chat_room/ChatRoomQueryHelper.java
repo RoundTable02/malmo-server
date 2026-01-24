@@ -12,7 +12,6 @@ import makeus.cmc.malmo.application.port.out.member.LoadMemberMemoryPort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
-import makeus.cmc.malmo.domain.model.chat.MemberChatRoomMetadata;
 import makeus.cmc.malmo.domain.model.member.MemberMemory;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
@@ -35,13 +34,9 @@ public class ChatRoomQueryHelper {
     private final LoadMessagesPort loadMessagesPort;
     private final LoadSummarizedMessages loadSummarizedMessages;
 
-    public Optional<ChatRoom> getCurrentChatRoomByMemberId(MemberId memberId) {
-        return loadChatRoomPort.loadCurrentChatRoomByMemberId(memberId);
-    }
-
-    public ChatRoom getCurrentChatRoomByMemberIdOrThrow(MemberId memberId) {
-        return loadChatRoomPort.loadCurrentChatRoomByMemberId(memberId)
-                .orElseThrow(ChatRoomNotFoundException::new);
+    // 진행 중인 채팅방 목록 조회
+    public List<ChatRoom> getActiveChatRoomsByMemberId(MemberId memberId) {
+        return loadChatRoomPort.loadActiveChatRoomsByMemberId(memberId);
     }
 
     public LoadChatRoomMetadataPort.ChatRoomMetadataDto getChatRoomMetadata(MemberId memberId) {
@@ -54,8 +49,8 @@ public class ChatRoomQueryHelper {
                 .orElseThrow(ChatRoomNotFoundException::new);
     }
 
-    public Page<ChatRoom> getCompletedChatRoomsByMemberId(MemberId memberId, String keyword, Pageable pageable) {
-        return loadChatRoomPort.loadAliveChatRoomsByMemberId(memberId, keyword, pageable);
+    public Page<ChatRoom> getChatRoomsByMemberId(MemberId memberId, String keyword, Pageable pageable) {
+        return loadChatRoomPort.loadChatRoomsByMemberId(memberId, keyword, pageable);
     }
 
     public void validateChatRoomOwnership(MemberId memberId, ChatRoomId chatRoomId) {
@@ -77,17 +72,14 @@ public class ChatRoomQueryHelper {
         }
     }
 
-    public void validateChatRoomAlive(MemberId memberId) {
-        loadChatRoomPort.loadCurrentChatRoomByMemberId(memberId)
-                .ifPresentOrElse(chatRoom -> {
-                            if (!chatRoom.isChatRoomValid()) {
-                                throw new NotValidChatRoomException();
-                            }
-                        }
-                        , () -> {
-                            throw new ChatRoomNotFoundException();
-                        }
-                );
+    // 채팅방 유효성 검증 (특정 채팅방 ID 기반)
+    public void validateChatRoomActive(ChatRoomId chatRoomId) {
+        ChatRoom chatRoom = loadChatRoomPort.loadChatRoomById(chatRoomId)
+                .orElseThrow(ChatRoomNotFoundException::new);
+        
+        if (!chatRoom.isChatRoomValid()) {
+            throw new NotValidChatRoomException();
+        }
     }
 
     /*
@@ -116,5 +108,17 @@ public class ChatRoomQueryHelper {
 
     public List<MemberMemory> getMemberMemoriesByMemberId(MemberId memberId) {
         return loadMemberMemoryPort.loadMemberMemoryByMemberId(memberId);
+    }
+
+    public List<ChatMessage> getRecentMessages(ChatRoomId chatRoomId, int level, int limit) {
+        return loadMessagesPort.loadRecentMessagesByLevel(chatRoomId, level, limit);
+    }
+
+    public long countMessagesByLevel(ChatRoomId chatRoomId, int level) {
+        return loadMessagesPort.countMessagesByLevel(chatRoomId, level);
+    }
+
+    public Optional<ChatMessageSummary> getLatestSummaryByLevel(ChatRoomId chatRoomId, int level) {
+        return loadSummarizedMessages.loadLatestSummaryByLevel(chatRoomId, level);
     }
 }

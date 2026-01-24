@@ -3,9 +3,9 @@ package makeus.cmc.malmo.adaptor.out.persistence.repository.chat;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatMessageEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ChatMessageRepository extends JpaRepository<ChatMessageEntity, Long>, ChatMessageRepositoryCustom {
 
@@ -14,4 +14,10 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessageEntity, 
 
     @Query("SELECT c FROM ChatMessageEntity c WHERE c.chatRoomEntityId.value = :chatRoomId AND c.level = :level AND c.detailedLevel = :detailedLevel")
     List<ChatMessageEntity> findByChatRoomIdAndLevelAndDetailedLevel(Long chatRoomId, int level, int detailedLevel);
+
+    @Query("SELECT c FROM ChatMessageEntity c WHERE c.chatRoomEntityId.value = :chatRoomId AND c.level = :level ORDER BY c.createdAt DESC")
+    List<ChatMessageEntity> findByChatRoomIdAndLevelOrderByCreatedAtDesc(@Param("chatRoomId") Long chatRoomId, @Param("level") int level);
+
+    @Query("SELECT COUNT(c) FROM ChatMessageEntity c WHERE c.chatRoomEntityId.value = :chatRoomId AND c.level = :level")
+    long countByChatRoomIdAndLevel(@Param("chatRoomId") Long chatRoomId, @Param("level") int level);
 }
