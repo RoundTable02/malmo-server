@@ -70,7 +70,7 @@ public class ChatRoomRepositoryCustomImpl implements ChatRoomRepositoryCustom{
                 .select(chatRoomEntity.count().intValue())
                 .from(chatRoomEntity)
                 .where(chatRoomEntity.memberEntityId.value.eq(memberId)
-                        .and(chatRoomEntity.chatRoomState.eq(ChatRoomState.COMPLETED)))
+                        .and(chatRoomEntity.chatRoomState.eq(ChatRoomState.ALIVE)))
                 .fetchOne();
     }
 }
