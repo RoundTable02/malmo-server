@@ -53,6 +53,12 @@ public class ChatService implements SendChatMessageUseCase {
         Member member = memberQueryHelper.getMemberByIdOrThrow(memberId);
         ChatRoom chatRoom = chatRoomQueryHelper.getChatRoomByIdOrThrow(chatRoomId);
 
+        if (chatRoom.isBeforeInit()) {
+            chatRoom.initialize();
+            chatRoomCommandHelper.saveChatRoom(chatRoom);
+            log.info("채팅방 상태 전환: BEFORE_INIT -> ALIVE, chatRoomId={}", chatRoomId.getValue());
+        }
+
         // 현재 유저 메시지를 저장
         ChatMessage savedUserMessage = saveUserMessage(chatRoom, command.getMessage());
 
