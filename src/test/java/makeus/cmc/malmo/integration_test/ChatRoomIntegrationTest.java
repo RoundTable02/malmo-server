@@ -530,6 +530,57 @@ public class ChatRoomIntegrationTest {
         }
 
         @Test
+        @DisplayName("ALIVE 상태 채팅방 삭제에 성공한다")
+        void ALIVE_상태_채팅방_삭제_성공() throws Exception {
+            // given
+            ChatRoomEntity chatRoom = ChatRoomEntity.builder()
+                    .memberEntityId(MemberEntityId.of(member.getId()))
+                    .chatRoomState(ChatRoomState.ALIVE)
+                    .build();
+            em.persist(chatRoom);
+            em.flush();
+            em.clear();
+
+            // when & then
+            mockMvc.perform(delete("/chatrooms")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(ChatRoomRequestDtoFactory.createDeleteChatRoomsRequestDto(List.of(chatRoom.getId())))))
+                    .andExpect(status().isOk());
+
+            ChatRoomEntity deletedChatRoom = em.find(ChatRoomEntity.class, chatRoom.getId());
+            Assertions.assertThat(deletedChatRoom.getChatRoomState()).isEqualTo(ChatRoomState.DELETED);
+        }
+
+        @Test
+        @DisplayName("ALIVE와 COMPLETED 상태 채팅방 혼합 삭제에 성공한다")
+        void ALIVE_COMPLETED_혼합_삭제_성공() throws Exception {
+            // given
+            ChatRoomEntity aliveChatRoom = ChatRoomEntity.builder()
+                    .memberEntityId(MemberEntityId.of(member.getId()))
+                    .chatRoomState(ChatRoomState.ALIVE)
+                    .build();
+            ChatRoomEntity completedChatRoom = ChatRoomEntity.builder()
+                    .memberEntityId(MemberEntityId.of(member.getId()))
+                    .chatRoomState(ChatRoomState.COMPLETED)
+                    .build();
+            em.persist(aliveChatRoom);
+            em.persist(completedChatRoom);
+            em.flush();
+            em.clear();
+
+            // when & then
+            mockMvc.perform(delete("/chatrooms")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(ChatRoomRequestDtoFactory.createDeleteChatRoomsRequestDto(List.of(aliveChatRoom.getId(), completedChatRoom.getId())))))
+                    .andExpect(status().isOk());
+
+            Assertions.assertThat(em.find(ChatRoomEntity.class, aliveChatRoom.getId()).getChatRoomState()).isEqualTo(ChatRoomState.DELETED);
+            Assertions.assertThat(em.find(ChatRoomEntity.class, completedChatRoom.getId()).getChatRoomState()).isEqualTo(ChatRoomState.DELETED);
+        }
+
+        @Test
         @DisplayName("접근 권한이 없으면 채팅방 삭제에 실패한다")
         void 접근_권한_없으면_삭제_실패() throws Exception {
             // given
