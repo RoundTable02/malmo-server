@@ -6,8 +6,6 @@ import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-
 @Component
 public class ChatRoomDomainService {
 
@@ -21,13 +19,5 @@ public class ChatRoomDomainService {
 
     public ChatMessage createAiMessage(ChatRoomId chatRoomId, int level, int detailedLevel, String content) {
         return ChatMessage.createAssistantTextMessage(chatRoomId, level, detailedLevel, content);
-    }
-
-    public boolean isChatRoomExpired(LocalDateTime lastMessageSentTime) {
-        if (lastMessageSentTime == null) {
-            return false;
-        }
-
-        return lastMessageSentTime.isBefore(LocalDateTime.now().minusDays(1));
     }
 }

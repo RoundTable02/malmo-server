@@ -5,6 +5,8 @@ import makeus.cmc.malmo.application.port.out.sse.SendSseEventPort;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ChatSseSender {
@@ -29,6 +31,15 @@ public class ChatSseSender {
                 new SendSseEventPort.NotificationEvent(
                         SendSseEventPort.SseEventType.AI_RESPONSE_ID,
                         messageId
+                ));
+    }
+
+    public void sendAiResponseIds(MemberId memberId, List<Long> messageIds) {
+        sendSseEventPort.sendToMember(
+                memberId,
+                new SendSseEventPort.NotificationEvent(
+                        SendSseEventPort.SseEventType.AI_RESPONSE_ID,
+                        messageIds
                 ));
     }
 

@@ -3,8 +3,10 @@ package makeus.cmc.malmo.application.helper.chat_room;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.application.port.out.chat.DeleteChatRoomPort;
 import makeus.cmc.malmo.application.port.out.chat.SaveChatMessagePort;
+import makeus.cmc.malmo.application.port.out.chat.SaveChatMessageSummaryPort;
 import makeus.cmc.malmo.application.port.out.chat.SaveChatRoomPort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
+import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import org.springframework.stereotype.Component;
@@ -19,6 +21,7 @@ public class ChatRoomCommandHelper {
     private final DeleteChatRoomPort deleteChatRoomPort;
 
     private final SaveChatMessagePort saveChatMessagePort;
+    private final SaveChatMessageSummaryPort saveChatMessageSummaryPort;
 
     public ChatRoom saveChatRoom(ChatRoom chatRoom) {
         return saveChatRoomPort.saveChatRoom(chatRoom);
@@ -30,5 +33,13 @@ public class ChatRoomCommandHelper {
 
     public ChatMessage saveChatMessage(ChatMessage chatMessage) {
         return saveChatMessagePort.saveChatMessage(chatMessage);
+    }
+
+    public List<ChatMessage> saveChatMessages(List<ChatMessage> chatMessages) {
+        return saveChatMessagePort.saveChatMessages(chatMessages);
+    }
+
+    public ChatMessageSummary saveChatMessageSummary(ChatMessageSummary chatMessageSummary) {
+        return saveChatMessageSummaryPort.saveChatMessageSummary(chatMessageSummary);
     }
 }

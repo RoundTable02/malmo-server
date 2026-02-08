@@ -538,9 +538,28 @@ public class SwaggerResponses {
     }
 
     @Getter
+    @Schema(description = "채팅방 생성 성공 응답")
+    public static class CreateChatRoomResponse extends BaseSwaggerResponse<CreateChatRoomData> {
+    }
+
+    @Getter
+    @Schema(description = "채팅방 생성 응답 데이터")
+    public static class CreateChatRoomData {
+        @Schema(description = "채팅방 ID", example = "123")
+        private Long chatRoomId;
+        @Schema(description = "채팅방 상태", example = "ALIVE")
+        private ChatRoomState chatRoomState;
+        @Schema(description = "생성 시간", example = "2026-01-12T15:30:00")
+        private LocalDateTime createdAt;
+    }
+
+    @Getter
     @Schema(description = "채팅방 상태 응답 데이터")
     public static class ChatRoomStateData {
-        @Schema(description = "현재 채팅방의 상태", example = "BEFORE_INIT")
+        @Schema(description = "현재 채팅방의 ID", example = "1")
+        private Long chatRoomId;
+
+        @Schema(description = "현재 채팅방의 상태", example = "ALIVE")
         private ChatRoomState chatRoomState;
     }
 
@@ -555,8 +574,8 @@ public class SwaggerResponses {
         private String content;
         @Schema(description = "채팅 생성 시간", example = "2025-07-20T10:15:30")
         private LocalDateTime createdAt;
-        @Schema(description = "채팅 저장 여부", example = "true")
-        private boolean isSaved;
+        @Schema(description = "해당 메시지에 대한 북마크 ID (없으면 null)", example = "10")
+        private Long bookmarkId;
     }
 
     @Getter

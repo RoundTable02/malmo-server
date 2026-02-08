@@ -150,6 +150,24 @@ public class GlobalExceptionHandler {
         return ErrorResponse.of(ErrorCode.NO_SUCH_TEMP_LOVE_TYPE);
     }
 
+    @ExceptionHandler({BookmarkNotFoundException.class})
+    public ResponseEntity<ErrorResponse> handleBookmarkNotFoundException(BookmarkNotFoundException e) {
+        log.warn("[GlobalExceptionHandler: handleBookmarkNotFoundException 호출] {}", e.getMessage());
+        return ErrorResponse.of(ErrorCode.NO_SUCH_BOOKMARK);
+    }
+
+    @ExceptionHandler({BookmarkAlreadyExistsException.class})
+    public ResponseEntity<ErrorResponse> handleBookmarkAlreadyExistsException(BookmarkAlreadyExistsException e) {
+        log.info("[GlobalExceptionHandler: handleBookmarkAlreadyExistsException 호출] {}", e.getMessage());
+        return ErrorResponse.of(ErrorCode.BOOKMARK_ALREADY_EXISTS);
+    }
+
+    @ExceptionHandler({MessageNotFoundException.class})
+    public ResponseEntity<ErrorResponse> handleMessageNotFoundException(MessageNotFoundException e) {
+        log.warn("[GlobalExceptionHandler: handleMessageNotFoundException 호출] {}", e.getMessage());
+        return ErrorResponse.of(ErrorCode.NO_SUCH_MESSAGE);
+    }
+
 
 
     /**

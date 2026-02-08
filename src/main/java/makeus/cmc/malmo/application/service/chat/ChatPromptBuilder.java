@@ -5,12 +5,11 @@ import makeus.cmc.malmo.application.helper.chat_room.ChatRoomQueryHelper;
 import makeus.cmc.malmo.application.helper.chat_room.MemberChatRoomMetadataQueryHelper;
 import makeus.cmc.malmo.application.port.out.chat.LoadChatRoomMetadataPort;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
-import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
 import makeus.cmc.malmo.domain.model.chat.MemberChatRoomMetadata;
+import makeus.cmc.malmo.util.ChatTokenConstants;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.model.member.MemberMemory;
-import makeus.cmc.malmo.domain.service.MemberDomainService;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
 import makeus.cmc.malmo.domain.value.type.SenderType;
@@ -24,7 +23,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ChatPromptBuilder {
 
-    private final MemberDomainService memberDomainService;
     private final ChatRoomQueryHelper chatRoomQueryHelper;
     private final MemberChatRoomMetadataQueryHelper memberChatRoomMetadataQueryHelper;
 
@@ -36,11 +34,11 @@ public class ChatPromptBuilder {
         String metaDataContent = getMetaDataContent(member);
         messages.add(createMessageMap(SenderType.USER, metaDataContent));
 
-        // 2. 이전 단계 요약본
-        List<ChatMessageSummary> previousLevelsSummarizedMessages = chatRoomQueryHelper.getSummarizedMessages(ChatRoomId.of(chatRoom.getId()));
-        if (!previousLevelsSummarizedMessages.isEmpty()) {
-            String summarizedMessageContent = getSummarizedMessageContent(previousLevelsSummarizedMessages);
-            messages.add(createMessageMap(SenderType.SYSTEM, summarizedMessageContent));
+        // 2. MemberChatRoomMetadata 정보 (단계별 요약 대신)
+        List<MemberChatRoomMetadata> metadataList = memberChatRoomMetadataQueryHelper.getMemberChatRoomMetadata(ChatRoomId.of(chatRoom.getId()));
+        if (!metadataList.isEmpty()) {
+            String metadataContent = getMemberChatRoomMetadataContent(metadataList);
+            messages.add(createMessageMap(SenderType.SYSTEM, metadataContent));
         }
 
         // 3. 현재 단계 메시지들
@@ -63,53 +61,7 @@ public class ChatPromptBuilder {
         return messages;
     }
 
-    public List<Map<String, String>> createForSummaryAsync(ChatRoom chatRoom) {
-        List<Map<String, String>> messages = new ArrayList<>();
-        int chatRoomLevel = chatRoom.getLevel();
 
-        // 현재 단계 메시지들
-        List<ChatMessage> currentChatRoomMessages = chatRoomQueryHelper.getChatRoomLevelMessages(ChatRoomId.of(chatRoom.getId()), chatRoomLevel);
-        for (ChatMessage chatMessage : currentChatRoomMessages) {
-            messages.add(createMessageMap(chatMessage.getSenderType(), chatMessage.getContent()));
-        }
-        return messages;
-    }
-
-    public List<Map<String, String>> createForTotalSummary(ChatRoom chatRoom) {
-        List<Map<String, String>> messages = new ArrayList<>();
-        List<ChatMessageSummary> summarizedMessages = chatRoomQueryHelper.getSummarizedMessages(ChatRoomId.of(chatRoom.getId()));
-
-        if (summarizedMessages.isEmpty()) {
-            List<ChatMessage> lastLevelMessages = chatRoomQueryHelper.getChatRoomLevelMessages(ChatRoomId.of(chatRoom.getId()), chatRoom.getLevel());
-            for (ChatMessage lastLevelMessage : lastLevelMessages) {
-                messages.add(
-                        createMessageMap(lastLevelMessage.getSenderType(), lastLevelMessage.getContent())
-                );
-            }
-        } else {
-            StringBuilder sb = new StringBuilder();
-            for (ChatMessageSummary summary : summarizedMessages) {
-                sb.append("[").append(summary.getLevel()).append(" 단계 요약] \n");
-                sb.append(summary.getContent()).append("\n");
-            }
-            messages.add(
-                    createMessageMap(SenderType.SYSTEM, sb.toString())
-            );
-        }
-        return messages;
-    }
-
-    private String getSummarizedMessageContent(List<ChatMessageSummary> summarizedMessages) {
-        if (summarizedMessages == null || summarizedMessages.isEmpty()) {
-            return "";
-        }
-        StringBuilder sb = new StringBuilder();
-        sb.append("[이전 단계 요약] \n");
-        for (ChatMessageSummary summary : summarizedMessages) {
-            sb.append("- ").append(summary.getContent()).append("\n");
-        }
-        return sb.toString();
-    }
 
     private Map<String, String> createMessageMap(SenderType senderType, String content) {
         return Map.of(
@@ -157,21 +109,14 @@ public class ChatPromptBuilder {
         String metaDataContent = getMetaDataContent(member);
         messages.add(createMessageMap(SenderType.USER, metaDataContent));
 
-        // 2. 이전 단계 요약본
-        List<ChatMessageSummary> previousLevelsSummarizedMessages = chatRoomQueryHelper.getSummarizedMessages(ChatRoomId.of(chatRoom.getId()));
-        if (!previousLevelsSummarizedMessages.isEmpty()) {
-            String summarizedMessageContent = getSummarizedMessageContent(previousLevelsSummarizedMessages);
-            messages.add(createMessageMap(SenderType.SYSTEM, summarizedMessageContent));
-        }
-
-        // 3. MemberChatRoomMetadata 정보
+        // 2. MemberChatRoomMetadata 정보 (단계별 요약 대신)
         List<MemberChatRoomMetadata> metadataList = memberChatRoomMetadataQueryHelper.getMemberChatRoomMetadata(ChatRoomId.of(chatRoom.getId()));
         if (!metadataList.isEmpty()) {
             String metadataContent = getMemberChatRoomMetadataContent(metadataList);
             messages.add(createMessageMap(SenderType.SYSTEM, metadataContent));
         }
 
-        // 4. 현재 단계 메시지들
+        // 3. 현재 단계 메시지들
         List<ChatMessage> currentChatRoomMessages = chatRoomQueryHelper.getChatRoomLevelAndDetailedLevelMessages(ChatRoomId.of(chatRoom.getId()), level, detailedLevel);
         for (ChatMessage chatMessage : currentChatRoomMessages) {
             messages.add(createMessageMap(chatMessage.getSenderType(), chatMessage.getContent()));
@@ -180,17 +125,6 @@ public class ChatPromptBuilder {
         return messages;
     }
 
-    public List<Map<String, String>> createForStageSummary(ChatRoom chatRoom, int level) {
-        List<Map<String, String>> messages = new ArrayList<>();
-
-        // 현재 단계 메시지들
-        List<ChatMessage> currentChatRoomMessages = chatRoomQueryHelper.getChatRoomLevelMessages(ChatRoomId.of(chatRoom.getId()), level);
-        for (ChatMessage chatMessage : currentChatRoomMessages) {
-            messages.add(createMessageMap(chatMessage.getSenderType(), chatMessage.getContent()));
-        }
-
-        return messages;
-    }
 
     public List<Map<String, String>> createForNextDetailedPrompt(Member member, ChatRoom chatRoom, int level, int nextDetailedLevel) {
         List<Map<String, String>> messages = new ArrayList<>();
@@ -199,21 +133,14 @@ public class ChatPromptBuilder {
         String metaDataContent = getMetaDataContent(member);
         messages.add(createMessageMap(SenderType.USER, metaDataContent));
 
-        // 2. 이전 단계 요약본
-        List<ChatMessageSummary> previousLevelsSummarizedMessages = chatRoomQueryHelper.getSummarizedMessages(ChatRoomId.of(chatRoom.getId()));
-        if (!previousLevelsSummarizedMessages.isEmpty()) {
-            String summarizedMessageContent = getSummarizedMessageContent(previousLevelsSummarizedMessages);
-            messages.add(createMessageMap(SenderType.SYSTEM, summarizedMessageContent));
-        }
-
-        // 3. MemberChatRoomMetadata 정보
+        // 2. MemberChatRoomMetadata 정보
         List<MemberChatRoomMetadata> metadataList = memberChatRoomMetadataQueryHelper.getMemberChatRoomMetadata(ChatRoomId.of(chatRoom.getId()));
         if (!metadataList.isEmpty()) {
             String metadataContent = getMemberChatRoomMetadataContent(metadataList);
             messages.add(createMessageMap(SenderType.SYSTEM, metadataContent));
         }
 
-        // 4. 현재 단계 메시지들 (이전 detailedLevel까지)
+        // 3. 현재 단계 메시지들 (이전 detailedLevel까지)
 //        List<ChatMessage> currentChatRoomMessages = chatRoomQueryHelper.getChatRoomLevelAndDetailedLevelMessages(ChatRoomId.of(chatRoom.getId()), level, nextDetailedLevel - 1);
         // fixed: 현재 단계 메시지들 context 전체 전달(level 기준)
         List<ChatMessage> currentChatRoomMessages = chatRoomQueryHelper.getChatRoomLevelMessages(ChatRoomId.of(chatRoom.getId()), level);
@@ -231,14 +158,7 @@ public class ChatPromptBuilder {
         String metaDataContent = getMetaDataContent(member);
         messages.add(createMessageMap(SenderType.USER, metaDataContent));
 
-        // 2. 이전 단계 요약본
-        List<ChatMessageSummary> previousLevelsSummarizedMessages = chatRoomQueryHelper.getSummarizedMessages(ChatRoomId.of(chatRoom.getId()));
-        if (!previousLevelsSummarizedMessages.isEmpty()) {
-            String summarizedMessageContent = getSummarizedMessageContent(previousLevelsSummarizedMessages);
-            messages.add(createMessageMap(SenderType.SYSTEM, summarizedMessageContent));
-        }
-
-        // 3. MemberChatRoomMetadata 정보
+        // 2. MemberChatRoomMetadata 정보
         List<MemberChatRoomMetadata> metadataList = memberChatRoomMetadataQueryHelper.getMemberChatRoomMetadata(ChatRoomId.of(chatRoom.getId()));
         if (!metadataList.isEmpty()) {
             String metadataContent = getMemberChatRoomMetadataContent(metadataList);
@@ -258,5 +178,64 @@ public class ChatPromptBuilder {
             sb.append("- ").append(metadata.getTitle()).append(": ").append(metadata.getSummary()).append("\n");
         }
         return sb.toString();
+    }
+
+    /**
+     * 제목 생성을 위한 메시지 구성
+     * 1단계 대화 내용만 포함
+     */
+    public List<Map<String, String>> createForTitleGeneration(ChatRoom chatRoom) {
+        List<Map<String, String>> messages = new ArrayList<>();
+        
+        // 1단계 메시지들만 조회
+        List<ChatMessage> stage1Messages = chatRoomQueryHelper.getChatRoomLevelMessages(
+                ChatRoomId.of(chatRoom.getId()), 1);
+        
+        for (ChatMessage chatMessage : stage1Messages) {
+            messages.add(createMessageMap(chatMessage.getSenderType(), chatMessage.getContent()));
+        }
+        
+        return messages;
+    }
+
+    /**
+     * 4단계 자유 대화를 위한 메시지 구성
+     * - 최근 20개 메시지만 로드하여 토큰 관리
+     * - 이전 대화 요약 포함
+     */
+    public List<Map<String, String>> createForFreeConversation(Member member, ChatRoom chatRoom, String userMessage) {
+        List<Map<String, String>> messages = new ArrayList<>();
+        int chatRoomLevel = chatRoom.getLevel();
+        ChatRoomId chatRoomId = ChatRoomId.of(chatRoom.getId());
+
+        // 1. 사용자 메타데이터
+        String metaDataContent = getMetaDataContent(member);
+        messages.add(createMessageMap(SenderType.USER, metaDataContent));
+
+        // 2. 이전 단계 요약 (MemberChatRoomMetadata)
+        List<MemberChatRoomMetadata> metadataList = memberChatRoomMetadataQueryHelper.getMemberChatRoomMetadata(chatRoomId);
+        if (!metadataList.isEmpty()) {
+            String metadataContent = getMemberChatRoomMetadataContent(metadataList);
+            messages.add(createMessageMap(SenderType.SYSTEM, metadataContent));
+        }
+
+        // 3. 4단계 대화 요약 (ChatMessageSummary) - 있는 경우
+        chatRoomQueryHelper.getLatestSummaryByLevel(chatRoomId, chatRoomLevel)
+                .ifPresent(summary -> {
+                    String summaryContent = "[이전 대화 요약]\n" + summary.getContent();
+                    messages.add(createMessageMap(SenderType.SYSTEM, summaryContent));
+                });
+
+        // 4. 최근 N개 메시지만 로드 (토큰 관리)
+        List<ChatMessage> recentMessages = chatRoomQueryHelper.getRecentMessages(
+                chatRoomId, chatRoomLevel, ChatTokenConstants.FREE_CONVERSATION_RECENT_MESSAGE_LIMIT);
+        for (ChatMessage chatMessage : recentMessages) {
+            messages.add(createMessageMap(chatMessage.getSenderType(), chatMessage.getContent()));
+        }
+
+        // 5. 현재 사용자 메시지 추가
+        messages.add(createMessageMap(SenderType.USER, userMessage));
+
+        return messages;
     }
 }
