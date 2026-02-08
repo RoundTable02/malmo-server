@@ -35,4 +35,6 @@ public class PromptEntity extends BaseTimeEntity {
 
     private boolean isForAnswerMetadata;
 
+    private boolean isForTitleGeneration;
+
 }

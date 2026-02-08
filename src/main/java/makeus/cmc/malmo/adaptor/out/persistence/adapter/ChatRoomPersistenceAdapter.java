@@ -2,13 +2,17 @@ package makeus.cmc.malmo.adaptor.out.persistence.adapter;
 
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatMessageEntity;
+import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatMessageSummaryEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.entity.chat.ChatRoomEntity;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.ChatMessageMapper;
+import makeus.cmc.malmo.adaptor.out.persistence.mapper.ChatMessageSummaryMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.mapper.ChatRoomMapper;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.chat.ChatMessageRepository;
+import makeus.cmc.malmo.adaptor.out.persistence.repository.chat.ChatMessageSummaryRepository;
 import makeus.cmc.malmo.adaptor.out.persistence.repository.chat.ChatRoomRepository;
 import makeus.cmc.malmo.application.port.out.chat.*;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
+import makeus.cmc.malmo.domain.model.chat.ChatMessageSummary;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
@@ -23,21 +27,29 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class ChatRoomPersistenceAdapter
-        implements LoadMessagesPort, SaveChatRoomPort, LoadChatRoomPort, SaveChatMessagePort, DeleteChatRoomPort {
+        implements LoadMessagesPort, SaveChatRoomPort, LoadChatRoomPort, SaveChatMessagePort, DeleteChatRoomPort, SaveChatMessageSummaryPort {
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final ChatMessageSummaryRepository chatMessageSummaryRepository;
     private final ChatRoomMapper chatRoomMapper;
     private final ChatMessageMapper chatMessageMapper;
+    private final ChatMessageSummaryMapper chatMessageSummaryMapper;
 
     @Override
-    public Page<ChatRoomMessageRepositoryDto> loadMessagesDto(ChatRoomId chatRoomId, Pageable pageable) {
-        return chatMessageRepository.loadCurrentMessagesDto(chatRoomId.getValue(), pageable);
+    public Optional<ChatMessage> loadMessageById(Long messageId) {
+        return chatMessageRepository.findById(messageId)
+                .map(chatMessageMapper::toDomain);
     }
 
     @Override
-    public Page<ChatRoomMessageRepositoryDto> loadMessagesDtoAsc(ChatRoomId chatRoomId, Pageable pageable) {
-        return chatMessageRepository.loadCurrentMessagesDtoAsc(chatRoomId.getValue(), pageable);
+    public Page<ChatRoomMessageRepositoryDto> loadMessagesDto(ChatRoomId chatRoomId, MemberId memberId, Pageable pageable) {
+        return chatMessageRepository.loadCurrentMessagesDto(chatRoomId.getValue(), memberId.getValue(), pageable);
+    }
+
+    @Override
+    public Page<ChatRoomMessageRepositoryDto> loadMessagesDtoAsc(ChatRoomId chatRoomId, MemberId memberId, Pageable pageable) {
+        return chatMessageRepository.loadCurrentMessagesDtoAsc(chatRoomId.getValue(), memberId.getValue(), pageable);
     }
 
     @Override
@@ -57,8 +69,31 @@ public class ChatRoomPersistenceAdapter
     }
 
     @Override
-    public Optional<ChatRoom> loadCurrentChatRoomByMemberId(MemberId memberId) {
-        return chatRoomRepository.findCurrentChatRoomByMemberEntityId(memberId.getValue())
+    public List<ChatMessage> loadRecentMessagesByLevel(ChatRoomId chatRoomId, int level, int limit) {
+        List<ChatMessageEntity> entities = chatMessageRepository.findByChatRoomIdAndLevelOrderByCreatedAtDesc(
+                chatRoomId.getValue(), level);
+        return entities.stream()
+                .limit(limit)
+                .map(chatMessageMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public long countMessagesByLevel(ChatRoomId chatRoomId, int level) {
+        return chatMessageRepository.countByChatRoomIdAndLevel(chatRoomId.getValue(), level);
+    }
+
+    @Override
+    public List<ChatRoom> loadActiveChatRoomsByMemberId(MemberId memberId) {
+        return chatRoomRepository.findActiveChatRoomsByMemberEntityId(memberId.getValue())
+                .stream()
+                .map(chatRoomMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public Optional<ChatRoom> loadBeforeInitChatRoomByMemberId(MemberId memberId) {
+        return chatRoomRepository.findBeforeInitChatRoomByMemberEntityId(memberId.getValue())
                 .map(chatRoomMapper::toDomain);
     }
 
@@ -77,19 +112,27 @@ public class ChatRoomPersistenceAdapter
     }
 
     @Override
+    public List<ChatMessage> saveChatMessages(List<ChatMessage> chatMessages) {
+        if (chatMessages == null || chatMessages.isEmpty()) {
+            return List.of();
+        }
+        List<ChatMessageEntity> entities = chatMessages.stream()
+                .map(chatMessageMapper::toEntity)
+                .toList();
+        List<ChatMessageEntity> savedEntities = chatMessageRepository.saveAll(entities);
+        return savedEntities.stream()
+                .map(chatMessageMapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public Optional<ChatRoom> loadChatRoomById(ChatRoomId chatRoomId) {
         return chatRoomRepository.findById(chatRoomId.getValue())
                 .map(chatRoomMapper::toDomain);
     }
 
     @Override
-    public Optional<ChatRoom> loadPausedChatRoomByMemberId(MemberId memberId) {
-        return chatRoomRepository.findPausedChatRoomByMemberEntityId(memberId.getValue())
-                .map(chatRoomMapper::toDomain);
-    }
-
-    @Override
-    public Page<ChatRoom> loadAliveChatRoomsByMemberId(MemberId memberId, String keyword, Pageable pageable) {
+    public Page<ChatRoom> loadChatRoomsByMemberId(MemberId memberId, String keyword, Pageable pageable) {
         Page<ChatRoomEntity> chatRoomEntities = chatRoomRepository.loadChatRoomListByMemberId(memberId.getValue(), keyword, pageable);
         return new PageImpl<>(chatRoomEntities.stream().map(chatRoomMapper::toDomain).toList(),
                 pageable,
@@ -108,5 +151,12 @@ public class ChatRoomPersistenceAdapter
         chatRoomRepository.deleteChatRooms(
                 chatRoomIds.stream().map(ChatRoomId::getValue).toList()
         );
+    }
+
+    @Override
+    public ChatMessageSummary saveChatMessageSummary(ChatMessageSummary chatMessageSummary) {
+        ChatMessageSummaryEntity entity = chatMessageSummaryMapper.toEntity(chatMessageSummary);
+        ChatMessageSummaryEntity savedEntity = chatMessageSummaryRepository.save(entity);
+        return chatMessageSummaryMapper.toDomain(savedEntity);
     }
 }

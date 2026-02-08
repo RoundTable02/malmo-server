@@ -6,18 +6,23 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import makeus.cmc.malmo.adaptor.in.web.docs.ApiCommonResponses;
 import makeus.cmc.malmo.adaptor.in.web.docs.SwaggerResponses;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseListResponse;
 import makeus.cmc.malmo.adaptor.in.web.dto.BaseResponse;
+import makeus.cmc.malmo.application.port.in.chat.CreateChatRoomUseCase;
 import makeus.cmc.malmo.application.port.in.chat.DeleteChatRoomUseCase;
 import makeus.cmc.malmo.application.port.in.chat.GetChatRoomListUseCase;
 import makeus.cmc.malmo.application.port.in.chat.GetChatRoomMessagesUseCase;
 import makeus.cmc.malmo.application.port.in.chat.GetChatRoomSummaryUseCase;
+import makeus.cmc.malmo.application.port.in.chat.SendChatMessageUseCase;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,10 +37,36 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatRoomController {
 
+    private final CreateChatRoomUseCase createChatRoomUseCase;
     private final GetChatRoomSummaryUseCase getChatRoomSummaryUseCase;
     private final GetChatRoomListUseCase getChatRoomListUseCase;
     private final GetChatRoomMessagesUseCase getChatRoomMessagesUseCase;
     private final DeleteChatRoomUseCase deleteChatRoomUseCase;
+    private final SendChatMessageUseCase sendChatMessageUseCase;
+
+    @Operation(
+            summary = "채팅방 생성",
+            description = "새로운 채팅방을 생성합니다. JWT 토큰이 필요합니다.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "채팅방 생성 성공",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.CreateChatRoomResponse.class))
+    )
+    @ApiCommonResponses.RequireAuth
+    @PostMapping
+    public BaseResponse<CreateChatRoomUseCase.CreateChatRoomResponse> createChatRoom(
+            @AuthenticationPrincipal User user) {
+        
+        CreateChatRoomUseCase.CreateChatRoomResponse response = createChatRoomUseCase.createChatRoom(
+                CreateChatRoomUseCase.CreateChatRoomCommand.builder()
+                        .userId(Long.valueOf(user.getUsername()))
+                        .build()
+        );
+        
+        return BaseResponse.success(response);
+    }
 
     @Operation(
             summary = "채팅방 요약 조회",
@@ -114,6 +145,35 @@ public class ChatRoomController {
     }
 
     @Operation(
+            summary = "채팅 메시지 전송",
+            description = "특정 채팅방에 메시지를 전송합니다. AI 응답은 SSE로 전달됩니다. JWT 토큰이 필요합니다.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "메시지 전송 성공",
+            content = @Content(schema = @Schema(implementation = SwaggerResponses.SendChatSuccessResponse.class))
+    )
+    @ApiCommonResponses.RequireAuth
+    @ApiCommonResponses.OnlyOwner
+    @PostMapping("/{chatRoomId}/messages")
+    public BaseResponse<SendChatMessageUseCase.SendChatMessageResponse> sendMessage(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long chatRoomId,
+            @Valid @RequestBody SendMessageRequest request) {
+        
+        SendChatMessageUseCase.SendChatMessageResponse response = sendChatMessageUseCase.processUserMessage(
+                SendChatMessageUseCase.SendChatMessageCommand.builder()
+                        .userId(Long.valueOf(user.getUsername()))
+                        .chatRoomId(chatRoomId)
+                        .message(request.getMessage())
+                        .build()
+        );
+        
+        return BaseResponse.success(response);
+    }
+
+    @Operation(
             summary = "채팅방 삭제",
             description = "채팅방을 id 리스트를 통해 다건 동시 삭제합니다. JWT 토큰이 필요합니다.",
             security = @SecurityRequirement(name = "Bearer Authentication")
@@ -126,7 +186,7 @@ public class ChatRoomController {
     @ApiCommonResponses.RequireAuth
     @ApiCommonResponses.OnlyOwner
     @DeleteMapping
-    public BaseResponse deleteChatRooms(
+    public BaseResponse<Void> deleteChatRooms(
             @AuthenticationPrincipal User user, @RequestBody DeleteChatRoomRequestDto requestDto) {
         DeleteChatRoomUseCase.DeleteChatRoomsCommand command = DeleteChatRoomUseCase.DeleteChatRoomsCommand.builder()
                 .userId(Long.valueOf(user.getUsername()))
@@ -135,6 +195,14 @@ public class ChatRoomController {
         deleteChatRoomUseCase.deleteChatRooms(command);
 
         return BaseResponse.success(null);
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SendMessageRequest {
+        @NotBlank(message = "메시지는 비어있을 수 없습니다.")
+        private String message;
     }
 
     @Data

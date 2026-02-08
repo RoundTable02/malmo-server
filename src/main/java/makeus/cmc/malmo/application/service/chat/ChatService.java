@@ -7,22 +7,21 @@ import makeus.cmc.malmo.adaptor.message.StreamChatMessage;
 import makeus.cmc.malmo.adaptor.message.StreamMessageType;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomCommandHelper;
 import makeus.cmc.malmo.application.helper.chat_room.ChatRoomQueryHelper;
-import makeus.cmc.malmo.application.helper.chat_room.PromptQueryHelper;
 import makeus.cmc.malmo.application.helper.member.MemberQueryHelper;
 import makeus.cmc.malmo.application.helper.outbox.OutboxHelper;
 import makeus.cmc.malmo.application.port.in.chat.SendChatMessageUseCase;
 import makeus.cmc.malmo.domain.model.chat.ChatMessage;
 import makeus.cmc.malmo.domain.model.chat.ChatRoom;
-import makeus.cmc.malmo.domain.model.chat.Prompt;
 import makeus.cmc.malmo.domain.model.member.Member;
 import makeus.cmc.malmo.domain.service.ChatRoomDomainService;
 import makeus.cmc.malmo.domain.value.id.ChatRoomId;
 import makeus.cmc.malmo.domain.value.id.MemberId;
-import makeus.cmc.malmo.domain.value.state.ChatRoomState;
+import makeus.cmc.malmo.util.ChatMessageSplitter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.List;
+import java.util.stream.Collectors;
 
 //import static makeus.cmc.malmo.util.GlobalConstants.FINAL_MESSAGE;
 
@@ -37,7 +36,6 @@ public class ChatService implements SendChatMessageUseCase {
     private final MemberQueryHelper memberQueryHelper;
     private final ChatRoomQueryHelper chatRoomQueryHelper;
     private final ChatRoomCommandHelper chatRoomCommandHelper;
-    private final PromptQueryHelper promptQueryHelper;
 
     private final OutboxHelper outboxHelper;
 
@@ -45,23 +43,20 @@ public class ChatService implements SendChatMessageUseCase {
     @Transactional
     @CheckValidMember
     public SendChatMessageResponse processUserMessage(SendChatMessageCommand command) {
-        // 활성화된 채팅방이 있는지 확인
         MemberId memberId = MemberId.of(command.getUserId());
-        chatRoomQueryHelper.validateChatRoomAlive(memberId);
-
+        ChatRoomId chatRoomId = ChatRoomId.of(command.getChatRoomId());
+        
+        // 명시적 채팅방 ID로 조회 및 소유권 검증
+        chatRoomQueryHelper.validateChatRoomOwnership(memberId, chatRoomId);
+        chatRoomQueryHelper.validateChatRoomActive(chatRoomId);
+        
         Member member = memberQueryHelper.getMemberByIdOrThrow(memberId);
-        ChatRoom chatRoom = chatRoomQueryHelper.getCurrentChatRoomByMemberIdOrThrow(memberId);
+        ChatRoom chatRoom = chatRoomQueryHelper.getChatRoomByIdOrThrow(chatRoomId);
 
-        // 채팅방의 상담 단계가 마지막인 경우 동일한 메시지를 반복하여 전송
-        Prompt prompt = promptQueryHelper.getGuidelinePrompt(chatRoom.getLevel());
-        if (prompt.isForCompletedResponse()) {
-            String finalMessage = prompt.getContent();
-            return handleLastPrompt(chatRoom, command.getMessage(), finalMessage);
-        }
-
-        // 채팅방이 초기화되지 않은 상태인 경우 초기화
-        if (chatRoom.getChatRoomState() == ChatRoomState.BEFORE_INIT) {
-            chatRoom.updateChatRoomStateAlive();
+        if (chatRoom.isBeforeInit()) {
+            chatRoom.initialize();
+            chatRoomCommandHelper.saveChatRoom(chatRoom);
+            log.info("채팅방 상태 전환: BEFORE_INIT -> ALIVE, chatRoomId={}", chatRoomId.getValue());
         }
 
         // 현재 유저 메시지를 저장
@@ -88,20 +83,6 @@ public class ChatService implements SendChatMessageUseCase {
                 .build();
     }
 
-    // upgradeChatRoom 메서드 제거 - 내부 로직으로 통합됨
-
-    private SendChatMessageResponse handleLastPrompt(ChatRoom chatRoom, String userMessage, String finalMessage) {
-        // 마지막 단계에서 고정된 메시지를 반복하여 전송
-        ChatMessage savedUserMessage = saveUserMessage(chatRoom, userMessage);
-
-        chatSseSender.sendLastResponse(chatRoom.getMemberId(), finalMessage);
-        saveAiMessage(chatRoom.getMemberId(), ChatRoomId.of(chatRoom.getId()), 
-                chatRoom.getLevel(), chatRoom.getDetailedLevel(), finalMessage);
-        return SendChatMessageResponse.builder()
-                .messageId(savedUserMessage.getId())
-                .build();
-    }
-
     private ChatMessage saveUserMessage(ChatRoom chatRoom, String message) {
         ChatMessage userMessage = chatRoomDomainService.createUserMessage(
                 ChatRoomId.of(chatRoom.getId()), 
@@ -112,8 +93,23 @@ public class ChatService implements SendChatMessageUseCase {
     }
 
     private void saveAiMessage(MemberId memberId, ChatRoomId chatRoomId, int level, int detailedLevel, String fullAnswer) {
-        ChatMessage aiTextMessage = chatRoomDomainService.createAiMessage(chatRoomId, level, detailedLevel, fullAnswer);
-        ChatMessage savedMessage = chatRoomCommandHelper.saveChatMessage(aiTextMessage);
-        chatSseSender.sendAiResponseId(memberId, savedMessage.getId());
+        // fullAnswer를 문장 단위로 분할하고 세 문장씩 그룹화
+        List<String> groupedTexts = ChatMessageSplitter.splitIntoGroups(fullAnswer);
+        
+        // 각 그룹을 ChatMessage로 생성
+        List<ChatMessage> chatMessages = groupedTexts.stream()
+                .map(groupText -> chatRoomDomainService.createAiMessage(chatRoomId, level, detailedLevel, groupText))
+                .collect(Collectors.toList());
+        
+        // bulk 저장
+        List<ChatMessage> savedMessages = chatRoomCommandHelper.saveChatMessages(chatMessages);
+        
+        // 저장된 메시지들의 ID 리스트 추출
+        List<Long> messageIds = savedMessages.stream()
+                .map(ChatMessage::getId)
+                .collect(Collectors.toList());
+        
+        // SSE로 ID 리스트 전송
+        chatSseSender.sendAiResponseIds(memberId, messageIds);
     }
 }

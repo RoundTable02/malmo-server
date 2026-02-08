@@ -8,8 +8,13 @@ import java.util.concurrent.CompletableFuture;
 public interface ProcessMessageUseCase {
 
     CompletableFuture<Void> processStreamChatMessage(ProcessMessageCommand command);
-    CompletableFuture<Void> processTotalSummary(ProcessTotalSummaryCommand command);
     CompletableFuture<Void> processAnswerMetadata(ProcessAnswerCommand command);
+    
+    // 제목 생성 처리
+    CompletableFuture<Void> processTitleGeneration(ProcessTitleGenerationCommand command);
+    
+    // 4단계 대화 요약 처리
+    CompletableFuture<Void> processConversationSummary(ProcessConversationSummaryCommand command);
 
     @Data
     @Builder
@@ -23,15 +28,22 @@ public interface ProcessMessageUseCase {
 
     @Data
     @Builder
-    class ProcessTotalSummaryCommand {
+    class ProcessAnswerCommand {
+        private Long coupleId;
+        private Long memberId;
+        private Long coupleQuestionId;
+    }
+
+    @Data
+    @Builder
+    class ProcessTitleGenerationCommand {
         private Long chatRoomId;
     }
 
     @Data
     @Builder
-    class ProcessAnswerCommand {
-        private Long coupleId;
-        private Long memberId;
-        private Long coupleQuestionId;
+    class ProcessConversationSummaryCommand {
+        private Long chatRoomId;
+        private int level;
     }
 }

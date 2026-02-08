@@ -32,4 +32,7 @@ public interface PromptRepository extends JpaRepository<PromptEntity, Long> {
 
     @Query("select p from PromptEntity p where p.level = ?1 and p.isForSummary = true")
     Optional<PromptEntity> findByLevelAndIsForSummaryTrue(int level);
+
+    @Query("SELECT p FROM PromptEntity p WHERE p.isForTitleGeneration = true")
+    Optional<PromptEntity> findByIsForTitleGenerationTrue();
 }

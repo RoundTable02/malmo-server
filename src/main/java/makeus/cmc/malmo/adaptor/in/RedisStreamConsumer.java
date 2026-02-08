@@ -64,11 +64,14 @@ public class RedisStreamConsumer {
                 case REQUEST_CHAT_MESSAGE:
                     future = processChatMessage(payloadNode);
                     break;
-                case REQUEST_TOTAL_SUMMARY:
-                    future = processTotalSummary(payloadNode);
-                    break;
                 case REQUEST_EXTRACT_METADATA:
                     future = processMetadata(payloadNode);
+                    break;
+                case REQUEST_TITLE_GENERATION:
+                    future = processTitleGeneration(payloadNode);
+                    break;
+                case REQUEST_CONVERSATION_SUMMARY:
+                    future = processConversationSummary(payloadNode);
                     break;
                 default:
                     log.warn("Unknown message type: {}", type);
@@ -110,20 +113,29 @@ public class RedisStreamConsumer {
         );
     }
 
-    private CompletableFuture<Void> processTotalSummary(JsonNode payloadNode) {
-        return processMessageUseCase.processTotalSummary(
-                ProcessMessageUseCase.ProcessTotalSummaryCommand.builder()
-                        .chatRoomId(payloadNode.get("chatRoomId").asLong())
-                        .build()
-        );
-    }
-
     private CompletableFuture<Void> processMetadata(JsonNode payloadNode) {
         return processMessageUseCase.processAnswerMetadata(
                 ProcessMessageUseCase.ProcessAnswerCommand.builder()
                         .coupleId(payloadNode.get("coupleId").asLong())
                         .memberId(payloadNode.get("memberId").asLong())
                         .coupleQuestionId(payloadNode.get("coupleQuestionId").asLong())
+                        .build()
+        );
+    }
+
+    private CompletableFuture<Void> processTitleGeneration(JsonNode payloadNode) {
+        return processMessageUseCase.processTitleGeneration(
+                ProcessMessageUseCase.ProcessTitleGenerationCommand.builder()
+                        .chatRoomId(payloadNode.get("chatRoomId").asLong())
+                        .build()
+        );
+    }
+
+    private CompletableFuture<Void> processConversationSummary(JsonNode payloadNode) {
+        return processMessageUseCase.processConversationSummary(
+                ProcessMessageUseCase.ProcessConversationSummaryCommand.builder()
+                        .chatRoomId(payloadNode.get("chatRoomId").asLong())
+                        .level(payloadNode.get("level").asInt())
                         .build()
         );
     }

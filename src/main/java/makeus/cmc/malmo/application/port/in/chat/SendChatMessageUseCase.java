@@ -12,6 +12,7 @@ public interface SendChatMessageUseCase {
     @Builder
     class SendChatMessageCommand {
         private Long userId;
+        private Long chatRoomId;  // 명시적으로 채팅방 ID 지정
         private String message;
     }
 
