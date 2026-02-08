@@ -22,6 +22,7 @@ public class PromptMapper {
                 entity.isForTotalSummary(),
                 entity.isForGuideline(),
                 entity.isForAnswerMetadata(),
+                entity.isForTitleGeneration(),
                 entity.getCreatedAt(),
                 entity.getModifiedAt(),
                 entity.getDeletedAt()
@@ -43,6 +44,7 @@ public class PromptMapper {
                 .isForTotalSummary(domain.isForTotalSummary())
                 .isForGuideline(domain.isForGuideline())
                 .isForAnswerMetadata(domain.isForAnswerMetadata())
+                .isForTitleGeneration(domain.isForTitleGeneration())
                 .createdAt(domain.getCreatedAt())
                 .modifiedAt(domain.getModifiedAt())
                 .deletedAt(domain.getDeletedAt())

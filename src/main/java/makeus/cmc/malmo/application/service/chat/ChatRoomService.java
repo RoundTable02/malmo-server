@@ -54,17 +54,18 @@ public class ChatRoomService
     @Override
     @CheckValidMember
     public GetChatRoomListResponse getChatRoomList(GetChatRoomListCommand command) {
-        Page<ChatRoom> chatRoomList = chatRoomQueryHelper.getCompletedChatRoomsByMemberId(
+        Page<ChatRoom> chatRoomList = chatRoomQueryHelper.getChatRoomsByMemberId(
                 MemberId.of(command.getUserId()), command.getKeyword(), command.getPageable()
         );
 
         List<GetChatRoomResponse> response = chatRoomList.getContent().stream()
                 .map(chatRoom -> GetChatRoomResponse.builder()
                         .chatRoomId(chatRoom.getId())
-                        .totalSummary(chatRoom.getTotalSummary())
-                        .situationKeyword(chatRoom.getSituationKeyword())
-                        .solutionKeyword(chatRoom.getSolutionKeyword())
-                        .createdAt(chatRoom.getLastMessageSentTime())
+                        .title(chatRoom.getTitle())  // 제목 (null일 수 있음)
+                        .chatRoomState(chatRoom.getChatRoomState())  // 상태 포함
+                        .level(chatRoom.getLevel())  // 현재 단계
+                        .lastMessageSentTime(chatRoom.getLastMessageSentTime())
+                        .createdAt(chatRoom.getCreatedAt())
                         .build())
                 .toList();
 
@@ -77,10 +78,11 @@ public class ChatRoomService
     @Override
     @CheckValidMember
     public GetCurrentChatRoomMessagesResponse getChatRoomMessages(GetChatRoomMessagesCommand command) {
-        chatRoomQueryHelper.validateChatRoomOwnership(MemberId.of(command.getUserId()), ChatRoomId.of(command.getChatRoomId()));
+        MemberId memberId = MemberId.of(command.getUserId());
+        chatRoomQueryHelper.validateChatRoomOwnership(memberId, ChatRoomId.of(command.getChatRoomId()));
 
         Page<LoadMessagesPort.ChatRoomMessageRepositoryDto> result =
-                chatRoomQueryHelper.getChatMessagesDtoAsc(ChatRoomId.of(command.getChatRoomId()), command.getPageable());
+                chatRoomQueryHelper.getChatMessagesDtoAsc(ChatRoomId.of(command.getChatRoomId()), memberId, command.getPageable());
 
         List<GetChatRoomMessagesUseCase.ChatRoomMessageDto> list = result.stream().map(cm ->
                         GetChatRoomMessagesUseCase.ChatRoomMessageDto.builder()
@@ -88,7 +90,7 @@ public class ChatRoomService
                                 .senderType(cm.getSenderType())
                                 .content(cm.getContent())
                                 .createdAt(cm.getCreatedAt())
-                                .isSaved(cm.isSaved())
+                                .bookmarkId(cm.getBookmarkId())
                                 .build())
                 .toList();
 

@@ -35,6 +35,7 @@ class PromptMapperTest {
                 .isForTotalSummary(false)
                 .isForGuideline(false)
                 .isForAnswerMetadata(false)
+                .isForTitleGeneration(false)
                 .createdAt(now)
                 .modifiedAt(now)
                 .deletedAt(null)
@@ -53,6 +54,7 @@ class PromptMapperTest {
         assertThat(domain.isForTotalSummary()).isEqualTo(entity.isForTotalSummary());
         assertThat(domain.isForGuideline()).isEqualTo(entity.isForGuideline());
         assertThat(domain.isForAnswerMetadata()).isEqualTo(entity.isForAnswerMetadata());
+        assertThat(domain.isForTitleGeneration()).isEqualTo(entity.isForTitleGeneration());
         assertThat(domain.getCreatedAt()).isEqualTo(entity.getCreatedAt());
         assertThat(domain.getModifiedAt()).isEqualTo(entity.getModifiedAt());
         assertThat(domain.getDeletedAt()).isEqualTo(entity.getDeletedAt());
@@ -68,6 +70,7 @@ class PromptMapperTest {
                 1,
                 "prompt content",
                 true,
+                false,
                 false,
                 false,
                 false,
@@ -91,6 +94,7 @@ class PromptMapperTest {
         assertThat(entity.isForTotalSummary()).isEqualTo(domain.isForTotalSummary());
         assertThat(entity.isForGuideline()).isEqualTo(domain.isForGuideline());
         assertThat(entity.isForAnswerMetadata()).isEqualTo(domain.isForAnswerMetadata());
+        assertThat(entity.isForTitleGeneration()).isEqualTo(domain.isForTitleGeneration());
         assertThat(entity.getCreatedAt()).isEqualTo(domain.getCreatedAt());
         assertThat(entity.getModifiedAt()).isEqualTo(domain.getModifiedAt());
         assertThat(entity.getDeletedAt()).isEqualTo(domain.getDeletedAt());

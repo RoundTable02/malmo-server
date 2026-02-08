@@ -19,24 +19,25 @@ public class ChatRoomRepositoryCustomImpl implements ChatRoomRepositoryCustom{
     private final JPAQueryFactory queryFactory;
 
     public Page<ChatRoomEntity> loadChatRoomListByMemberId(Long memberId, String keyword, Pageable pageable) {
-        BooleanExpression keywordCondition = keyword == null || keyword.isEmpty()
+        // DELETED만 제외하고 조회
+        BooleanExpression baseCondition = chatRoomEntity.memberEntityId.value.eq(memberId)
+                .and(chatRoomEntity.chatRoomState.ne(ChatRoomState.DELETED));
+        
+        // 키워드 검색 (제목 기준)
+        BooleanExpression keywordCondition = keyword == null || keyword.isBlank()
                 ? null
-                : chatRoomEntity.totalSummary.containsIgnoreCase(keyword);
+                : chatRoomEntity.title.containsIgnoreCase(keyword);
 
         List<ChatRoomEntity> content = queryFactory.selectFrom(chatRoomEntity)
-                .where(chatRoomEntity.memberEntityId.value.eq(memberId)
-                        .and(chatRoomEntity.chatRoomState.eq(ChatRoomState.COMPLETED))
-                        .and(keywordCondition))
-                .orderBy(chatRoomEntity.createdAt.desc())
+                .where(baseCondition.and(keywordCondition))
+                .orderBy(chatRoomEntity.lastMessageSentTime.desc())  // 최근 활동 순
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
         long total = queryFactory.select(chatRoomEntity.count())
                 .from(chatRoomEntity)
-                .where(chatRoomEntity.memberEntityId.value.eq(memberId)
-                        .and(chatRoomEntity.chatRoomState.eq(ChatRoomState.COMPLETED))
-                        .and(keywordCondition))
+                .where(baseCondition.and(keywordCondition))
                 .fetchOne();
 
         return new PageImpl<>(content, pageable, total);
@@ -47,7 +48,7 @@ public class ChatRoomRepositoryCustomImpl implements ChatRoomRepositoryCustom{
         Long count = queryFactory.select(chatRoomEntity.count())
                 .from(chatRoomEntity)
                 .where(chatRoomEntity.memberEntityId.value.eq(memberId)
-                        .and(chatRoomEntity.chatRoomState.eq(ChatRoomState.COMPLETED))
+                        .and(chatRoomEntity.chatRoomState.ne(ChatRoomState.DELETED))
                         .and(chatRoomEntity.id.in(chatRoomIds)))
                 .fetchOne();
 
@@ -69,7 +70,7 @@ public class ChatRoomRepositoryCustomImpl implements ChatRoomRepositoryCustom{
                 .select(chatRoomEntity.count().intValue())
                 .from(chatRoomEntity)
                 .where(chatRoomEntity.memberEntityId.value.eq(memberId)
-                        .and(chatRoomEntity.chatRoomState.eq(ChatRoomState.COMPLETED)))
+                        .and(chatRoomEntity.chatRoomState.eq(ChatRoomState.ALIVE)))
                 .fetchOne();
     }
 }

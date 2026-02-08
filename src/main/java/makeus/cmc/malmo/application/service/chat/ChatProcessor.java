@@ -2,9 +2,6 @@ package makeus.cmc.malmo.application.service.chat;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import makeus.cmc.malmo.application.port.out.chat.RequestChatApiPort;
@@ -15,6 +12,7 @@ import makeus.cmc.malmo.domain.value.type.SenderType;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -65,26 +63,6 @@ public class ChatProcessor {
         return requestChatApiPort.requestResponse(messages);
     }
 
-    public CompletableFuture<CounselingSummary> requestTotalSummary(List<Map<String, String>> messages,
-                                                                    Prompt systemPrompt,
-                                                                    Prompt totalSummaryPrompt) {
-        messages.add(createMessageMap(SenderType.SYSTEM, systemPrompt.getContent()));
-        messages.add(createMessageMap(SenderType.SYSTEM, "[현재 단계 지시] " + totalSummaryPrompt.getContent()));
-
-        // 비동기 API 호출 후 CompletableFuture<String> 형태로 응답
-        return requestChatApiPort.requestJsonResponse(messages)
-                // 응답(JSON 문자열)이 오면, thenApply를 통해 다음 작업을 연결
-                .thenApply(summaryJson -> {
-                    try {
-                        // JSON 문자열을 CounselingSummary 객체로 파싱
-                        return objectMapper.readValue(summaryJson, CounselingSummary.class);
-                    } catch (JsonProcessingException e) {
-                        log.error("Failed to parse summary JSON: {}", summaryJson, e);
-                        // 예외 발생 시, 런타임 예외로 감싸서 CompletableFuture가 예외를 인지
-                        throw new RuntimeException("Failed to parse summary JSON", e);
-                    }
-                });
-    }
 
     public CompletableFuture<String> requestMetaData(String question,
                                   String memberAnswer,
@@ -122,14 +100,35 @@ public class ChatProcessor {
         return requestChatApiPort.requestResponse(messages);
     }
 
-    public CompletableFuture<String> requestStageSummary(List<Map<String, String>> messages,
-                                                        Prompt systemPrompt,
-                                                        Prompt prompt,
-                                                        Prompt summaryPrompt) {
-        messages.add(createMessageMap(SenderType.SYSTEM, systemPrompt.getContent()));
-        messages.add(createMessageMap(SenderType.SYSTEM, prompt.getContent()));
+    /**
+     * 4단계 자유 대화 요약 생성
+     * @param messages 요약할 메시지 목록
+     * @param summaryPrompt 요약 프롬프트
+     * @return 생성된 요약 문자열
+     */
+    public CompletableFuture<String> requestConversationSummary(List<Map<String, String>> messages,
+                                                                 Prompt summaryPrompt) {
         messages.add(createMessageMap(SenderType.SYSTEM, summaryPrompt.getContent()));
         return requestChatApiPort.requestResponse(messages);
+    }
+
+    /**
+     * 제목 생성 요청
+     * @return 생성된 제목 문자열
+     */
+    public CompletableFuture<String> requestTitleGeneration(List<Map<String, String>> messages, Prompt titlePrompt) {
+        // OpenAI API 호출하여 제목 생성
+        // 짧은 제목 (20자 이내) 생성하도록 프롬프트 구성
+        
+        List<Map<String, String>> promptMessages = new ArrayList<>(messages);
+        promptMessages.add(createMessageMap(SenderType.SYSTEM, titlePrompt.getContent()));
+        
+        return requestChatApiPort.requestResponse(promptMessages)
+                .thenApply(title -> {
+                    // 제목 길이 제한 (최대 50자)
+                    String trimmedTitle = title.trim();
+                    return trimmedTitle.length() > 50 ? trimmedTitle.substring(0, 50) : trimmedTitle;
+                });
     }
 
     private Map<String, String> createMessageMap(SenderType senderType, String content) {
@@ -139,13 +138,4 @@ public class ChatProcessor {
         );
     }
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class CounselingSummary {
-        private String totalSummary;
-        private String situationKeyword;
-        private String solutionKeyword;
-        private String counselingType;
-    }
 }

@@ -35,6 +35,7 @@ class ChatRoomMapperTest {
                 .level(1)
                 .detailedLevel(2)
                 .lastMessageSentTime(now)
+                .title("테스트 제목")
                 .totalSummary("total summary")
                 .situationKeyword("situation")
                 .solutionKeyword("solution")
@@ -55,6 +56,7 @@ class ChatRoomMapperTest {
         assertThat(domain.getLevel()).isEqualTo(entity.getLevel());
         assertThat(domain.getDetailedLevel()).isEqualTo(entity.getDetailedLevel());
         assertThat(domain.getLastMessageSentTime()).isEqualTo(entity.getLastMessageSentTime());
+        assertThat(domain.getTitle()).isEqualTo(entity.getTitle());
         assertThat(domain.getTotalSummary()).isEqualTo(entity.getTotalSummary());
         assertThat(domain.getSituationKeyword()).isEqualTo(entity.getSituationKeyword());
         assertThat(domain.getSolutionKeyword()).isEqualTo(entity.getSolutionKeyword());
@@ -77,6 +79,7 @@ class ChatRoomMapperTest {
                 1,
                 2,
                 now,
+                "테스트 제목",
                 "total summary",
                 "situation",
                 "solution",
@@ -97,6 +100,7 @@ class ChatRoomMapperTest {
         assertThat(entity.getLevel()).isEqualTo(domain.getLevel());
         assertThat(entity.getDetailedLevel()).isEqualTo(domain.getDetailedLevel());
         assertThat(entity.getLastMessageSentTime()).isEqualTo(domain.getLastMessageSentTime());
+        assertThat(entity.getTitle()).isEqualTo(domain.getTitle());
         assertThat(entity.getTotalSummary()).isEqualTo(domain.getTotalSummary());
         assertThat(entity.getSituationKeyword()).isEqualTo(domain.getSituationKeyword());
         assertThat(entity.getSolutionKeyword()).isEqualTo(domain.getSolutionKeyword());
